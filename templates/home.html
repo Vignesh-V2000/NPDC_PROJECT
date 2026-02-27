@@ -1,0 +1,2047 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block hero %}
+<!-- Hero Section with Video Background -->
+<section class="hero-section mb-6">
+    <!-- Background Image Slider -->
+    <div class="hero-media-wrapper">
+        <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel"
+            data-bs-interval="3000" data-bs-pause="false">
+            <div class="carousel-inner h-100">
+                <div class="carousel-item active h-100">
+                    <img src="{% static 'images/slider_images/1.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
+                        alt="Polar Landscape 1">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="{% static 'images/slider_images/2.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
+                        alt="Polar Landscape 2">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="{% static 'images/slider_images/3.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
+                        alt="Polar Landscape 3">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="{% static 'images/slider_images/4.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
+                        alt="Polar Landscape 4">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="{% static 'images/slider_images/5.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
+                        alt="Polar Landscape 5">
+                </div>
+            </div>
+        </div>
+        <div class="hero-overlay"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+
+
+<!-- Features Grid -->
+<section class="mb-6">
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-6">
+            <div class="feature-card h-100">
+                <h4 class="h5 mb-3"><i class="fas fa-search me-2"></i>Data Discovery</h4>
+                <p class="text-secondary mb-3">
+                    Access India's polar research datasets archived at NPDC, covering Arctic, Antarctic, Southern Ocean,
+                    and Himalayan expeditions.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Search by keyword, expedition, or research
+                        region</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Browse datasets with ISO-compliant metadata
+                    </li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Free and open access to scientific data
+                    </li>
+                </ul>
+                <a href="{% url 'search:search' %}" class="btn btn-primary btn-sm mt-3">
+                    <i class="fas fa-arrow-right me-2"></i>Browse Data
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="feature-card h-100">
+                <h4 class="h5 mb-3"><i class="fas fa-upload me-2"></i>Data Submission</h4>
+                <p class="text-secondary mb-3">
+                    Submit your expedition datasets with metadata to NPDC for long-term archival under SCAR-SCADM
+                    standards.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Submit observational data from polar
+                        expeditions</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Guided metadata entry with project linkage
+                    </li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Archived with DOI for citation and reuse
+                    </li>
+                </ul>
+                <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary btn-sm mt-3">
+                    <i class="fas fa-upload me-2"></i>Submit Data
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Advanced Search / Explore Datasets Section                    -->
+<!-- ============================================================ -->
+<section class="mb-6">
+    <div class="text-center mb-4">
+        <h2 class="mb-2"><i class="fas fa-compass me-2 text-primary"></i>Data, Research & Analysis Updates</h2>
+        <p class="text-white-50">Use filters, map, and advanced query builder to find polar research datasets</p>
+    </div>
+
+    <div class="home-search-wrapper">
+        <form id="homeSearchForm" method="get" action="{% url 'search:search' %}">
+            <div class="row g-4">
+                <!-- Left: Filter Sidebar -->
+                <div class="col-lg-3 col-md-4">
+                    <div class="home-search-sidebar">
+                        <div class="home-search-sidebar-header">
+                            <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
+                        </div>
+                        <div class="home-search-sidebar-body">
+
+                            <!-- Text Search -->
+                            <div class="mb-3">
+                                <label class="home-filter-label"><i class="fas fa-search me-1"></i>Keyword
+                                    Search</label>
+                                <input type="text" name="query" class="form-control form-control-sm"
+                                    placeholder="Search datasets...">
+                            </div>
+
+                            <!-- Expedition Type Filter (Checkboxes with Show More/Less) -->
+                            <div class="mb-3">
+                                <label class="home-filter-label"><i class="fas fa-globe-americas me-1"></i>Expedition Type</label>
+                                <div class="filter-group">
+                                    {% for opt in expedition_options %}
+                                    {% if forloop.counter <= 5 %} <div class="form-check">
+                                        <input class="form-check-input home-filter-checkbox" type="checkbox"
+                                            name="expedition" value="{{ opt.value }}" id="home_exp_{{ opt.value }}">
+                                        <label class="form-check-label small" for="home_exp_{{ opt.value }}">
+                                            {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                                        </label>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% if expedition_options|length > 5 %}
+                                <div class="collapse" id="home_collapse_expedition">
+                                    {% for opt in expedition_options %}
+                                    {% if forloop.counter > 5 %}
+                                    <div class="form-check">
+                                        <input class="form-check-input home-filter-checkbox" type="checkbox"
+                                            name="expedition" value="{{ opt.value }}" id="home_exp_{{ opt.value }}">
+                                        <label class="form-check-label small" for="home_exp_{{ opt.value }}">
+                                            {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
+                                    data-bs-toggle="collapse" href="#home_collapse_expedition" role="button"
+                                    aria-expanded="false"
+                                    onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                                    <i class="fas fa-plus-circle me-1"></i>Show More
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Category Filter (Checkboxes with Show More/Less) -->
+                        <div class="mb-3">
+                            <label class="home-filter-label"><i class="fas fa-folder me-1"></i>Category</label>
+                            <div class="filter-group">
+                                {% for opt in category_options %}
+                                {% if forloop.counter <= 5 %} <div class="form-check">
+                                    <input class="form-check-input home-filter-checkbox" type="checkbox" name="category"
+                                        value="{{ opt.value }}" id="home_cat_{{ opt.value }}">
+                                    <label class="form-check-label small" for="home_cat_{{ opt.value }}">
+                                        {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                                    </label>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if category_options|length > 5 %}
+                            <div class="collapse" id="home_collapse_category">
+                                {% for opt in category_options %}
+                                {% if forloop.counter > 5 %}
+                                <div class="form-check">
+                                    <input class="form-check-input home-filter-checkbox" type="checkbox" name="category"
+                                        value="{{ opt.value }}" id="home_cat_{{ opt.value }}">
+                                    <label class="form-check-label small" for="home_cat_{{ opt.value }}">
+                                        {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                                    </label>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
+                                data-bs-toggle="collapse" href="#home_collapse_category" role="button"
+                                aria-expanded="false"
+                                onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                                <i class="fas fa-plus-circle me-1"></i>Show More
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- ISO Topic Filter (Checkboxes with Show More/Less) -->
+                    <div class="mb-3">
+                        <label class="home-filter-label"><i class="fas fa-tags me-1"></i>ISO Topic</label>
+                        <div class="filter-group">
+                            {% for opt in iso_options %}
+                            {% if forloop.counter <= 5 %} <div class="form-check">
+                                <input class="form-check-input home-filter-checkbox" type="checkbox" name="iso"
+                                    value="{{ opt.value }}" id="home_iso_{{ opt.value }}">
+                                <label class="form-check-label small" for="home_iso_{{ opt.value }}">
+                                    {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                                </label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if iso_options|length > 5 %}
+                        <div class="collapse" id="home_collapse_iso">
+                            {% for opt in iso_options %}
+                            {% if forloop.counter > 5 %}
+                            <div class="form-check">
+                                <input class="form-check-input home-filter-checkbox" type="checkbox" name="iso"
+                                    value="{{ opt.value }}" id="home_iso_{{ opt.value }}">
+                                <label class="form-check-label small" for="home_iso_{{ opt.value }}">
+                                    {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
+                            data-bs-toggle="collapse" href="#home_collapse_iso" role="button" aria-expanded="false"
+                            onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                            <i class="fas fa-plus-circle me-1"></i>Show More
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Keywords Filter (Checkboxes with Show More/Less) -->
+                <div class="mb-3">
+                    <label class="home-filter-label"><i class="fas fa-tag me-1"></i>Keywords</label>
+                    <div class="filter-group">
+                        {% for opt in keyword_options %}
+                        {% if forloop.counter <= 5 %} <div class="form-check">
+                            <input class="form-check-input home-filter-checkbox" type="checkbox" name="keyword"
+                                value="{{ opt.value }}" id="home_kw_{{ forloop.counter }}">
+                            <label class="form-check-label small" for="home_kw_{{ forloop.counter }}">
+                                {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                            </label>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if keyword_options|length > 5 %}
+                    <div class="collapse" id="home_collapse_keyword">
+                        {% for opt in keyword_options %}
+                        {% if forloop.counter > 5 %}
+                        <div class="form-check">
+                            <input class="form-check-input home-filter-checkbox" type="checkbox" name="keyword"
+                                value="{{ opt.value }}" id="home_kw_{{ forloop.counter }}">
+                            <label class="form-check-label small" for="home_kw_{{ forloop.counter }}">
+                                {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
+                        data-bs-toggle="collapse" href="#home_collapse_keyword" role="button" aria-expanded="false"
+                        onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                        <i class="fas fa-plus-circle me-1"></i>Show More
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Year Filter (Dropdown - same as search page) -->
+            <div class="mb-3">
+                <label class="home-filter-label"><i class="fas fa-calendar me-1"></i>Expedition Year</label>
+                <select name="year" class="form-select form-select-sm">
+                    <option value="">All Years</option>
+                    {% for opt in year_options %}
+                    <option value="{{ opt.value }}">{{ opt.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <hr class="my-2">
+
+            <!-- Temporal Range -->
+            <label class="home-filter-label"><i class="fas fa-clock me-1"></i>Temporal Range</label>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label class="form-label small mb-1">From</label>
+                    <input type="date" name="start" class="form-control form-control-sm">
+                </div>
+                <div class="col-6">
+                    <label class="form-label small mb-1">To</label>
+                    <input type="date" name="end" class="form-control form-control-sm">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-grid gap-2 mt-3">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search me-1"></i>Search Datasets
+                </button>
+                <button type="reset" class="btn btn-outline-secondary btn-sm" id="homeSearchReset">
+                    <i class="fas fa-undo me-1"></i>Reset
+                </button>
+            </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Right: Map + Advanced Builder -->
+    <div class="col-lg-9 col-md-8">
+        <!-- Interactive Map -->
+        <div class="home-search-map-card">
+            <div class="home-search-map-header">
+                <h6 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Dataset Locations</h6>
+                <span class="badge bg-primary bg-opacity-10 text-primary" id="homeMapCount">0 datasets</span>
+            </div>
+            <div id="homeSearchMap" class="home-search-map"></div>
+        </div>
+
+        <!-- Advanced Query Builder -->
+        <div class="home-search-adv-card mt-3">
+            <a class="home-search-adv-toggle" data-bs-toggle="collapse" href="#homeAdvancedSearch" role="button"
+                aria-expanded="false">
+                <i class="fas fa-sliders-h me-2"></i>Advanced Query Builder
+                <i class="fas fa-chevron-down ms-auto home-search-adv-chevron"></i>
+            </a>
+            <div class="collapse" id="homeAdvancedSearch">
+                <div class="home-search-adv-body">
+                    <div id="homeQueryBuilder">
+                        <!-- Dynamic rows injected by JS -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none px-0 mt-2"
+                        id="homeAddQueryRow">
+                        <i class="fas fa-plus-circle me-1"></i>Add Condition
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </form>
+    </div>
+</section>
+
+
+<!-- Recent & Popular Data -->
+<section class="mb-6">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="data-list-card h-100">
+                <h3 class="data-list-title"><i class="fas fa-clock me-2"></i>Recent Data</h3>
+                <div class="data-list-body">
+                    {% for ds in recent_data %}
+                    <div class="data-list-item">
+                        {% if ds.thumbnail_url %}
+                        <div class="thumb"><img src="{{ ds.thumbnail_url }}" alt="{{ ds.title }}"></div>
+                        {% endif %}
+                        <div class="data-list-main">
+                            <h6 class="data-item-title"><a href="{% url 'data_submission:view_submission' ds.id %}">{{ ds.title }}</a></h6>
+                            <p class="data-item-abstract" style="text-align: justify;">{{ ds.abstract|truncatewords:25 }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No recent datasets available.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="data-list-card h-100">
+                <h3 class="data-list-title"><i class="fas fa-fire me-2"></i>Popular Data</h3>
+                <div class="data-list-body">
+                    {% for ds in popular_data %}
+                    <div class="data-list-item">
+                        {% if ds.thumbnail_url %}
+                        <div class="thumb"><img src="{{ ds.thumbnail_url }}" alt="{{ ds.title }}"></div>
+                        {% endif %}
+                        <div class="data-list-main">
+                            <h6 class="data-item-title"><a href="{% url 'data_submission:view_submission' ds.id %}">{{ ds.title }}</a></h6>
+                            <p class="data-item-abstract" style="text-align: justify;">{{ ds.abstract|truncatewords:25 }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No popular datasets available.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Dashboard Charts -->
+<section class="mb-6">
+    <div class="row g-4">
+        <!-- Row 1: Keywords and ISO Topics -->
+        <div class="col-lg-6">
+            <div class="chart-card h-100 p-3">
+                <h3 class="chart-title mb-3">Science keywords</h3>
+                <div class="d-flex align-items-center justify-content-between" style="height: 250px;">
+                    <div style="width: 50%; height: 100%; position: relative;">
+                        <canvas id="keywordsChart"></canvas>
+                        <!-- Center text for Doughnut -->
+                        <div
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <!-- Optional: Total count or center text -->
+                        </div>
+                    </div>
+                    <div id="keywordsLegend" style="width: 50%; padding-left: 15px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card h-100 p-3">
+                <h3 class="chart-title mb-3">ISO Topics</h3>
+                <div class="d-flex align-items-center justify-content-between" style="height: 250px;">
+                    <div style="width: 50%; height: 100%; position: relative;">
+                        <canvas id="isoChart"></canvas>
+                    </div>
+                    <div id="isoLegend" style="width: 50%; padding-left: 15px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Location and Trends -->
+        <div class="col-lg-6">
+            <div class="chart-card h-100 p-3">
+                <h3 class="chart-title mb-3">Location</h3>
+                <div class="d-flex align-items-center justify-content-between" style="height: 250px;">
+                    <div style="width: 50%; height: 100%; position: relative;">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                    <div id="locationLegend" style="width: 50%; padding-left: 15px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card h-100 p-3" style="font-size: 0.9rem;">
+                <h3 class="chart-title mb-3 text-center compact-year-title" style="font-size: 1.0rem;">
+                    Summary of Data
+                </h3>
+
+                <div class="row g-3" id="summaryCardsRow" style="margin-top: 6px;">
+                    <div class="col-6 col-md-6 col-lg-6">
+                        <div class="metric-card p-3">
+                            <div class="metric-info">
+                                <span class="metric-label">Total Published Data</span>
+                                <h4 class="metric-value">{{ metadata_count }}</h4>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-database"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6 col-lg-6">
+                        <div class="metric-card p-3">
+                            <div class="metric-info">
+                                <span class="metric-label">Total Users</span>
+                                <h4 class="metric-value">{{ total_users }}</h4>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-users"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6 col-lg-6">
+                        <div class="metric-card p-3">
+                            <div class="metric-info">
+                                <span class="metric-label">Contributed By</span>
+                                <h4 class="metric-value">{{ researcher_count }}</h4>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-user"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6 col-lg-6">
+                        <div class="metric-card p-3">
+                            <div class="metric-info">
+                                <span class="metric-label">Total Downloads</span>
+                                <h4 class="metric-value">{{ download_count }}</h4>
+                            </div>
+                            <div class="metric-icon"><i class="fas fa-download"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .custom-legend-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .custom-legend-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        color: #333;
+    }
+
+    .custom-legend-label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    /* Compact summary tables to match graph card sizing */
+    .compact-table {
+        border-color: #8ab4f8;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .compact-table th,
+    .compact-table td {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.92rem;
+        vertical-align: middle;
+        border-color: #cfe3ff !important;
+    }
+
+    .compact-table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Slightly reduce spacing between tables and cards */
+    .table-responsive {
+        margin-top: 0.5rem;
+    }
+
+    /* Compact year title */
+    .compact-year-title {
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        margin-bottom: 0.4rem;
+    }
+
+    .custom-legend-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .custom-legend-value {
+        font-weight: 500;
+        color: #555;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Configuration & Helpers ---
+
+        // Palette matching the reference image (Dark Blues/Navys)
+        const CHART_COLORS = [
+            '#4b7bec', // Atmosphere (Light Blue)
+            '#0a3d62', // Oceans (Dark Navy)
+            '#3c6382', // Biosphere (Slate Blue)
+            '#0c2461', // Cryosphere (Deep Navy)
+            '#82ccdd', // Bio Class (Pale Blue)
+            '#60a3bc', // Extra
+            '#827ffe'  // Extra
+        ];
+
+        // Helper to calculate total for percentages
+        function calculateTotal(data) {
+            return data.reduce((a, b) => a + b, 0);
+        }
+
+        // Custom Legend Generator
+        function generateCustomLegend(chart, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const data = chart.data.datasets[0].data;
+            const labels = chart.data.labels;
+            const bgColors = chart.data.datasets[0].backgroundColor;
+            const total = calculateTotal(data);
+
+            let html = '<ul class="custom-legend-list">';
+
+            labels.forEach((label, index) => {
+                const value = data[index];
+                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                const color = bgColors[index % bgColors.length];
+
+                html += `
+                    <li class="custom-legend-item">
+                        <div class="custom-legend-label">
+                            <span class="custom-legend-dot" style="background-color: ${color};"></span>
+                            ${label.toUpperCase()}
+                        </div>
+                        <span class="custom-legend-value">${percentage} %</span>
+                    </li>
+                `;
+            });
+
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        // Plugin to draw data labels on top of bars
+        const topLabelsPlugin = {
+            id: 'topLabels',
+            afterDatasetsDraw(chart, args, options) {
+                const { ctx } = chart;
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {
+                        const value = dataset.data[index] + ' '; // Add space for padding if needed
+                        ctx.save();
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 11px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        ctx.fillText(value, bar.x, bar.y - 5);
+                        ctx.restore();
+                    });
+                });
+            }
+        };
+
+        // --- Chart Initializations ---
+
+        // Data from json_script tags
+        const keywordsDataObj = JSON.parse(document.getElementById('keywords-data').textContent);
+        const isoDataObj = JSON.parse(document.getElementById('iso-data').textContent);
+        const locationDataObj = JSON.parse(document.getElementById('location-data').textContent);
+        const trendDataObj = JSON.parse(document.getElementById('trend-data').textContent);
+
+        // 1. Science Keywords Chart
+        const keywordsData = keywordsDataObj.data;
+        const keywordsLabels = keywordsDataObj.labels;
+
+        const keywordsCtx = document.getElementById('keywordsChart').getContext('2d');
+        const keywordsChart = new Chart(keywordsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: keywordsLabels,
+                datasets: [{
+                    data: keywordsData,
+                    backgroundColor: CHART_COLORS,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '55%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart._metasets[context.datasetIndex].total;
+                                const percentage = Math.round((value / total) * 100) + '%';
+                                return label + ': ' + value + ' (' + percentage + ')';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        generateCustomLegend(keywordsChart, 'keywordsLegend');
+
+
+        // 2. ISO Topics Chart
+        const isoData = isoDataObj.data;
+        const isoLabels = isoDataObj.labels;
+
+        const isoCtx = document.getElementById('isoChart').getContext('2d');
+        const isoChart = new Chart(isoCtx, {
+            type: 'doughnut',
+            data: {
+                labels: isoLabels,
+                datasets: [{
+                    data: isoData,
+                    backgroundColor: CHART_COLORS, // Reuse palette
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '55%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        generateCustomLegend(isoChart, 'isoLegend');
+
+
+        // 3. Location Chart
+        const locationData = locationDataObj.data;
+        const locationLabels = locationDataObj.labels;
+
+        const locationCtx = document.getElementById('locationChart').getContext('2d');
+        const locationChart = new Chart(locationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: locationLabels,
+                datasets: [{
+                    data: locationData,
+                    backgroundColor: CHART_COLORS, // Reuse palette
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '55%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        generateCustomLegend(locationChart, 'locationLegend');
+
+
+        // 4. Summary of Data — values rendered server-side, no year-based fetch needed.
+
+    });
+</script>
+
+
+
+<!-- Metadata Dashboard -->
+<section class="mb-6">
+    <!-- Metric cards removed -->
+
+    <!-- Visualizations Row -->
+    <div class="row g-4">
+        <!-- Keywords Wordcloud -->
+        <div class="col-lg-6">
+            <div class="viz-card h-100">
+                <h3 class="viz-title">Keywords</h3>
+                <div class="viz-container" id="wordcloud-container" style="overflow: hidden;">
+                    <canvas id="wordcloud_canvas" style="width: 100%; height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Usage by Country Map -->
+        <div class="col-lg-6">
+            <div class="viz-card h-100">
+                <h3 class="viz-title">Usage by country <span class="badge bg-warning text-dark ms-2"
+                        style="font-size: 0.7em;">last 5 years data</span></h3>
+                <div class="viz-container" id="map-container"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Wordcloud Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
+<!-- Leaflet Map Library -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Wordcloud
+        const wordcloudList = JSON.parse(document.getElementById('wordcloud-data').textContent);
+
+        // Resize canvas to fit container
+        const wcCanvas = document.getElementById('wordcloud_canvas');
+        const wcContainer = document.getElementById('wordcloud-container');
+        wcCanvas.width = wcContainer.offsetWidth;
+        wcCanvas.height = 300;
+
+        // Log-normalize font sizes so dominant keywords don't overwhelm small ones
+        const wcValues = wordcloudList.map(w => w[1]);
+        const wcMax = wcValues.length > 0 ? Math.max(...wcValues) : 1;
+        const wcMin = wcValues.length > 0 ? Math.min(...wcValues) : 1;
+        const logWcMax = Math.log(wcMax + 1);
+        const logWcMin = Math.log(wcMin + 1);
+        const wcFontMin = 12, wcFontMax = 52;
+
+        WordCloud(wcCanvas, {
+            list: wordcloudList,
+            gridSize: 8,
+            weightFactor: function (size) {
+                if (logWcMax === logWcMin) return (wcFontMin + wcFontMax) / 2;
+                const t = (Math.log(size + 1) - logWcMin) / (logWcMax - logWcMin);
+                return wcFontMin + t * (wcFontMax - wcFontMin);
+            },
+            fontFamily: 'Poppins, sans-serif',
+            color: 'random-dark',
+            rotateRatio: 0.4,
+            rotationSteps: 2,
+            backgroundColor: '#ffffff',
+            shuffle: true,
+            minRotation: -1.57,
+            maxRotation: 1.57,
+            shape: 'circle',
+            ellipticity: 1.3,
+            clearCanvas: true,
+            drawOutOfBound: false,
+            shrinkToFit: true
+        });
+
+        // 2. Usage by Country Map
+        var countrySW = L.latLng(-85, -180);
+        var countryNE = L.latLng(85, 180);
+        var countryBounds = L.latLngBounds(countrySW, countryNE);
+
+        const map = L.map('map-container', {
+            center: [20, 0],
+            zoom: 2,
+            minZoom: 2,
+            maxBounds: countryBounds,
+            maxBoundsViscosity: 1.0,
+            worldCopyJump: false,
+            attributionControl: false
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            noWrap: true
+        }).addTo(map);
+
+        const countryData = JSON.parse(document.getElementById('country-data').textContent);
+        // Simple coordinates for demo countries (approx centers)
+        const countryCoords = {
+            'India': [20.5937, 78.9629],
+            'USA': [37.0902, -95.7129],
+            'UK': [55.3781, -3.4360],
+            'Norway': [60.4720, 8.4689],
+            'Germany': [51.1657, 10.4515],
+            'Japan': [36.2048, 138.2529],
+            'Australia': [-25.2744, 133.7751],
+            'China': [35.8617, 104.1954],
+            'Russia': [61.5240, 105.3188],
+            'Brazil': [-14.2350, -51.9253]
+        };
+
+        for (const [country, count] of Object.entries(countryData)) {
+            if (countryCoords[country]) {
+                L.circleMarker(countryCoords[country], {
+                    radius: Math.sqrt(count) * 2, // Scale radius by count
+                    fillColor: "#007bff",
+                    color: "#0056b3",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.6
+                }).bindPopup(`<b>${country}</b><br>Users: ${count}`).addTo(map);
+            }
+        }
+    });
+</script>
+
+
+
+
+{{ home_map_data|json_script:"home-map-data" }}
+{{ keywords_data|json_script:"keywords-data" }}
+{{ iso_data|json_script:"iso-data" }}
+{{ location_data|json_script:"location-data" }}
+{{ trend_data|json_script:"trend-data" }}
+{{ wordcloud_data|json_script:"wordcloud-data" }}
+{{ country_data|json_script:"country-data" }}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Map Initialization - no markers by default, only on filter interaction
+        var homeMapEl = document.getElementById('homeSearchMap');
+        if (homeMapEl && typeof L !== 'undefined') {
+            var southWest = L.latLng(-85, -180);
+            var northEast = L.latLng(85, 180);
+            var bounds = L.latLngBounds(southWest, northEast);
+
+            var homeMap = L.map('homeSearchMap', {
+                center: [-60, 0],
+                zoom: 2,
+                minZoom: 1,
+                maxBounds: bounds,
+                maxBoundsViscosity: 1.0,
+                worldCopyJump: false,
+                attributionControl: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '',
+                noWrap: true
+            }).addTo(homeMap);
+
+            var markersGroup = L.featureGroup().addTo(homeMap);
+            var mapData = [];
+            try {
+                var scriptEl = document.getElementById('home-map-data');
+                if (scriptEl) {
+                    // Use innerHTML instead of textContent for better compatibility with script tags
+                    var jsonContent = scriptEl.innerHTML || scriptEl.textContent;
+                    mapData = JSON.parse(jsonContent);
+                } else {
+                    console.warn('home-map-data script element not found');
+                }
+            } catch (e) {
+                console.error('Home map data parse error:', e);
+                // Fallback: show empty dataset count if parsing fails
+                mapData = [];
+            }
+
+            // Update count label only (no markers by default)
+            if (mapData && Array.isArray(mapData)) {
+                document.getElementById('homeMapCount').textContent = mapData.length + ' dataset' + (mapData.length !== 1 ? 's' : '');
+            } else {
+                document.getElementById('homeMapCount').textContent = '0 datasets';
+            }
+
+            // Function to add markers — called when user interacts with filters
+            window.showHomeMapMarkers = function () {
+                markersGroup.clearLayers();
+                // Get all selected filter values
+                var selectedFilters = {
+                    expedition: Array.from(document.querySelectorAll('input[name="expedition"]:checked')).map(cb => cb.value),
+                    category: Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value),
+                    iso: Array.from(document.querySelectorAll('input[name="iso"]:checked')).map(cb => cb.value),
+                    keyword: Array.from(document.querySelectorAll('input[name="keyword"]:checked')).map(cb => cb.value)
+                };
+
+                // If no filters are selected, show 0 markers
+                var hasAnyFilter = Object.values(selectedFilters).some(arr => arr.length > 0);
+                if (!hasAnyFilter) {
+                    document.getElementById('homeMapCount').textContent = '0 datasets';
+                    return;
+                }
+
+                var count = 0;
+                mapData.forEach(function (item) {
+                    // Start by assuming it matches
+                    var matches = true;
+
+                    // Filter logic: if a filter category has selections, the item must match at least one
+                    if (selectedFilters.expedition.length > 0) {
+                        if (!selectedFilters.expedition.includes(item.expedition_type)) matches = false;
+                    }
+                    if (selectedFilters.category.length > 0) {
+                        if (!item.category || !selectedFilters.category.some(cat => item.category.includes(cat))) matches = false;
+                    }
+                    if (selectedFilters.iso.length > 0) {
+                        if (!item.iso_topic || !selectedFilters.iso.some(iso => item.iso_topic.includes(iso))) matches = false;
+                    }
+                    if (selectedFilters.keyword.length > 0) {
+                        if (!item.keywords || !selectedFilters.keyword.some(kw => item.keywords.includes(kw))) matches = false;
+                    }
+
+                    if (matches && item.west_longitude !== null && item.north_latitude !== null) {
+                        var lat = (item.south_latitude + item.north_latitude) / 2;
+                        var lng = (item.west_longitude + item.east_longitude) / 2;
+
+                        var marker = L.marker([lat, lng]);
+                        marker.bindPopup('<strong>' + item.title + '</strong><br><a href="/data/view/' + item.id + '/">View Dataset</a>');
+                        var timer;
+
+                        marker.on('mouseover', function (e) {
+                            if (timer) clearTimeout(timer);
+                            this.openPopup();
+                        });
+
+                        marker.on('mouseout', function (e) {
+                            var self = this;
+                            timer = setTimeout(function () {
+                                self.closePopup();
+                            }, 300);
+                        });
+
+                        marker.on('popupopen', function () {
+                            var popup = this.getPopup();
+                            var popupEl = popup.getElement();
+                            if (popupEl) {
+                                popupEl.addEventListener('mouseenter', function () {
+                                    if (timer) clearTimeout(timer);
+                                });
+                                popupEl.addEventListener('mouseleave', function () {
+                                    timer = setTimeout(function () {
+                                        marker.closePopup();
+                                    }, 300);
+                                });
+                            }
+                        });
+
+                        marker.addTo(markersGroup);
+                        count++;
+                    }
+                });
+
+                document.getElementById('homeMapCount').textContent = count + ' dataset' + (count !== 1 ? 's' : '');
+
+                if (markersGroup.getLayers().length > 0) {
+                    homeMap.fitBounds(markersGroup.getBounds(), { padding: [20, 20], maxZoom: 5 });
+                }
+            };
+
+            // Show markers when any filter checkbox or select changes
+            document.querySelectorAll('.home-filter-checkbox, #homeSearchForm select').forEach(function (el) {
+                el.addEventListener('change', function () {
+                    window.showHomeMapMarkers();
+                });
+            });
+
+            setTimeout(function () { homeMap.invalidateSize(); }, 200);
+        }
+
+        // Advanced Query Builder
+        var HOME_FIELDS = [
+            { value: 'all', label: 'All Fields', type: 'text' },
+            { value: 'title', label: 'Title', type: 'text' },
+            { value: 'abstract', label: 'Abstract', type: 'text' },
+            { value: 'person', label: 'Person', type: 'text' },
+            { value: 'keywords', label: 'Keywords', type: 'text' },
+            { value: 'project', label: 'Project Name', type: 'text' },
+            { value: 'doi', label: 'DOI', type: 'text' },
+            {
+                value: 'expedition', label: 'Expedition Type', type: 'select', choices: [{% for v, d in expedition_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" }{% if not forloop.last %}, {% endif %} {% endfor %}]},
+    {
+        value: 'category', label: 'Category', type: 'select', choices: [
+            {% for v, d in category_choices %} { value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" } {% if not forloop.last %}, {% endif %} {% endfor %}
+        ]},
+    {
+        value: 'iso', label: 'ISO Topic', type: 'select', choices: [
+            {% for v, d in iso_choices %} { value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" } {% if not forloop.last %}, {% endif %} {% endfor %}
+        ]},
+    {
+        value: 'platform', label: 'Platform', type: 'select', choices: [
+            {% for name in platform_list %} { value: "{{ name|escapejs }}", label: "{{ name|escapejs }}" } {% if not forloop.last %}, {% endif %} {% endfor %}
+        ]},
+    {
+        value: 'instrument', label: 'Instrument', type: 'select', choices: [
+            {% for name in instrument_list %} { value: "{{ name|escapejs }}", label: "{{ name|escapejs }}" } {% if not forloop.last %}, {% endif %} {% endfor %}
+        ]},
+    { value: 'submission_date', label: 'Submission Date', type: 'date' }
+    ];
+
+    var HOME_OPS = [
+        { value: 'and', label: 'AND' },
+        { value: 'or', label: 'OR' }
+    ];
+
+    function createHomeRow(index) {
+        var row = document.createElement('div');
+        row.className = 'row g-2 mb-2 align-items-center home-query-row';
+
+        var colOp = document.createElement('div');
+        colOp.className = 'col-sm-2';
+        var selOp = document.createElement('select');
+        selOp.name = 'adv_op';
+        selOp.className = 'form-select form-select-sm';
+        HOME_OPS.forEach(function (o) {
+            var opt = document.createElement('option');
+            opt.value = o.value;
+            opt.textContent = o.label;
+            selOp.appendChild(opt);
+        });
+        colOp.appendChild(selOp);
+        row.appendChild(colOp);
+
+        var colField = document.createElement('div');
+        colField.className = 'col-sm-3';
+        var selField = document.createElement('select');
+        selField.name = 'adv_field';
+        selField.className = 'form-select form-select-sm';
+        HOME_FIELDS.forEach(function (f) {
+            var opt = document.createElement('option');
+            opt.value = f.value;
+            opt.textContent = f.label;
+            selField.appendChild(opt);
+        });
+        colField.appendChild(selField);
+        row.appendChild(colField);
+
+        var colVal = document.createElement('div');
+        colVal.className = 'col-sm-6';
+
+        function renderInput(fieldConfig) {
+            colVal.innerHTML = '';
+            var inputEl;
+            if (fieldConfig.type === 'select' && fieldConfig.choices) {
+                inputEl = document.createElement('select');
+                inputEl.className = 'form-select form-select-sm';
+                var defOpt = document.createElement('option');
+                defOpt.value = '';
+                defOpt.textContent = 'Select...';
+                inputEl.appendChild(defOpt);
+                fieldConfig.choices.forEach(function (c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.value;
+                    opt.textContent = c.label;
+                    inputEl.appendChild(opt);
+                });
+            } else if (fieldConfig.type === 'date') {
+                inputEl = document.createElement('input');
+                inputEl.type = 'date';
+                inputEl.className = 'form-control form-control-sm';
+            } else {
+                inputEl = document.createElement('input');
+                inputEl.type = 'text';
+                inputEl.className = 'form-control form-control-sm';
+                inputEl.placeholder = 'Value...';
+            }
+            inputEl.name = 'adv_val';
+            colVal.appendChild(inputEl);
+        }
+
+        var initialField = HOME_FIELDS.find(function (f) { return f.value === 'all'; });
+        renderInput(initialField);
+
+        selField.addEventListener('change', function () {
+            var newField = HOME_FIELDS.find(function (f) { return f.value === selField.value; });
+            renderInput(newField);
+        });
+
+        row.appendChild(colVal);
+
+        var colAct = document.createElement('div');
+        colAct.className = 'col-sm-1';
+        if (document.querySelectorAll('.home-query-row').length > 0) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-danger w-100';
+            btn.innerHTML = '<i class="fas fa-minus"></i>';
+            btn.onclick = function () { row.remove(); };
+            colAct.appendChild(btn);
+        }
+        row.appendChild(colAct);
+
+        return row;
+    }
+
+    var homeBuilderContainer = document.getElementById('homeQueryBuilder');
+    var homeAddBtn = document.getElementById('homeAddQueryRow');
+    if (homeAddBtn && homeBuilderContainer) {
+        homeBuilderContainer.appendChild(createHomeRow(0));
+        homeAddBtn.addEventListener('click', function () {
+            homeBuilderContainer.appendChild(createHomeRow(homeBuilderContainer.children.length));
+        });
+    }
+
+    // Toggle chevron on collapse
+    var advCollapse = document.getElementById('homeAdvancedSearch');
+    if (advCollapse) {
+        advCollapse.addEventListener('show.bs.collapse', function () {
+            document.querySelector('.home-search-adv-chevron').style.transform = 'rotate(180deg)';
+        });
+        advCollapse.addEventListener('hide.bs.collapse', function () {
+            document.querySelector('.home-search-adv-chevron').style.transform = 'rotate(0deg)';
+        });
+    }
+});
+</script>
+
+<!-- CTA Section -->
+<section class="cta-section mb-6">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h2 class="h3 mb-3">Ready to Contribute to Polar Science?</h2>
+            <p class="text-secondary mb-4">
+                Join researchers worldwide in advancing our understanding of Earth's frozen regions.
+                Submit your data or explore existing research datasets.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="d-flex flex-column flex-lg-row gap-3">
+                {% if user.is_authenticated %}
+                <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary px-4 py-3">
+                    <i class="fas fa-upload me-2"></i>Submit Data
+                </a>
+                {% else %}
+                <a href="{% url 'users:register' %}" class="btn btn-primary px-4 py-3">
+                    <i class="fas fa-user-plus me-2"></i>Register Now
+                </a>
+                <a href="{% url 'users:login' %}" class="btn btn-outline-primary px-4 py-3">
+                    <i class="fas fa-sign-in-alt me-2"></i>Researcher Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Research Regions -->
+<section class="mb-6">
+    <h2 class="text-center mb-5">Research Regions</h2>
+    <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-4">
+
+        <div class="col">
+            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
+                <div class="region-card antarctic-card h-100">
+                    <div class="region-header p-0">
+                        <img src="{% static 'images/stations/Maitri.jpg' %}" class="w-100" alt="Antarctic"
+                            style="height: 180px; object-fit: cover;">
+                    </div>
+                    <div class="region-body py-3 text-center">
+                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Antarctic</h4>
+
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
+                <div class="region-card arctic-card h-100">
+                    <div class="region-header p-0">
+                        <img src="{% static 'images/stations/tn_arctic.png' %}" class="w-100" alt="Arctic"
+                            style="height: 180px; object-fit: cover;">
+                    </div>
+                    <div class="region-body py-3 text-center">
+                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Arctic</h4>
+
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
+                <div class="region-card southern-card h-100">
+                    <div class="region-header p-0">
+                        <img src="{% static 'images/stations/tn_soe.jpg' %}" class="w-100" alt="Southern Ocean"
+                            style="height: 180px; object-fit: cover;">
+                    </div>
+                    <div class="region-body py-3 text-center">
+                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Southern Ocean</h4>
+
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
+                <div class="region-card himalayan-card h-100">
+                    <div class="region-header p-0">
+                        <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="w-100" alt="Himalayas"
+                            style="height: 180px; object-fit: cover;">
+                    </div>
+                    <div class="region-body py-3 text-center">
+                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Himalayas</h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+</div>
+<!-- Home Page Specific Styles -->
+<style>
+    /* Section Spacing */
+    .mb-6 {
+        margin-bottom: 4.5rem !important;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        padding: 5rem 0;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        color: #ffffff;
+    }
+
+    /* Force hero heading & paragraph to white */
+    .hero-section h1,
+    .hero-section p,
+    .hero-section .lead {
+        color: #ffffff;
+    }
+
+
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("{% static 'images/pattern-snow.svg' %}") center/cover;
+        opacity: 0.1;
+        pointer-events: none;
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-illustration {
+        position: relative;
+    }
+
+    .globe-gradient {
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        padding: 2rem;
+        display: inline-block;
+    }
+
+    .floating-icons {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .icon-circle {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .icon-circle:nth-child(2) {
+        animation-delay: 1s;
+    }
+
+    .icon-circle:nth-child(3) {
+        animation-delay: 2s;
+    }
+
+    .icon-circle:nth-child(4) {
+        animation-delay: 3s;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    /* Mission Card */
+    .mission-card {
+        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+        border-radius: var(--border-radius-lg);
+        padding: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .mission-icon {
+        font-size: 8rem;
+        color: var(--accent-teal);
+        opacity: 0.8;
+    }
+
+    /* Statistics Cards */
+    .stat-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s ease;
+        text-align: center;
+        height: 100%;
+        color: #333333;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--secondary-blue) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 1.8rem;
+    }
+
+    .stat-content h3 {
+        color: var(--primary-blue) !important;
+    }
+
+    .stat-content p,
+    .stat-content small {
+        color: #333333;
+    }
+
+    /* Feature Cards — NSIDC-inspired: clean, modern, minimal borders */
+    .feature-card {
+        background: #fafbfc;
+        border: 1px solid #e0e6ed;
+        border-radius: 8px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        color: #2c3e50;
+    }
+
+    .feature-card:hover {
+        border-color: var(--accent-teal);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .feature-card h4 {
+        color: var(--primary-blue) !important;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card p,
+    .feature-card li {
+        color: #4a5568;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(0, 163, 161, 0.1);
+        border-radius: var(--border-radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--accent-teal);
+        font-size: 1.5rem;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .feature-list li {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Region Cards — Clean layout with subtle shadows */
+    .region-card {
+        background: #fafbfc;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        color: #2c3e50;
+        border: 1px solid #e0e6ed;
+    }
+
+    .region-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .region-card h4 {
+        color: var(--primary-blue) !important;
+        min-height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        padding: 0 1rem;
+        text-align: center;
+        line-height: 1.4;
+    }
+
+    .region-card p {
+        color: #4a5568;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+    }
+
+    .region-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .region-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--border-radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .arctic-card .region-icon {
+        background: #3B82F6;
+    }
+
+    .antarctic-card .region-icon {
+        background: #8B5CF6;
+    }
+
+    .himalayan-card .region-icon {
+        background: #10B981;
+    }
+
+    .region-body {
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .region-stats {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        background: var(--light-gray);
+        color: var(--text-secondary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Recent & Popular Data Cards */
+    .data-list-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(12, 30, 60, 0.06);
+        border-top: 4px solid rgba(3, 102, 214, 0.12);
+        color: #2c3e50;
+    }
+
+    .data-list-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--primary-blue) !important;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    .data-list-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eef3f8;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .data-list-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .data-item-title {
+        font-size: 1.0rem;
+        font-weight: 700;
+        color: #102a43 !important;
+        margin-bottom: 0.2rem;
+    }
+
+    .data-item-title a {
+	@@ -1708,10 +1746,25 @@ <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Himalayas</h4>
+    }
+
+    .data-item-abstract {
+        font-size: 0.9rem;
+        color: #475569;
+        margin-bottom: 0;
+        line-height: 1.6;
+    }
+
+    .data-list-item .thumb {
+        width: 84px;
+        height: 56px;
+        flex: 0 0 84px;
+        overflow: hidden;
+        border-radius: 6px;
+        background-color: #dbeafe;
+    }
+
+    .data-list-item .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+        border-radius: var(--border-radius-lg);
+        padding: 3rem;
+        color: #333333;
+    }
+
+    .cta-section h2 {
+        color: var(--primary-blue) !important;
+    }
+
+    .cta-section p {
+        color: #333333;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+
+        .mission-card {
+            padding: 2rem;
+        }
+
+        .mission-icon {
+            font-size: 5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card,
+        .feature-card,
+        .region-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .cta-section .btn {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+
+        .display-5 {
+            font-size: 2.5rem;
+        }
+    }
+
+    /* Chart Cards */
+    .chart-card {
+        background: #fff;
+        border-radius: var(--border-radius-md);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        color: #333333;
+    }
+
+    .chart-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-blue) !important;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #f0f2f5;
+        padding-bottom: 0.8rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+
+
+    /* Metric Cards */
+    .metric-card {
+        background: #fff;
+        border: 1px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s;
+        color: #333333;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .metric-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666666;
+        text-transform: uppercase;
+        margin-bottom: 0.2rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--primary-blue) !important;
+        margin: 0;
+    }
+
+    .metric-icon {
+        font-size: 1.8rem;
+        color: var(--secondary-blue);
+        opacity: 0.8;
+    }
+
+    /* Viz Cards */
+    .viz-card {
+        background: #fff;
+        border: 1px solid var(--medium-gray);
+        border-radius: var(--border-radius-sm);
+        padding: 0;
+        /* Header is separate */
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        color: #333333;
+    }
+
+    .viz-title {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary-blue) !important;
+        border-bottom: 1px solid var(--medium-gray);
+        margin: 0;
+    }
+
+    .viz-container {
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 350px;
+        width: 100%;
+    }
+
+    #map-container {
+        z-index: 1;
+        /* Fix for leaflet */
+    }
+
+    /* Hero Section with Video */
+    .hero-section {
+        background: transparent;
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        border-radius: 0;
+        margin-bottom: 0;
+        position: relative;
+        overflow: hidden;
+        color: #ffffff;
+    }
+
+    .hero-media-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .hero-slide-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(0, 0, 0, 0.6) 80%,
+                var(--deep-navy) 100%);
+        z-index: 2;
+    }
+
+    /* Semi-transparent stat card icons */
+    .stat-icon.semi-transparent {
+        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--secondary-blue) 100%);
+        opacity: 0.9;
+    }
+
+    .stat-icon.semi-transparent i {
+        color: white !important;
+    }
+
+    /* ──────────────────────────────────────────────────────── */
+    /* Home Advanced Search Section Styles                      */
+    /* ──────────────────────────────────────────────────────── */
+    .home-search-wrapper {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .home-search-sidebar {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .home-search-sidebar-header {
+        background: var(--primary-blue);
+        color: #fff;
+        padding: 0.85rem 1.2rem;
+    }
+
+    .home-search-sidebar-body {
+        padding: 1.2rem;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .home-filter-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        margin-bottom: 0.35rem;
+        letter-spacing: 0.3px;
+    }
+
+    .home-search-map-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .home-search-map-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .home-search-map {
+        height: 380px;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .home-search-adv-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .home-search-adv-toggle {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .home-search-adv-toggle:hover {
+        background: #f8fafc;
+        color: var(--primary-blue);
+    }
+
+    .home-search-adv-chevron {
+        transition: transform 0.3s ease;
+        font-size: 0.75rem;
+    }
+
+    .home-search-adv-body {
+        padding: 1rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+        .home-search-map {
+            height: 260px;
+        }
+
+        .home-search-wrapper {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateWeatherWidgets() {
+            const widgets = document.querySelectorAll('.weather-widget');
+            widgets.forEach(widget => {
+                const lat = widget.getAttribute('data-lat');
+                const lon = widget.getAttribute('data-lon');
+                if (!lat || !lon) return;
+
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset&timezone=auto`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.current || !data.daily) return;
+
+                        // Parse Time (HH:MM) and Date
+                        const dTime = new Date(data.current.time);
+                        const timeStr = String(dTime.getHours()).padStart(2, '0') + ':' + String(dTime.getMinutes()).padStart(2, '0');
+
+                        // Parse Date (e.g. 2026-02-23)
+                        const year = dTime.getFullYear();
+                        const month = String(dTime.getMonth() + 1).padStart(2, '0');
+                        const day = String(dTime.getDate()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${day}`;
+
+                        const dtEl = widget.querySelector('.fw-datetime');
+                        if (dtEl) dtEl.textContent = `${dateStr} ${timeStr} (UTC)`;
+
+                        // Parse Sunrise/Sunset
+                        const sunriseIso = data.daily.sunrise[0];
+                        const sunsetIso = data.daily.sunset[0];
+
+                        if (sunriseIso) {
+                            const dRise = new Date(sunriseIso);
+                            const rStr = String(dRise.getHours()).padStart(2, '0') + ':' + String(dRise.getMinutes()).padStart(2, '0');
+                            const el = widget.querySelector('.fw-sunrise');
+                            if (el) el.textContent = rStr;
+                        }
+
+                        if (sunsetIso) {
+                            const dSet = new Date(sunsetIso);
+                            const sStr = String(dSet.getHours()).padStart(2, '0') + ':' + String(dSet.getMinutes()).padStart(2, '0');
+                            const el = widget.querySelector('.fw-sunset');
+                            if (el) el.textContent = sStr;
+                        }
+
+                        widget.querySelector('.fw-temp').textContent = data.current.temperature_2m.toFixed(1) + ' °C';
+                        widget.querySelector('.fw-humidity').textContent = data.current.relative_humidity_2m + ' %';
+                        widget.querySelector('.fw-pressure').textContent = data.current.surface_pressure + ' hPa';
+
+                        // convert km/h to m/s
+                        const windMs = (data.current.wind_speed_10m * (1000 / 3600)).toFixed(1);
+
+                        // Convert wind direction degrees to compass direction (N, NNE, NE...)
+                        const val = Math.floor((data.current.wind_direction_10m / 22.5) + 0.5);
+                        const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+                        const windDir = arr[(val % 16)];
+
+                        widget.querySelector('.fw-wind').textContent = windMs + ' m/s, ' + windDir;
+
+                        // Update thermometer icon color based on temp
+                        const tempIcon = widget.querySelector('.fa-thermometer-half, .fa-thermometer-empty, .fa-thermometer-full');
+                        if (tempIcon) {
+                            tempIcon.className = 'fas text-primary me-1';
+                            if (data.current.temperature_2m < 5) tempIcon.classList.add('fa-thermometer-empty');
+                            else if (data.current.temperature_2m < 20) tempIcon.classList.add('fa-thermometer-half');
+                            else { tempIcon.classList.add('fa-thermometer-full'); tempIcon.classList.replace('text-primary', 'text-danger'); }
+                        }
+                    })
+                    .catch(err => console.error('Weather fetch error:', err));
+            });
+        }
+
+        updateWeatherWidgets();
+    });
+</script>
+{% endblock %}

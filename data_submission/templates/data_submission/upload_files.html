@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<style>
+    .container {
+        color: #333333;
+    }
+    
+    .container h2,
+    .container h3,
+    .container h4,
+    .container h5,
+    .container h6 {
+        color: var(--primary-blue) !important;
+    }
+    
+    .container p,
+    .container span,
+    .container label {
+        color: #333333;
+    }
+</style>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text-center fw-bold">Dataset Upload</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <tbody>
+                                <tr>
+                                    <th class="bg-light" style="width: 30%;">Metadata Title:</th>
+                                    <td>{{ dataset.title }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Expedition:</th>
+                                    <td>{{ dataset.get_expedition_type_display }}</td>
+                                </tr>
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <tr>
+                                        <th class="bg-light align-middle">Add Actual\Processed Dataset:</th>
+                                        <td>
+                                            {{ form.data_file }}
+                                            {% if form.data_file.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {{ form.data_file.errors }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Old Data if available:</th>
+                                        <td>
+                                            {# Placeholder or future field #}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="bg-light p-3">
+                                            <ul class="mb-0 text-muted small"
+                                                style="list-style-type: disc; padding-left: 20px;">
+                                                <li>File extension should be .xls,.xlsx,.txt,.rar,.zip,.csv,.pdf,.nc
+                                                </li>
+                                                <li>File size should be less then 2 GB</li>
+                                                <li>If you have multiple files, zip it and upload the zip file</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="text-end p-3 bg-white border-top-0">
+                                            <button type="submit" class="btn btn-light border">Upload and
+                                                Submit</button>
+                                        </td>
+                                    </tr>
+                                </form>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

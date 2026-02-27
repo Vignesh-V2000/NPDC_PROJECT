@@ -1,0 +1,373 @@
+{% extends "dashboard/admin_base.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-user-plus me-2"></i>Add New User</h3>
+        <a href="{% url 'users:user_approval_dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Existing Admins Table (Collapsible or just minimal) -->
+    <div class="card mb-4">
+        <div class="card-header bg-light cursor-pointer" data-bs-toggle="collapse" data-bs-target="#existingAdmins">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-users-cog me-2"></i>Existing Administrators</h5>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        <div class="collapse" id="existingAdmins">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name/Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Date Added</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admin in existing_admins %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle"
+                                            style="width: 32px; height: 32px;">
+                                            {{ admin.email|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ admin.get_full_name|default:admin.username }}</div>
+                                            <div class="small text-muted">{{ admin.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if admin.is_superuser %}
+                                    <span class="badge bg-dark">Super Admin</span>
+                                    {% elif admin.profile.expedition_admin_type %}
+                                    <span class="badge bg-info text-dark">{{
+                                        admin.profile.get_expedition_admin_type_display }} Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Staff</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if admin.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">
+                                    {{ admin.date_joined|date:"M d, Y" }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No administrators found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" id="createUserForm">
+                {% csrf_token %}
+
+                <!-- User Type Selection -->
+                <div class="mb-4 text-center">
+                    <div class="btn-group" role="group" aria-label="User Type">
+                        <input type="radio" class="btn-check" name="user_type" id="type_standard" value="standard"
+                            checked>
+                        <label class="btn btn-outline-primary" for="type_standard">
+                            <i class="fas fa-user me-2"></i>Standard User
+                        </label>
+
+                        <input type="radio" class="btn-check" name="user_type" id="type_admin" value="admin">
+                        <label class="btn btn-outline-danger" for="type_admin">
+                            <i class="fas fa-user-shield me-2"></i>Administrator
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Admin Role (Only for Admin) -->
+                <div id="admin-role-section" class="form-section d-none">
+                    <h5 class="section-title text-danger">Role Assignment</h5>
+                    <table class="form-table">
+                        <tr>
+                            <td class="label-cell">Admin Role</td>
+                            <td>
+                                <select name="expedition_admin_type" class="form-select form-select-sm"
+                                    style="width: auto;">
+                                    <option value="">-- No Admin Role (Standard User) --</option>
+                                    {% for value, label in expedition_types %}
+                                    <option value="{{ value }}">{{ label }} Admin</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted d-block mt-1">Select an expedition type to make this user a
+                                    Child Admin.</small>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Standard User Fields (Hidden for Admin) -->
+                <div id="standard-fields-section">
+                    <!-- User Details -->
+                    <div class="form-section">
+                        <h5 class="section-title text-primary">User Details</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Title<span class="text-danger">*</span></td>
+                                <td>
+                                    <select name="title" class="form-select form-select-sm std-required"
+                                        style="width: auto;">
+                                        <option value="">-----Select Title----</option>
+                                        <option value="Mr">Mr</option>
+                                        <option value="Ms">Ms</option>
+                                        <option value="Dr">Dr</option>
+                                        <option value="Prof">Prof</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">First Name<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="text" name="first_name" class="form-control std-required">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Last Name<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="text" name="last_name" class="form-control std-required">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Preferred Name</td>
+                                <td>
+                                    <input type="text" name="preferred_name" class="form-control">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Organisation/Inst. -->
+                    <div class="form-section">
+                        <h5 class="section-title text-primary">Organisation/Inst.</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Designation</td>
+                                <td>
+                                    <input type="text" name="designation" class="form-control">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Organisation Name<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="text" name="organisation" class="form-control std-required">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Organisation website link/URL<span class="text-danger">*</span>
+                                </td>
+                                <td>
+                                    <input type="url" name="organisation_url" class="form-control std-required"
+                                        placeholder="https://">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Personal profile link/URL</td>
+                                <td>
+                                    <input type="url" name="profile_url" class="form-control" placeholder="https://">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div class="form-section">
+                        <h5 class="section-title text-primary">Contact Details</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Address ( Communication address )</td>
+                                <td>
+                                    <textarea name="address" class="form-control" rows="3"></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Alternate e-mail</td>
+                                <td>
+                                    <input type="email" name="alternate_email" class="form-control">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Mobile number</td>
+                                <td>
+                                    <input type="text" name="phone" class="form-control" pattern="[0-9]{10}"
+                                        title="10 digit mobile number">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Whatsapp number</td>
+                                <td>
+                                    <input type="text" name="whatsapp_number" class="form-control" pattern="[0-9]+"
+                                        title="Digits only">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Account Credentials (Common) -->
+                <div class="form-section">
+                    <h5 class="section-title text-danger">Account Credentials</h5>
+                    <table class="form-table">
+                        <tr>
+                            <td class="label-cell">Email Address<span class="text-danger">*</span></td>
+                            <td>
+                                <input type="email" name="email" class="form-control"
+                                    placeholder="Username is e-mail Id" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Confirm Email<span class="text-danger">*</span></td>
+                            <td><input type="email" name="confirm_email" class="form-control" required></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Password<span class="text-danger">*</span></td>
+                            <td>
+                                <input type="password" name="password1" class="form-control" required>
+                                <small class="text-muted">Min 8 characters, Upper, Lower, Number, Special</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Confirm Password<span class="text-danger">*</span></td>
+                            <td><input type="password" name="password2" class="form-control" required></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Note for Admin -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Users created here will be automatically approved and can log in immediately.
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-user-plus me-1"></i>Create User
+                    </button>
+                    <a href="{% url 'users:user_approval_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .form-table tr {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .form-table td {
+        padding: 0.75rem 0.5rem;
+        vertical-align: top;
+    }
+
+    .label-cell {
+        width: 35%;
+        font-weight: 500;
+        color: #333;
+        padding-right: 1rem;
+    }
+
+    .form-control,
+    .form-select {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .btn-check:checked+.btn-outline-primary {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    .btn-check:checked+.btn-outline-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const typeStandard = document.getElementById('type_standard');
+        const typeAdmin = document.getElementById('type_admin');
+        const standardSection = document.getElementById('standard-fields-section');
+        const adminSection = document.getElementById('admin-role-section');
+        const stdRequiredInputs = document.querySelectorAll('.std-required');
+
+        function toggleFields() {
+            if (typeStandard.checked) {
+                standardSection.classList.remove('d-none');
+                adminSection.classList.add('d-none');
+
+                // Add required attribute to standard fields
+                stdRequiredInputs.forEach(input => input.setAttribute('required', ''));
+            } else {
+                standardSection.classList.add('d-none');
+                adminSection.classList.remove('d-none');
+
+                // Remove required attribute from standard fields
+                stdRequiredInputs.forEach(input => input.removeAttribute('required'));
+            }
+        }
+
+        typeStandard.addEventListener('change', toggleFields);
+        typeAdmin.addEventListener('change', toggleFields);
+
+        // Initial check
+        toggleFields();
+    });
+</script>
+{% endblock admin_content %}

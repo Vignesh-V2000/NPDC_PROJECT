@@ -1,0 +1,1035 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}National Polar Data Center (NPDC){% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            /* NSIDC-inspired Palette */
+            --primary-blue: #004F87;
+            /* NSIDC Primary Blue */
+            --secondary-blue: #002C4B;
+            /* Darker Navy */
+            --accent-teal: #0088CC;
+            /* Secondary Action Blue */
+            --accent-orange: #FDB813;
+            /* Highlight/Gold */
+            --light-bg: #F8F9FA;
+            /* Very light gray background */
+            --deep-navy: #001D36;
+            /* Deep, dark navy for background */
+            --border-color: #E6E6E6;
+
+            --text-primary: #333333;
+            --text-secondary: #595959;
+            --text-light: #E0E6ED;
+            /* Light text for dark backgrounds */
+            --text-link: #4DA3FF;
+
+            /* Metrics */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.1);
+
+            --border-radius-sm: 3px;
+            --border-radius-md: 4px;
+            /* Sharper, more professional */
+            --border-radius-lg: 6px;
+
+            /* Gradients - Minimal usage for scientific feel */
+            --gradient-primary: linear-gradient(to bottom, #004F87, #003F6B);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: var(--text-light);
+            line-height: 1.6;
+            background-color: var(--deep-navy);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-white,
+        .card,
+        .white-bg {
+            color: #333333;
+            --text-primary: #333333;
+            --text-secondary: #6c757d;
+            --text-light: #333333;
+            --text-muted: #6c757d;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        a {
+            color: var(--text-link);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--secondary-blue);
+            text-decoration: underline;
+        }
+
+        /* ========= Modern Navigation ========= */
+        .navbar {
+            background: linear-gradient(135deg, #001529 0%, #003355 50%, #00274a 100%);
+            border-bottom: none;
+            padding: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .navbar .container {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.25);
+            padding: 0.4rem 0.65rem;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        .navbar-brand {
+            font-family: 'Lato', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #FFFFFF !important;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none !important;
+        }
+
+        .brand-logo {
+            color: #FFFFFF;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .brand-main {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .navbar-nav {
+            gap: 2px;
+            align-items: stretch;
+        }
+
+        .navbar-nav .nav-item {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            font-size: 0.78rem;
+            padding: 0.85rem 0.55rem !important;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: color 0.25s ease, background-color 0.25s ease;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .navbar-nav .nav-link i {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            transition: opacity 0.25s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #FFFFFF !important;
+            background-color: rgba(255, 255, 255, 0.08);
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link:hover i {
+            opacity: 1;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #FFFFFF !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-bottom-color: var(--accent-orange);
+        }
+
+        /* ========= Modern Dropdowns ========= */
+        .dropdown-menu {
+            background: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-top: 0;
+            padding: 0.5rem 0;
+            min-width: 230px;
+            border-top: 3px solid var(--accent-teal);
+            animation: dropdownFadeIn 0.2s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            padding: 0.65rem 1.25rem;
+            color: #444;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-bottom: none;
+            border-radius: 0;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item i {
+            color: var(--accent-teal);
+            width: 20px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f7ff;
+            color: var(--primary-blue);
+            padding-left: 1.5rem;
+        }
+
+        .dropdown-item:hover i {
+            transform: translateX(2px);
+        }
+
+        .dropdown-header {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-blue) !important;
+            font-weight: 700;
+            padding: 0.5rem 1.25rem 0.25rem;
+        }
+
+        .dropdown-divider {
+            margin: 0.25rem 1rem;
+            border-color: #eee;
+        }
+
+        /* Admin Nav Item */
+        .nav-admin .dropdown-toggle {
+            color: #ff6b6b !important;
+        }
+
+        .nav-admin .dropdown-toggle:hover {
+            color: #ff4757 !important;
+        }
+
+        .nav-admin .dropdown-menu {
+            border-top-color: #ff6b6b;
+        }
+
+        /* ========= User Menu Styles ========= */
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent-teal), var(--primary-blue));
+            color: #FFFFFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .d-flex.align-items-center.gap-2 .nav-link {
+            border-bottom: none;
+        }
+
+        .d-flex.align-items-center.gap-2 .small.fw-semibold {
+            color: #FFFFFF;
+        }
+
+        .d-flex.align-items-center.gap-2 .x-small.text-muted {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* Auth Buttons in Nav */
+        .navbar .btn-outline-primary {
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.4);
+            font-size: 0.78rem;
+            padding: 0.4rem 1rem;
+            white-space: nowrap;
+        }
+
+        .navbar .btn-outline-primary:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: #FFFFFF;
+            color: #FFFFFF;
+        }
+
+        .navbar .btn-primary {
+            font-size: 0.78rem;
+            padding: 0.4rem 1rem;
+            background: var(--accent-teal);
+            border-color: var(--accent-teal);
+            white-space: nowrap;
+        }
+
+        .navbar .btn-primary:hover {
+            background: #006fa8;
+            border-color: #006fa8;
+        }
+
+        .navbar .btn-outline-secondary {
+            color: rgba(255, 255, 255, 0.8);
+            border-color: rgba(255, 255, 255, 0.3);
+            font-size: 0.78rem;
+            padding: 0.4rem 1rem;
+            white-space: nowrap;
+        }
+
+        .navbar .btn-outline-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            color: #FFFFFF;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-blue);
+            border-color: var(--secondary-blue);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            background-color: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-blue);
+            color: #FFFFFF;
+        }
+
+        /* User Avatar */
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1240px;
+            /* Wider content area */
+            padding: 0 30px;
+        }
+
+        main {
+            flex: 1;
+            padding: 0;
+            padding-bottom: 3rem;
+            background-color: var(--deep-navy);
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: var(--border-radius-sm);
+            border: none;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background-color: #E1F6FB;
+            border-color: var(--accent-teal);
+            color: #005680;
+        }
+
+        .alert-success {
+            background-color: #E9F7EF;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(rgba(0, 30, 60, 0.85), rgba(0, 30, 60, 0.9)),
+            url("{% static 'images/footer/Station.jpg' %}") center/cover no-repeat;
+            color: #FFFFFF;
+            padding: 3rem 0;
+            margin-top: auto;
+            border-top: 5px solid var(--accent-orange);
+        }
+
+        .footer h5 {
+            color: #FFFFFF;
+            font-size: 1rem;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .footer a:hover {
+            color: #E8291C;
+            text-decoration: underline;
+        }
+
+        /* Partner Logo Badges */
+        .partner-logo-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 6px;
+            border-right: 1px solid rgba(255, 255, 255, 0.25);
+            text-decoration: none !important;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0.85;
+        }
+
+        .partner-logo-badge:last-child {
+            border-right: none;
+        }
+
+        .partner-logo-badge:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+
+        .partner-logo-badge img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .copyright {
+            background-color: #00223B;
+            padding: 1.5rem 0;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            background: white;
+            box-shadow: none;
+            /* Cleaner look */
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: #D0D0D0;
+        }
+
+        .card-header {
+            background-color: var(--light-bg);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-family: 'Lato', sans-serif;
+            padding: 1rem 1.25rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Forms */
+        .form-control,
+        .form-select {
+            border: 1px solid #CCCCCC;
+            border-radius: var(--border-radius-sm);
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Utilities */
+        .bg-light {
+            background-color: var(--light-bg) !important;
+        }
+
+        .text-primary {
+            color: var(--primary-blue) !important;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Video Hero - Updated for cleaner look */
+        .video-hero {
+            position: relative;
+            height: 400px;
+            /* Slightly shorter */
+            overflow: hidden;
+            margin-bottom: 0;
+            /* Flush with content usually */
+        }
+
+        .video-overlay {
+            background: rgba(0, 44, 75, 0.7);
+            /* Solid blue overlay */
+        }
+
+        .hero-content h1 {
+            color: #FFFFFF;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            color: #F0F0F0;
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        /* Validation */
+        .field-error-message {
+            color: #dc3545;
+            font-size: 0.85em;
+            margin-top: 0.25rem;
+        }
+
+        .social-links a {
+            color: #fff;
+            font-size: 1.7rem;
+        }
+
+        .social-links a:hover {
+            color: #e9c46a;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Banner Image -->
+    <div class="container-fluid p-0">
+        <img src="{% static 'images/banner/portal_banner.jpg' %}" alt="National Polar Data Center Banner"
+            class="img-fluid w-100">
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <!-- Branding removed as it is now in the banner -->
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'users:home' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/about/' %}active{% endif %}"
+                            href="{% url 'users:about' %}">
+                            <i class="fas fa-info-circle me-1"></i>About
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-database me-1"></i>Data
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'data_submission:instructions' %}">
+                                <i class="fas fa-upload me-2"></i>Submit New Dataset
+                            </a>
+                            <a class="dropdown-item" href="{% url 'search:browse_by_keyword' %}">
+                                <i class="fas fa-tags me-2"></i>Browse by Keyword
+                            </a>
+                            <a class="dropdown-item" href="{% url 'search:browse_by_location' %}">
+                                <i class="fas fa-map-marker-alt me-2"></i>Browse by Location
+                            </a>
+                            <a class="dropdown-item" href="{% url 'search:simple_search' %}">
+                                <i class="fas fa-search me-2"></i>Simple Search
+                            </a>
+                            <a class="dropdown-item" href="{% url 'search:search' %}">
+                                <i class="fas fa-search-plus me-2"></i>Advanced Search
+                            </a>
+                            <a class="dropdown-item" href="{% url 'search:ai_search' %}">
+                                🐧Penguin Search <span class="badge bg-warning text-dark ms-1"
+                                    style="font-size:0.65em;vertical-align:super;">alpha</span>
+                            </a>
+                        </div>
+                    </li>
+
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-layer-group me-1"></i>Other Data
+                        </a>
+                    </li> -->
+                    <!-- 
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-broadcast-tower me-1"></i>Live Data
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/polar-directory/' %}active{% endif %}"
+                            href="{% url 'users:polar_directory' %}">
+                            <i class="fas fa-globe-americas me-1"></i>Polar Directory
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-flask me-1"></i>Science Data
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-file-contract me-1"></i>Policy
+                        </a>
+                    </li> -->
+
+                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                    <li class="nav-item dropdown nav-admin">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-shield me-1"></i>Admin Panel
+                        </a>
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-header text-primary">Administration</h6>
+                            <a class="dropdown-item" href="{% url 'data_submission:admin_dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                            </a>
+                            <a class="dropdown-item" href="{% url 'data_submission:review_submissions' %}">
+                                <i class="fas fa-clipboard-check me-2"></i>Review Submissions
+                            </a>
+                            <a class="dropdown-item" href="{% url 'users:user_approval_dashboard' %}">
+                                <i class="fas fa-users-cog me-2"></i>User & Admin Management
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'users:admin_create_user' %}">
+                                <i class="fas fa-user-plus me-2"></i>Create Admin
+                            </a>
+                            <a class="dropdown-item" href="{% url 'activity_logs:system_logs' %}">
+                                <i class="fas fa-list-alt me-2"></i>System Logs
+                            </a>
+                        </div>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <!-- User Menu -->
+                <div class="d-flex align-items-center gap-2">
+                    {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
+                            data-bs-toggle="dropdown">
+                            <div class="user-avatar">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <div class="d-flex flex-column">
+                                <span class="small fw-semibold">{{ user.get_full_name|default:user.username }}</span>
+                                <span class="x-small text-muted">{{ user.email }}</span>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-header">
+                                <strong>Account</strong>
+                                <div class="small text-muted">{{ user.email }}</div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'users:profile' %}">
+                                <i class="fas fa-user-circle me-2"></i>Profile
+                            </a>
+                            <a class="dropdown-item" href="{% url 'data_submission:my_submissions' %}">
+                                <i class="fas fa-folder-open me-2"></i>My Submissions
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form method="post" action="{% url 'logout' %}" class="mb-0">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a class="btn btn-outline-primary me-2" href="{% url 'users:login' %}">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a class="btn btn-primary" href="{% url 'users:register' %}">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                    <a class="btn btn-outline-secondary ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
+                        target="_blank">
+                        <i class="fas fa-file-pdf me-2"></i>User Manual
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="fade-in">
+        {% block hero %}{% endblock %}
+
+        <div class="container py-5">
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle me-2"></i>
+                    {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg col-md-6">
+                    <h5>Quick Links</h5>
+                    <p><a href="{% url 'users:contact_us' %}">Contact Us</a></p>
+                    <p><a href="{% url 'users:data_policy' %}">Data Policy & Guidelines</a></p>
+                    <p><a href="{% static 'pdf/National_Polar_Data_Center.pdf' %}" target="_blank">User Manual</a></p>
+                    <p><a href="#">Polar Directory</a></p>
+                </div>
+
+                <div class="col-lg col-md-6">
+                    <h5>Data Submission</h5>
+                    <p><a href="#">Common Project Proposal Form</a></p>
+                    <p><a href="{% url 'data_submission:instructions' %}">Submit a New Data</a></p>
+                </div>
+
+                <div class="col-lg col-md-6">
+                    <h5>For Scholars</h5>
+                    <p><a href="{% url 'search:browse_by_keyword' %}">Dataset by Science Keywords</a></p>
+                    <p><a href="{% url 'search:browse_by_location' %}">Dataset by Location</a></p>
+                    <p><a href="#">Observation Dataset</a></p>
+                    <p><a href="https://npolar.no/quantarctica/" target="_blank">Quantarctica</a></p>
+                    <p><a href="#">Data Portal</a></p>
+                </div>
+
+                <div class="col-lg col-md-6">
+                    <h5>Useful Links</h5>
+                    <p><a href="https://www.python.org/" target="_blank">Python</a></p>
+                    <p><a href="https://ferret.pmel.noaa.gov/Ferret/downloads/ferret-installation-and-update-guide"
+                            target="_blank">Ferret visualization and analysis Tool</a></p>
+                    <p><a href="https://www.r-project.org/" target="_blank">The R Project</a></p>
+                </div>
+
+                <div class="col-lg col-md-6">
+                    <h5>Contact</h5>
+                    <div class="contact-info">
+                        <p><strong>National Polar Data Center (NPDC)</strong></p>
+                        <p><i class="fas fa-map-marker-alt"></i>
+                            Headland Sada, Vasco-da-Gama<br>
+                            Goa, INDIA - 403 804
+                        </p>
+                        <p><i class="fas fa-phone"></i>0091-832-2525515</p>
+                        <p><i class="fas fa-envelope"></i>npdc@ncpor.res.in</p>
+                    </div>
+                    <div class="social-links mt-3">
+                        <h6>Follow us</h6>
+                        <a href="https://www.facebook.com/ncpor.goa/" class="me-3 text-decoration-none"
+                            title="National Polar Data Center on Facebook" aria-label="Facebook" target="_blank"
+                            rel="noopener noreferrer">
+                            <i class="fab fa-facebook fa-lg"></i>
+                        </a>
+                        <a href="https://x.com/ncaor_goa" class="me-3 text-decoration-none"
+                            title="National Polar Data Center on X (Twitter)" aria-label="X" target="_blank"
+                            rel="noopener noreferrer">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@NCPORGoaVasco" class="text-decoration-none"
+                            title="National Polar Data Center on YouTube" aria-label="YouTube" target="_blank"
+                            rel="noopener noreferrer">
+                            <i class="fab fa-youtube fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partner Logo Strip -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div
+                        style="display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 4px; padding: 1.25rem 0; border-top: 2px solid #E8751A; border-bottom: 2px solid #E8751A;">
+                        <a href="https://data.aad.gov.au/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/aadc.svg' %}" alt="Australian Antarctic Data Centre"
+                                style="height: 45px;">
+                        </a>
+                        <a href="https://www.bas.ac.uk/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/bas.png' %}" alt="British Antarctic Survey"
+                                style="height: 45px;">
+                        </a>
+                        <a href="https://www.scar.org/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/scar-logo.svg' %}" alt="SCAR" style="height: 45px;">
+                        </a>
+                        <a href="https://sios-svalbard.org/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/SIOS.jpeg' %}" alt="SIOS" style="height: 45px;">
+                        </a>
+                        <a href="https://www.comnap.aq/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/COMNAP(WhiteOnRed).jpg' %}" alt="COMNAP"
+                                style="height: 45px;">
+                        </a>
+                        <a href="https://www.awipev.eu/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/awipev-logo.gif' %}" alt="AWIPEV" style="height: 45px;">
+                        </a>
+                        <a href="https://www.npolar.no/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/NP-logo-skjerm-705x660.png' %}"
+                                alt="Norwegian Polar Institute" style="height: 45px;">
+                        </a>
+                        <a href="https://www.soos.aq/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/soos_small1.png' %}" alt="SOOS" style="height: 45px;">
+                        </a>
+                        <a href="https://kpdc.kopri.re.kr/" target="_blank" class="partner-logo-badge">
+                            <img src="{% static 'images/logos/kpdc.png' %}" alt="KPDC" style="height: 45px;">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="copyright">
+                        <p class="mb-2">&copy; {% now "Y" %} National Centre for Polar and Ocean Research</p>
+                        <p class="mb-0">Ministry of Earth Sciences, Government of India</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+        // Add scroll effect to navbar
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Add active class to current nav item
+            const currentUrl = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentUrl) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Standard Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+    <!-- Global Security Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Disable Right Click
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+            });
+
+            // Disable Copy, Cut, Paste
+            document.addEventListener('copy', function (e) { e.preventDefault(); });
+            document.addEventListener('cut', function (e) { e.preventDefault(); });
+            document.addEventListener('paste', function (e) { e.preventDefault(); });
+
+            // Aggressive Autofill Disabling
+            const inputs = document.querySelectorAll('input:not([type="hidden"]), textarea, select');
+            inputs.forEach(input => {
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('data-lpignore', 'true'); // Disable LastPass
+
+                // Readonly Hack: Prevent browser from filling on load
+                // Only apply if field is empty to allow server-rendered values
+                if (!input.value) {
+                    input.setAttribute('readonly', 'readonly');
+                    input.style.backgroundColor = '#ffffff'; // Keep white background
+                }
+
+                const removeReadonly = function () {
+                    this.removeAttribute('readonly');
+                };
+
+                input.addEventListener('focus', removeReadonly);
+                input.addEventListener('click', removeReadonly);
+            });
+
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.setAttribute('autocomplete', 'off');
+            });
+        });
+    </script>
+
+    <!-- AI Chatbot Widget -->
+    {% include "chatbot_widget.html" %}
+</body>
+
+</html>

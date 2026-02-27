@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header mb-6">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">Dashboard</h1>
+                <p class="text-secondary mb-0">
+                    Welcome back, <span class="fw-semibold text-primary">{{ user.get_full_name|default:user.username }}</span>
+                    {% if user.email %}<span class="mx-2">•</span>{{ user.email }}{% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="user-badge">
+                    <div class="badge-icon">
+                        {% if is_admin %}
+                        <i class="fas fa-user-shield"></i>
+                        {% else %}
+                        <i class="fas fa-user-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="badge-text">
+                        <small class="text-muted">Account Type</small>
+                        <div class="fw-semibold">
+                            {% if is_admin %}
+                            Administrator
+                            {% else %}
+                            Researcher
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Panels -->
+    {% if is_admin %}
+        {% include "dashboard/admin_panel.html" %}
+    {% else %}
+        {% include "dashboard/participant_panel.html" %}
+    {% endif %}
+</div>
+
+<!-- Dashboard Styles -->
+<style>
+    .dashboard-header {
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    
+    .user-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        background: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+    }
+    
+    .badge-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .badge-text {
+        text-align: left;
+    }
+    
+    .badge-text small {
+        font-size: 0.75rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .badge-text .fw-semibold {
+        font-size: 0.9rem;
+        color: var(--primary-blue);
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 1.5rem 0;
+        }
+        
+        .user-badge {
+            margin-top: 1rem;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .col-md-4.text-md-end {
+            text-align: left !important;
+        }
+    }
+</style>
+{% endblock %}

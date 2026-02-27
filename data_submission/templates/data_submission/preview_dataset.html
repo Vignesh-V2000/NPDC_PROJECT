@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .container {
+        color: #333333;
+    }
+    
+    .container h2,
+    .container h3,
+    .container h4,
+    .container h5,
+    .container h6 {
+        color: var(--primary-blue) !important;
+    }
+    
+    .container p,
+    .container span,
+    .container label {
+        color: #333333;
+    }
+</style>
+
+{% block title %}Preview Dataset - NPDC{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="mb-4 text-center">
+                <span class="badge bg-info text-dark mb-2">PREVIEW MODE</span>
+                <h1 class="display-6 fw-bold">Preview Your Submission</h1>
+                <p class="text-muted">Review your metadata before proceeding to file upload.</p>
+            </div>
+
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ dataset.title }}</h5>
+                </div>
+                <div class="card-body">
+
+                    <!-- Quick Meta -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-tag me-1"></i> Category:</strong><br>
+                            {{ dataset.get_category_display }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-calendar me-1"></i> Dates:</strong><br>
+                            {{ dataset.temporal_start_date }} to {{ dataset.temporal_end_date }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-map-marker-alt me-1"></i> Location:</strong><br>
+                            {{ dataset.location.get_location_category_display }}
+                        </div>
+                    </div>
+
+                    <!-- Abstract -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-secondary">Abstract</h6>
+                        <div class="p-3 bg-light rounded border">
+                            {{ dataset.abstract|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Left Col -->
+                        <div class="col-md-6">
+                            <!-- Topic & ISO -->
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-secondary">Topic Info</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Topic:</strong> {{ dataset.topic }}</li>
+                                    <li><strong>ISO Topic:</strong> {{ dataset.get_iso_topic_display }}</li>
+                                    <li><strong>Keywords:</strong> {{ dataset.keywords }}</li>
+                                </ul>
+                            </div>
+
+                            <!-- Project -->
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-secondary">Project Details</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Project Name:</strong> {{ dataset.project_name }}</li>
+                                    <li><strong>Project Number:</strong> {{ dataset.project_number }}</li>
+                                    <li><strong>Expedition:</strong> {{ dataset.get_expedition_type_display }} ({{
+                                        dataset.expedition_year }})</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Right Col -->
+                        <div class="col-md-6">
+                            <!-- Spatial -->
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-secondary">Spatial Coverage</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>North:</strong> {{ dataset.north_latitude }}°</li>
+                                    <li><strong>South:</strong> {{ dataset.south_latitude }}°</li>
+                                    <li><strong>East:</strong> {{ dataset.east_longitude }}°</li>
+                                    <li><strong>West:</strong> {{ dataset.west_longitude }}°</li>
+                                </ul>
+                            </div>
+
+                            <!-- Contact -->
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-secondary">Contact Info</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Person:</strong> {{ dataset.contact_person }}</li>
+                                    <li><strong>Email:</strong> {{ dataset.contact_email }}</li>
+                                    <li><strong>Phone:</strong> {{ dataset.contact_phone }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-models (GPS, Platform, etc.) -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Platform:</strong> {{ dataset.platform.short_name|default:"-" }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Instrument:</strong>
+                                {% for inst in dataset.instruments.all %}
+                                <span class="badge bg-secondary">{{ inst.short_name }}</span>
+                                {% empty %}
+                                -
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>GPS Used:</strong> {{ dataset.gps.gps_used|yesno:"Yes,No" }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'data_submission:submit_dataset' %}?submission_id={{ dataset.id }}"
+                    class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-edit me-2"></i>Edit Metadata
+                </a>
+
+                <a href="{% url 'data_submission:upload_dataset_files' dataset.id %}"
+                    class="btn btn-primary btn-lg px-5">
+                    Proceed to Upload <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

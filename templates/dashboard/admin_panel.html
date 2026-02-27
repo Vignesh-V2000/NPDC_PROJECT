@@ -1,0 +1,443 @@
+{% extends "dashboard/admin_base.html" %}
+{% block admin_content %}
+
+<div class="admin-dashboard">
+    <!-- Quick Stats Overview -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h4 mb-4">Administration Overview</h2>
+        </div>
+        
+        <!-- Pending Reviews -->
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">0</h3>
+                    <p class="stat-label">Pending Reviews</p>
+                    <small class="stat-change">Ready for evaluation</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Submissions -->
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card total">
+                <div class="stat-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">0</h3>
+                    <p class="stat-label">Total Submissions</p>
+                    <small class="stat-change">All time submissions</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Active Users -->
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card users">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">0</h3>
+                    <p class="stat-label">Active Users</p>
+                    <small class="stat-change">Registered researchers</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Approved Datasets -->
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card approved">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">0</h3>
+                    <p class="stat-label">Approved Datasets</p>
+                    <small class="stat-change">Published to portal</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administration Actions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h4 mb-4">Administration Actions</h2>
+        </div>
+        
+        <!-- Review Submissions -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="action-content">
+                    <h4 class="h5 mb-2">Review Submissions</h4>
+                    <p class="text-secondary mb-3">
+                        Evaluate and approve/reject submitted datasets with detailed metadata review.
+                    </p>
+                    <div class="action-stats">
+                        <span class="badge bg-warning">0 pending</span>
+                        <span class="badge bg-success">0 approved</span>
+                    </div>
+                    <a href="{% url 'data_submission:review_submissions' %}" 
+                       class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-search me-2"></i>Review Submissions
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Administration -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="action-content">
+                    <h4 class="h5 mb-2">System Administration</h4>
+                    <p class="text-secondary mb-3">
+                        Access Django admin for system-level configuration and user management.
+                    </p>
+                    <div class="action-stats">
+                        <span class="badge bg-info">Advanced</span>
+                        <span class="badge bg-dark">System</span>
+                    </div>
+                    <a href="/admin/" 
+                       class="btn btn-dark w-100 mt-3">
+                        <i class="fas fa-terminal me-2"></i>Open Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Dashboard -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="action-content">
+                    <h4 class="h5 mb-2">Analytics Dashboard</h4>
+                    <p class="text-secondary mb-3">
+                        View detailed submission statistics, user activity, and data usage analytics.
+                    </p>
+                    <div class="action-stats">
+                        <span class="badge bg-primary">Reports</span>
+                        <span class="badge bg-info">Charts</span>
+                    </div>
+                    <a href="{% url 'data_submission:admin_dashboard' %}" 
+                       class="btn btn-outline-primary w-100 mt-3">
+                        <i class="fas fa-chart-bar me-2"></i>View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h4 class="h5 mb-0">Recent Activity</h4>
+                    <a href="#" class="small text-primary">View All</a>
+                </div>
+                <div class="activity-body">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus text-success"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="mb-1">New researcher registration</p>
+                                <small class="text-muted">Just now</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-upload text-primary"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="mb-1">Dataset submission received</p>
+                                <small class="text-muted">2 hours ago</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-check-circle text-info"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="mb-1">Dataset approved for publication</p>
+                                <small class="text-muted">Yesterday</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Panel Styles -->
+<style>
+    /* Stat Cards */
+    .stat-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-card.pending {
+        border-top: 4px solid #FF6B35;
+    }
+    
+    .stat-card.total {
+        border-top: 4px solid #3B82F6;
+    }
+    
+    .stat-card.users {
+        border-top: 4px solid #10B981;
+    }
+    
+    .stat-card.approved {
+        border-top: 4px solid #8B5CF6;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .stat-card.pending .stat-icon {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+    }
+    
+    .stat-card.total .stat-icon {
+        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    }
+    
+    .stat-card.users .stat-icon {
+        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    }
+    
+    .stat-card.approved .stat-icon {
+        background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    }
+    
+    .stat-content {
+        flex: 1;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+    
+    .stat-label {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+    
+    .stat-change {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+    
+    /* Action Cards */
+    .action-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-teal);
+    }
+    
+    .action-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(0, 51, 102, 0.1);
+        border-radius: var(--border-radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--primary-blue);
+        font-size: 1.8rem;
+    }
+    
+    .action-content {
+        flex: 1;
+    }
+    
+    .action-content h4 {
+        color: var(--primary-blue);
+    }
+    
+    .action-stats {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Activity Card */
+    .activity-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+    }
+    
+    .activity-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--light-gray);
+    }
+    
+    .activity-body {
+        padding: 0;
+    }
+    
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .activity-item {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--medium-gray);
+        transition: background-color 0.2s ease;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-item:hover {
+        background-color: var(--light-gray);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 51, 102, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-blue);
+        font-size: 1rem;
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-content p {
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .stat-card {
+            padding: 1.25rem;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .action-card {
+            padding: 1.5rem;
+        }
+        
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<!-- JavaScript for dynamic stats (example) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example: You can fetch real stats from your API
+        // This is just a demonstration
+        const statCards = document.querySelectorAll('.stat-card .stat-number');
+        
+        // Animate numbers (optional)
+        statCards.forEach(stat => {
+            const target = parseInt(stat.textContent) || 0;
+            if (target > 0) {
+                animateNumber(stat, 0, target, 2000);
+            }
+        });
+        
+        function animateNumber(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    });
+</script>
+{% endblock %}

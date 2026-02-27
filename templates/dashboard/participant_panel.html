@@ -1,0 +1,509 @@
+<div class="participant-dashboard">
+    <!-- Quick Stats Overview -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h4 mb-4">Your Research Dashboard</h2>
+        </div>
+
+        <!-- Submitted Datasets -->
+        <div class="col-xl-6 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card submitted">
+                <div class="stat-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ total_submitted }}</h3>
+                    <p class="stat-label">Submitted</p>
+                    <small class="stat-change">Your datasets</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Published Datasets -->
+        <div class="col-xl-6 col-lg-6 col-md-6 mb-4">
+            <div class="stat-card approved">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ published_count }}</h3>
+                    <p class="stat-label">Published</p>
+                    <small class="stat-change">Publicly available</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h4 mb-4">Quick Actions</h2>
+        </div>
+
+        <!-- Submit Dataset -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <div class="action-content">
+                    <h4 class="h5 mb-2">Submit Dataset</h4>
+                    <p class="text-secondary mb-3">
+                        Upload your polar research data with detailed metadata for archiving and sharing.
+                    </p>
+                    <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>Submit New Dataset
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Submissions -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div class="action-content">
+                    <h4 class="h5 mb-2">My Submissions</h4>
+                    <p class="text-secondary mb-3">
+                        Track the status of your submitted datasets and view detailed submission history.
+                    </p>
+                    <a href="{% url 'data_submission:my_submissions' %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-list-alt me-2"></i>View All Submissions
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Profile -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="action-content">
+                    <h4 class="h5 mb-2">Account Settings</h4>
+                    <p class="text-secondary mb-3">
+                        Update your profile information, contact details, and account preferences.
+                    </p>
+                    <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-cog me-2"></i>Manage Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h4 class="h5 mb-0">Recent Submissions</h4>
+                    <a href="{% url 'data_submission:my_submissions' %}" class="small text-primary">View All</a>
+                </div>
+                <div class="activity-body">
+                    <div class="activity-list">
+                        {% for activity in recent_activity %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                {% if activity.status == 'submitted' or activity.status == 'under_review' %}
+                                <span class="status-badge pending">P</span>
+                                {% elif activity.status == 'published' %}
+                                <span class="status-badge approved">A</span>
+                                {% elif activity.status == 'revision_requested' or activity.status == 'rejected' %}
+                                <span class="status-badge rejected">R</span>
+                                {% else %}
+                                <span class="status-badge" style="background-color: #6c757d;">D</span>
+                                {% endif %}
+                            </div>
+                            <div class="activity-content">
+                                <p class="mb-1 fw-semibold">{{ activity.title }}</p>
+                                <small class="text-muted">Submitted: {{ activity.submission_date|timesince }} ago •
+                                    Status: {{ activity.get_status_display }}</small>
+                            </div>
+                            <div class="activity-action">
+                                <a href="{% url 'data_submission:view_submission' activity.id %}"
+                                    class="btn btn-sm btn-outline-primary">View</a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-4 text-center text-muted">
+                            No recent activity to display.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-lg-4 mb-4">
+            <div class="links-card">
+                <div class="links-header">
+                    <h4 class="h5 mb-0">Useful Links</h4>
+                </div>
+                <div class="links-body">
+                    <div class="link-item">
+                        <a href="#">
+                            <i class="fas fa-book me-2"></i>
+                            <span>Submission Guidelines</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="#">
+                            <i class="fas fa-file-alt me-2"></i>
+                            <span>Data Format Requirements</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="#">
+                            <i class="fas fa-question-circle me-2"></i>
+                            <span>Help & Documentation</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="#">
+                            <i class="fas fa-comments me-2"></i>
+                            <span>Support & Contact</span>
+                        </a>
+                    </div>
+                    <div class="link-item">
+                        <a href="#">
+                            <i class="fas fa-download me-2"></i>
+                            <span>Download Templates</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Participant Panel Styles -->
+<style>
+    /* Stat Cards for Participant */
+    .stat-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card.submitted {
+        border-top: 4px solid #3B82F6;
+    }
+
+    .stat-card.pending {
+        border-top: 4px solid #F59E0B;
+    }
+
+    .stat-card.approved {
+        border-top: 4px solid #10B981;
+    }
+
+    .stat-card.rejected {
+        border-top: 4px solid #EF4444;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-card.submitted .stat-icon {
+        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    }
+
+    .stat-card.pending .stat-icon {
+        background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+    }
+
+    .stat-card.approved .stat-icon {
+        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    }
+
+    .stat-card.rejected .stat-icon {
+        background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .stat-label {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .stat-change {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    /* Action Cards */
+    .action-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-teal);
+    }
+
+    .action-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(0, 51, 102, 0.1);
+        border-radius: var(--border-radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--primary-blue);
+        font-size: 1.8rem;
+    }
+
+    .action-content {
+        flex: 1;
+    }
+
+    .action-content h4 {
+        color: var(--primary-blue);
+    }
+
+    /* Activity Card */
+    .activity-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .activity-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--light-gray);
+    }
+
+    .activity-body {
+        padding: 0;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-item {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--medium-gray);
+        transition: background-color 0.2s ease;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item:hover {
+        background-color: var(--light-gray);
+    }
+
+    .status-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: white;
+    }
+
+    .status-badge.pending {
+        background-color: #F59E0B;
+    }
+
+    .status-badge.approved {
+        background-color: #10B981;
+    }
+
+    .status-badge.rejected {
+        background-color: #EF4444;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-content p {
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-action {
+        flex-shrink: 0;
+    }
+
+    /* Links Card */
+    .links-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .links-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+        background: var(--light-gray);
+    }
+
+    .links-body {
+        padding: 0;
+    }
+
+    .link-item {
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .link-item:last-child {
+        border-bottom: none;
+    }
+
+    .link-item a {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .link-item a:hover {
+        background-color: var(--light-gray);
+        color: var(--primary-blue);
+    }
+
+    .link-item a i {
+        width: 24px;
+        color: var(--text-secondary);
+    }
+
+    .link-item a:hover i {
+        color: var(--primary-blue);
+    }
+
+    @media (max-width: 768px) {
+        .stat-card {
+            padding: 1.25rem;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .action-card {
+            padding: 1.5rem;
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .activity-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .activity-action {
+            align-self: flex-end;
+        }
+    }
+</style>
+
+<!-- JavaScript for dynamic stats (example) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Example: You can fetch real stats from your API
+        // This is just a demonstration
+        const statCards = document.querySelectorAll('.stat-card .stat-number');
+
+        // Animate numbers (optional)
+        statCards.forEach(stat => {
+            const target = parseInt(stat.textContent) || 0;
+            if (target > 0) {
+                animateNumber(stat, 0, target, 2000);
+            }
+        });
+
+        function animateNumber(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    });
+</script>

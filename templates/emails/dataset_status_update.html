@@ -1,0 +1,15 @@
+<h2>Dataset Status Update</h2>
+
+<p>Dear {{ username }},</p>
+
+<p>Your dataset submission has been reviewed.</p>
+
+<p><strong>Dataset:</strong> {{ title }}</p>
+<p><strong>Status:</strong> {{ status }}</p>
+
+{% if reviewer_notes %}
+<p><strong>Reviewer Notes:</strong><br>
+{{ reviewer_notes }}</p>
+{% endif %}
+
+<p>Regards,<br>NPDC Team</p>

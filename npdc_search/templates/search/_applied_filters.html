@@ -1,0 +1,17 @@
+{% if applied_filters %}
+<div class="mb-3">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="small text-muted fw-bold me-2">Filters Applied:</span>
+        {% for filter in applied_filters %}
+        <span class="badge bg-light text-dark border d-flex align-items-center px-3 py-2 rounded-pill shadow-sm">
+            {{ filter.label }}
+            <button type="button" class="btn-close ms-2" style="width: 0.5em; height: 0.5em;" aria-label="Remove"
+                onclick="removeFilter('{{ filter.type }}', '{{ filter.value }}', '{{ filter.id }}')"></button>
+        </span>
+        {% endfor %}
+        <button class="btn btn-link btn-sm text-danger text-decoration-none small" onclick="clearAllFilters()">
+            Clear All
+        </button>
+    </div>
+</div>
+{% endif %}

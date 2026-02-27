@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - NPDC{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="registration-card">
+                <!-- Header -->
+                <div class="registration-header text-center mb-4">
+                    <h1 class="h3 mb-2">NPDC User Registration</h1>
+                    <p class="text-secondary mb-0">Register to submit and access polar research data</p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                <div class="messages-container mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Registration Form -->
+                <form method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Section: User Details -->
+                    <div class="form-section">
+                        <h5 class="section-title text-danger">User Details</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Title<span class="text-danger">*</span></td>
+                                <td>
+                                    <select name="title" class="form-select form-select-sm" style="width: auto;"
+                                        required data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Select your title (Mr, Ms, Dr, Prof)">
+                                        <option value="">-----Select Title----</option>
+                                        <option value="Mr">Mr</option>
+                                        <option value="Ms">Ms</option>
+                                        <option value="Dr">Dr</option>
+                                        <option value="Prof">Prof</option>
+                                    </select>
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">First Name<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="text" name="first_name" class="form-control" required
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Enter your first name">
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Last Name<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="text" name="last_name" class="form-control" required
+                                        data-bs-toggle="tooltip" data-bs-placement="right" title="Enter your last name">
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Preferred Name</td>
+                                <td>
+                                    <input type="text" name="preferred_name" class="form-control"
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Enter your preferred name (optional)">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Section: Login Details -->
+                    <div class="form-section">
+                        <h5 class="section-title text-danger">Login Details</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Valid Email-Id<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="email" name="email" class="form-control"
+                                        placeholder="Username is e-mail Id" required data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Enter a valid email address. This will be your username.">
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Confirm Email-Id<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="email" name="confirm_email" class="form-control" required
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Re-enter your email address to confirm">
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Password<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="password" name="password1" class="form-control" required
+                                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Password must be at least 8 characters, with 1 uppercase, 1 lowercase, 1 number, and 1 special character">
+                                    <small class="text-muted">Min 8 chars: Upper, Lower, Number, Special
+                                        (@$!%*?&)</small>
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Confirm Password<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="password" name="password2" class="form-control" required
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Re-enter your password to confirm">
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Section: Organisation/Inst. -->
+                    <div class="form-section">
+                        <h5 class="section-title text-danger">Organisation/Inst.</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Designation</td>
+                                <td>
+                                    <input type="text" name="designation" class="form-control" data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Enter your current designation/role (optional)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Organisation Name<span class="text-danger">*</span></td>
+                                <td>
+                                    <input type="text" name="organisation" class="form-control" required
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Enter the name of your organization">
+                                    <div class="invalid-feedback">This field is required.</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Organisation website link/URL<span class="text-danger">*</span>
+                                </td>
+                                <td>
+                                    <input type="url" name="organisation_url" class="form-control" required
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Enter valid URL starting with http:// or https://">
+                                    <div class="invalid-feedback">Enter a valid URL (e.g. https://example.com).</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Personal profile link/URL page at Organisation</td>
+                                <td>
+                                    <input type="url" name="profile_url" class="form-control" data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Enter valid URL starting with http:// or https:// (optional)">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Section: Contact Details -->
+                    <div class="form-section">
+                        <h5 class="section-title text-danger">Contact Details</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Address ( Communication address )</td>
+                                <td>
+                                    <textarea name="address" class="form-control" rows="3" data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Enter your communication address (optional)"></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Alternate e-mail</td>
+                                <td>
+                                    <input type="email" name="alternate_email" class="form-control"
+                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Enter an alternate email address (optional)">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Mobile number</td>
+                                <td>
+                                    <input type="text" name="phone" class="form-control" pattern="[0-9]{10}"
+                                        title="10 digit mobile number" data-bs-toggle="tooltip"
+                                        data-bs-placement="right" title="Enter your 10-digit mobile number">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Whatsapp number</td>
+                                <td>
+                                    <input type="text" name="whatsapp_number" class="form-control" pattern="[0-9]+"
+                                        title="Digits only" data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Enter your WhatsApp number (optional)">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Section: Captcha -->
+                    <div class="form-section">
+                        <h5 class="section-title text-danger">Captcha</h5>
+                        <table class="form-table">
+                            <tr>
+                                <td class="label-cell">Verify code</td>
+                                <td>
+                                    <div data-bs-toggle="tooltip" data-bs-placement="right"
+                                        title="Solve the equation to verify you are human">
+                                        {{ form.captcha }}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label small" for="terms">
+                            I agree to the <a href="#" class="text-primary">Terms of Service</a> and
+                            <a href="#" class="text-primary">Privacy Policy</a> of NPDC <span
+                                class="text-danger">*</span>
+                        </label>
+                        <div class="invalid-feedback">You must agree before submitting.</div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary px-4 me-2">Submit</button>
+                        <button type="reset" class="btn btn-secondary px-4">Reset</button>
+                    </div>
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-4 pt-4 border-top">
+                        <p class="mb-3">Already have an account?</p>
+                        <a href="{% url 'users:login' %}" class="btn btn-outline-primary px-4">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Registration Page Styles -->
+<style>
+    .registration-card {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+    }
+
+    .registration-header h1 {
+        color: #003366;
+        font-weight: 700;
+    }
+
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .form-table tr {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .form-table td {
+        padding: 0.75rem 0.5rem;
+        vertical-align: top;
+    }
+
+    .label-cell {
+        width: 35%;
+        font-weight: 500;
+        color: #333;
+        padding-right: 1rem;
+    }
+
+    .form-control,
+    .form-select {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+    }
+
+    .btn-primary {
+        background-color: #0066cc;
+        border-color: #0066cc;
+    }
+
+    .btn-primary:hover {
+        background-color: #0052a3;
+        border-color: #0052a3;
+    }
+
+    @media (max-width: 768px) {
+        .label-cell {
+            width: 100%;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-table td {
+            display: block;
+            padding: 0.5rem 0;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Bootstrap Tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // Real-time validation on blur
+        const inputs = document.querySelectorAll('.needs-validation input, .needs-validation select, .needs-validation textarea');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', function () {
+                if (input.hasAttribute('required') && !input.value.trim()) {
+                    input.classList.add('is-invalid');
+                } else {
+                    if (input.checkValidity()) {
+                        input.classList.remove('is-invalid');
+                        input.classList.add('is-valid');
+                    } else {
+                        input.classList.add('is-invalid');
+                    }
+                }
+            });
+
+            // Remove error state on input
+            input.addEventListener('input', function () {
+                if (input.classList.contains('is-invalid')) {
+                    input.classList.remove('is-invalid');
+                }
+            });
+        });
+
+        // Form submission validation
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+{% endblock %}

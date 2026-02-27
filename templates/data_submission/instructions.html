@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .instructions-container {
+        color: #FFFFFF;
+    }
+    
+    .instructions-container h4 {
+        color: var(--accent-teal) !important;
+    }
+    
+    .instructions-container span,
+    .instructions-container div {
+        color: #FFFFFF;
+    }
+</style>
+<div class="container py-5 instructions-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header/Action Section -->
+            <div class="mb-5">
+                <a href="{% url 'data_submission:submit_dataset' %}" class="btn btn-outline-dark px-4 py-2"
+                    style=" color: #FFFFFF;border: 2px solid; font-weight: 500;">
+                    Click here to submit New Dataset
+                </a>
+            </div>
+
+            <!-- Guidelines Section -->
+            <div class="mb-5">
+                <ul class="list-unstyled" style="line-height: 2;">
+                    <li class="d-flex mb-3">
+                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
+                        <span>Please submit the datasets collected during the respective expedition along with
+                            metadata.</span>
+                    </li>
+                    <li class="d-flex mb-3">
+                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
+                        <span>The datasets include observational data from the Arctic, Antarctic, Southern Ocean, and
+                            Himalaya spanning both short-term and long-term periods.</span>
+                    </li>
+                    <li class="d-flex mb-3">
+                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
+                        <span>These datasets will be properly archived with corresponding metadata and the project you
+                            have participated.</span>
+                    </li>
+                    <li class="d-flex mb-3">
+                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
+                        <span>Our NPDC is technical data repository for the Polar Datasets under Scientific Committee on
+                            Antarctic Research (SCAR)- Standing Committee on Antarctic Data Management (SCADM).</span>
+                    </li>
+                </ul>
+            </div>
+
+            <hr class="my-5">
+
+            <!-- Contact Details Section -->
+            <div class="mb-5">
+                <h4 class="mb-4 text-decoration-underline fw-bold">Contact Details of Data Center</h4>
+
+                <div class="fw-bold mb-1">SIC-PDSS</div>
+                <div class="mb-1">National Polar Data Center (NPDC)</div>
+                <div class="mb-1">National Centre for Polar & Ocean Research (NCPOR)</div>
+                <div class="mb-1">Ministry of Earth Sciences, Government of India</div>
+                <div class="mb-1">Headland Sada, Vasco-da-Gama</div>
+                <div class="mb-3">Goa, INDIA</div>
+
+                <div class="d-flex align-items-center mb-1">
+                    <span style="width: 60px;" class="fw-bold">Pin :</span>
+                    <span>403 804</span>
+                </div>
+                <div class="d-flex align-items-center mb-1">
+                    <span style="width: 60px;" class="fw-bold">Tel :</span>
+                    <span>0091-832-2525515</span>
+                </div>
+                <div class="d-flex align-items-center mb-1">
+                    <span style="width: 60px;" class="fw-bold">e-mail:</span>
+                    <span>npdc@ncpor.res.in / vssamy@ncpor.res.in</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

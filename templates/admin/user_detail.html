@@ -1,0 +1,195 @@
+{% extends "dashboard/admin_base.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-user me-2"></i>User Details</h3>
+        <div>
+            <a href="{% url 'users:edit_user_details' viewed_user.id %}" class="btn btn-primary me-2">
+                <i class="fas fa-edit me-1"></i>Edit
+            </a>
+            <a href="{% url 'users:user_approval_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Badge -->
+    <div class="mb-4">
+        {% if viewed_user.is_active %}
+        <span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>Approved</span>
+        {% else %}
+        <span class="badge bg-warning fs-6"><i class="fas fa-clock me-1"></i>Pending Approval</span>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <!-- User Account Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <strong><i class="fas fa-user-circle me-2"></i>Account Information</strong>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="w-50">Username/Email:</th>
+                            <td>{{ viewed_user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>First Name:</th>
+                            <td>{{ viewed_user.first_name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Name:</th>
+                            <td>{{ viewed_user.last_name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date Joined:</th>
+                            <td>{{ viewed_user.date_joined|date:"F d, Y H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Login:</th>
+                            <td>{{ viewed_user.last_login|date:"F d, Y H:i"|default:"Never" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <strong><i class="fas fa-id-card me-2"></i>Profile Information</strong>
+                </div>
+                <div class="card-body">
+                    {% if profile %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="w-50">Title:</th>
+                            <td>{{ profile.title|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Preferred Name:</th>
+                            <td>{{ profile.preferred_name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Designation:</th>
+                            <td>{{ profile.designation|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Registration Date:</th>
+                            <td>{{ profile.created_at|date:"F d, Y H:i" }}</td>
+                        </tr>
+                        {% if profile.approved_at %}
+                        <tr>
+                            <th>Approved At:</th>
+                            <td>{{ profile.approved_at|date:"F d, Y H:i" }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No profile information available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Organisation Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <strong><i class="fas fa-building me-2"></i>Organisation Information</strong>
+                </div>
+                <div class="card-body">
+                    {% if profile %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="w-50">Organisation:</th>
+                            <td>{{ profile.organisation|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Organisation URL:</th>
+                            <td>
+                                {% if profile.organisation_url %}
+                                <a href="{{ profile.organisation_url }}" target="_blank">{{ profile.organisation_url
+                                    }}</a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Profile URL:</th>
+                            <td>
+                                {% if profile.profile_url %}
+                                <a href="{{ profile.profile_url }}" target="_blank">{{ profile.profile_url }}</a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No organisation information available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <strong><i class="fas fa-address-book me-2"></i>Contact Information</strong>
+                </div>
+                <div class="card-body">
+                    {% if profile %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="w-50">Phone:</th>
+                            <td>{{ profile.phone|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Alternate Email:</th>
+                            <td>{{ profile.alternate_email|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td>{{ profile.address|default:"-"|linebreaks }}</td>
+                        </tr>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No contact information available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    {% if not viewed_user.is_active %}
+    <div class="card mt-4">
+        <div class="card-header bg-warning">
+            <strong>Actions</strong>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'users:approve_user' viewed_user.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-success btn-lg me-3">
+                    <i class="fas fa-check me-2"></i>Approve User
+                </button>
+            </form>
+            <form method="POST" action="{% url 'users:reject_user' viewed_user.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-lg"
+                    onclick="return confirm('Are you sure you want to reject and delete this user?')">
+                    <i class="fas fa-times me-2"></i>Reject User
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock admin_content %}

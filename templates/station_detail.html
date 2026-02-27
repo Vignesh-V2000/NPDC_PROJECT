@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}NPDC | {{ station.name }}{% endblock %}
+{% block content %}
+<style>
+    .station-hero {
+        background: linear-gradient(135deg, #003366 0%, #004e8c 50%, #00274a 100%);
+        color: #fff;
+        padding: 3rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Simulated bg image behind gradient */
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('{% static station.image %}');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.25;
+        z-index: 0;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .station-hero h1 {
+        font-family: 'Lato', sans-serif;
+        font-weight: 900;
+        font-size: 2.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 0.5rem;
+    }
+
+    .station-hero p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin-bottom: 0px;
+    }
+
+    .station-section {
+        background: #f5f7fa;
+        min-height: 50vh;
+        padding: 3rem 0;
+    }
+
+    .station-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-header {
+        border-bottom: 2px solid #E8751A;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        color: #003366;
+        font-weight: 700;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .info-data {
+        color: #333;
+        font-size: 1.05rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-back {
+        background: #f0f0f0;
+        color: #333;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+
+    .btn-back:hover {
+        background: #e2e2e2;
+        color: #000;
+    }
+</style>
+
+<section class="station-hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+        <h1><i class="fas fa-map-marker-alt me-2" style="color:#E8751A"></i> {{ station.name }}</h1>
+        <p>{{ station.location }}</p>
+    </div>
+</section>
+
+<section class="station-section">
+    <div class="container">
+
+        <div class="mb-4">
+            <a href="{% url 'users:home' %}" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Back to Home</a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Details Column -->
+            <div class="col-lg-6">
+                <div class="station-card h-100">
+                    <h3 class="detail-header">About the Station</h3>
+
+                    <div class="info-label">Description</div>
+                    <p class="info-data">{{ station.description }}</p>
+
+                    <div class="info-label">Facilities</div>
+                    <p class="info-data"><i class="fas fa-flask me-2 text-primary"></i> {{ station.facilities }}</p>
+
+                    <div class="info-label">Location Data</div>
+                    <p class="info-data"><i class="fas fa-globe me-2 text-primary"></i> {{ station.location }}</p>
+                </div>
+            </div>
+
+            <!-- Image Column -->
+            <div class="col-lg-6">
+                <div class="station-card h-100 p-0 overflow-hidden" style="border:none;">
+                    <img src="{% static station.image %}" class="w-100 h-100" style="object-fit: cover;"
+                        alt="Image of {{ station.name }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Datasets -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="station-card">
+                    <h3 class="detail-header"><i class="fas fa-database me-2"></i> Recent Datasets</h3>
+
+                    {% if related_datasets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Year</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ds in related_datasets %}
+                                <tr>
+                                    <td>{{ ds.title }}</td>
+                                    <td><span class="badge bg-secondary">{{ ds.get_category_display }}</span></td>
+                                    <td>{{ ds.expedition_year }}</td>
+                                    <td>
+                                        <a href="{% url 'data_submission:view_submission' ds.id %}"
+                                            class="btn btn-sm btn-outline-primary">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-4">No recent datasets available for this location yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

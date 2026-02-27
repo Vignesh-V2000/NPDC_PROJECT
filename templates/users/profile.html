@@ -1,0 +1,838 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile - NPDC{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Profile Header -->
+    <div class="profile-header mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-6 fw-bold mb-3">User Profile</h1>
+                <p class="text-secondary">
+                    Manage your personal information, contact details, and account settings
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="profile-status">
+                    <span class="badge bg-success">
+                        <i class="fas fa-check-circle me-2"></i>Active Account
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Profile Information -->
+        <div class="col-lg-8">
+            <!-- User Information Card -->
+            <div class="profile-card mb-4">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="header-icon me-3">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">User Information</h4>
+                            <p class="text-muted small mb-0">Update your personal details</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="profileForm" class="needs-validation"
+                        novalidate>
+                        {% csrf_token %}
+
+                        <!-- User Form -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" name="first_name" class="form-control" id="id_first_name"
+                                        value="{{ user_form.first_name.value|default:'' }}" placeholder="First Name">
+                                    <label for="id_first_name">First Name</label>
+                                    <div class="invalid-feedback">
+                                        Please enter your first name.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" name="last_name" class="form-control" id="id_last_name"
+                                        value="{{ user_form.last_name.value|default:'' }}" placeholder="Last Name">
+                                    <label for="id_last_name">Last Name</label>
+                                    <div class="invalid-feedback">
+                                        Please enter your last name.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <input type="email" name="email" class="form-control" id="id_email"
+                                        value="{{ user_form.email.value|default:user.email }}"
+                                        placeholder="Email Address" required>
+                                    <label for="id_email">Email Address <span class="text-danger">*</span></label>
+                                    <div class="invalid-feedback">
+                                        Please enter a valid email address.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Form Fields -->
+                        <div class="profile-fields">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="institution" class="form-control" id="id_institution"
+                                            value="{{ profile_form.institution.value|default:'' }}"
+                                            placeholder="Institution/Organization">
+                                        <label for="id_institution">Institution/Organization</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="department" class="form-control" id="id_department"
+                                            value="{{ profile_form.department.value|default:'' }}"
+                                            placeholder="Department">
+                                        <label for="id_department">Department</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="position" class="form-control" id="id_position"
+                                            value="{{ profile_form.position.value|default:'' }}"
+                                            placeholder="Position/Title">
+                                        <label for="id_position">Position/Title</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="orcid_id" class="form-control" id="id_orcid_id"
+                                            value="{{ profile_form.orcid_id.value|default:'' }}" placeholder="ORCID ID">
+                                        <label for="id_orcid_id">ORCID ID</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="tel" name="phone_number" class="form-control" id="id_phone_number"
+                                            value="{{ profile_form.phone_number.value|default:'' }}"
+                                            placeholder="Phone Number">
+                                        <label for="id_phone_number">Phone Number</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" name="website" class="form-control" id="id_website"
+                                            value="{{ profile_form.website.value|default:'' }}" placeholder="Website">
+                                        <label for="id_website">Website</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <textarea name="bio" class="form-control" id="id_bio"
+                                            placeholder="Professional Bio"
+                                            style="height: 120px">{{ profile_form.bio.value|default:'' }}</textarea>
+                                        <label for="id_bio">Professional Bio</label>
+                                        <div class="form-text small">
+                                            Brief description of your research interests and expertise
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select name="research_interest" class="form-select" id="id_research_interest">
+                                            <option value="">Select research interest</option>
+                                            <option value="arctic" {% if profile_form.research_interest.value == 'arctic' %}selected{% endif %}>Arctic Research</option>
+                                            <option value="antarctic" {% if profile_form.research_interest.value == 'antarctic' %}selected{% endif %}>
+                                                Antarctic Research</option>
+                                            <option value="himalayan" {% if profile_form.research_interest.value == 'himalayan' %}selected{% endif %}>
+                                                Himalayan Research</option>
+                                            <option value="climate" {% if profile_form.research_interest.value == 'climate' %}selected{% endif %}>
+                                                Climate Science</option>
+                                            <option value="oceanography" {% if profile_form.research_interest.value == 'oceanography' %}selected{% endif %}>Oceanography</option>
+                                            <option value="glaciology" {% if profile_form.research_interest.value == 'glaciology' %}selected{% endif %}>Glaciology</option>
+                                        </select>
+
+
+                                        <label for="id_research_interest">Primary Research Interest</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="date" name="career_start_date" class="form-control"
+                                            id="id_career_start_date"
+                                            value="{{ profile_form.career_start_date.value|default:'' }}">
+                                        <label for="id_career_start_date">Career Start Date</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-actions mt-5 pt-4 border-top">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-save me-2"></i>Update Profile
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary btn-lg w-100">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Profile Summary & Stats -->
+        <div class="col-lg-4">
+            <!-- Profile Summary Card -->
+            <div class="summary-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Profile Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="profile-avatar text-center mb-4">
+                        <div class="avatar-circle">
+                            {{ user.get_full_name|default:user.username|first|upper }}
+                        </div>
+                        <h4 class="mt-3 mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                        <p class="text-muted small mb-0">{{ user.email }}</p>
+                        <p class="text-primary small mb-0">{{ profile_form.institution.value|default:"No institution
+                            specified" }}</p>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6 class="mb-0">Dataset Submissions</h6>
+                                <p class="stat-number">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6 class="mb-0">Active Since</h6>
+                                <p class="stat-date">{{ user.date_joined|date:"M Y" }}</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6 class="mb-0">Account Status</h6>
+                                <p class="stat-status text-success">Active</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="actions-card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="action-list">
+                        <a href="{% url 'data_submission:instructions' %}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="mb-1">Submit Dataset</h6>
+                                <p class="small text-muted mb-0">Upload new research data</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'data_submission:my_submissions' %}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="mb-1">My Submissions</h6>
+                                <p class="small text-muted mb-0">View and manage submissions</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'password_change' %}" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="mb-1">Change Password</h6>
+                                <p class="small text-muted mb-0">Update account security</p>
+                            </div>
+                        </a>
+                        <a href="#" class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="mb-1">Account Settings</h6>
+                                <p class="small text-muted mb-0">Manage preferences</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Interests Card -->
+            <div class="interests-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Research Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="research-interests">
+                        <h6 class="mb-3">Research Interests</h6>
+                        <div class="interests-list">
+                            <span class="interest-tag">{{ profile_form.research_interest.value|default:"Not specified"
+                                }}</span>
+                            {% if profile_form.bio.value %}
+                            <p class="small text-muted mt-3 mb-0">{{ profile_form.bio.value|truncatechars:150 }}</p>
+                            {% else %}
+                            <p class="small text-muted mt-3 mb-0">No research bio provided</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="contact-info mt-4">
+                        <h6 class="mb-3">Contact Information</h6>
+                        <div class="contact-details">
+                            {% if profile_form.phone_number.value %}
+                            <div class="contact-item mb-2">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                <span class="small">{{ profile_form.phone_number.value }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="contact-item mb-2">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                <span class="small">{{ user.email }}</span>
+                            </div>
+                            {% if profile_form.website.value %}
+                            <div class="contact-item">
+                                <i class="fas fa-globe text-primary me-2"></i>
+                                <span class="small">{{ profile_form.website.value }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Page Styles -->
+<style>
+    /* Profile Header */
+    .profile-header {
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .profile-status .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    /* Profile Card */
+    .profile-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+    }
+
+    .profile-card .card-header {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .profile-card .card-body {
+        padding: 2rem;
+    }
+
+    /* Form Styling */
+    .form-floating {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-floating>.form-control,
+    .form-floating>.form-select {
+        height: calc(3.5rem + 2px);
+        padding: 1.5rem 1rem 0.5rem;
+        border-radius: var(--border-radius-sm);
+        border: 2px solid var(--medium-gray);
+        background: white;
+    }
+
+    .form-floating>.form-control:focus,
+    .form-floating>.form-select:focus {
+        border-color: var(--accent-teal);
+        box-shadow: 0 0 0 3px rgba(0, 163, 161, 0.1);
+    }
+
+    .form-floating>label {
+        padding: 1rem 0.75rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .form-floating>.form-control:focus~label,
+    .form-floating>.form-control:not(:placeholder-shown)~label,
+    .form-floating>.form-select:focus~label,
+    .form-floating>.form-select:not([value=""]):valid~label {
+        transform: scale(0.85) translateY(-0.75rem) translateX(0.15rem);
+        color: var(--accent-teal);
+    }
+
+    /* Summary Card */
+    .summary-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+    }
+
+    .summary-card .card-header {
+        background: var(--light-gray);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .summary-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .avatar-circle {
+        width: 120px;
+        height: 120px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: 600;
+        margin: 0 auto;
+        box-shadow: 0 4px 12px rgba(0, 51, 102, 0.2);
+    }
+
+    /* Profile Stats */
+    .profile-stats {
+        margin-top: 2rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 51, 102, 0.1);
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-blue);
+        font-size: 1rem;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-content h6 {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0;
+    }
+
+    .stat-date,
+    .stat-status {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0;
+    }
+
+    /* Actions Card */
+    .actions-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+    }
+
+    .actions-card .card-header {
+        background: var(--light-gray);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .actions-card .card-body {
+        padding: 0;
+    }
+
+    .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--medium-gray);
+        transition: all 0.2s ease;
+    }
+
+    .action-item:last-child {
+        border-bottom: none;
+    }
+
+    .action-item:hover {
+        background-color: var(--light-gray);
+        color: var(--primary-blue);
+    }
+
+    .action-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 51, 102, 0.1);
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-blue);
+        font-size: 1rem;
+    }
+
+    .action-item:hover .action-icon {
+        background: var(--gradient-primary);
+        color: white;
+    }
+
+    .action-content {
+        flex: 1;
+    }
+
+    .action-content h6 {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    /* Interests Card */
+    .interests-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+    }
+
+    .interests-card .card-header {
+        background: var(--light-gray);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .interests-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .interest-tag {
+        display: inline-block;
+        background: var(--gradient-primary);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Contact Information */
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .contact-item i {
+        width: 16px;
+    }
+
+    /* Form Actions */
+    .form-actions .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        border-radius: var(--border-radius-md);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .profile-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .avatar-circle {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            text-align: center;
+        }
+
+        .profile-status {
+            margin-top: 1rem;
+        }
+
+        .profile-card .card-body {
+            padding: 1.25rem;
+        }
+
+        .form-actions .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .profile-card .card-body {
+            padding: 1rem;
+        }
+
+        .form-floating>.form-control,
+        .form-floating>.form-select {
+            padding: 1.25rem 0.75rem 0.5rem;
+        }
+
+        .form-actions .row {
+            flex-direction: column;
+        }
+
+        .form-actions .col-md-6 {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Validation Styles */
+    .was-validated .form-control:valid,
+    .was-validated .form-select:valid {
+        border-color: #198754;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .was-validated .form-control:invalid,
+    .was-validated .form-select:invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+</style>
+
+<!-- JavaScript for Profile Page -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Form validation
+        const form = document.getElementById('profileForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        }
+
+        // Email validation
+        const emailField = document.getElementById('id_email');
+        if (emailField) {
+            emailField.addEventListener('blur', function () {
+                const email = this.value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (email && !emailRegex.test(email)) {
+                    this.setCustomValidity('Please enter a valid email address');
+                    this.classList.add('is-invalid');
+                } else {
+                    this.setCustomValidity('');
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                }
+            });
+        }
+
+        // Auto-resize bio textarea
+        const bioTextarea = document.getElementById('id_bio');
+        if (bioTextarea) {
+            function autoResize() {
+                bioTextarea.style.height = 'auto';
+                bioTextarea.style.height = (bioTextarea.scrollHeight) + 'px';
+            }
+
+            bioTextarea.addEventListener('input', autoResize);
+            // Initial resize
+            autoResize();
+        }
+
+        // Phone number formatting
+        const phoneField = document.getElementById('id_phone_number');
+        if (phoneField) {
+            phoneField.addEventListener('input', function (e) {
+                let value = this.value.replace(/\D/g, '');
+
+                if (value.length > 10) {
+                    value = value.substring(0, 10);
+                }
+
+                if (value.length > 6) {
+                    value = value.substring(0, 6) + '-' + value.substring(6);
+                }
+                if (value.length > 3) {
+                    value = value.substring(0, 3) + '-' + value.substring(3);
+                }
+
+                this.value = value;
+            });
+        }
+
+        // Website URL validation
+        const websiteField = document.getElementById('id_website');
+        if (websiteField) {
+            websiteField.addEventListener('blur', function () {
+                const url = this.value;
+                if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                    this.value = 'https://' + url;
+                }
+            });
+        }
+
+        // Real-time form field validation
+        const formFields = form.querySelectorAll('.form-control, .form-select');
+        formFields.forEach(field => {
+            field.addEventListener('input', function () {
+                if (this.checkValidity()) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+
+            field.addEventListener('change', function () {
+                if (this.checkValidity()) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+
+        // Update profile stats (example)
+        function updateProfileStats() {
+            // This would typically fetch data from an API
+            const stats = {
+                submissions: 0,
+                approved: 0,
+                pending: 0
+            };
+
+            // Update stat elements if they exist
+            const statNumber = document.querySelector('.stat-number');
+            if (statNumber) {
+                statNumber.textContent = stats.submissions;
+            }
+        }
+
+        // Initialize
+        updateProfileStats();
+
+        // Character counter for bio
+        if (bioTextarea) {
+            const charCounter = document.createElement('div');
+            charCounter.className = 'form-text text-end small';
+            charCounter.style.marginTop = '0.25rem';
+            bioTextarea.parentNode.appendChild(charCounter);
+
+            function updateCharCount() {
+                const count = bioTextarea.value.length;
+                charCounter.textContent = `${count} characters`;
+
+                if (count > 500) {
+                    charCounter.classList.add('text-danger');
+                    charCounter.classList.remove('text-muted');
+                } else {
+                    charCounter.classList.remove('text-danger');
+                    charCounter.classList.add('text-muted');
+                }
+            }
+
+            bioTextarea.addEventListener('input', updateCharCount);
+            updateCharCount();
+        }
+    });
+</script>
+{% endblock %}

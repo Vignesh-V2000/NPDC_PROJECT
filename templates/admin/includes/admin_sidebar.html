@@ -1,0 +1,123 @@
+<!-- Admin Sidebar Navigation -->
+<div class="admin-sidebar {% if is_full_sidebar %}sidebar-full{% endif %}">
+    <div class="sidebar-header">
+        <h5 class="mb-0">
+            <i class="fas fa-user-shield me-2"></i>Admin Panel
+        </h5>
+    </div>
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
+                    href="{% url 'data_submission:admin_dashboard' %}">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'review_submissions' or request.resolver_match.url_name == 'review_submission_detail' %}active{% endif %}"
+                    href="{% url 'data_submission:review_submissions' %}">
+                    <i class="fas fa-clipboard-check me-2"></i>Review Submissions
+                </a>
+            </li>
+            {% if request.user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active{% endif %}"
+                    href="{% url 'users:user_approval_dashboard' %}">
+                    <i class="fas fa-users-cog me-2"></i>User & Admin Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:admin_create_user' %}">
+                    <i class="fas fa-user-plus me-2"></i>Create Admin
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{% url 'users:home' %}" class="btn btn-outline-light btn-sm w-100">
+            <i class="fas fa-arrow-left me-2"></i>Back to Main Site
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Admin Sidebar Styles */
+    .admin-sidebar {
+        background: linear-gradient(180deg, #1A202C 0%, #2D3748 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        position: sticky;
+        top: 100px;
+    }
+
+    /* Full Sidebar Variant */
+    .admin-sidebar.sidebar-full {
+        min-height: 100vh;
+        border-radius: 0;
+        top: 0;
+        width: 260px;
+        margin: 0;
+    }
+
+    .sidebar-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .sidebar-header h5 {
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .sidebar-nav .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar-nav .nav-link:hover {
+        color: white !important;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .sidebar-nav .nav-link.active {
+        color: white !important;
+        background: linear-gradient(135deg, #0052CC 0%, #00A3A1 100%);
+        font-weight: 600;
+    }
+
+    .sidebar-nav .nav-link i {
+        width: 20px;
+    }
+
+    .sidebar-footer {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1rem;
+    }
+
+    .sidebar-footer .btn-outline-light {
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .sidebar-footer .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+        .admin-sidebar {
+            position: static;
+            margin-bottom: 2rem;
+        }
+    }
+</style>

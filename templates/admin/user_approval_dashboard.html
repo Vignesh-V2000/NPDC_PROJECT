@@ -1,0 +1,284 @@
+{% extends "dashboard/admin_base.html" %}
+
+{% block admin_content %}
+
+
+<div class="container-fluid">
+
+    <h3 class="mb-4">User & Admin Management</h3>
+
+    <!-- Pending Users -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark d-flex align-items-center">
+            <i class="fas fa-clock fa-lg me-2"></i>
+            <strong>Pending User Requests</strong>
+            <span class="badge bg-dark ms-auto">{{ pending_users|length }}</span>
+        </div>
+
+        <div class="card-body">
+
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>User Type</th>
+                            <th>Institution</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in pending_users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>Standard User</td>
+                            <td>{{ user.profile.organisation|default:"-" }}</td>
+
+                            <td>
+                                <a href="{% url 'users:view_user_details' user.id %}"
+                                    class="btn btn-outline-primary btn-sm me-1">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <a href="{% url 'users:edit_user_details' user.id %}"
+                                    class="btn btn-outline-secondary btn-sm me-1">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <form method="POST" action="{% url 'users:approve_user' user.id %}"
+                                    style="display:inline;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-success btn-sm me-1">
+                                        <i class="fas fa-check me-1"></i>Approve
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'users:reject_user' user.id %}"
+                                    style="display:inline;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Cancel this user registration?')">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No pending approvals</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Approved Users Section -->
+    <div class="card">
+        <div class="card-header bg-success text-white d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-lg me-2"></i>
+                <strong>Approved Users & Admins</strong>
+            </div>
+
+            <!-- Radio Buttons for Toggle -->
+            <div class="btn-group" role="group" aria-label="User Type Toggle">
+                <input type="radio" class="btn-check" name="userType" id="btnStandard" autocomplete="off" checked
+                    onchange="toggleUserTable('standard')">
+                <label class="btn btn-outline-light" for="btnStandard">Standard Users</label>
+
+                <input type="radio" class="btn-check" name="userType" id="btnAdmin" autocomplete="off"
+                    onchange="toggleUserTable('admin')">
+                <label class="btn btn-outline-light" for="btnAdmin">Admin Users</label>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Standard Users Table -->
+            <div id="standard-users-table">
+                <h5 class="mb-3 text-secondary">Standard Users (<span id="standard-count">{{ standard_count }}</span>)
+                </h5>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Organization</th>
+                                <th>Creation Date</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in approved_users %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ user.get_full_name }}</div>
+                                    <small class="text-muted">{{ user.username }}</small>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.profile.organisation|default:"-" }}</td>
+                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                <td><span class="badge bg-light text-dark border">User</span></td>
+                                <td>
+                                    <a href="{% url 'users:view_user_details' user.id %}"
+                                        class="btn btn-outline-primary btn-sm me-1">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </a>
+                                    <a href="{% url 'users:edit_user_details' user.id %}"
+                                        class="btn btn-outline-secondary btn-sm me-1">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    <a href="{% url 'users:admin_change_user_password' user.id %}"
+                                        class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-key me-1"></i>Password
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No approved users</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Users Table -->
+            <div id="admin-users-table" style="display: none;">
+                <h5 class="mb-3 text-secondary">Admin Users (<span id="admin-count">{{ admin_count }}</span>)
+                </h5>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Organization</th>
+                                <th>Creation Date</th>
+                                <th>Admin Role</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in admin_users %}
+                            <tr>
+                                <td>
+                                    {{ user.username }}
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.profile.organisation|default:"-" }}</td>
+                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if user.is_superuser %}
+                                    <span class="badge bg-dark">Super Admin</span>
+                                    {% elif user.profile.expedition_admin_type %}
+                                    <span class="badge bg-info">{{ user.profile.get_expedition_admin_type_display }}
+                                        Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-primary">Staff</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'users:view_user_details' user.id %}"
+                                        class="btn btn-outline-primary btn-sm me-1">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </a>
+                                    <a href="{% url 'users:edit_user_details' user.id %}"
+                                        class="btn btn-outline-secondary btn-sm me-1">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    <a href="{% url 'users:admin_change_user_password' user.id %}"
+                                        class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-key me-1"></i>Password
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No admin users</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleUserTable(type) {
+            const standardTable = document.getElementById('standard-users-table');
+            const adminTable = document.getElementById('admin-users-table');
+
+            if (type === 'standard') {
+                standardTable.style.display = 'block';
+                adminTable.style.display = 'none';
+            } else {
+                standardTable.style.display = 'none';
+                adminTable.style.display = 'block';
+            }
+        }
+    </script>
+
+
+    <!-- Cancelled Users -->
+    <div class="card mt-4">
+        <div class="card-header bg-danger text-white d-flex align-items-center">
+            <i class="fas fa-times-circle fa-lg me-2"></i>
+            <strong>Cancelled Users</strong>
+            <span class="badge bg-light text-danger ms-auto">{{ rejected_users|length }}</span>
+        </div>
+
+        <div class="card-body">
+
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Institution</th>
+                            <th>Cancelled At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in rejected_users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.profile.organisation|default:"-" }}</td>
+                            <td>{{ user.profile.rejected_at|date:"M d, Y H:i"|default:"-" }}</td>
+                            <td>
+                                <a href="{% url 'users:view_user_details' user.id %}"
+                                    class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No cancelled users</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock admin_content %}

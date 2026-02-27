@@ -1,0 +1,196 @@
+{% extends "dashboard/admin_base.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-user-edit me-2"></i>Edit User Details</h3>
+        <a href="{% url 'users:user_approval_dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <strong>Editing: {{ viewed_user.email }}</strong>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+                    <!-- User Information -->
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-user me-2"></i>Account Information
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Title *</strong></label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>First Name *</strong></label>
+                            <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}"
+                                class="form-control {% if form.first_name.errors %}is-invalid{% endif %}">
+                            {% if form.first_name.errors %}
+                            <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Last Name *</strong></label>
+                            <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}"
+                                class="form-control {% if form.last_name.errors %}is-invalid{% endif %}">
+                            {% if form.last_name.errors %}
+                            <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Email *</strong></label>
+                            <input type="email" name="email" value="{{ form.email.value|default:'' }}"
+                                class="form-control {% if form.email.errors %}is-invalid{% endif %}">
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Preferred Name</label>
+                            <input type="text" name="preferred_name" value="{{ form.preferred_name.value|default:'' }}"
+                                class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Designation</label>
+                            <input type="text" name="designation" value="{{ form.designation.value|default:'' }}"
+                                class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Organisation & Contact Information -->
+                    <div class="col-md-6">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-building me-2"></i>Organisation & Contact
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Organisation *</strong></label>
+                            <input type="text" name="organisation" value="{{ form.organisation.value|default:'' }}"
+                                class="form-control {% if form.organisation.errors %}is-invalid{% endif %}">
+                            {% if form.organisation.errors %}
+                            <div class="invalid-feedback">{{ form.organisation.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Organisation URL *</strong></label>
+                            <input type="text" name="organisation_url"
+                                value="{{ form.organisation_url.value|default:'' }}"
+                                class="form-control {% if form.organisation_url.errors %}is-invalid{% endif %}">
+                            {% if form.organisation_url.errors %}
+                            <div class="invalid-feedback">{{ form.organisation_url.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Profile URL</label>
+                            <input type="text" name="profile_url" value="{{ form.profile_url.value|default:'' }}"
+                                class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" value="{{ form.phone.value|default:'' }}"
+                                class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                                placeholder="10 digit number">
+                            {% if form.phone.errors %}
+                            <div class="invalid-feedback">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Alternate Email</label>
+                            <input type="email" name="alternate_email"
+                                value="{{ form.alternate_email.value|default:'' }}"
+                                class="form-control {% if form.alternate_email.errors %}is-invalid{% endif %}">
+                            {% if form.alternate_email.errors %}
+                            <div class="invalid-feedback">{{ form.alternate_email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea name="address" class="form-control"
+                                rows="3">{{ form.address.value|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5 class="border-bottom pb-2 mb-3">
+                    <i class="fas fa-lock me-2"></i>Security
+                </h5>
+
+                <div class="alert alert-light border d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Password</strong>
+                        <div class="text-muted small">Update the user's password securely.</div>
+                    </div>
+                    <a href="{% url 'users:admin_change_user_password' viewed_user.id %}"
+                        class="btn btn-outline-warning">
+                        <i class="fas fa-key me-1"></i>Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-end align-items-center">
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" name="action" value="reject" class="btn btn-danger"
+                    onclick="return confirm('Are you sure you want to CANCEL and DELETE this user? This action cannot be undone.');">
+                    <i class="fas fa-times-circle me-1"></i>Cancel
+                </button>
+
+                <button type="submit" name="action" value="approve" class="btn btn-success">
+                    <i class="fas fa-check-circle me-1"></i>Approve
+                </button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Style the Django form select to match Bootstrap */
+    #id_title {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #id_title:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+{% endblock admin_content %}

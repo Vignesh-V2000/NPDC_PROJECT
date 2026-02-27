@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Simple Search - National Polar Data Center{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-search me-2"></i>Simple Search</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{% url 'search:search' %}" method="get">
+                        <!-- General Query -->
+                        <div class="mb-4">
+                            <label for="query" class="form-label fw-bold">Free Text</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control" id="query" name="query"
+                                    placeholder="Search across all fields..." value="{{ request.GET.query }}">
+                            </div>
+                            <div class="form-text">Search for any term across title, abstract, keywords, and more.</div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h5 class="mb-3 text-muted">Specific Fields</h5>
+
+                        <!-- Specific Fields Grid -->
+                        <div class="row g-3">
+                            <!-- Title -->
+                            <div class="col-md-6">
+                                <label for="adv_val_title" class="form-label">Title</label>
+                                <input type="hidden" name="adv_op" value="and">
+                                <input type="hidden" name="adv_field" value="title">
+                                <input type="text" class="form-control" id="adv_val_title" name="adv_val"
+                                    placeholder="Dataset title...">
+                            </div>
+
+                            <!-- Person -->
+                            <div class="col-md-6">
+                                <label for="adv_val_person" class="form-label">Person</label>
+                                <input type="hidden" name="adv_op" value="and">
+                                <input type="hidden" name="adv_field" value="person">
+                                <input type="text" class="form-control" id="adv_val_person" name="adv_val"
+                                    placeholder="Scientist or Author name...">
+                            </div>
+
+                            <!-- Keywords -->
+                            <div class="col-md-6">
+                                <label for="adv_val_keywords" class="form-label">Keywords</label>
+                                <input type="hidden" name="adv_op" value="and">
+                                <input type="hidden" name="adv_field" value="keywords">
+                                <input type="text" class="form-control" id="adv_val_keywords" name="adv_val"
+                                    placeholder="e.g., climate, ice, geology...">
+                            </div>
+
+                            <!-- Project Name -->
+                            <div class="col-md-6">
+                                <label for="adv_val_project" class="form-label">Project Name</label>
+                                <input type="hidden" name="adv_op" value="and">
+                                <input type="hidden" name="adv_field" value="project">
+                                <input type="text" class="form-control" id="adv_val_project" name="adv_val"
+                                    placeholder="Project name...">
+                            </div>
+
+                            <!-- Expedition Year -->
+                            <div class="col-md-12">
+                                <label for="year" class="form-label">Expedition Year</label>
+                                <select class="form-select" id="year" name="year">
+                                    <option value="" selected>All Years</option>
+                                    {% for v, d in year_choices %}
+                                    <option value="{{ v }}">{{ d }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                                <i class="fas fa-search me-2"></i>Search Database
+                            </button>
+                            <a href="{% url 'search:search' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

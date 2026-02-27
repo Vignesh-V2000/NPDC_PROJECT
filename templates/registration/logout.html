@@ -1,0 +1,578 @@
+{% extends 'base.html' %}
+
+{% block title %}Logged Out - NPDC{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Logout Confirmation -->
+    <div class="logout-container text-center">
+        <!-- Animation Container -->
+        <div class="logout-animation mb-5">
+            <div class="animation-circle">
+                <div class="checkmark-wrapper">
+                    <div class="checkmark">
+                        <div class="checkmark__circle"></div>
+                        <div class="checkmark__stem"></div>
+                        <div class="checkmark__kick"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Message -->
+        <div class="confirmation-message mb-5">
+            <h1 class="display-5 fw-bold mb-3 text-primary">Successfully Signed Out</h1>
+            <p class="lead text-secondary mb-4">
+                You have been securely logged out of the National Polar Data Center portal
+            </p>
+            <div class="security-badge">
+                <span class="badge bg-success">
+                    <i class="fas fa-shield-alt me-2"></i>Session Securely Terminated
+                </span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons mb-5">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg w-100 h-100 py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-sign-in-alt fa-2x mb-3"></i>
+                            <span>Sign In Again</span>
+                            <small class="text-light opacity-75 mt-1">Return to your account</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="{% url 'users:home' %}" class="btn btn-outline-primary btn-lg w-100 h-100 py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-home fa-2x mb-3"></i>
+                            <span>Return Home</span>
+                            <small class="text-primary opacity-75 mt-1">Back to homepage</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="#" class="btn btn-outline-secondary btn-lg w-100 h-100 py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-question-circle fa-2x mb-3"></i>
+                            <span>Need Help?</span>
+                            <small class="text-secondary opacity-75 mt-1">Visit help center</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Guidelines -->
+        <div class="security-guidelines mb-5">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Security Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="security-tip">
+                                <div class="tip-icon">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <h6 class="h7 mb-2">Public Computers</h6>
+                                <p class="small text-muted mb-0">
+                                    Close browser window after use on shared devices
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="security-tip">
+                                <div class="tip-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <h6 class="h7 mb-2">Password Security</h6>
+                                <p class="small text-muted mb-0">
+                                    Use strong, unique passwords for your account
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="security-tip">
+                                <div class="tip-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <h6 class="h7 mb-2">Monitor Activity</h6>
+                                <p class="small text-muted mb-0">
+                                    Review account activity for suspicious access
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="security-tip">
+                                <div class="tip-icon">
+                                    <i class="fas fa-user-lock"></i>
+                                </div>
+                                <h6 class="h7 mb-2">Two-Factor Auth</h6>
+                                <p class="small text-muted mb-0">
+                                    Enable 2FA for enhanced security (if available)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Information -->
+        <div class="session-info mb-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Session Details</h6>
+                        </div>
+                        <div class="info-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <span class="info-label">Logout Time:</span>
+                                        <span class="info-value" id="logoutTime"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Session Status:</span>
+                                        <span class="info-value">
+                                            <span class="badge bg-success">Successfully Terminated</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <span class="info-label">Next Steps:</span>
+                                        <span class="info-value">Return anytime to continue your research</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Browser Cache:</span>
+                                        <span class="info-value">Sensitive data cleared from session</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <h6 class="h7 mb-3 text-center">Quick Navigation</h6>
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <a href="{% url 'users:home' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-home me-2"></i>Home
+                </a>
+                <a href="#" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-database me-2"></i>Browse Datasets
+                </a>
+                <a href="#" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-book me-2"></i>Documentation
+                </a>
+                <a href="#" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-question-circle me-2"></i>Help Center
+                </a>
+                <a href="#" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-phone me-2"></i>Contact Support
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Page Styles -->
+<style>
+    /* Logout Container */
+    .logout-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    /* Logout Animation */
+    .logout-animation {
+        position: relative;
+    }
+    
+    .animation-circle {
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+        border-radius: 50%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        animation: pulse-out 2s infinite;
+    }
+    
+    @keyframes pulse-out {
+        0% {
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.5);
+            transform: scale(1.05);
+        }
+        100% {
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            transform: scale(1);
+        }
+    }
+    
+    /* Checkmark Animation */
+    .checkmark {
+        width: 80px;
+        height: 80px;
+        position: relative;
+    }
+    
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: white;
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    
+    .checkmark__stem {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: white;
+        fill: none;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+    
+    .checkmark__kick {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 26;
+        stroke-dashoffset: 26;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: white;
+        fill: none;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 1.1s forwards;
+    }
+    
+    @keyframes stroke {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+    
+    .confirmation-message {
+        padding: 0 2rem;
+    }
+    
+    .security-badge .badge {
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+    }
+    
+    /* Action Buttons */
+    .action-buttons .btn {
+        border-radius: var(--border-radius-md);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .action-buttons .btn:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .action-buttons .btn-primary {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    }
+    
+    /* Security Guidelines */
+    .security-guidelines .card {
+        border: 1px solid var(--medium-gray);
+        border-radius: var(--border-radius-md);
+    }
+    
+    .security-guidelines .card-header {
+        background: var(--light-gray);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    
+    .security-tip {
+        text-align: center;
+        padding: 1rem;
+        height: 100%;
+    }
+    
+    .tip-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(0, 51, 102, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+    }
+    
+    /* Session Info */
+    .info-card {
+        background: white;
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--medium-gray);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .info-header {
+        background: var(--light-gray);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    
+    .info-body {
+        padding: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--text-secondary);
+        width: 120px;
+        flex-shrink: 0;
+    }
+    
+    .info-value {
+        flex: 1;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+    
+    /* Quick Links */
+    .quick-links {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--medium-gray);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .animation-circle {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .checkmark {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .security-tip {
+            margin-bottom: 2rem;
+        }
+        
+        .security-tip:last-child {
+            margin-bottom: 0;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .confirmation-message h1 {
+            font-size: 2.5rem;
+        }
+        
+        .action-buttons .row > div {
+            margin-bottom: 1rem;
+        }
+        
+        .action-buttons .row > div:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-item {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-label {
+            width: 100%;
+        }
+        
+        .quick-links {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .quick-links .btn {
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .confirmation-message h1 {
+            font-size: 2rem;
+        }
+        
+        .animation-circle {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .security-badge .badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+</style>
+
+<!-- JavaScript for Logout Page -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set logout time
+        const logoutTimeElement = document.getElementById('logoutTime');
+        if (logoutTimeElement) {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            };
+            logoutTimeElement.textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Auto-redirect after 30 seconds (optional)
+        // setTimeout(() => {
+        //     window.location.href = "{% url 'users:home' %}";
+        // }, 30000);
+        
+        // Clear any remaining session data
+        function clearSessionData() {
+            // Clear session storage (except for some essential data)
+            const keepItems = ['language', 'theme', 'notifications'];
+            Object.keys(sessionStorage).forEach(key => {
+                if (!keepItems.includes(key)) {
+                    sessionStorage.removeItem(key);
+                }
+            });
+            
+            // Clear form data (optional)
+            localStorage.removeItem('formDrafts');
+        }
+        
+        // Execute cleanup
+        clearSessionData();
+        
+        // Countdown timer for auto-redirect (optional)
+        // let countdown = 30;
+        // const countdownElement = document.getElementById('countdown');
+        // if (countdownElement) {
+        //     const countdownInterval = setInterval(() => {
+        //         countdown--;
+        //         countdownElement.textContent = countdown;
+        //         if (countdown <= 0) {
+        //             clearInterval(countdownInterval);
+        //             window.location.href = "{% url 'users:home' %}";
+        //         }
+        //     }, 1000);
+        // }
+        
+        // Add visual feedback for security tips
+        const securityTips = document.querySelectorAll('.security-tip');
+        securityTips.forEach(tip => {
+            tip.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('.tip-icon');
+                icon.style.transform = 'scale(1.1)';
+                icon.style.transition = 'transform 0.3s ease';
+            });
+            
+            tip.addEventListener('mouseleave', function() {
+                const icon = this.querySelector('.tip-icon');
+                icon.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Enter to go to login
+            if (e.key === 'Enter') {
+                window.location.href = "{% url 'users:login' %}";
+            }
+            
+            // Escape to go home
+            if (e.key === 'Escape') {
+                window.location.href = "{% url 'users:home' %}";
+            }
+            
+            // Number shortcuts
+            if (e.key === '1') {
+                window.location.href = "{% url 'users:login' %}";
+            }
+            if (e.key === '2') {
+                window.location.href = "{% url 'users:home' %}";
+            }
+            if (e.key === '3') {
+                window.location.href = "#";
+            }
+        });
+        
+        // Show keyboard shortcuts help
+        const helpBtn = document.querySelector('.btn-outline-secondary[href="#"]');
+        if (helpBtn) {
+            helpBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Keyboard Shortcuts:\n\n• Enter: Sign In Again\n• Escape: Return Home\n• 1: Sign In\n• 2: Home\n• 3: Help');
+            });
+        }
+        
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Animate security badge
+        const securityBadge = document.querySelector('.security-badge .badge');
+        if (securityBadge) {
+            setTimeout(() => {
+                securityBadge.style.transform = 'scale(1.1)';
+                securityBadge.style.transition = 'transform 0.3s ease';
+                setTimeout(() => {
+                    securityBadge.style.transform = 'scale(1)';
+                }, 300);
+            }, 1000);
+        }
+    });
+</script>
+{% endblock %}

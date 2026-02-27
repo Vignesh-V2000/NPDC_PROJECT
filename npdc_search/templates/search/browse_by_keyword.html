@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .browse-header {
+        background: linear-gradient(135deg, #003366 0%, #0052CC 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 2.5rem;
+        text-align: center;
+    }
+
+    .browse-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .browse-header p {
+        opacity: 0.85;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    .keyword-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+        .keyword-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .keyword-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .keyword-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .keyword-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .keyword-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 28px rgba(0, 51, 102, 0.15);
+    }
+
+    .keyword-card-img {
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .keyword-card-img i {
+        position: relative;
+        z-index: 1;
+        display: none;
+    }
+
+    .keyword-card-img.has-image i {
+        display: none;
+    }
+
+    .keyword-card-img::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.25) 100%);
+        z-index: 0;
+    }
+
+    .keyword-card-body {
+        padding: 1rem 1.1rem 1.2rem;
+        flex: 1;
+    }
+
+    .keyword-card-body a.keyword-title {
+        color: #0077BB;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .keyword-card-body a.keyword-title:hover {
+        color: #003366;
+        text-decoration: underline;
+    }
+
+    .keyword-samples {
+        color: #555;
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="browse-header">
+    <h1><i class="fas fa-tags me-2"></i>Browse by Keyword</h1>
+    <p>Explore datasets organized by scientific categories</p>
+</div>
+
+<div class="keyword-grid">
+    {% for cat in categories %}
+    <div class="keyword-card">
+        <div class="keyword-card-img" id="card-img-{{ forloop.counter }}" data-category="{{ cat.label }}">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="keyword-card-body">
+            <a class="keyword-title" href="{% url 'search:search' %}?category={{ cat.value }}">
+                {{ cat.label }} ({{ cat.count }} entries)
+            </a>
+            <div class="keyword-samples">
+                {% for kw in cat.sample_keywords %}
+                {{ kw }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                {% if cat.sample_keywords %}...{% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Map categories to LOCAL image filenames in /static/images/keywords/
+        var categoryImageMap = {
+            'Agriculture': 'Agriculture.jpg',
+            'Atmosphere': 'atmosphere.jpg',
+            'Atmospheric Conditions': 'atmosphere.jpg',
+            'Atmospheric Processes': 'atmosphere.jpg',
+            'Biological Classification': 'Biological Classification.jpg',
+            'Biological Processes': 'Biological Classification.jpg',
+            'Biosphere': 'Biosphere.jpg',
+            'Climate': 'Climate Indicators.jpg',
+            'Climate Indicators': 'Climate Indicators.jpg',
+            'Climate Processes': 'Climate Indicators.jpg',
+            'Cryosphere': 'Cryosphere.jpg',
+            'Cryospheric Processes': 'Cryosphere.jpg',
+            'Earth Surface': 'Land Surface.jpg',
+            'Ecosystems': 'Biosphere.jpg',
+            'Human Dimensions': 'Human Dimensions.jpg',
+            'Human Settlements': 'Human Dimensions.jpg',
+            'Ice': 'Cryosphere.jpg',
+            'Land Surface': 'Land Surface.jpg',
+            'Land Use': 'Land Surface.jpg',
+            'Oceans': 'Oceans.jpg',
+            'Ocean Processes': 'Oceans.jpg',
+            'Paleoclimate': 'Paleoclimate.jpg',
+            'Paleoecology': 'Paleoclimate.jpg',
+            'Solid Earth': 'Solid Earth.jpg',
+            'Spectral': 'Spectral_Engineering.jpg',
+            'Spectral Engineering': 'Spectral_Engineering.jpg',
+            'Sun-Earth Interactions': 'Sun-earth Interactions.jpg',
+            'Water': 'Oceans.jpg',
+            'Weather': 'atmosphere.jpg',
+            'Polar Research': 'Cryosphere.jpg',
+            'Arctic': 'Cryosphere.jpg',
+            'Antarctic': 'Cryosphere.jpg',
+            'Terrestrial Hydrosphere': 'Oceans.jpg',
+            'Terrestrial Science': 'Land Surface.jpg',
+            'Marine Science': 'Oceans.jpg',
+            'Wind Profile Radar': 'atmosphere.jpg',
+            'Geotectonic Studies': 'Solid Earth.jpg',
+            'Geotectonics': 'Solid Earth.jpg',
+            'Audio Signals': 'Spectral_Engineering.jpg',
+            'Acoustic': 'Spectral_Engineering.jpg'
+        };
+
+        // Color scheme fallback for categories without local images
+        var colorFallback = {
+            'Agriculture': '#27AE60',
+            'Atmosphere': '#3498DB',
+            'Atmospheric Conditions': '#3498DB',
+            'Atmospheric Processes': '#5DADE2',
+            'Biological Classification': '#E74C3C',
+            'Biological Processes': '#E67E22',
+            'Biosphere': '#27AE60',
+            'Climate': '#1ABC9C',
+            'Climate Indicators': '#16A085',
+            'Climate Processes': '#0E6251',
+            'Cryosphere': '#AED6F1',
+            'Cryospheric Processes': '#85C1E2',
+            'Earth Surface': '#8B4513',
+            'Ecosystems': '#52BE80',
+            'Human Dimensions': '#9B59B6',
+            'Human Settlements': '#34495E',
+            'Ice': '#D6EAF8',
+            'Land Surface': '#BFA181',
+            'Land Use': '#16A085',
+            'Oceans': '#2980B9',
+            'Ocean Processes': '#1F618D',
+            'Paleoclimate': '#95A5A6',
+            'Paleoecology': '#7F8C8D',
+            'Solid Earth': '#717171',
+            'Spectral': '#E67E22',
+            'Spectral Engineering': '#D68910',
+            'Sun-Earth Interactions': '#F39C12',
+            'Water': '#2E86AB',
+            'Weather': '#3498DB',
+            'Polar Research': '#A9CCE3',
+            'Arctic': '#5DADE2',
+            'Antarctic': '#6495ED',
+            'Terrestrial Hydrosphere': '#185ADB',
+            'Terrestrial Science': '#8B4513',
+            'Marine Science': '#117A65',
+            'Wind Profile Radar': '#5D6D7B',
+            'Geotectonic Studies': '#641E16',
+            'Geotectonics': '#78281F',
+            'Audio Signals': '#6C3483',
+            'Acoustic': '#7D3C98'
+        };
+
+        var basePath = '/static/images/keywords/';
+        var c = document.querySelectorAll('.keyword-card-img');
+
+        for (var i = 0; i < c.length; i++) {
+            var categoryName = c[i].getAttribute('data-category');
+            var imageFile = categoryImageMap[categoryName];
+            var fallbackColor = colorFallback[categoryName] || '#3498DB';
+
+            // Try exact match first, then partial match
+            if (!imageFile) {
+                for (var key in categoryImageMap) {
+                    if (categoryName.toUpperCase().indexOf(key.toUpperCase()) !== -1 ||
+                        key.toUpperCase().indexOf(categoryName.toUpperCase()) !== -1) {
+                        imageFile = categoryImageMap[key];
+                        break;
+                    }
+                }
+            }
+
+            if (imageFile) {
+                var imageUrl = basePath + encodeURIComponent(imageFile);
+                c[i].style.background = 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(\'' + imageUrl + '\')';
+                c[i].style.backgroundSize = 'cover';
+                c[i].style.backgroundPosition = 'center';
+                c[i].style.backgroundRepeat = 'no-repeat';
+                c[i].classList.add('has-image');
+            } else {
+                // Use color gradient if no mapping found
+                c[i].style.background = 'linear-gradient(135deg, ' + fallbackColor + ', ' + adjustBrightness(fallbackColor, -15) + ')';
+                var icon = c[i].querySelector('i');
+                if (icon) { icon.style.display = 'block'; }
+            }
+        }
+
+        function adjustBrightness(color, percent) {
+            var num = parseInt(color.replace("#", ""), 16);
+            var amt = Math.round(2.55 * percent);
+            var R = (num >> 16) + amt;
+            var G = (num >> 8 & 0x00FF) + amt;
+            var B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255))
+                .toString(16).slice(1);
+        }
+    });
+</script>
+{% endblock %}

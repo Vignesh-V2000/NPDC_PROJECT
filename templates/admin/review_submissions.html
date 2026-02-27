@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Review Submissions - NPDC{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Review Submissions</h2>
+        <div class="text-end">
+            <span class="badge bg-primary fs-6">{{ submissions|length }} Pending</span>
+        </div>
+    </div>
+
+    <!-- Review Queue Table -->
+    <div class="mb-5">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="7" class="fw-bold">Pending and Resubmitted Metadata</th>
+                    </tr>
+                    <tr class="table-light fw-bold text-center">
+                        <th style="width: 5%;">Sl No.</th>
+                        <th style="width: 30%;">Title</th>
+                        <th style="width: 15%;">Submitter</th>
+                        <th style="width: 15%;">Submitted On</th>
+                        <th style="width: 15%;">Updated On</th>
+                        <th style="width: 10%;">Files</th>
+                        <th style="width: 10%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter }}</td>
+                        <td>
+                            <div class="fw-bold">{{ submission.title }}</div>
+                            <small class="text-muted d-block text-truncate" style="max-width: 300px;">
+                                {{ submission.abstract|default:"No abstract"|truncatechars:100 }}
+                            </small>
+                            {% if submission.region %}
+                            <span class="badge bg-light text-dark border mt-1">{{ submission.region }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div>{{ submission.submitter.get_full_name|default:submission.submitter.username }}</div>
+                            <small class="text-muted">{{ submission.submitter.email }}</small>
+                        </td>
+                        <td class="text-center">
+                            <div>{{ submission.submission_date|date:"d-m-Y" }}</div>
+                            <small class="text-muted">{{ submission.submission_date|time:"H:i" }}</small>
+                        </td>
+                        <td class="text-center">
+                            {% if submission.was_updated %}
+                            <div class="text-primary fw-bold">
+                                <i class="fas fa-sync-alt small me-1"></i>{{ submission.status_updated_at|date:"d-m-Y"
+                                }}
+                            </div>
+                            <small class="text-muted">{{ submission.status_updated_at|time:"H:i" }}</small>
+                            {% else %}
+                            <div class="text-muted">-</div>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if submission.data_file %}
+                            <a href="{{ submission.data_file.url }}" class="btn btn-sm btn-outline-secondary"
+                                target="_blank" title="Download File">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">No file</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'data_submission:review_submission_detail' submission.id %}"
+                                class="btn btn-primary btn-sm w-100 mb-1">
+                                Review
+                            </a>
+                            <a href="{% url 'data_submission:admin_edit_submission' submission.id %}"
+                                class="btn btn-outline-secondary btn-sm w-100">
+                                Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="fas fa-check-circle fa-2x mb-3 d-block text-success"></i>
+                            No pending submissions found. Good job!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .table-secondary {
+        background-color: #d1d5db !important;
+    }
+
+    .table th,
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* Clean link styles */
+    a.small {
+        font-size: 0.85rem;
+        text-decoration: none;
+    }
+
+    a.small:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

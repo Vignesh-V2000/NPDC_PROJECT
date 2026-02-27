@@ -1,0 +1,3201 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Submit New Dataset - NPDC{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        color: #333333;
+    }
+    
+    .container h2,
+    .container h3,
+    .container h4,
+    .container h5,
+    .container h6 {
+        color: var(--primary-blue) !important;
+    }
+    
+    .container p,
+    .container span,
+    .container label,
+    .container div {
+        color: #333333;
+    }
+    
+    /* Keep progress panel with light text */
+    .floating-progress-panel,
+    .floating-progress-panel * {
+        color: white !important;
+    }
+    
+    .floating-progress-panel .progress-title {
+        color: white !important;
+    }
+    
+    .floating-progress-panel .progress-label {
+        color: white !important;
+    }
+    
+    .floating-progress-panel .percentage-badge {
+        color: white !important;
+    }
+    
+    .floating-progress-panel .toggle-btn {
+        color: white !important;
+    }
+    
+    .floating-progress-panel .progress-text-small {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    .alert {
+        color: #333333;
+    }
+</style>
+<div class="container py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-5">
+            <h2 class="mb-4 text-secondary fw-bold">Submit New Dataset</h2>
+
+            <!-- Main Form -->
+            <form method="post" enctype="multipart/form-data" id="datasetForm" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- Global Error Summary -->
+                {% if dataset_form.errors or scientist_formset.errors or instrument_formset.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <h5 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i>Please correct the errors
+                        below:</h5>
+
+                    {% if dataset_form.non_field_errors %}
+                    {{ dataset_form.non_field_errors }}
+                    {% endif %}
+
+                    {% if scientist_formset.non_form_errors %}
+                    <p class="mb-0"><strong>Scientist Details:</strong> {{ scientist_formset.non_form_errors }}</p>
+                    {% endif %}
+
+                    {% if instrument_formset.non_form_errors %}
+                    <p class="mb-0"><strong>Instrument Details:</strong> {{ instrument_formset.non_form_errors }}</p>
+                    {% endif %}
+
+                    {% if dataset_form.errors %}
+                    {% for field, errors in dataset_form.errors.items %}
+                    {% if errors %}
+                    <p class="mb-0 small">• Main Form: {{ field|title }} - {{ errors|join:", " }}</p>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if scientist_formset.errors %}
+                    {% for form_errors in scientist_formset.errors %}
+                    {% for field, errors in form_errors.items %}
+                    {% if errors %}
+                    <p class="mb-0 small">• Scientist #{{ forloop.parentloop.counter }}: {{ field|title }} - {{
+                        errors|join:", " }}</p>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if instrument_formset.errors %}
+                    {% for form_errors in instrument_formset.errors %}
+                    {% for field, errors in form_errors.items %}
+                    {% if errors %}
+                    <p class="mb-0 small">• Instrument #{{ forloop.parentloop.counter }}: {{ field|title }} - {{
+                        errors|join:", " }}</p>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- 🐧 AI Quick Start Panel -->
+                <div class="card border-info mb-4" id="ai-quickstart-panel">
+                    <div class="card-header bg-info bg-opacity-10 d-flex align-items-center justify-content-between">
+                        <span class="fw-bold text-info"><span style="font-size:1.2em">🐧</span> Penguin </span>
+                        <button type="button" class="btn btn-sm btn-outline-info" id="ai-prefill-btn"
+                            onclick="aiPrefillForm()">
+                            <i class="fas fa-magic me-1"></i>Auto-fill Form with Penguin
+                        </button>
+                    </div>
+                    <div class="card-body py-2">
+                        <small class="text-muted">Fill in <strong>Title</strong>, <strong>Abstract</strong>, and
+                            <strong>Expedition Type</strong> first, then click "Auto-fill Form with Penguin" to have the
+                            Penguin suggest Category, Topic, Keywords, and Coordinates.</small>
+                        <div id="ai-prefill-status" class="mt-2" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- 1. Expedition Type -->
+                <div class="mb-4 row align-items-center">
+                    <label class="col-md-2 col-form-label fw-bold">Expedition Type<span
+                            class="text-danger">*</span></label>
+                    <div class="col-md-10">
+                        <div class="d-flex flex-wrap gap-4 align-items-center">
+                            {% for radio in dataset_form.expedition_type %}
+                            <div class="form-check">
+                                {{ radio.tag }}
+                                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                    {{ radio.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Metadata Title -->
+                <div class="mb-4 row">
+                    <div class="col-12">
+                        <div class="d-flex align-items-end gap-2">
+                            <div class="flex-grow-1">
+                                {{ dataset_form.title|as_crispy_field }}
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-info mb-3" id="ai-gen-title-btn"
+                                onclick="aiGenerateTitle()" title="Generate title from abstract">
+                                🐧 Generate Title
+                            </button>
+                        </div>
+                        <div id="ai-title-alternatives" class="mt-1" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Science Keywords -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
+                        Science Keywords
+                        <button type="button" class="btn btn-sm btn-outline-info ms-2" onclick="aiClassify()"
+                            id="ai-classify-btn" title="AI Auto-Classify">
+                            🐧 Auto-Classify
+                        </button>
+                    </legend>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ dataset_form.category|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ dataset_form.topic|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ dataset_form.iso_topic|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ dataset_form.expedition_year|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ dataset_form.expedition_number|as_crispy_field }}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 4. Project Details -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Project Details</legend>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ dataset_form.project_number|as_crispy_field }}
+                        </div>
+                        <div class="col-md-12">
+                            {{ dataset_form.project_name|as_crispy_field }}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 5. Summary -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Summary</legend>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            {{ dataset_form.abstract|as_crispy_field }}
+                            <!-- AI Abstract Quality Meter -->
+                            <div id="ai-abstract-quality" class="mt-1" style="display:none;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span style="font-size:1em">🐧</span>
+                                    <small class="fw-bold">Quality:</small>
+                                    <div class="progress flex-grow-1" style="height: 8px; max-width: 200px;">
+                                        <div id="ai-quality-bar" class="progress-bar" role="progressbar"
+                                            style="width: 0%"></div>
+                                    </div>
+                                    <small id="ai-quality-score" class="fw-bold"></small>
+                                    <button type="button" class="btn btn-sm btn-link p-0 text-info"
+                                        onclick="aiCheckAbstract()" title="Re-check">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <div id="ai-quality-suggestions" class="mt-1"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-end gap-2">
+                                <div class="flex-grow-1">
+                                    {{ dataset_form.purpose|as_crispy_field }}
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-info mb-3" id="ai-gen-purpose-btn"
+                                    onclick="aiGeneratePurpose()" title="Generate purpose from abstract">
+                                    🐧 Generate Purpose
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 6. Dataset Citation -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Dataset Citation
+                        <button type="button" class="btn btn-sm btn-outline-info ms-2" id="ai-citation-btn"
+                            onclick="autoFillCitation()">
+                            🐧 Auto-fill from Profile
+                        </button>
+                    </legend>
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ citation_form.creator|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ citation_form.editor|as_crispy_field }}</div>
+                        <div class="col-12">{{ citation_form.title|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ citation_form.series_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ citation_form.release_date|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ citation_form.release_place|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ citation_form.version|as_crispy_field }}</div>
+                        <div class="col-12">{{ citation_form.online_resource|as_crispy_field }}</div>
+                    </div>
+                </fieldset>
+
+                <!-- 7. Scientist Details -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Scientist Details</legend>
+                    {{ scientist_formset.management_form }}
+                    <div id="scientist-forms">
+                        {% for form in scientist_formset %}
+                        <div class="card mb-3 p-3 bg-light border-0 position-relative">
+                            <h6 class="text-muted mb-3">Scientist #{{ forloop.counter }}</h6>
+                            {% if not forloop.first %}
+                            <button type="button"
+                                class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 remove-scientist-btn"
+                                onclick="removeScientistForm(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% endif %}
+                            {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}
+                            </div>{% endif %}
+                            <div class="row g-3">
+                                <div class="col-md-6">{{ form.role|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.title|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.middle_name|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.mobile|as_crispy_field }}</div>
+                                <div class="col-12">{{ form.institute|as_crispy_field }}</div>
+                                <div class="col-12">{{ form.address|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.city|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.country|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.postal_code|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.state|as_crispy_field }}</div>
+                                {# Hidden fields for formset #}
+                                {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addScientistForm()">
+                        <i class="fas fa-plus me-1"></i> Add Scientist
+                    </button>
+                </fieldset>
+
+                <!-- 8. Other Metadata (Collapsed or simplified) -->
+                <!-- 8. Instrument Details -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Instrument Details</legend>
+                    {{ instrument_formset.management_form }}
+                    <div id="instrument-forms">
+                        {% for form in instrument_formset %}
+                        <div class="row g-3 mb-2">
+                            {% if form.non_field_errors %}<div class="alert alert-danger col-12">{{
+                                form.non_field_errors }}</div>{% endif %}
+                            <div class="col-md-6">{{ form.short_name|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.long_name|as_crispy_field }}</div>
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+
+                <!-- 9. GPS Data Collection -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">GPS Data Collection</legend>
+
+                    <!-- GPS Toggle -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Whether GPS is used for Data Collection?</label>
+                            <div class="form-check form-check-inline ms-3">
+                                <input class="form-check-input" type="radio" name="gps-gps_used" id="gps_yes"
+                                    value="True" {% if gps_form.gps_used.value %}checked{% endif %}>
+                                <label class="form-check-label" for="gps_yes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gps-gps_used" id="gps_no"
+                                    value="False" {% if not gps_form.gps_used.value %}checked{% endif %}>
+                                <label class="form-check-label" for="gps_no">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden actual field -->
+                    <div class="d-none">{{ gps_form.gps_used }}</div>
+
+                    <!-- Temporal Coverage -->
+                    <h6 class="text-muted mt-3 mb-2">Temporal Coverage</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ dataset_form.temporal_start_date|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ dataset_form.temporal_end_date|as_crispy_field }}</div>
+                    </div>
+
+                    <!-- WRAPPER FOR GPS-DEPENDENT SECTIONS -->
+                    <div class="gps-dependent-section" style="display: none;">
+
+                        <!-- Paleo-Temporal Coverage -->
+                        <h6 class="text-muted mt-3 mb-2">Paleo-Temporal Coverage</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">{{ paleo_form.paleo_start_date|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ paleo_form.paleo_stop_date|as_crispy_field }}</div>
+                            <div class="col-12">{{ paleo_form.chronostratigraphic_unit|as_crispy_field }}</div>
+                        </div>
+
+                        <!-- Spatial Coverage -->
+                        <h6 class="text-muted mt-4 mb-2">
+                            Spatial Coverage
+                            <button type="button" class="btn btn-sm btn-outline-info ms-2" onclick="aiExtractSpatial()"
+                                id="ai-spatial-btn" title="AI Auto-fill Coordinates">
+                                🐧 Auto-fill Coordinates
+                            </button>
+                        </h6>
+
+                        <!-- Bounding Box Data Set -->
+                        <div class="card mb-3 border-0">
+                            <div class="card-body p-0">
+                                <h6 class="fw-bold fs-6">Bounding Box Data Set</h6>
+
+                                <!-- South Latitude -->
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-md-2"><label class="col-form-label">Southernmost Latitude</label>
+                                    </div>
+                                    <div class="col-md-1 text-end">Deg</div>
+                                    <div class="col-md-2">{{ dataset_form.south_lat_deg }}</div>
+                                    <div class="col-md-1 text-end">Min</div>
+                                    <div class="col-md-2">{{ dataset_form.south_lat_min }}</div>
+                                    <div class="col-md-1 text-end">Sec</div>
+                                    <div class="col-md-2">{{ dataset_form.south_lat_sec }}</div>
+                                </div>
+
+                                <!-- North Latitude -->
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-md-2"><label class="col-form-label">Northernmost Latitude</label>
+                                    </div>
+                                    <div class="col-md-1 text-end">Deg</div>
+                                    <div class="col-md-2">{{ dataset_form.north_lat_deg }}</div>
+                                    <div class="col-md-1 text-end">Min</div>
+                                    <div class="col-md-2">{{ dataset_form.north_lat_min }}</div>
+                                    <div class="col-md-1 text-end">Sec</div>
+                                    <div class="col-md-2">{{ dataset_form.north_lat_sec }}</div>
+                                </div>
+
+                                <!-- West Longitude -->
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-md-2"><label class="col-form-label">Westernmost Longitude</label>
+                                    </div>
+                                    <div class="col-md-1 text-end">Deg</div>
+                                    <div class="col-md-2">{{ dataset_form.west_lon_deg }}</div>
+                                    <div class="col-md-1 text-end">Min</div>
+                                    <div class="col-md-2">{{ dataset_form.west_lon_min }}</div>
+                                    <div class="col-md-1 text-end">Sec</div>
+                                    <div class="col-md-2">{{ dataset_form.west_lon_sec }}</div>
+                                </div>
+
+                                <!-- East Longitude -->
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-md-2"><label class="col-form-label">Easternmost Longitude</label>
+                                    </div>
+                                    <div class="col-md-1 text-end">Deg</div>
+                                    <div class="col-md-2">{{ dataset_form.east_lon_deg }}</div>
+                                    <div class="col-md-1 text-end">Min</div>
+                                    <div class="col-md-2">{{ dataset_form.east_lon_min }}</div>
+                                    <div class="col-md-1 text-end">Sec</div>
+                                    <div class="col-md-2">{{ dataset_form.east_lon_sec }}</div>
+                                </div>
+
+                                <!-- GPS Specific Fields (Altitude/Depth) -->
+                                <div class="mb-3">
+                                    {{ gps_form.gps_used|as_crispy_field }}
+                                </div>
+                                <div class="gps-dependent-section mt-3" style="display: none;">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">{{ gps_form.minimum_altitude|as_crispy_field }}</div>
+                                        <div class="col-md-6">{{ gps_form.maximum_altitude|as_crispy_field }}</div>
+                                        <div class="col-md-6">{{ gps_form.minimum_depth|as_crispy_field }}</div>
+                                        <div class="col-md-6">{{ gps_form.maximum_depth|as_crispy_field }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Global Data Set -->
+                        <div class="mt-4">
+                            <h6 class="fw-bold fs-6">Global Data Set</h6>
+
+                            <!-- Southernmost Latitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Southernmost Latitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_south_lat_deg"></div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_south_lat_min"></div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_south_lat_sec"></div>
+                            </div>
+
+                            <!-- Northernmost Latitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Northernmost Latitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_north_lat_deg"></div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_north_lat_min"></div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_north_lat_sec"></div>
+                            </div>
+
+                            <!-- Westernmost Longitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Westernmost Longitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_west_lon_deg"></div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_west_lon_min"></div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_west_lon_sec"></div>
+                            </div>
+
+                            <!-- Easternmost Longitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Easternmost Longitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_east_lon_deg"></div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_east_lon_min"></div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control form-control-sm"
+                                        name="global_east_lon_sec"></div>
+                            </div>
+                        </div>
+
+                        <!-- Point Data Set -->
+                        <div class="mt-4">
+                            <h6 class="fw-bold fs-6">Point Data Set</h6>
+
+                            <!-- South Latitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Southernmost Latitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control"
+                                        name="point_south_lat_deg"></div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control"
+                                        name="point_south_lat_min"></div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control"
+                                        name="point_south_lat_sec"></div>
+                            </div>
+
+                            <!-- North Latitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Northernmost Latitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control"
+                                        name="point_north_lat_deg"></div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control"
+                                        name="point_north_lat_min"></div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control"
+                                        name="point_north_lat_sec"></div>
+                            </div>
+
+                            <!-- West Longitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Westernmost Longitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control" name="point_west_lon_deg">
+                                </div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control" name="point_west_lon_min">
+                                </div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control" name="point_west_lon_sec">
+                                </div>
+                            </div>
+
+                            <!-- East Longitude -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-2"><label class="col-form-label">Easternmost Longitude</label></div>
+                                <div class="col-md-1 text-end">Deg</div>
+                                <div class="col-md-2"><input type="text" class="form-control" name="point_east_lon_deg">
+                                </div>
+                                <div class="col-md-1 text-end">Min</div>
+                                <div class="col-md-2"><input type="text" class="form-control" name="point_east_lon_min">
+                                </div>
+                                <div class="col-md-1 text-end">Sec</div>
+                                <div class="col-md-2"><input type="text" class="form-control" name="point_east_lon_sec">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 10. Data Set Progress -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ dataset_form.data_set_progress|as_crispy_field }}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 11. Keywords (with AI Suggest) -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
+                        Keywords
+                        <button type="button" class="btn btn-sm btn-outline-info ms-2" onclick="aiSuggestKeywords()"
+                            id="ai-keywords-btn" title="AI Suggest Keywords">
+                            🐧 Suggest Keywords
+                        </button>
+                    </legend>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            {{ dataset_form.keywords|as_crispy_field }}
+                            <div id="ai-keyword-tags" class="mt-2" style="display:none;"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+
+
+                <!-- 12. Location -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Location</legend>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Location Category</label>
+                            <input type="text" id="location_category_display" class="form-control" value="Region"
+                                disabled readonly>
+                            <input type="hidden" name="location_category" id="location_category_hidden" value="region">
+                        </div>
+                        <div class="col-md-4">{{ location_form.location_type|as_crispy_field }}</div>
+                        <div class="col-md-4">{{ location_form.location_subregion|as_crispy_field }}</div>
+                    </div>
+                    <small class="text-muted mt-1 d-block">🐧 Location Category and Type auto-detect from Expedition
+                        Type.</small>
+                </fieldset>
+
+                <!-- 12. Data Resolution -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
+                        Data Resolution
+                        <button type="button" id="ai-resolution-btn" class="btn btn-sm btn-outline-info ms-2"
+                            onclick="aiSuggestResolution()">🐧 Suggest Resolution</button>
+                    </legend>
+
+                    <!-- Latitude Resolution -->
+                    <div class="row g-2 align-items-center mb-2">
+                        <div class="col-md-2"><label class="col-form-label">Latitude Resolution</label></div>
+                        <div class="col-md-1 text-end">Deg</div>
+                        <div class="col-md-2">{{ resolution_form.lat_res_deg|as_crispy_field }}</div>
+                        <div class="col-md-1 text-end">Min</div>
+                        <div class="col-md-2">{{ resolution_form.lat_res_min|as_crispy_field }}</div>
+                        <div class="col-md-1 text-end">Sec</div>
+                        <div class="col-md-2">{{ resolution_form.lat_res_sec|as_crispy_field }}</div>
+                    </div>
+
+                    <!-- Longitude Resolution -->
+                    <div class="row g-2 align-items-center mb-2">
+                        <div class="col-md-2"><label class="col-form-label">Longitude Resolution</label></div>
+                        <div class="col-md-1 text-end">Deg</div>
+                        <div class="col-md-2">{{ resolution_form.lon_res_deg|as_crispy_field }}</div>
+                        <div class="col-md-1 text-end">Min</div>
+                        <div class="col-md-2">{{ resolution_form.lon_res_min|as_crispy_field }}</div>
+                        <div class="col-md-1 text-end">Sec</div>
+                        <div class="col-md-2">{{ resolution_form.lon_res_sec|as_crispy_field }}</div>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">{{ resolution_form.horizontal_resolution_range|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ resolution_form.vertical_resolution|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ resolution_form.vertical_resolution_range|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ resolution_form.temporal_resolution|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ resolution_form.temporal_resolution_range|as_crispy_field }}</div>
+                    </div>
+                </fieldset>
+
+                <!-- 13. Platform -->
+                <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Platform</legend>
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ platform_form.short_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ platform_form.long_name|as_crispy_field }}</div>
+                    </div>
+                </fieldset>
+
+                <!-- 14. Access & Licensing -->
+                <!-- Access & Licensing Section Removed per user request -->
+                <!-- <fieldset class="border p-4 mb-4 rounded">
+                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Access & Licensing</legend>
+                    <div class="row g-3">
+
+
+
+
+                    </div>
+                </fieldset> -->
+
+
+
+                <!-- Files Section Removed - Moved to Step 2 -->
+
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                    <button type="button" class="btn btn-outline-secondary btn-lg"
+                        onclick="location.reload()">Reset</button>
+                    <button type="submit" name="save" value="PREVIEW" class="btn btn-outline-info btn-lg">
+                        <i class="fas fa-eye me-2"></i>Preview
+                    </button>
+                    <button type="submit" name="save" value="NEXT" class="btn btn-primary btn-lg px-5">Save & Next <i
+                            class="fas fa-arrow-right ms-2"></i></button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 🐧 AI Form Completion Progress Indicator (Floating - Outside Form) -->
+<div id="ai-progress-panel" class="floating-progress-panel">
+    <!-- Header with Toggle -->
+    <div class="floating-header">
+        <span class="progress-title">
+            <span class="progress-icon">📊</span>
+            <span class="progress-label">Progress</span>
+        </span>
+        <div class="progress-controls">
+            <span id="completion-percentage" class="percentage-badge">0%</span>
+            <button type="button" class="toggle-btn" id="toggle-panel-btn" onclick="toggleProgressPanel()"
+                title="Toggle panel">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content (Expandable) -->
+    <div class="floating-content" id="floating-content">
+        <!-- Overall Progress Bar -->
+        <div class="progress-bar-section">
+            <div class="progress" style="height: 8px;">
+                <div id="overall-progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%"
+                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <small id="completion-text" class="progress-text-small">0/25 fields</small>
+        </div>
+
+        <!-- Section Progress Circles -->
+        <div class="section-circles">
+            <div class="circle-item" title="Identification fields">
+                <div class="progress-circle" data-section="identification">
+                    <div class="progress-circle-inner">
+                        <span class="progress-text">0%</span>
+                    </div>
+                </div>
+                <small>Identification</small>
+            </div>
+            <div class="circle-item" title="Summary fields">
+                <div class="progress-circle" data-section="summary">
+                    <div class="progress-circle-inner">
+                        <span class="progress-text">0%</span>
+                    </div>
+                </div>
+                <small>Summary</small>
+            </div>
+            <div class="circle-item" title="Metadata fields">
+                <div class="progress-circle" data-section="metadata">
+                    <div class="progress-circle-inner">
+                        <span class="progress-text">0%</span>
+                    </div>
+                </div>
+                <small>Metadata</small>
+            </div>
+            <div class="circle-item" title="Scientists fields">
+                <div class="progress-circle" data-section="scientists">
+                    <div class="progress-circle-inner">
+                        <span class="progress-text">0%</span>
+                    </div>
+                </div>
+                <small>Scientists</small>
+            </div>
+        </div>
+
+        <!-- AI Suggestions Button -->
+        <button type="button" class="ai-suggestions-trigger" id="ai-suggestions-btn" onclick="showAISuggestions()"
+            style="display:none;">
+            <i class="fas fa-lightbulb me-1"></i>Penguin Tips
+        </button>
+
+        <!-- AI Suggestions Panel -->
+        <div id="ai-suggestions-panel" class="ai-suggestions-floated" style="display:none;">
+            <div class="suggestions-header">
+                <span>🐧 Suggestions</span>
+                <button type="button" class="close-suggestions"
+                    onclick="document.getElementById('ai-suggestions-panel').style.display='none'"
+                    style="border:none; background:none; cursor:pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="ai-suggestions-content" class="suggestions-content">
+                <div class="text-center text-muted">
+                    <div class="spinner-border spinner-border-sm me-2" role="status" style="width:16px; height:16px;">
+                    </div>
+                    <span style="font-size: 0.85rem;">Analyzing...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Scoped Styles for Simple Form */
+    legend {
+        font-weight: 700;
+        color: #555;
+    }
+
+    .form-label,
+    .col-form-label,
+    label {
+        font-weight: 700 !important;
+    }
+
+    .asteriskField {
+        color: red;
+        margin-left: 2px;
+    }
+
+    .form-check-inline {
+        margin-right: 1.5rem;
+    }
+
+    /* Tooltip styling from previous version */
+    .tooltip {
+        z-index: 100000 !important;
+        opacity: 1 !important;
+    }
+
+    .tooltip-inner {
+        background-color: #FFEB3B;
+        color: #000;
+        border: 1px solid #FBC02D;
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        font-family: 'Poppins', sans-serif;
+        max-width: 250px;
+    }
+
+    .tooltip.bs-tooltip-top .tooltip-arrow::before {
+        border-top-color: #FFEB3B;
+    }
+
+    .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+        border-bottom-color: #FFEB3B;
+    }
+
+    .field-error-message {
+        color: #dc3545;
+        font-size: 0.85em;
+        margin-top: 5px;
+        display: none;
+        font-weight: 600;
+    }
+
+    .field-error-message.show {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    /* CUSTOM CLOUD TOOLTIP STYLES */
+    .custom-cloud-tooltip {
+        position: fixed;
+        background-color: #FFEB3B;
+        color: #000;
+        border: 1px solid #FBC02D;
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        font-family: 'Poppins', sans-serif;
+        max-width: 250px;
+        z-index: 999999 !important;
+        pointer-events: none;
+        /* Let clicks pass through */
+        display: none;
+        font-size: 0.85rem;
+        transform: translate(10px, 10px);
+        /* Offset from cursor */
+    }
+
+    .custom-cloud-tooltip::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 10px;
+        border-width: 0 6px 6px;
+        border-style: solid;
+        border-color: transparent transparent #FBC02D transparent;
+    }
+
+    /* Character Counter */
+    .char-count-msg {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 4px;
+        display: none;
+        /* Hidden by default */
+        text-align: right;
+        width: 100%;
+        font-weight: 500;
+    }
+
+    /* AI Feature Styles */
+    .ai-btn-loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .ai-keyword-tag {
+        display: inline-block;
+        background: #e8f4f8;
+        border: 1px solid #bee5eb;
+        border-radius: 16px;
+        padding: 3px 12px;
+        margin: 3px 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ai-keyword-tag:hover {
+        background: #17a2b8;
+        color: white;
+        border-color: #17a2b8;
+    }
+
+    .ai-keyword-tag.selected {
+        background: #17a2b8;
+        color: white;
+        border-color: #138496;
+    }
+
+    .ai-filled-field {
+        border-left: 3px solid #17a2b8 !important;
+        background: #f0fafe !important;
+    }
+
+    #ai-quickstart-panel .card-header {
+        border-bottom: 2px solid #17a2b8;
+    }
+
+    .ai-quality-suggestion {
+        font-size: 0.82rem;
+        color: #555;
+        padding: 2px 0;
+    }
+
+    /* AI Form Completion Progress Indicator Styles */
+    .progress-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(#28a745 0deg, #e9ecef 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .progress-circle::before {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        top: 5px;
+        left: 5px;
+    }
+
+    .progress-circle-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-text {
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+
+    .progress-circle[data-progress="0"] {
+        background: conic-gradient(#6c757d 0deg, #e9ecef 360deg);
+    }
+
+    .progress-circle[data-progress="25"] {
+        background: conic-gradient(#28a745 90deg, #e9ecef 90deg);
+    }
+
+    .progress-circle[data-progress="50"] {
+        background: conic-gradient(#28a745 180deg, #e9ecef 180deg);
+    }
+
+    .progress-circle[data-progress="75"] {
+        background: conic-gradient(#28a745 270deg, #e9ecef 270deg);
+    }
+
+    .progress-circle[data-progress="100"] {
+        background: conic-gradient(#28a745 360deg, #e9ecef 0deg);
+    }
+
+    #ai-progress-panel .card-header {
+        border-bottom: 2px solid #28a745;
+    }
+
+    .ai-suggestion-item {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .ai-suggestion-item:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+    }
+
+    .ai-suggestion-item .field-name {
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+
+    .ai-suggestion-item .suggestion-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 8px;
+    }
+
+    .ai-suggestion-item .action-btn {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+    }
+
+    .ai-suggestion-high {
+        border-left: 4px solid #dc3545;
+    }
+
+    .ai-suggestion-medium {
+        border-left: 4px solid #ffc107;
+    }
+
+    .ai-suggestion-low {
+        border-left: 4px solid #28a745;
+    }
+
+    /* ========================================= */
+    /* FLOATING PROGRESS PANEL STYLES */
+    /* ========================================= */
+
+    .floating-progress-panel {
+        position: fixed;
+        right: 24px;
+        bottom: 100px;
+        width: 300px;
+        background: linear-gradient(135deg, rgba(0, 82, 204, 0.95) 0%, rgba(0, 163, 161, 0.95) 100%);
+        border-radius: 16px;
+        padding: 0;
+        box-shadow:
+            0 8px 32px rgba(0, 82, 204, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 9998;
+        animation: popFromPenguin 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition:
+            transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+            opacity 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transform-origin: bottom right;
+        max-height: calc(100vh - 120px);
+        /* Prevent cropping at top */
+        overflow: visible;
+        display: none;
+        /* Hidden initially, shown after proactive tip disappears */
+    }
+
+    @keyframes popFromPenguin {
+        0% {
+            transform: translate(0, 60px) scale(0);
+            opacity: 0;
+        }
+
+        60% {
+            transform: translate(0, -10px) scale(1.05);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Panel stacking system for multiple progress indicators */
+    .floating-progress-panel[data-stack-index="1"] {
+        transform: translateY(-120px);
+    }
+
+    .floating-progress-panel[data-stack-index="2"] {
+        transform: translateY(-240px);
+    }
+
+    .floating-progress-panel[data-stack-index="3"] {
+        transform: translateY(-360px);
+    }
+
+    /* Move progress panel up when chatbot is open */
+    /* Note: Actual bottom position is calculated dynamically in JavaScript to prevent viewport cropping */
+    .floating-progress-panel.chat-open {
+        /* JavaScript sets the bottom position dynamically */
+    }
+
+    /* Collapsed state */
+    .floating-progress-panel.collapsed {
+        width: 90px;
+        overflow: hidden;
+    }
+
+    .floating-progress-panel.collapsed .floating-header {
+        padding: 10px 8px;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .floating-progress-panel.collapsed .floating-content,
+    .floating-progress-panel.collapsed .section-circles small {
+        display: none;
+    }
+
+    .floating-progress-panel.collapsed .progress-label {
+        display: none;
+    }
+
+    .floating-progress-panel.collapsed .progress-controls {
+        width: 100%;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .floating-progress-panel.collapsed .percentage-badge {
+        min-width: auto;
+        padding: 3px 6px;
+        font-size: 0.75rem;
+        width: 100%;
+    }
+
+    .floating-progress-panel.collapsed .toggle-btn {
+        padding: 4px 6px;
+        width: 100%;
+        font-size: 0.8rem;
+    }
+
+    .floating-progress-panel.collapsed .toggle-btn i {
+        transform: scaleX(-1);
+    }
+
+    .floating-header {
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        cursor: default;
+    }
+
+    .progress-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+
+    .progress-icon {
+        font-size: 1.2em;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    .progress-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .percentage-badge {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-width: 45px;
+        text-align: center;
+    }
+
+    .toggle-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 6px;
+        padding: 6px 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: scale(1.05);
+    }
+
+    .floating-content {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .progress-bar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .progress-bar-section .progress {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .progress-bar-section .progress-bar {
+        background: linear-gradient(90deg, #0052CC 0%, #00A3A1 100%);
+        transition: width 0.5s ease;
+        box-shadow: 0 0 10px rgba(0, 82, 204, 0.4);
+    }
+
+    .progress-text-small {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.75rem;
+        text-align: right;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-circles {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .circle-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .circle-item small {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.65rem;
+        text-align: center;
+        font-weight: 500;
+        line-height: 1.2;
+    }
+
+    .progress-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: conic-gradient(rgba(255, 255, 255, 0.4) 0deg, rgba(255, 255, 255, 0.1) 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-circle:hover {
+        transform: scale(1.08);
+        box-shadow:
+            inset 0 2px 4px rgba(0, 0, 0, 0.1),
+            0 4px 12px rgba(255, 255, 255, 0.3);
+    }
+
+    .progress-circle::before {
+        content: '';
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        top: 5px;
+        left: 5px;
+    }
+
+    .progress-circle-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-text {
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .progress-circle[data-progress="0"] {
+        background: conic-gradient(rgba(255, 255, 255, 0.2) 0deg, rgba(255, 255, 255, 0.05) 0deg);
+    }
+
+    .progress-circle[data-progress="25"] {
+        background: conic-gradient(rgba(255, 255, 255, 0.4) 90deg, rgba(255, 255, 255, 0.1) 90deg);
+    }
+
+    .progress-circle[data-progress="50"] {
+        background: conic-gradient(rgba(255, 255, 255, 0.5) 180deg, rgba(255, 255, 255, 0.1) 180deg);
+    }
+
+    .progress-circle[data-progress="75"] {
+        background: conic-gradient(rgba(255, 255, 255, 0.6) 270deg, rgba(255, 255, 255, 0.1) 270deg);
+    }
+
+    .progress-circle[data-progress="100"] {
+        background: conic-gradient(rgba(255, 255, 255, 0.7) 360deg, rgba(255, 255, 255, 0.1) 0deg);
+    }
+
+    .ai-suggestions-trigger {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        text-align: left;
+    }
+
+    .ai-suggestions-trigger:hover {
+        background: rgba(255, 255, 255, 0.35);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .ai-suggestions-floated {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+        overflow: hidden;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .suggestions-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .close-suggestions {
+        color: white;
+        font-size: 1rem;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .close-suggestions:hover {
+        opacity: 1;
+    }
+
+    .suggestions-content {
+        padding: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        color: #333;
+    }
+
+    .suggestions-content .ai-suggestion-item {
+        background: #f8f9fa;
+        border-left: 3px solid #28a745;
+        border-radius: 4px;
+        padding: 8px;
+        margin-bottom: 8px;
+        font-size: 0.75rem;
+    }
+
+    .suggestions-content .field-name {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .suggestions-content .suggestion-text {
+        color: #666;
+        line-height: 1.3;
+        margin-bottom: 6px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .floating-progress-panel {
+            right: 12px;
+            bottom: 90px;
+            width: 280px;
+            padding: 0;
+        }
+
+        .floating-progress-panel.collapsed {
+            width: 80px;
+        }
+
+        .section-circles {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .floating-progress-panel {
+            right: 8px;
+            bottom: 90px;
+            width: 240px;
+        }
+
+        .floating-progress-panel.collapsed {
+            width: 75px;
+        }
+
+        .progress-title,
+        .progress-label {
+            font-size: 0.85rem;
+        }
+
+        .percentage-badge {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // =========================================
+    // 1. DATA DICTIONARY FOR TOOLTIPS
+    // =========================================
+    const tooltipMessages = {
+        'id_title': 'Enter the full descriptive title of the dataset.',
+        'id_abstract': 'Provide a brief summary of the dataset contents.',
+        'id_purpose': 'Explain the scientific purpose or reason for collecting this data.',
+        'id_version': 'Current version of the dataset (e.g., 1.0).',
+        'id_keywords': 'Enter comma-separated keywords (GCMD) to help search.',
+        'id_topic': 'Main scientific topic.',
+        'id_data_center': 'Data center responsible for the dataset.',
+
+        'id_expedition_type': 'Select the type of expedition.',
+        'id_expedition_year': 'Select the year range of the expedition.',
+        'id_expedition_number': 'Enter the official expedition number if available.',
+        'id_project_number': 'Enter the project identification number.',
+        'id_project_name': 'Name of the research project.',
+        'id_category': 'Scientific category of the data.',
+        'id_iso_topic': 'ISO 19115 topic category.',
+        'id_data_set_progress': 'Current status of the dataset creation.',
+
+        'id_temporal_start_date': 'Date when data collection started.',
+        'id_temporal_end_date': 'Date when data collection ended.',
+
+        'id_west_longitude': 'Westernmost longitude (-180 to 180).',
+        'id_east_longitude': 'Easternmost longitude (-180 to 180).',
+        'id_south_latitude': 'Southernmost latitude (-90 to 90).',
+        'id_north_latitude': 'Northernmost latitude (-90 to 90).',
+
+        'id_data_file': 'Upload the main data file (CSV, Excel, etc.).',
+        'id_metadata_file': 'Upload associated metadata file (XML, JSON).',
+        'id_readme_file': 'Upload a README describing the file structure.',
+        'id_number_of_files': 'Total number of files in the dataset.',
+
+        'id_access_type': 'Choose how this data can be accessed.',
+        'id_embargo_date': 'Date when the embargo ends (if applicable).',
+        'id_license': 'License governing the use of this data.',
+        'id_usage_restrictions': 'Any restrictions on using this data.',
+
+        'id_contact_person': 'Name of the primary contact person.',
+        'id_contact_email': 'Email address for inquiries.',
+        'id_contact_phone': 'Phone number for inquiries.'
+    };
+
+    // =========================================
+    // CATEGORY - TOPIC MAPPING (Dynamic Dropdowns)
+    // =========================================
+    const categoryTopics = {
+        "agriculture": [
+            "Agriculture", "Atmosphere", "Biological Classification", "Biosphere",
+            "Climate Indicators", "Cryosphere", "Human Dimensions", "Land Surface",
+            "Oceans", "Paleoclimate", "Solid Earth", "Spectral/Engineering",
+            "Sun-Earth Interactions", "Terrestrial Hydrosphere", "Marine Science",
+            "Terrestrial Science", "Wind Profiler Radar", "Geotectonic Studies", "Audio Signals"
+        ],
+        "atmosphere": [
+            "Aerosols", "Air Quality", "Altitude", "Atmospheric Chemistry",
+            "Atmospheric Electricity", "Atmospheric Phenomena", "Atmospheric Pressure",
+            "Atmospheric Radiation", "Atmospheric Temperature", "Atmospheric Water Vapor",
+            "Atmospheric Winds", "Clouds", "Cryosphere", "Precipitation",
+            "Wind Profiler Radar", "Atmospheric Ozone", "Ionosphere", "Global Electric Circuit"
+        ],
+        "biological_classification": [
+            "Animals/Invertebrates", "Animals/Vertebrates", "Bacteria/Archaea",
+            "Cryosphere", "Fungi", "Plants", "Protists", "Viruses"
+        ],
+        "biosphere": [
+            "Aquatic Ecosystems", "Cryosphere", "Ecological Dynamics",
+            "Terrestrial Ecosystems", "Vegetation", "Ocean/Lake Records"
+        ],
+        "climate_indicators": [
+            "Air Temperature Indices", "Cryosphere", "Drought/Precipitation Indices",
+            "Humidity Indices", "Hydrologic/Ocean Indices", "Ocean/Sst Indices", "Teleconnections"
+        ],
+        "cryosphere": [
+            "Cryosphere", "Frozen Ground", "Glaciers/Ice Sheets", "Sea Ice", "Snow/Ice"
+        ],
+        "human_dimensions": [
+            "Attitudes/Preferences/Behavior", "Boundaries", "Cryosphere", "Economic Resources",
+            "Environmental Impacts", "Habitat Conversion/Fragmentation", "Human Health",
+            "Infrastructure", "Land Use/Land Cover", "Natural Hazards", "Population"
+        ],
+        "land_surface": [
+            "Cryosphere", "Erosion/Sedimentation", "Frozen Ground", "Geomorphology",
+            "Land Temperature", "Land Use/Land Cover", "Landscape", "Soils",
+            "Surface Radiative Properties", "Topography", "Neo-tectonics"
+        ],
+        "oceans": [
+            "Cryosphere", "Ice Core Records", "Land Records", "Ocean/Lake Records",
+            "Paleoclimate Reconstructions", "Nutrients", "Hydrography", "Marine Biology",
+            "Chlorophyll A", "Ocean Acoustics", "Marine Environment Monitoring",
+            "Ocean Chemistry", "Marine Sediments", "Aquatic Sciences", "Biogeochemistry"
+        ],
+        "paleoclimate": [
+            "Cryosphere", "Geodetics/Gravity", "Geomagnetism", "Geomorphology",
+            "Geothermal", "Natural Resources", "Rocks/Minerals", "Seismology",
+            "Tectonics", "Volcanoes", "Geo-Chemistry", "Paleo"
+        ],
+        "solid_earth": [
+            "Cryosphere", "Gamma Ray", "Infrared Wavelengths", "Lidar", "Microwave",
+            "Platform Characteristics", "Radar", "Radio Wave", "Sensor Characteristics",
+            "Ultraviolet Wavelengths", "Visible Wavelengths", "X-Ray", "GPS",
+            "Seismology", "Geomagnetism"
+        ],
+        "spectral_engineering": [
+            "Cryosphere", "Ionosphere/Magnetosphere Dynamics", "Solar Activity",
+            "Solar Energetic Particle Flux", "Solar Energetic Particle Properties"
+        ],
+        "sun_earth_interactions": [
+            "Cryosphere", "Glaciers/Ice Sheets", "Ground Water", "Snow/Ice",
+            "Surface Water", "Water Quality/Water Chemistry", "Polar Ionosphere"
+        ],
+        "terrestrial_hydrosphere": [
+            "Cryosphere"
+        ],
+        "marine_science": [
+            "Aquatic Sciences", "Bathymetry/Seafloor Topography", "Coastal Processes",
+            "Cryosphere", "Marine Environment Monitoring", "Marine Geophysics",
+            "Marine Sediments", "Marine Volcanism", "Ocean Acoustics", "Ocean Chemistry",
+            "Ocean Circulation", "Ocean Heat Budget", "Ocean Optics", "Ocean Pressure",
+            "Ocean Temperature", "Ocean Waves", "Ocean Winds", "Salinity/Density",
+            "Sea Ice", "Sea Surface Topography", "Tides", "Water Quality", "Earth Science Test"
+        ],
+        "terrestrial_science": [
+            "Cryosphere"
+        ],
+        "wind_profiler_radar": [
+            "Atmospheric Science"
+        ],
+        "geotectonic_studies": [
+            "Surveying & Mapping"
+        ],
+        "audio_signals": [
+            "Physical data"
+        ]
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('id_category');
+        const topicSelect = document.getElementById('id_topic');
+
+        function updateTopics() {
+            const category = categorySelect.value;
+            const topics = categoryTopics[category] || [];
+
+            // Clear existing options
+            topicSelect.innerHTML = '<option value="">Select Topic</option>';
+
+            // Add new options
+            topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                topicSelect.appendChild(option);
+            });
+        }
+
+        if (categorySelect && topicSelect) {
+            categorySelect.addEventListener('change', updateTopics);
+
+            // Initialize on load if category is already selected (e.g. edit mode)
+            if (categorySelect.value) {
+                // Capture the current value (rendered by Django or preserved via data-initial)
+                const initialTopic = topicSelect.getAttribute('data-initial') || topicSelect.value;
+
+                updateTopics();
+
+                // Restore selection if it exists in the new options
+                if (initialTopic) {
+                    topicSelect.value = initialTopic;
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Country-State Data using AJAX -->
+<script>
+    // Initialize a single country dropdown with AJAX state loading
+    function initCountryDropdown(countrySelect) {
+        if (!countrySelect || countrySelect.dataset.initialized === 'true') return;
+
+        // Find the corresponding state dropdown in the same form/card
+        // The state field should have the same prefix as country (e.g., id_scientists-0-state for id_scientists-0-country)
+        const parentCard = countrySelect.closest('.card') || countrySelect.closest('fieldset');
+
+        // Try multiple ways to find the state select
+        let stateSelect = null;
+
+        // Method 1: Look for .state-select class within parent card
+        if (parentCard) {
+            stateSelect = parentCard.querySelector('.state-select');
+        }
+
+        // Method 2: If country has ID like "id_scientists-0-country", look for "id_scientists-0-state"
+        if (!stateSelect && countrySelect.id) {
+            const stateId = countrySelect.id.replace('-country', '-state').replace('_country', '_state');
+            stateSelect = document.getElementById(stateId);
+        }
+
+        // Method 3: Look for select with name ending in "state" within parent
+        if (!stateSelect && parentCard) {
+            stateSelect = parentCard.querySelector('select[name$="-state"]') ||
+                parentCard.querySelector('select[name$="_state"]');
+        }
+
+        console.log('Country select:', countrySelect.id, 'State select found:', stateSelect ? stateSelect.id : 'NOT FOUND');
+
+        // Helper to populate states via AJAX
+        async function populateStates(countryCode, preserveSelected = false) {
+            if (!stateSelect) {
+                console.error('State select not found for country:', countrySelect.id);
+                return;
+            }
+
+            const initialVal = stateSelect.getAttribute('data-initial');
+            const selectedState = preserveSelected ? (stateSelect.value || initialVal) : '';
+            const stateContainer = stateSelect.parentElement;
+
+            if (countryCode) {
+                console.log('Loading states for country code:', countryCode);
+                try {
+                    const response = await fetch(`/data/ajax/load-states/?country=${countryCode}`);
+                    const states = await response.json();
+                    console.log('Loaded states:', states.length, 'for country:', countryCode);
+
+                    if (states.length > 0) {
+                        // States found - ensure it's a select dropdown
+                        if (stateSelect.tagName !== 'SELECT') {
+                            // Convert text input back to select
+                            const newSelect = document.createElement('select');
+                            newSelect.id = stateSelect.id;
+                            newSelect.name = stateSelect.name;
+                            newSelect.className = stateSelect.className;
+                            stateSelect.replaceWith(newSelect);
+                            stateSelect = newSelect;
+                        }
+
+                        stateSelect.innerHTML = '<option value="">Select State</option>';
+                        states.forEach(state => {
+                            const option = document.createElement('option');
+                            option.value = state.name;
+                            option.text = state.name;
+                            if (state.name === selectedState) option.selected = true;
+                            stateSelect.appendChild(option);
+                        });
+                    } else {
+                        // No states found - convert to text input for manual entry
+                        console.log('No states found, converting to text input');
+                        if (stateSelect.tagName === 'SELECT') {
+                            const textInput = document.createElement('input');
+                            textInput.type = 'text';
+                            textInput.id = stateSelect.id;
+                            textInput.name = stateSelect.name;
+                            textInput.className = stateSelect.className.replace('state-select', '') + ' form-control';
+                            textInput.placeholder = 'Enter state/province name';
+                            textInput.value = selectedState;
+                            stateSelect.replaceWith(textInput);
+                            stateSelect = textInput;
+                        } else {
+                            stateSelect.placeholder = 'Enter state/province name';
+                            stateSelect.value = selectedState;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading states:', error);
+                }
+            } else {
+                // No country selected - show empty dropdown
+                stateSelect.innerHTML = '<option value="">Select State</option>';
+            }
+        }
+
+        // Initial population of states if country selected
+        if (countrySelect.value) {
+            populateStates(countrySelect.value, true);
+        }
+
+        // Handle Country Change
+        countrySelect.addEventListener('change', function () {
+            console.log('Country changed to:', this.value);
+            populateStates(this.value, false);
+        });
+
+        countrySelect.dataset.initialized = 'true';
+    }
+
+    // Initialize all country dropdowns on page
+    function initAllCountryDropdowns() {
+        const countrySelects = document.querySelectorAll('.country-select');
+        console.log('Found country selects:', countrySelects.length);
+        countrySelects.forEach(select => initCountryDropdown(select));
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        initAllCountryDropdowns();
+
+        // GPS Toggle Logic
+        const gpsRadios = document.querySelectorAll('input[name="gps-gps_used"]');
+        const gpsDependentSections = document.querySelectorAll('.gps-dependent-section');
+
+        function toggleGPSFields() {
+            const isYes = document.getElementById('gps_yes').checked;
+            gpsDependentSections.forEach(section => {
+                if (isYes) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        gpsRadios.forEach(radio => {
+            radio.addEventListener('change', toggleGPSFields);
+        });
+
+        // Initial check
+        if (gpsRadios.length > 0) toggleGPSFields();
+
+        // ============================================
+        // CUSTOM CANVAS TOOLTIP IMPLEMENTATION
+        // ============================================
+
+        // 1. Create the tooltip element once
+        const tooltipEl = document.createElement('div');
+        tooltipEl.className = 'custom-cloud-tooltip';
+        document.body.appendChild(tooltipEl);
+
+        function showTooltip(e, message) {
+            tooltipEl.textContent = message;
+            tooltipEl.style.display = 'block';
+            moveTooltip(e);
+        }
+
+        function hideTooltip() {
+            tooltipEl.style.display = 'none';
+        }
+
+        function moveTooltip(e) {
+            // Position near cursor
+            let x = e.clientX + 15;
+            let y = e.clientY + 15;
+
+            // Boundary checks
+            if (x + 200 > window.innerWidth) x = e.clientX - 215;
+            if (y + 50 > window.innerHeight) y = e.clientY - 65;
+
+            tooltipEl.style.left = x + 'px';
+            tooltipEl.style.top = y + 'px';
+        }
+
+        // 2. Event Delegation for robust handling (static & dynamic elements)
+        function getTarget(e) {
+            let target = e.target;
+
+            // Normalize to the actual input/select/textarea or label
+            if (target.tagName !== 'LABEL' && target.tagName !== 'INPUT' && target.tagName !== 'SELECT' && target.tagName !== 'TEXTAREA') {
+                target = target.closest('label, input, select, textarea');
+            }
+
+            if (!target) return null;
+
+            // Get field ID
+            let fieldId = target.id;
+            if (target.tagName === 'LABEL') {
+                fieldId = target.getAttribute('for');
+            }
+
+            // Check 1: Does it have a custom tooltip message?
+            if (fieldId && typeof tooltipMessages !== 'undefined' && tooltipMessages[fieldId]) {
+                return target;
+            }
+
+            // Check 2: Is it a required field? (Fallback)
+            if (target.tagName === 'LABEL') {
+                if (target.classList.contains('requiredField') || target.querySelector('.asteriskField')) {
+                    return target;
+                }
+            } else if (fieldId) {
+                // Check associated label
+                const label = document.querySelector(`label[for="${fieldId}"]`);
+                if (label && (label.classList.contains('requiredField') || label.querySelector('.asteriskField'))) {
+                    return target;
+                }
+            }
+
+            return null;
+        }
+
+        function getMessage(target) {
+            let fieldId = target.getAttribute('for') || target.id;
+            if (!fieldId && target.tagName === 'LABEL') {
+                fieldId = target.getAttribute('for');
+            }
+
+            if (fieldId && tooltipMessages && tooltipMessages[fieldId]) {
+                return tooltipMessages[fieldId];
+            }
+            return 'This field is required';
+        }
+
+        // Ensuring Max Z-Index
+        tooltipEl.style.zIndex = "2147483647";
+
+        document.body.addEventListener('mouseover', function (e) {
+            const target = getTarget(e);
+            if (target) {
+                // Remove native title to prevent double tooltip
+                if (target.hasAttribute('title')) {
+                    target.setAttribute('data-original-title', target.getAttribute('title'));
+                    target.removeAttribute('title');
+                }
+
+                target.style.cursor = 'help';
+                const message = getMessage(target);
+                showTooltip(e, message);
+                console.log('Showing tooltip for:', target);
+            }
+        });
+
+        document.body.addEventListener('mousemove', function (e) {
+            // Only move if visible
+            if (tooltipEl.style.display === 'block') {
+                moveTooltip(e);
+            }
+        });
+
+        document.body.addEventListener('mouseout', function (e) {
+            const target = getTarget(e);
+            if (target) {
+                // CRITICAL FIX: Don't hide if moving to a child element (e.g. span inside label)
+                if (e.relatedTarget && target.contains(e.relatedTarget)) {
+                    return;
+                }
+                hideTooltip();
+                console.log('Hiding tooltip');
+            }
+        });
+    });
+
+    // Handle Add Scientist button - reinitialize after DOM changes
+    const originalAddScientistForm = window.addScientistForm;
+    window.addScientistForm = function () {
+        const container = document.getElementById('scientist-forms');
+        const firstForm = container ? container.children[0] : null;
+        if (!firstForm) return;
+
+        // Get current count from management form
+        const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+        if (!totalFormsInput) return;
+
+        const formIdx = parseInt(totalFormsInput.value);
+
+        const newForm = firstForm.cloneNode(true);
+
+        // Update all name and id attributes
+        newForm.querySelectorAll('[name], [id]').forEach(el => {
+            if (el.name) el.name = el.name.replace(/-\d+-/, `-${formIdx}-`);
+            if (el.id) el.id = el.id.replace(/-\d+-/, `-${formIdx}-`);
+        });
+
+        // Update header
+        const header = newForm.querySelector('h6');
+        if (header) header.textContent = `Scientist #${formIdx + 1}`;
+
+        // Clear values and reset state
+        newForm.querySelectorAll('input, select, textarea').forEach(input => {
+            if (input.type !== 'hidden') {
+                input.value = '';
+                input.classList.remove('is-valid', 'is-invalid');
+            }
+            // Reset country and state selects
+            if (input.classList.contains('country-select')) {
+                input.dataset.initialized = '';
+            }
+            if (input.classList.contains('state-select')) {
+                input.innerHTML = '<option value="">Select State</option>';
+            }
+        });
+
+        // Add remove button if it doesn't exist
+        if (!newForm.querySelector('.remove-scientist-btn')) {
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 remove-scientist-btn';
+            removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            removeBtn.onclick = function () { removeScientistForm(this); };
+            newForm.style.position = 'relative'; // Ensure button is positioned correctly
+            newForm.appendChild(removeBtn);
+        }
+
+        container.appendChild(newForm);
+        totalFormsInput.value = formIdx + 1;
+
+        // Initialize the new dropdown
+        const newCountrySelect = newForm.querySelector('.country-select');
+        if (newCountrySelect) {
+            initCountryDropdown(newCountrySelect);
+        }
+    };
+
+    window.removeScientistForm = function (btn) {
+        const container = document.getElementById('scientist-forms');
+        const card = btn.closest('.card');
+        if (container.children.length > 1) {
+            card.remove();
+
+            // Re-index all forms
+            const forms = container.children;
+            const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+            totalFormsInput.value = forms.length;
+
+            Array.from(forms).forEach((form, index) => {
+                // Update header
+                const header = form.querySelector('h6');
+                if (header) header.textContent = `Scientist #${index + 1}`;
+
+                // Update inputs
+                form.querySelectorAll('[name], [id]').forEach(el => {
+                    if (el.name) el.name = el.name.replace(/-\d+-/, `-${index}-`);
+                    if (el.id) el.id = el.id.replace(/-\d+-/, `-${index}-`);
+                });
+            });
+        } else {
+            alert("At least one scientist is required.");
+        }
+    };
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Character Counter Logic
+        const charCounters = document.querySelectorAll('.char-counter');
+
+        charCounters.forEach(input => {
+            // Create counter element
+            const counter = document.createElement('div');
+            counter.className = 'char-count-msg';
+            // Insert after the input
+            if (input.nextSibling) {
+                input.parentNode.insertBefore(counter, input.nextSibling);
+            } else {
+                input.parentNode.appendChild(counter);
+            }
+
+            function updateCounter() {
+                const max = parseInt(input.getAttribute('maxlength'));
+                if (isNaN(max)) return;
+
+                const current = input.value.length;
+                const remaining = max - current;
+
+                counter.textContent = `Remaining: ${remaining}`;
+
+                // Optional: Change color if near limit
+                if (remaining < 20) {
+                    counter.style.color = '#dc3545'; // red
+                } else {
+                    counter.style.color = '#6c757d'; // muted
+                }
+            }
+
+            input.addEventListener('focus', function () {
+                updateCounter();
+                counter.style.display = 'block';
+            });
+
+            input.addEventListener('input', updateCounter);
+
+            input.addEventListener('blur', function () {
+                // Keep brief delay to allow clicks but hide on blur
+                setTimeout(() => {
+                    counter.style.display = 'none';
+                }, 100);
+            });
+
+            // Initial update if needed (kept hidden)
+            updateCounter();
+        });
+    });
+</script>
+
+<!-- ========================================= -->
+<!-- AI-POWERED FORM ASSISTANT JAVASCRIPT      -->
+<!-- ========================================= -->
+<script>
+    // CSRF Token helper
+    function getCSRFToken() {
+        const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+        if (cookie) return cookie.split('=')[1];
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        return input ? input.value : '';
+    }
+
+    // Generic AI API caller
+    async function aiApiCall(endpoint, data) {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('AI API error:', response.status, text.substring(0, 200));
+            return { status: 'error', error: 'Server returned ' + response.status };
+        }
+        return await response.json();
+    }
+
+    // Get current form values
+    function getFormData() {
+        const titleEl = document.getElementById('id_title');
+        const abstractEl = document.getElementById('id_abstract');
+        const expedRadio = document.querySelector('input[name="expedition_type"]:checked');
+        return {
+            title: titleEl ? titleEl.value.trim() : '',
+            abstract: abstractEl ? abstractEl.value.trim() : '',
+            expedition_type: expedRadio ? expedRadio.value : '',
+        };
+    }
+
+    // Button loading state
+    function setButtonLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        if (loading) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Thinking...';
+            btn.classList.add('ai-btn-loading');
+        } else {
+            btn.innerHTML = btn.dataset.originalHtml || btn.innerHTML;
+            btn.classList.remove('ai-btn-loading');
+        }
+    }
+
+    // Mark a field as AI-filled
+    function markAiFilled(fieldId) {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.classList.add('ai-filled-field');
+            setTimeout(() => el.classList.remove('ai-filled-field'), 8000);
+        }
+    }
+
+    // Decimal to DMS conversion helper
+    function decimalToDMS(decimal) {
+        const abs = Math.abs(decimal);
+        const deg = Math.floor(abs);
+        const minFloat = (abs - deg) * 60;
+        const min = Math.floor(minFloat);
+        const sec = Math.round((minFloat - min) * 60 * 100) / 100;
+        return {
+            deg: decimal < 0 ? -deg : deg,
+            min: min,
+            sec: sec
+        };
+    }
+
+    // =========================================
+    // Auto-fill Citation from User Profile
+    // =========================================
+    function autoFillCitation() {
+        const userName = '{{ request.user.get_full_name|escapejs }}' || '{{ request.user.username|escapejs }}';
+        const userOrg = '{{ request.user.profile.organisation|default:""|escapejs }}';
+        const datasetTitle = (document.getElementById('id_title') ? document.getElementById('id_title').value.trim() : '');
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+        // Creator = user full name
+        const creatorField = document.getElementById('id_creator');
+        if (creatorField && !creatorField.value.trim()) {
+            creatorField.value = userName;
+            markAiFilled('id_creator');
+        }
+
+        // Editor = user full name (same person by default)
+        const editorField = document.getElementById('id_editor');
+        if (editorField && !editorField.value.trim()) {
+            editorField.value = userName;
+            markAiFilled('id_editor');
+        }
+
+        // Citation Title = dataset title
+        const citTitleField = document.getElementById('id_title') ? null : null; // citation title is different
+        // Find the citation title field (it's the second 'title' field in citation form)
+        const citTitle = document.querySelector('#id_citation-title') || document.querySelectorAll('input[name="title"]')[1] || document.getElementById('id_title');
+        // Actually crispy forms prefixes—let's find by name
+        const citTitleEl = document.querySelector('input[name="title"][id="id_title"]');
+        // The citation form title shares name "title" — let's use a different approach
+        // The citation_form.title renders as id_title but there may be a conflict with dataset title
+        // Let's search for the fieldset
+        const citationFieldset = document.getElementById('ai-citation-btn').closest('fieldset');
+        if (citationFieldset) {
+            const titleInput = citationFieldset.querySelector('input[name="title"]');
+            if (titleInput && !titleInput.value.trim() && datasetTitle) {
+                titleInput.value = datasetTitle;
+                titleInput.classList.add('ai-filled-field');
+                setTimeout(() => titleInput.classList.remove('ai-filled-field'), 8000);
+            }
+        }
+
+        // Series Name = "NPDC Dataset Series"
+        const seriesField = document.getElementById('id_series_name');
+        if (seriesField && !seriesField.value.trim()) {
+            seriesField.value = 'NPDC Dataset Series';
+            markAiFilled('id_series_name');
+        }
+
+        // Release Date = today
+        const releaseDateField = document.getElementById('id_release_date');
+        if (releaseDateField && !releaseDateField.value) {
+            releaseDateField.value = today;
+            markAiFilled('id_release_date');
+        }
+
+        // Release Place = user organisation
+        const releasePlaceField = document.getElementById('id_release_place');
+        if (releasePlaceField && !releasePlaceField.value.trim() && userOrg) {
+            releasePlaceField.value = userOrg;
+            markAiFilled('id_release_place');
+        }
+
+        // Version = 1.0
+        const versionField = document.getElementById('id_version');
+        if (versionField && !versionField.value.trim()) {
+            versionField.value = '1.0';
+            markAiFilled('id_version');
+        }
+    }
+
+    // =========================================
+    // Auto-detect Location from Expedition Type
+    // =========================================
+    const expeditionLocationMap = {
+        'antarctic': { category: 'region', categoryLabel: 'Region', type: 'Antarctica' },
+        'arctic': { category: 'region', categoryLabel: 'Region', type: 'Arctic' },
+        'southern_ocean': { category: 'ocean', categoryLabel: 'Ocean', type: 'Southern Ocean' },
+        'himalaya': { category: 'region', categoryLabel: 'Region', type: 'Himalaya' },
+    };
+
+    function autoDetectLocation(expeditionType) {
+        const mapping = expeditionLocationMap[expeditionType];
+        if (!mapping) return;
+
+        // Update hidden category value
+        const catHidden = document.getElementById('location_category_hidden');
+        const catDisplay = document.getElementById('location_category_display');
+        if (catHidden) catHidden.value = mapping.category;
+        if (catDisplay) {
+            catDisplay.value = mapping.categoryLabel;
+            catDisplay.classList.add('ai-filled-field');
+            setTimeout(() => catDisplay.classList.remove('ai-filled-field'), 5000);
+        }
+
+        // Update Location Type
+        const typeField = document.getElementById('id_location_type');
+        if (typeField && !typeField.value.trim()) {
+            typeField.value = mapping.type;
+            markAiFilled('id_location_type');
+        }
+    }
+
+    // Listen to expedition type radio changes
+    document.addEventListener('DOMContentLoaded', function () {
+        const radios = document.querySelectorAll('input[name="expedition_type"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                autoDetectLocation(this.value);
+            });
+        });
+
+        // Auto-detect on load if already selected
+        const checked = document.querySelector('input[name="expedition_type"]:checked');
+        if (checked) {
+            autoDetectLocation(checked.value);
+        }
+    });
+
+    // =========================================
+    // FEATURE 1: AI Auto-Classify
+    // =========================================
+    async function aiClassify() {
+        const { title, abstract, expedition_type } = getFormData();
+        if (!title && !abstract) {
+            alert('Please enter a Title or Abstract first.');
+            return;
+        }
+
+        setButtonLoading('ai-classify-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-classify/', { title, abstract, expedition_type });
+            if (result.status === 'ok' && result.data) {
+                const d = result.data;
+
+                // Set Category
+                if (d.category) {
+                    const catSelect = document.getElementById('id_category');
+                    if (catSelect) {
+                        catSelect.value = d.category;
+                        catSelect.dispatchEvent(new Event('change'));
+                        markAiFilled('id_category');
+                    }
+                }
+
+                // Set Topic (after category triggers topic list update)
+                if (d.topic) {
+                    setTimeout(() => {
+                        const topicSelect = document.getElementById('id_topic');
+                        if (topicSelect) {
+                            topicSelect.value = d.topic;
+                            markAiFilled('id_topic');
+                        }
+                    }, 300);
+                }
+
+                // Set ISO Topic
+                if (d.iso_topic) {
+                    const isoSelect = document.getElementById('id_iso_topic');
+                    if (isoSelect) {
+                        isoSelect.value = d.iso_topic;
+                        markAiFilled('id_iso_topic');
+                    }
+                }
+            } else {
+                alert(result.error || 'AI classification failed.');
+            }
+        } catch (e) {
+            console.error('AI classify error:', e);
+            alert('AI classification failed. Please try again.');
+        }
+        setButtonLoading('ai-classify-btn', false);
+    }
+
+    // =========================================
+    // FEATURE 2: AI Suggest Keywords
+    // =========================================
+    async function aiSuggestKeywords() {
+        const { title, abstract } = getFormData();
+        const catSelect = document.getElementById('id_category');
+        const category = catSelect ? catSelect.value : '';
+
+        if (!title && !abstract) {
+            alert('Please enter a Title or Abstract first.');
+            return;
+        }
+
+        setButtonLoading('ai-keywords-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-keywords/', { title, abstract, category });
+            if (result.status === 'ok' && result.keywords && result.keywords.length > 0) {
+                const tagsContainer = document.getElementById('ai-keyword-tags');
+                tagsContainer.style.display = 'block';
+                tagsContainer.innerHTML = '<small class="text-muted d-block mb-1">🐧 Click keywords to add them:</small>';
+
+                result.keywords.forEach(kw => {
+                    const tag = document.createElement('span');
+                    tag.className = 'ai-keyword-tag';
+                    tag.textContent = kw;
+                    tag.onclick = function () {
+                        const kwField = document.getElementById('id_keywords');
+                        if (kwField) {
+                            const current = kwField.value.trim();
+                            const existing = current.split(',').map(k => k.trim().toLowerCase());
+                            if (!existing.includes(kw.toLowerCase())) {
+                                kwField.value = current ? current + ', ' + kw : kw;
+                                markAiFilled('id_keywords');
+                            }
+                            this.classList.add('selected');
+                        }
+                    };
+                    tagsContainer.appendChild(tag);
+                });
+
+                // Add "Add All" button
+                const addAllBtn = document.createElement('button');
+                addAllBtn.type = 'button';
+                addAllBtn.className = 'btn btn-sm btn-outline-info mt-2 d-block';
+                addAllBtn.innerHTML = '<i class="fas fa-plus me-1"></i>Add All Keywords';
+                addAllBtn.onclick = function () {
+                    const kwField = document.getElementById('id_keywords');
+                    if (kwField) {
+                        const current = kwField.value.trim();
+                        const existing = current.split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+                        const newKws = result.keywords.filter(kw => !existing.includes(kw.toLowerCase()));
+                        kwField.value = current ? current + ', ' + newKws.join(', ') : newKws.join(', ');
+                        markAiFilled('id_keywords');
+                        tagsContainer.querySelectorAll('.ai-keyword-tag').forEach(t => t.classList.add('selected'));
+                    }
+                };
+                tagsContainer.appendChild(addAllBtn);
+            } else {
+                alert(result.error || 'No keywords generated.');
+            }
+        } catch (e) {
+            console.error('AI keywords error:', e);
+            alert('AI keyword generation failed. Please try again.');
+        }
+        setButtonLoading('ai-keywords-btn', false);
+    }
+
+    // =========================================
+    // FEATURE 3: AI Abstract Quality Checker
+    // =========================================
+    async function aiCheckAbstract() {
+        const { title, abstract, expedition_type } = getFormData();
+        if (!abstract) return;
+
+        const qualityDiv = document.getElementById('ai-abstract-quality');
+        const bar = document.getElementById('ai-quality-bar');
+        const scoreEl = document.getElementById('ai-quality-score');
+        const suggestionsEl = document.getElementById('ai-quality-suggestions');
+
+        qualityDiv.style.display = 'block';
+        bar.style.width = '0%';
+        scoreEl.textContent = '...';
+
+        try {
+            const result = await aiApiCall('/data/api/ai-check-abstract/', { title, abstract, expedition_type });
+            if (result.status === 'ok' && result.data) {
+                const d = result.data;
+                const score = d.score || 0;
+
+                // Animate the bar
+                bar.style.width = score + '%';
+                bar.className = 'progress-bar';
+                if (score >= 80) bar.classList.add('bg-success');
+                else if (score >= 60) bar.classList.add('bg-info');
+                else if (score >= 40) bar.classList.add('bg-warning');
+                else bar.classList.add('bg-danger');
+
+                scoreEl.textContent = score + '/100';
+                scoreEl.style.color = score >= 60 ? '#28a745' : score >= 40 ? '#ffc107' : '#dc3545';
+
+                // Suggestions
+                suggestionsEl.innerHTML = '';
+                if (d.suggestions && d.suggestions.length > 0) {
+                    d.suggestions.forEach(s => {
+                        const div = document.createElement('div');
+                        div.className = 'ai-quality-suggestion';
+                        div.innerHTML = '<i class="fas fa-lightbulb text-warning me-1"></i>' + s;
+                        suggestionsEl.appendChild(div);
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('AI abstract check error:', e);
+            qualityDiv.style.display = 'none';
+        }
+    }
+
+    // Auto-trigger abstract quality check on blur
+    document.addEventListener('DOMContentLoaded', function () {
+        const abstractField = document.getElementById('id_abstract');
+        if (abstractField) {
+            let debounceTimer;
+            abstractField.addEventListener('blur', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    if (this.value.trim().length >= 50) {
+                        aiCheckAbstract();
+                    }
+                }, 500);
+            });
+        }
+    });
+
+    // =========================================
+    // FEATURE 4: AI Spatial Coordinate Extractor
+    // =========================================
+    async function aiExtractSpatial() {
+        const { title, abstract, expedition_type } = getFormData();
+        if (!title && !abstract) {
+            alert('Please enter a Title or Abstract first.');
+            return;
+        }
+
+        setButtonLoading('ai-spatial-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-extract-spatial/', { title, abstract, expedition_type });
+            if (result.status === 'ok' && result.data) {
+                const d = result.data;
+
+                // Convert decimal to DMS and fill fields
+                if (d.south !== undefined) {
+                    const dms = decimalToDMS(d.south);
+                    setFieldValue('id_south_lat_deg', dms.deg);
+                    setFieldValue('id_south_lat_min', dms.min);
+                    setFieldValue('id_south_lat_sec', dms.sec);
+                }
+                if (d.north !== undefined) {
+                    const dms = decimalToDMS(d.north);
+                    setFieldValue('id_north_lat_deg', dms.deg);
+                    setFieldValue('id_north_lat_min', dms.min);
+                    setFieldValue('id_north_lat_sec', dms.sec);
+                }
+                if (d.west !== undefined) {
+                    const dms = decimalToDMS(d.west);
+                    setFieldValue('id_west_lon_deg', dms.deg);
+                    setFieldValue('id_west_lon_min', dms.min);
+                    setFieldValue('id_west_lon_sec', dms.sec);
+                }
+                if (d.east !== undefined) {
+                    const dms = decimalToDMS(d.east);
+                    setFieldValue('id_east_lon_deg', dms.deg);
+                    setFieldValue('id_east_lon_min', dms.min);
+                    setFieldValue('id_east_lon_sec', dms.sec);
+                }
+
+                // Show location name if detected
+                if (d.location_name) {
+                    const msg = document.createElement('div');
+                    msg.className = 'alert alert-info alert-sm mt-2 py-1 px-2';
+                    msg.innerHTML = '🐧 <small>Detected location: <strong>' + d.location_name + '</strong> (' + d.zone_type + ')</small>';
+                    const spatialHeader = document.querySelector('#ai-spatial-btn');
+                    if (spatialHeader && spatialHeader.parentElement) {
+                        // Remove old message if exists
+                        const oldMsg = spatialHeader.parentElement.querySelector('.alert-info');
+                        if (oldMsg) oldMsg.remove();
+                        spatialHeader.parentElement.appendChild(msg);
+                    }
+                }
+            } else {
+                alert(result.error || 'AI spatial extraction failed.');
+            }
+        } catch (e) {
+            console.error('AI spatial error:', e);
+            alert('AI spatial extraction failed. Please try again.');
+        }
+        setButtonLoading('ai-spatial-btn', false);
+    }
+
+    function setFieldValue(fieldId, value) {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.value = value;
+            el.classList.add('ai-filled-field');
+            setTimeout(() => el.classList.remove('ai-filled-field'), 8000);
+        }
+    }
+
+    // =========================================
+    // FEATURE 5: AI Smart Form Pre-fill
+    // =========================================
+    async function aiPrefillForm() {
+        const { title, abstract, expedition_type } = getFormData();
+        if (!title && !abstract) {
+            alert('Please enter a Title and Abstract first, then select an Expedition Type.');
+            return;
+        }
+
+        const statusDiv = document.getElementById('ai-prefill-status');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '<div class="d-flex align-items-center"><span class="spinner-border spinner-border-sm me-2 text-info"></span><small>AI is analyzing your dataset and filling in suggestions...</small></div>';
+
+        setButtonLoading('ai-prefill-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-prefill/', { title, abstract, expedition_type });
+            if (result.status === 'ok' && result.data) {
+                const d = result.data;
+                let filled = [];
+
+                // Classification
+                if (d.classification) {
+                    const c = d.classification;
+                    if (c.category) {
+                        const catSelect = document.getElementById('id_category');
+                        if (catSelect) { catSelect.value = c.category; catSelect.dispatchEvent(new Event('change')); markAiFilled('id_category'); filled.push('Category'); }
+                    }
+                    if (c.topic) {
+                        setTimeout(() => {
+                            const topicSelect = document.getElementById('id_topic');
+                            if (topicSelect) { topicSelect.value = c.topic; markAiFilled('id_topic'); }
+                        }, 300);
+                        filled.push('Topic');
+                    }
+                    if (c.iso_topic) {
+                        const isoSelect = document.getElementById('id_iso_topic');
+                        if (isoSelect) { isoSelect.value = c.iso_topic; markAiFilled('id_iso_topic'); filled.push('ISO Topic'); }
+                    }
+                }
+
+                // Keywords
+                if (d.keywords && d.keywords.length > 0) {
+                    const kwField = document.getElementById('id_keywords');
+                    if (kwField && !kwField.value.trim()) {
+                        kwField.value = d.keywords.join(', ');
+                        markAiFilled('id_keywords');
+                        filled.push('Keywords');
+                    }
+                    // Also show tags
+                    const tagsContainer = document.getElementById('ai-keyword-tags');
+                    if (tagsContainer) {
+                        tagsContainer.style.display = 'block';
+                        tagsContainer.innerHTML = '<small class="text-muted d-block mb-1">🐧 AI-suggested keywords (added):</small>';
+                        d.keywords.forEach(kw => {
+                            const tag = document.createElement('span');
+                            tag.className = 'ai-keyword-tag selected';
+                            tag.textContent = kw;
+                            tagsContainer.appendChild(tag);
+                        });
+                    }
+                }
+
+                // Spatial
+                if (d.spatial && d.spatial.south !== undefined) {
+                    const sp = d.spatial;
+                    ['south', 'north'].forEach(dir => {
+                        if (sp[dir] !== undefined) {
+                            const prefix = dir === 'south' ? 'south_lat' : 'north_lat';
+                            const dms = decimalToDMS(sp[dir]);
+                            setFieldValue('id_' + prefix + '_deg', dms.deg);
+                            setFieldValue('id_' + prefix + '_min', dms.min);
+                            setFieldValue('id_' + prefix + '_sec', dms.sec);
+                        }
+                    });
+                    ['west', 'east'].forEach(dir => {
+                        if (sp[dir] !== undefined) {
+                            const prefix = dir + '_lon';
+                            const dms = decimalToDMS(sp[dir]);
+                            setFieldValue('id_' + prefix + '_deg', dms.deg);
+                            setFieldValue('id_' + prefix + '_min', dms.min);
+                            setFieldValue('id_' + prefix + '_sec', dms.sec);
+                        }
+                    });
+                    filled.push('Spatial Coordinates');
+                }
+
+                // Location (Type + Subregion)
+                if (d.location) {
+                    const loc = d.location;
+                    if (loc.type) {
+                        const typeSelect = document.getElementById('id_location_type');
+                        if (typeSelect) {
+                            typeSelect.value = loc.type;
+                            markAiFilled('id_location_type');
+                            filled.push('Location Type');
+                        }
+                    }
+                    if (loc.subregion) {
+                        const subregionField = document.getElementById('id_location_subregion');
+                        if (subregionField) {
+                            subregionField.value = loc.subregion;
+                            markAiFilled('id_location_subregion');
+                            filled.push('Subregion');
+                        }
+                    }
+                }
+
+                // Abstract quality
+                if (d.abstract_quality && d.abstract_quality.score !== undefined) {
+                    const q = d.abstract_quality;
+                    const qualityDiv = document.getElementById('ai-abstract-quality');
+                    const bar = document.getElementById('ai-quality-bar');
+                    const scoreEl = document.getElementById('ai-quality-score');
+                    const suggestionsEl = document.getElementById('ai-quality-suggestions');
+
+                    qualityDiv.style.display = 'block';
+                    bar.style.width = q.score + '%';
+                    bar.className = 'progress-bar';
+                    if (q.score >= 80) bar.classList.add('bg-success');
+                    else if (q.score >= 60) bar.classList.add('bg-info');
+                    else if (q.score >= 40) bar.classList.add('bg-warning');
+                    else bar.classList.add('bg-danger');
+
+                    scoreEl.textContent = q.score + '/100';
+                    suggestionsEl.innerHTML = '';
+                    if (q.suggestions) {
+                        q.suggestions.forEach(s => {
+                            const div = document.createElement('div');
+                            div.className = 'ai-quality-suggestion';
+                            div.innerHTML = '<i class="fas fa-lightbulb text-warning me-1"></i>' + s;
+                            suggestionsEl.appendChild(div);
+                        });
+                    }
+                    filled.push('Abstract Quality Score');
+                }
+
+                // Show success
+                statusDiv.innerHTML = '<div class="alert alert-success py-1 px-2 mb-0"><small>🐧 AI filled: <strong>' + filled.join(', ') + '</strong>. Please verify all fields before submitting.</small></div>';
+                setTimeout(() => { statusDiv.innerHTML = ''; statusDiv.style.display = 'none'; }, 10000);
+            } else {
+                statusDiv.innerHTML = '<div class="alert alert-warning py-1 px-2 mb-0"><small>' + (result.error || 'AI pre-fill returned no results.') + '</small></div>';
+            }
+        } catch (e) {
+            console.error('AI prefill error:', e);
+            statusDiv.innerHTML = '<div class="alert alert-danger py-1 px-2 mb-0"><small>AI pre-fill failed. Please try again.</small></div>';
+        }
+        setButtonLoading('ai-prefill-btn', false);
+    }
+    // =========================================
+    // FEATURE 6: AI Generate Title
+    // =========================================
+    async function aiGenerateTitle() {
+        const { abstract, expedition_type } = getFormData();
+        if (!abstract || abstract.length < 20) {
+            alert('Please write an Abstract first (at least 20 characters).');
+            return;
+        }
+
+        setButtonLoading('ai-gen-title-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-generate-title/', { abstract, expedition_type });
+            if (result.status === 'ok' && result.data && result.data.title) {
+                const titleField = document.getElementById('id_title');
+                if (titleField) {
+                    titleField.value = result.data.title;
+                    markAiFilled('id_title');
+                }
+
+                // Show alternatives if available
+                const altDiv = document.getElementById('ai-title-alternatives');
+                if (altDiv && result.data.alternatives && result.data.alternatives.length > 0) {
+                    altDiv.style.display = 'block';
+                    altDiv.innerHTML = '<small class="text-muted d-block mb-1">🐧 Alternative titles (click to use):</small>';
+                    result.data.alternatives.forEach(alt => {
+                        const tag = document.createElement('div');
+                        tag.className = 'ai-keyword-tag';
+                        tag.style.cursor = 'pointer';
+                        tag.style.display = 'block';
+                        tag.style.marginBottom = '4px';
+                        tag.textContent = alt;
+                        tag.onclick = function () {
+                            titleField.value = alt;
+                            markAiFilled('id_title');
+                            altDiv.querySelectorAll('.ai-keyword-tag').forEach(t => t.classList.remove('selected'));
+                            this.classList.add('selected');
+                        };
+                        altDiv.appendChild(tag);
+                    });
+
+                    // Auto-hide after 15 seconds
+                    setTimeout(() => { altDiv.style.display = 'none'; }, 15000);
+                }
+            } else {
+                alert(result.data?.error || result.error || 'AI title generation failed.');
+            }
+        } catch (e) {
+            console.error('AI generate title error:', e);
+            alert('AI title generation failed. Please try again.');
+        }
+        setButtonLoading('ai-gen-title-btn', false);
+    }
+
+    // =========================================
+    // FEATURE 7: AI Generate Purpose
+    // =========================================
+    async function aiGeneratePurpose() {
+        const { title, abstract, expedition_type } = getFormData();
+        if (!abstract || abstract.length < 20) {
+            alert('Please write an Abstract first (at least 20 characters).');
+            return;
+        }
+
+        setButtonLoading('ai-gen-purpose-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-generate-purpose/', { title, abstract, expedition_type });
+            if (result.status === 'ok' && result.data && result.data.purpose) {
+                const purposeField = document.getElementById('id_purpose');
+                if (purposeField) {
+                    purposeField.value = result.data.purpose;
+                    markAiFilled('id_purpose');
+                }
+            } else {
+                alert(result.data?.error || result.error || 'AI purpose generation failed.');
+            }
+        } catch (e) {
+            console.error('AI generate purpose error:', e);
+            alert('AI purpose generation failed. Please try again.');
+        }
+        setButtonLoading('ai-gen-purpose-btn', false);
+    }
+
+    // =========================================
+    // FEATURE 8: AI Suggest Data Resolution
+    // =========================================
+    async function aiSuggestResolution() {
+        const { title, abstract, expedition_type } = getFormData();
+        if (!abstract || abstract.length < 20) {
+            alert('Please write an Abstract first (at least 20 characters).');
+            return;
+        }
+
+        setButtonLoading('ai-resolution-btn', true);
+        try {
+            const result = await aiApiCall('/data/api/ai-suggest-resolution/', { title, abstract, expedition_type });
+            if (result.status === 'ok' && result.data) {
+                const d = result.data;
+
+                // Fill Latitude Resolution DMS
+                const latDeg = document.getElementById('id_lat_res_deg');
+                const latMin = document.getElementById('id_lat_res_min');
+                const latSec = document.getElementById('id_lat_res_sec');
+                if (latDeg) { latDeg.value = d.lat_deg || '0'; markAiFilled('id_lat_res_deg'); }
+                if (latMin) { latMin.value = d.lat_min || '0'; markAiFilled('id_lat_res_min'); }
+                if (latSec) { latSec.value = d.lat_sec || '0'; markAiFilled('id_lat_res_sec'); }
+
+                // Fill Longitude Resolution DMS
+                const lonDeg = document.getElementById('id_lon_res_deg');
+                const lonMin = document.getElementById('id_lon_res_min');
+                const lonSec = document.getElementById('id_lon_res_sec');
+                if (lonDeg) { lonDeg.value = d.lon_deg || '0'; markAiFilled('id_lon_res_deg'); }
+                if (lonMin) { lonMin.value = d.lon_min || '0'; markAiFilled('id_lon_res_min'); }
+                if (lonSec) { lonSec.value = d.lon_sec || '0'; markAiFilled('id_lon_res_sec'); }
+
+                // Fill remaining resolution fields
+                const fields = {
+                    'id_horizontal_resolution_range': d.horizontal_resolution_range,
+                    'id_vertical_resolution': d.vertical_resolution,
+                    'id_vertical_resolution_range': d.vertical_resolution_range,
+                    'id_temporal_resolution': d.temporal_resolution,
+                    'id_temporal_resolution_range': d.temporal_resolution_range,
+                };
+                for (const [fieldId, value] of Object.entries(fields)) {
+                    const el = document.getElementById(fieldId);
+                    if (el && value) {
+                        el.value = value;
+                        markAiFilled(fieldId);
+                    }
+                }
+            } else {
+                alert(result.data?.error || result.error || 'AI resolution suggestion failed.');
+            }
+        } catch (e) {
+            console.error('AI suggest resolution error:', e);
+            alert('AI resolution suggestion failed. Please try again.');
+        }
+        setButtonLoading('ai-resolution-btn', false);
+    }
+
+    // =========================================
+    // AI FORM COMPLETION PROGRESS INDICATOR
+    // =========================================
+
+    // Form field definitions by section
+    const FORM_SECTIONS = {
+        identification: [
+            { id: 'expedition_type', name: 'Expedition Type', required: true, weight: 1 },
+            { id: 'id_title', name: 'Title', required: true, weight: 1 },
+            { id: 'id_expedition_year', name: 'Expedition Year', required: true, weight: 1 },
+            { id: 'id_expedition_number', name: 'Expedition Number', required: false, weight: 0.5 },
+            { id: 'id_project_number', name: 'Project Number', required: false, weight: 0.5 },
+            { id: 'id_project_name', name: 'Project Name', required: false, weight: 0.5 },
+            { id: 'id_category', name: 'Category', required: true, weight: 1 },
+            { id: 'id_topic', name: 'Topic', required: true, weight: 1 },
+            { id: 'id_iso_topic', name: 'ISO Topic', required: true, weight: 1 },
+            { id: 'id_keywords', name: 'Keywords', required: false, weight: 0.5 },
+            { id: 'id_data_set_progress', name: 'Data Set Progress', required: true, weight: 1 }
+        ],
+        summary: [
+            { id: 'id_abstract', name: 'Abstract', required: true, weight: 1 },
+            { id: 'id_purpose', name: 'Purpose', required: true, weight: 1 },
+            { id: 'id_version', name: 'Version', required: false, weight: 0.5 }
+        ],
+        metadata: [
+            { id: 'id_temporal_start_date', name: 'Start Date', required: true, weight: 1 },
+            { id: 'id_temporal_end_date', name: 'End Date', required: true, weight: 1 },
+            // Spatial coordinates - count as one field
+            { id: 'spatial_coords', name: 'Spatial Coordinates', required: true, weight: 1, customCheck: checkSpatialCoords },
+            { id: 'id_location_type', name: 'Location Type', required: false, weight: 0.5 },
+            { id: 'id_location_subregion', name: 'Location Subregion', required: false, weight: 0.5 },
+            { id: 'id_location_category', name: 'Location Category', required: false, weight: 0.5 },
+            // GPS fields
+            { id: 'gps_fields', name: 'GPS Information', required: false, weight: 0.5, customCheck: checkGPSFields },
+            // Resolution fields
+            { id: 'resolution_fields', name: 'Data Resolution', required: false, weight: 0.5, customCheck: checkResolutionFields }
+        ],
+        scientists: [
+            { id: 'scientist_0', name: 'Primary Scientist', required: true, weight: 1, customCheck: checkScientistFields }
+        ]
+    };
+
+    // AI Suggestions for missing fields
+    const AI_SUGGESTIONS = {
+        'id_title': {
+            priority: 'high',
+            message: 'Consider using the AI Title Generator to create a descriptive title from your abstract.',
+            action: 'aiGenerateTitle',
+            actionText: 'Generate Title'
+        },
+        'id_abstract': {
+            priority: 'high',
+            message: 'Write a clear abstract describing your dataset. The AI can help check its quality.',
+            action: 'aiCheckAbstract',
+            actionText: 'Check Quality'
+        },
+        'id_purpose': {
+            priority: 'medium',
+            message: 'Use the AI Purpose Generator to create a purpose statement from your title and abstract.',
+            action: 'aiGeneratePurpose',
+            actionText: 'Generate Purpose'
+        },
+        'id_keywords': {
+            priority: 'medium',
+            message: 'AI can suggest relevant GCMD keywords based on your title and abstract.',
+            action: 'aiSuggestKeywords',
+            actionText: 'Suggest Keywords'
+        },
+        'id_category,id_topic,id_iso_topic': {
+            priority: 'high',
+            message: 'Use AI Auto-Classify to automatically categorize your dataset.',
+            action: 'aiClassify',
+            actionText: 'Auto-Classify'
+        },
+        'spatial_coords': {
+            priority: 'medium',
+            message: 'AI can extract spatial coordinates from your abstract text.',
+            action: 'aiExtractSpatial',
+            actionText: 'Extract Coordinates'
+        },
+        'scientist_0': {
+            priority: 'high',
+            message: 'At least one scientist contact is required. Fill in the primary scientist details.',
+            action: null,
+            actionText: null
+        }
+    };
+
+    // Custom field check functions
+    function checkSpatialCoords() {
+        // Check if at least one spatial coordinate set is filled
+        const northDeg = document.getElementById('id_north_lat_deg')?.value?.trim();
+        const southDeg = document.getElementById('id_south_lat_deg')?.value?.trim();
+        const eastDeg = document.getElementById('id_east_lon_deg')?.value?.trim();
+        const westDeg = document.getElementById('id_west_lon_deg')?.value?.trim();
+
+        return !!(northDeg || southDeg || eastDeg || westDeg);
+    }
+
+    function checkGPSFields() {
+        const gpsUsed = document.querySelector('input[name="gps-gps_used"]:checked')?.value;
+        if (gpsUsed === 'True') {
+            const minAlt = document.getElementById('id_gps-minimum_altitude')?.value?.trim();
+            const maxAlt = document.getElementById('id_gps-maximum_altitude')?.value?.trim();
+            const minDepth = document.getElementById('id_gps-minimum_depth')?.value?.trim();
+            const maxDepth = document.getElementById('id_gps-maximum_depth')?.value?.trim();
+            return !!(minAlt || maxAlt || minDepth || maxDepth);
+        }
+        return true; // Not required if GPS not used
+    }
+
+    function checkResolutionFields() {
+        const horizRes = document.getElementById('id_horizontal_resolution_range')?.value?.trim();
+        const vertRes = document.getElementById('id_vertical_resolution')?.value?.trim();
+        const tempRes = document.getElementById('id_temporal_resolution')?.value?.trim();
+        return !!(horizRes || vertRes || tempRes);
+    }
+
+    function checkScientistFields() {
+        const firstName = document.getElementById('id_scientists-0-first_name')?.value?.trim();
+        const lastName = document.getElementById('id_scientists-0-last_name')?.value?.trim();
+        const email = document.getElementById('id_scientists-0-email')?.value?.trim();
+        return !!(firstName && lastName && email);
+    }
+
+    // Calculate form completion
+    function calculateFormCompletion() {
+        let totalFields = 0;
+        let completedFields = 0;
+        let sectionScores = { identification: 0, summary: 0, metadata: 0, scientists: 0 };
+
+        Object.keys(FORM_SECTIONS).forEach(section => {
+            const fields = FORM_SECTIONS[section];
+            let sectionTotal = 0;
+            let sectionCompleted = 0;
+
+            fields.forEach(field => {
+                totalFields += field.weight;
+                sectionTotal += field.weight;
+
+                let isCompleted = false;
+
+                if (field.customCheck) {
+                    isCompleted = field.customCheck();
+                } else {
+                    const element = document.getElementById(field.id);
+                    if (element) {
+                        if (element.type === 'radio') {
+                            const checked = document.querySelector(`input[name="${element.name}"]:checked`);
+                            isCompleted = !!checked?.value?.trim();
+                        } else if (element.tagName === 'SELECT') {
+                            isCompleted = element.value && element.value !== '';
+                        } else {
+                            isCompleted = !!element.value?.trim();
+                        }
+                    }
+                }
+
+                if (isCompleted) {
+                    completedFields += field.weight;
+                    sectionCompleted += field.weight;
+                }
+            });
+
+            sectionScores[section] = sectionTotal > 0 ? (sectionCompleted / sectionTotal) * 100 : 0;
+        });
+
+        return {
+            overall: totalFields > 0 ? (completedFields / totalFields) * 100 : 0,
+            sections: sectionScores,
+            completedCount: Math.round(completedFields),
+            totalCount: Math.round(totalFields)
+        };
+    }
+
+    // Update progress display
+    function updateProgressDisplay() {
+        const progress = calculateFormCompletion();
+
+        // Update overall progress
+        const percentage = Math.round(progress.overall);
+        document.getElementById('completion-percentage').textContent = percentage + '%';
+        document.getElementById('overall-progress-bar').style.width = percentage + '%';
+        document.getElementById('completion-text').textContent = `${progress.completedCount} of ${progress.totalCount} fields completed`;
+
+        // Update section progress circles
+        Object.keys(progress.sections).forEach(section => {
+            const sectionProgress = Math.round(progress.sections[section]);
+            const circle = document.querySelector(`.progress-circle[data-section="${section}"]`);
+            if (circle) {
+                circle.setAttribute('data-progress', Math.floor(sectionProgress / 25) * 25);
+                circle.querySelector('.progress-text').textContent = sectionProgress + '%';
+            }
+        });
+
+        // Show/hide AI suggestions button
+        const suggestionsBtn = document.getElementById('ai-suggestions-btn');
+        if (percentage < 100) {
+            suggestionsBtn.style.display = 'inline-block';
+        } else {
+            suggestionsBtn.style.display = 'none';
+        }
+    }
+
+    // Generate AI suggestions for missing fields
+    function showAISuggestions() {
+        const progress = calculateFormCompletion();
+        const suggestionsPanel = document.getElementById('ai-suggestions-panel');
+        const suggestionsContent = document.getElementById('ai-suggestions-content');
+
+        if (progress.overall >= 100) {
+            suggestionsContent.innerHTML = '<div class="text-success"><i class="fas fa-check-circle me-2"></i>All required fields are completed!</div>';
+            suggestionsPanel.style.display = 'block';
+            return;
+        }
+
+        let suggestions = [];
+
+        // Check each field for completion and generate suggestions
+        Object.keys(FORM_SECTIONS).forEach(section => {
+            FORM_SECTIONS[section].forEach(field => {
+                let isCompleted = false;
+
+                if (field.customCheck) {
+                    isCompleted = field.customCheck();
+                } else {
+                    const element = document.getElementById(field.id);
+                    if (element) {
+                        if (element.type === 'radio') {
+                            const checked = document.querySelector(`input[name="${element.name}"]:checked`);
+                            isCompleted = !!checked?.value?.trim();
+                        } else if (element.tagName === 'SELECT') {
+                            isCompleted = element.value && element.value !== '';
+                        } else {
+                            isCompleted = !!element.value?.trim();
+                        }
+                    }
+                }
+
+                if (!isCompleted) {
+                    // Find matching AI suggestion
+                    let suggestion = null;
+                    if (AI_SUGGESTIONS[field.id]) {
+                        suggestion = AI_SUGGESTIONS[field.id];
+                    } else {
+                        // Check for grouped suggestions
+                        Object.keys(AI_SUGGESTIONS).forEach(key => {
+                            if (key.includes(field.id) || key.includes(',')) {
+                                const keys = key.split(',');
+                                if (keys.some(k => k.trim() === field.id)) {
+                                    suggestion = AI_SUGGESTIONS[key];
+                                }
+                            }
+                        });
+                    }
+
+                    if (suggestion) {
+                        suggestions.push({
+                            field: field.name,
+                            priority: suggestion.priority,
+                            message: suggestion.message,
+                            action: suggestion.action,
+                            actionText: suggestion.actionText
+                        });
+                    } else {
+                        // Generic suggestion for required fields
+                        if (field.required) {
+                            suggestions.push({
+                                field: field.name,
+                                priority: 'high',
+                                message: `This is a required field. Please fill in the ${field.name.toLowerCase()}.`,
+                                action: null,
+                                actionText: null
+                            });
+                        }
+                    }
+                }
+            });
+        });
+
+        // Sort by priority
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        suggestions.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+        // Generate HTML
+        if (suggestions.length === 0) {
+            suggestionsContent.innerHTML = '<div class="text-muted">No specific suggestions available.</div>';
+        } else {
+            suggestionsContent.innerHTML = suggestions.map(s => `
+                <div class="ai-suggestion-item ai-suggestion-${s.priority}">
+                    <div class="field-name">${s.field}</div>
+                    <div class="suggestion-text">${s.message}</div>
+                    ${s.action ? `<button type="button" class="btn btn-sm btn-outline-primary action-btn" onclick="${s.action}()">${s.actionText}</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        suggestionsPanel.style.display = 'block';
+    }
+
+    // Toggle floating panel collapse/expand
+    function toggleProgressPanel() {
+        const panel = document.getElementById('ai-progress-panel');
+        panel.classList.toggle('collapsed');
+        const btn = document.getElementById('toggle-panel-btn');
+        if (panel.classList.contains('collapsed')) {
+            btn.title = 'Expand panel';
+        } else {
+            btn.title = 'Collapse panel';
+        }
+    }
+
+    // =========================================
+    // PROGRESS PANEL MANAGER FOR STACKING
+    // =========================================
+    const ProgressPanelManager = {
+        panels: [],
+
+        addPanel(panelId) {
+            if (!this.panels.includes(panelId)) {
+                this.panels.push(panelId);
+                this.repositionPanels();
+            }
+        },
+
+        removePanel(panelId) {
+            this.panels = this.panels.filter(id => id !== panelId);
+            this.repositionPanels();
+        },
+
+        repositionPanels() {
+            this.panels.forEach((panelId, index) => {
+                const panel = document.getElementById(panelId);
+                if (panel) {
+                    panel.setAttribute('data-stack-index', index);
+                    // Apply transform for stacking (120px spacing per panel)
+                    if (index > 0) {
+                        panel.style.transform = `translateY(-${index * 120}px)`;
+                    } else {
+                        panel.style.transform = 'translateY(0)';
+                    }
+                }
+            });
+        },
+
+        init() {
+            // Register the main progress panel
+            const mainPanel = document.getElementById('ai-progress-panel');
+            if (mainPanel) {
+                this.addPanel('ai-progress-panel');
+            }
+        }
+    };
+
+    // Initialize progress tracking
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize panel manager for stacking
+        ProgressPanelManager.init();
+
+        // Initial calculation
+        updateProgressDisplay();
+
+        // Set up event listeners for all form fields
+        const form = document.getElementById('datasetForm');
+        if (form) {
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateProgressDisplay);
+                input.addEventListener('change', updateProgressDisplay);
+            });
+        }
+
+        // Update progress periodically (in case of dynamic content)
+        setInterval(updateProgressDisplay, 2000);
+    });
+
+</script>
+{% endblock %}

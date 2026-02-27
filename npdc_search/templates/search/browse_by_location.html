@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .browse-header {
+        background: linear-gradient(135deg, #003366 0%, #0052CC 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .browse-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .browse-header p {
+        opacity: 0.85;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    .region-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .region-tab {
+        padding: 0.6rem 1.8rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        color: #003366;
+        background: #e8ecf1;
+        border: 2px solid transparent;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+    }
+
+    .region-tab:hover {
+        background: #d0d8e4;
+        color: #003366;
+        text-decoration: none;
+    }
+
+    .region-tab.active {
+        background: #3672a4;
+        color: #fff;
+        border-color: #3672a4;
+    }
+
+    /* Table Styles */
+    .location-table-wrapper {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .location-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .location-table thead th {
+        background: #e8ecf1;
+        color: #333;
+        font-weight: 700;
+        padding: 1rem 1.2rem;
+        text-align: left;
+        border-bottom: 2px solid #d0d8e4;
+        font-size: 0.95rem;
+    }
+
+    .location-table thead th:first-child {
+        text-align: center;
+        width: 80px;
+    }
+
+    .location-table thead th:nth-child(3) {
+        text-align: center;
+        width: 150px;
+    }
+
+    .location-table thead th:last-child {
+        text-align: center;
+        width: 150px;
+    }
+
+    .location-table tbody tr {
+        border-bottom: 1px solid #eee;
+        transition: background 0.15s ease;
+    }
+
+    .location-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .location-table tbody td {
+        padding: 0.9rem 1.2rem;
+        vertical-align: middle;
+    }
+
+    .location-table tbody td:first-child {
+        text-align: center;
+        font-weight: 600;
+        color: #666;
+    }
+
+    .location-table tbody td:nth-child(3) {
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .location-table tbody td:last-child {
+        text-align: center;
+    }
+
+    .location-table .view-link {
+        color: #0052CC;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .location-table .view-link:hover {
+        color: #003366;
+        text-decoration: underline;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #888;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+        color: #ccc;
+    }
+</style>
+
+<div class="browse-header">
+    <h1><i class="fas fa-map-marker-alt me-2"></i>Browse by Location</h1>
+    <p>Explore datasets utilizing our location registry</p>
+</div>
+
+<!-- Tabs -->
+<div class="region-tabs">
+    {% for region in regions %}
+    <a class="region-tab {% if region.active %}active{% endif %}" href="?region={{ region.key }}">{{ region.label }}</a>
+    {% endfor %}
+</div>
+
+<!-- Location Table -->
+{% for region in regions %}
+{% if region.active %}
+{% if region.locations %}
+<div class="location-table-wrapper">
+    <table class="location-table">
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>Location</th>
+                <th># Datasets</th>
+                <th>View Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loc in region.locations %}
+            <tr>
+                <td>{{ loc.sl_no }}</td>
+                <td>{{ loc.name }}</td>
+                <td>{{ loc.count }}</td>
+                <td>
+                    <a href="{% url 'search:search' %}?query={{ loc.name|urlencode }}" class="view-link">click to
+                        view</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-globe-americas"></i>
+    <p>No location data available for this region yet.</p>
+</div>
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endblock %}

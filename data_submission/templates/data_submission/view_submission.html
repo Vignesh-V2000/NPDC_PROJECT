@@ -1,0 +1,934 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ submission.title }} - NPDC{% endblock %}
+{% block content %}
+<style>
+    /* ═══════════════════════════════════════════
+       KPDC-Exact Dataset Detail Page
+       ═══════════════════════════════════════════ */
+
+    /* FIX: @import must come first inside <style> to be respected */
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+    .kpdc-page {
+        background: white;
+        min-height: 100vh;
+        padding-bottom: 3rem;
+        font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Breadcrumb bar */
+    .kpdc-breadcrumb-bar {
+        background: #fff;
+        border-bottom: 1px solid #ccd6e0;
+        padding: 0.6rem 0;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb {
+        margin: 0;
+        font-size: 0.85rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb a {
+        color: #004f87;
+        text-decoration: none;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb-item.active {
+        color: #666;
+    }
+
+    /* ── Title Section ── */
+    .kpdc-title-section {
+        background: #fff;
+        padding: 1.75rem 0 1.5rem;
+        border-bottom: none;
+    }
+
+    .kpdc-title-section h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a !important;
+        line-height: 1.35;
+        margin-bottom: 1.25rem;
+        font-family: 'Open Sans', sans-serif;
+        border-bottom: black 2px solid;
+    }
+
+    /* Abstract / Description box – KPDC style with left blue border */
+    .kpdc-desc-box {
+        background: white;
+        border: 1px solid #d0dbe6;
+        border-radius: 0;
+        padding: 1.25rem 1.5rem;
+        font-size: 0.92rem;
+        line-height: 1.75;
+        color: #2f2e2e;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-desc-box .desc-label {
+        font-weight: 700;
+        color: black;
+        display: block;
+        margin-bottom: 0.2rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpdc-desc-box p {
+        color: #444;
+        margin-bottom: 0.75rem;
+        text-align: justify;
+    }
+
+    .kpdc-desc-box p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* ── Right sidebar actions ── */
+    .kpdc-actions {
+        display: flex;
+        flex-direction: column;
+        /* FIX: removed gap here; using margin-bottom on children instead to avoid Bootstrap gap-2 conflict */
+    }
+
+    .kpdc-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 1rem;
+        border-radius: 4px;
+        border: 1px solid #ccd6e0;
+        background: #fff;
+        color: #333;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        font-family: 'Open Sans', sans-serif;
+        transition: all 0.2s;
+        margin-bottom: 0.6rem;
+    }
+
+    .kpdc-action-btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .kpdc-action-btn:hover {
+        background: #004f87;
+        color: #fff;
+        border-color: #004f87;
+    }
+
+    .kpdc-action-btn i {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .kpdc-action-btn.btn-primary-filled {
+        background: #00a3eb;
+        color: #fff;
+        border-color: #00a3eb;
+    }
+
+    .kpdc-action-btn.btn-primary-filled:hover {
+        background: #0088cc;
+    }
+
+    .kpdc-action-btn.btn-success-filled {
+        background: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+
+    /* Status badge */
+    .kpdc-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 3px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-status-badge.published {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .kpdc-status-badge.submitted {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .kpdc-status-badge.draft {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .kpdc-status-badge.under_review {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .kpdc-status-badge.revision_requested {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* View counter – KPDC style */
+    .kpdc-view-counter {
+        text-align: center;
+        padding: 0.5rem;
+    }
+
+    .kpdc-view-counter .count {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #e8a800;
+        line-height: 1;
+    }
+
+    .kpdc-view-counter .label {
+        font-size: 0.7rem;
+        color: #888;
+        text-transform: capitalize;
+    }
+
+    /* ════════════════════════════════════════
+       Metadata Content Card – KPDC style
+       ════════════════════════════════════════ */
+    .kpdc-content-card {
+        margin-top: 1.5rem;
+        overflow: hidden;
+    }
+
+    /* Metadata table */
+    .kpdc-metadata-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #f9f9f9;
+    }
+
+    .kpdc-metadata-table tr {
+        border-bottom: 1px solid #d0dbe6;
+    }
+
+    .kpdc-metadata-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .kpdc-metadata-table td {
+        padding: 1rem 1.5rem;
+        font-size: 0.95rem;
+        color: #000000;
+        vertical-align: top;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-metadata-table td:first-child {
+        width: 240px;
+        font-weight: 700;
+        color: #0f2844;
+        white-space: nowrap;
+        position: relative;
+        padding-left: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .kpdc-metadata-table td:first-child::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #132d48;
+        font-size: 1.2rem;
+        line-height: 1;
+        top: 1rem;
+    }
+
+    .kpdc-metadata-table td:last-child {
+        color: #222121;
+    }
+
+    /* ── KPDC Section Label (inline bullet label, NOT gradient bar) ── */
+    .kpdc-section-label {
+        padding: 0.85rem 1.5rem 0.85rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3a5c;
+        position: relative;
+        border-bottom: 1px solid #d0dbe6;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-section-label::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #1a3a5c;
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    .kpdc-section-label .file-size-info {
+        font-weight: 400;
+        font-size: 0.88rem;
+        color: #666;
+    }
+
+    .kpdc-section-label .file-size-value {
+        font-weight: 700;
+        color: #333;
+        font-size: 0.92rem;
+    }
+
+    /* Keywords */
+    .kpdc-keyword-tag {
+        display: inline-block;
+        padding: 0.2rem 0.55rem;
+        margin: 0.15rem;
+        background: #dce6f0;
+        color: #1a3a5c;
+        border-radius: 2px;
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+
+    /* ── Map container ── */
+    .kpdc-map-container {
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        position: relative;
+        border: 2px solid #5ba3d9;
+    }
+
+    .kpdc-map-container #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .kpdc-spatial-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.7rem;
+        background: #004f87;
+        color: #fff;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+
+    .kpdc-coords {
+        font-size: 0.88rem;
+        color: #444;
+    }
+
+    /* ── Raw Data / Files table – KPDC dark navy header ── */
+    .kpdc-files-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .kpdc-files-table thead th {
+        background: #2a3f5f;
+        padding: 0.7rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        border-bottom: none;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-files-table tbody td {
+        padding: 0.75rem 1rem;
+        font-size: 0.88rem;
+        color: #444;
+        border-bottom: 1px solid #d0dbe6;
+        vertical-align: middle;
+        text-align: center;
+        background: #fff;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-files-table tbody tr:hover {
+        background: #f5f8fc;
+    }
+
+    .kpdc-files-table tbody tr:hover td {
+        background: #f5f8fc;
+    }
+
+    .kpdc-file-icon {
+        color: #004f87;
+        margin-right: 0.5rem;
+    }
+
+    .kpdc-download-link {
+        color: #004f87;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.88rem;
+    }
+
+    .kpdc-download-link:hover {
+        text-decoration: underline;
+        color: #00a3eb;
+    }
+
+    /* ── Personnel ── */
+    .kpdc-personnel-item {
+        padding: 0.3rem 0;
+        font-size: 0.92rem;
+        color: #333;
+        line-height: 1.6;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-personnel-item+.kpdc-personnel-item {
+        border-top: none;
+    }
+
+    .kpdc-personnel-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .kpdc-personnel-email {
+        color: #004f87;
+    }
+
+    /* ── Version History ── */
+    .kpdc-version-section {
+        margin-top: 2rem;
+    }
+
+    .kpdc-version-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-version-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .kpdc-version-table thead th {
+        background: #fff;
+        padding: 0.7rem 1rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #333;
+        border-top: 2px solid #2a3f5f;
+        border-bottom: 2px solid #2a3f5f;
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-version-table tbody td {
+        padding: 0.65rem 1rem;
+        font-size: 0.88rem;
+        color: #444;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-version-table tbody tr:hover {
+        background: #f5f8fc;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 991px) {
+        .kpdc-metadata-table td:first-child {
+            width: 180px;
+        }
+
+        .kpdc-title-section h1 {
+            font-size: 1.4rem;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .kpdc-metadata-table td:first-child {
+            width: auto;
+            display: block;
+            padding-bottom: 0;
+        }
+
+        .kpdc-metadata-table td:last-child {
+            display: block;
+            padding-top: 0.25rem;
+            padding-left: 2rem;
+        }
+    }
+</style>
+
+<div class="kpdc-page">
+    <!-- Breadcrumb -->
+    <div class="kpdc-breadcrumb-bar">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'data_submission:my_submissions' %}">My Submissions</a>
+                    </li>
+                    <li class="breadcrumb-item active">Dataset #{{ submission.id }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Title Section (KPDC: large bold title on white bg) -->
+    <div class="kpdc-title-section">
+        <div class="container">
+            <h1>{{ submission.title }}</h1>
+
+            <div class="row">
+                <!-- Left: Abstract box with blue left border -->
+                <div class="col-lg-9">
+                    <div class="kpdc-desc-box">
+                        <p class="desc-label">Abstract:</p>
+                        <p>{{ submission.abstract }}</p>
+                        {% if submission.purpose %}
+                        <p class="desc-label">Purpose:</p>
+                        <p style="margin-top: 0.75rem;">{{ submission.purpose }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right sidebar: Status, Actions -->
+                <!-- FIX: removed Bootstrap gap-2 from parent div to avoid conflict with kpdc-actions margin approach -->
+                <div class="col-lg-3 mt-3 mt-lg-0">
+                    <div class="d-flex flex-column">
+                        <!-- Status Badge -->
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="kpdc-status-badge {{ submission.status }}">
+                                {% if submission.status == 'published' %}
+                                <i class="fas fa-check-circle"></i>
+                                {% elif submission.status == 'submitted' %}
+                                <i class="fas fa-clock"></i>
+                                {% elif submission.status == 'under_review' %}
+                                <i class="fas fa-search"></i>
+                                {% elif submission.status == 'revision_requested' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {% else %}
+                                <i class="fas fa-file-alt"></i>
+                                {% endif %}
+                                {{ submission.get_status_display }}
+                            </span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="kpdc-actions">
+                            {% if submission.status != 'published' %}
+                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.id }}"
+                                class="kpdc-action-btn btn-primary-filled">
+                                <i class="fas fa-edit"></i> Edit Submission
+                            </a>
+                            {% endif %}
+                        
+                        </div>
+
+                        <!-- Submission info -->
+                        <div
+                            style="font-size: 0.8rem; color: #888; margin-top: 0.5rem; font-family: 'Open Sans', sans-serif;">
+                            {% if submission.status == 'published' and submission.reviewed_at %}
+                            <div><i class="fas fa-calendar-check me-1"></i> Published: {{ submission.reviewed_at|date:"M d, Y" }}</div>
+                            {% endif %}
+                            <div><i class="fas fa-calendar me-1"></i> Submitted: {{ submission.submission_date|date:"M d, Y" }}</div>
+                            <div><i class="fas fa-sync-alt me-1"></i> Last Updated: {{ submission.last_updated|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- ═══════ Core Metadata (KPDC light blue card) ═══════ -->
+        <div class="kpdc-content-card">
+            <table class="kpdc-metadata-table">
+                <tr>
+                    <td>Entry ID</td>
+                    <td>NPDC-{{ submission.id|stringformat:"08d" }}</td>
+                </tr>
+                {% if submission.doi %}
+                <tr>
+                    <td>DOI</td>
+                    <td><a href="{{ submission.doi }}" target="_blank" style="color: #004f87;">{{ submission.doi }}</a>
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>Science Keyword</td>
+                    <td>
+                        {% for kw in submission.keyword_list %}
+                        {{ kw }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>ISO Topic</td>
+                    <td>{{ submission.get_iso_topic_display }}</td>
+                </tr>
+                <tr>
+                    <td>Personnel</td>
+                    <td>
+                        {% if submission.contact_person %}
+                        {{ submission.contact_person }}{% if submission.contact_email %} (<span class="kpdc-personnel-email">{{ submission.contact_email }}</span>){% endif %}
+                        {% endif %}
+                        {% for scientist in submission.scientists.all %}
+                        <br>{{ scientist.first_name }} {{ scientist.last_name }}
+                        {% if scientist.email %} (<span class="kpdc-personnel-email">{{ scientist.email }}</span>){% endif %}
+                        {% if scientist.institute %}, {{ scientist.institute }}{% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Project</td>
+                    <td>
+                        {% if submission.project_number %}<strong>{{ submission.project_number }}</strong>, {% endif %}
+                        {{ submission.project_name }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Research period</td>
+                    <td>{{ submission.temporal_start_date|date:"Y-m-d" }} ~ {{ submission.temporal_end_date|date:"Y-m-d" }}</td>
+                </tr>
+                <tr>
+                    <td>Create/Update Date</td>
+                    <td>{{ submission.submission_date|date:"Y-m-d" }} / {{ submission.last_updated|date:"Y-m-d" }}</td>
+                </tr>
+                {% if submission.location %}
+                <tr>
+                    <td>Location</td>
+                    <td>
+                        {% if submission.location.location_category %}{{ submission.location.location_category }}{% endif %}
+                        {% if submission.location.location_type %} &gt; {{ submission.location.location_type }}{% endif %}
+                        {% if submission.location.location_subregion %} &gt; {{ submission.location.location_subregion }}{% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if submission.citation %}
+                <tr>
+                    <td>Citation</td>
+                    <td>
+                        {% if submission.citation.creator %}{{ submission.citation.creator }}{% endif %}
+                        {% if submission.citation.title %} - <em>{{ submission.citation.title }}</em>{% endif %}
+                        {% if submission.citation.release_date %} ({{ submission.citation.release_date }}){% endif %}
+                        {% if submission.citation.series_name %}, {{ submission.citation.series_name }}{% endif %}
+                        {% if submission.citation.version %}, v{{ submission.citation.version }}{% endif %}
+                        {% if submission.citation.online_resource %}
+                        <br><a href="{{ submission.citation.online_resource }}" target="_blank"
+                            style="color: #004f87;">{{ submission.citation.online_resource }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>Spatial Coverage</td>
+                    <td>
+                        <span class="kpdc-coords">
+                            lat: {{ submission.south_latitude }}&deg;, lon: {{ submission.west_longitude }}&deg;
+                            &nbsp;&ndash;&nbsp;
+                            lat: {{ submission.north_latitude }}&deg;, lon: {{ submission.east_longitude }}&deg;
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ═══════ Map ═══════ -->
+        <div class="kpdc-content-card" style="margin-top: 0; border-top: none;">
+            <div class="kpdc-map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ Raw Data / Files ═══════ -->
+        {% if submission.data_file or submission.metadata_file or submission.readme_file %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">
+                <span>Raw Data</span>
+                <!-- FIX: only show file size block if data_file exists and has a size -->
+                {% if submission.data_file and submission.file_size_mb %}
+                <span class="file-size-info">File Size</span>
+                <span class="file-size-value">{{ submission.file_size_mb }} MB</span>
+                {% endif %}
+            </div>
+            <table class="kpdc-files-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>File Name</th>
+                        <th>Description</th>
+                        <th>Size</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if submission.data_file %}
+                    <tr>
+                        <td>Rawdata</td>
+                        <!-- FIX: increased truncatechars to 80 to preserve file extensions -->
+                        <td>{{ submission.data_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <!-- FIX: show size only when available -->
+                        <td>{% if submission.file_size_mb %}{{ submission.file_size_mb }} MB{% else %}&mdash;{% endif %}</td>
+                        <td><a href="{{ submission.data_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                    </tr>
+                    {% endif %}
+                    {% if submission.metadata_file %}
+                    <tr>
+                        <td>Metadata</td>
+                        <td>{{ submission.metadata_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td><a href="{{ submission.metadata_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                    </tr>
+                    {% endif %}
+                    {% if submission.readme_file %}
+                    <tr>
+                        <td>Readme</td>
+                        <td>{{ submission.readme_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td><a href="{{ submission.readme_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ═══════ Instruments ═══════ -->
+        {% if submission.instruments.all %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">Instruments</div>
+            <table class="kpdc-metadata-table">
+                {% for instrument in submission.instruments.all %}
+                <tr>
+                    <td>{{ instrument.short_name }}</td>
+                    <td>{{ instrument.long_name }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ═══════ GPS & Paleo-Temporal ═══════ -->
+        {% if submission.gps or submission.paleo_temporal %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">GPS &amp; Paleo-Temporal</div>
+            <table class="kpdc-metadata-table">
+                {% if submission.gps and submission.gps.gps_used %}
+                <tr>
+                    <td>GPS Used</td>
+                    <td>{{ submission.gps.gps_used|yesno:"Yes,No" }}</td>
+                </tr>
+                <tr>
+                    <td>Altitude (Min / Max)</td>
+                    <td>{{ submission.gps.minimum_altitude }} / {{ submission.gps.maximum_altitude }}</td>
+                </tr>
+                <tr>
+                    <td>Depth (Min / Max)</td>
+                    <td>{{ submission.gps.minimum_depth }} / {{ submission.gps.maximum_depth }}</td>
+                </tr>
+                {% endif %}
+                {% if submission.paleo_temporal %}
+                <tr>
+                    <td>Paleo Start Date</td>
+                    <td>{{ submission.paleo_temporal.paleo_start_date }}</td>
+                </tr>
+                <tr>
+                    <td>Paleo Stop Date</td>
+                    <td>{{ submission.paleo_temporal.paleo_stop_date }}</td>
+                </tr>
+                <tr>
+                    <td>Chronostratigraphic Unit</td>
+                    <td>{{ submission.paleo_temporal.chronostratigraphic_unit }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ═══════ Data Resolution ═══════ -->
+        {% if submission.resolution %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">Data Resolution</div>
+            <table class="kpdc-metadata-table">
+                <tr>
+                    <td>Latitude Resolution</td>
+                    <td>{{ submission.resolution.latitude_resolution }}</td>
+                </tr>
+                <tr>
+                    <td>Longitude Resolution</td>
+                    <td>{{ submission.resolution.longitude_resolution }}</td>
+                </tr>
+                <tr>
+                    <td>Horizontal Range</td>
+                    <td>{{ submission.resolution.horizontal_resolution_range }}</td>
+                </tr>
+                <tr>
+                    <td>Vertical Resolution</td>
+                    <td>{{ submission.resolution.vertical_resolution }} ({{ submission.resolution.vertical_resolution_range }})</td>
+                </tr>
+                <tr>
+                    <td>Temporal Resolution</td>
+                    <td>{{ submission.resolution.temporal_resolution }} ({{ submission.resolution.temporal_resolution_range }})</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ═══════ Full Citation Details (collapsible) ═══════ -->
+        {% if submission.citation %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label" style="cursor:pointer;" data-bs-toggle="collapse"
+                data-bs-target="#citationDetails">
+                <span>Full Citation Details</span>
+                <i class="fas fa-chevron-down ms-auto" style="font-size:0.75rem; opacity:0.6;"></i>
+            </div>
+            <div class="collapse" id="citationDetails">
+                <table class="kpdc-metadata-table">
+                    <tr>
+                        <td>Creator</td>
+                        <td>{{ submission.citation.creator }}</td>
+                    </tr>
+                    <tr>
+                        <td>Editor</td>
+                        <td>{{ submission.citation.editor }}</td>
+                    </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>{{ submission.citation.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Series Name</td>
+                        <td>{{ submission.citation.series_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Release Date</td>
+                        <td>{{ submission.citation.release_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Release Place</td>
+                        <td>{{ submission.citation.release_place }}</td>
+                    </tr>
+                    <tr>
+                        <td>Version</td>
+                        <td>{{ submission.citation.version }}</td>
+                    </tr>
+                    <tr>
+                        <td>Online Resource</td>
+                        <td>
+                            {% if submission.citation.online_resource %}
+                            <a href="{{ submission.citation.online_resource }}" target="_blank"
+                                style="color: #004f87;">{{ submission.citation.online_resource }}</a>
+                            {% else %}&mdash;{% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ═══════ Version History (KPDC style) ═══════ -->
+        <!-- FIX: loop over a related version queryset if available, falling back to the submission itself -->
+        <div class="kpdc-version-section">
+            <h2 class="kpdc-version-title">Version History</h2>
+            <table class="kpdc-version-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Registration Date</th>
+                        <th>Submitter</th>
+                        <th>Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if submission.versions.all %}
+                        {% for v in submission.versions.all %}
+                        <tr>
+                            <td>{{ v.version }}</td>
+                            <td>{{ v.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ v.submitter.get_full_name|default:v.submitter.username }}</td>
+                            <td>{{ v.summary|default:v.get_status_display }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Fallback: show the current submission as a single version row -->
+                        <tr>
+                            <td>{{ submission.version }}</td>
+                            <td>{{ submission.submission_date|date:"Y-m-d H:i" }}</td>
+                            <td>{{ submission.submitter.get_full_name|default:submission.submitter.username }}</td>
+                            <td>{{ submission.get_status_display }}</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+    </div><!-- /.container -->
+</div><!-- /.kpdc-page -->
+
+<!-- Leaflet Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        /* FIX: corrected Django template filter syntax from |default:"0" with colon to |default:"0" with equals sign */
+        var north = {{ submission.north_latitude|default:"0" }};
+        var south = {{ submission.south_latitude|default:"0" }};
+        var east  = {{ submission.east_longitude|default:"0" }};
+        var west  = {{ submission.west_longitude|default:"0" }};
+
+        var centerLat = (north + south) / 2;
+        var centerLng = (east + west) / 2;
+
+        var map = L.map('map', {
+            center: [centerLat, centerLng],
+            zoom: 3,
+            scrollWheelZoom: true,
+            attributionControl: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '',
+            maxZoom: 18
+        }).addTo(map);
+
+        /* Single marker at the center point */
+        var marker = L.marker([centerLat, centerLng]).addTo(map);
+
+        /* Add popup with dataset title */
+        marker.bindPopup('<strong>{{ submission.title|truncatechars:80 }}</strong>');
+
+        /* Center map on marker */
+        map.setView([centerLat, centerLng], 5);
+    });
+</script>
+{% endblock %}

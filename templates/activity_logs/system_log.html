@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>System Activity Logs</h2>
+        <span>Showing last {{ logs|length }} entries</span>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>IP Address</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.action_time|date:"Y-m-d H:i:s" }}</td>
+                            <td>
+                                {% if log.actor %}
+                                <span class="badge bg-secondary">{{ log.actor.username }}</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">System/Anon</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if log.action_type == 'LOGIN' %}bg-info
+                                    {% elif log.action_type == 'LOGOUT' %}bg-secondary
+                                    {% elif log.action_type == 'CREATE' %}bg-success
+                                    {% elif log.action_type == 'DELETE' %}bg-danger
+                                    {% elif log.action_type == 'APPROVE' %}bg-success
+                                    {% elif log.action_type == 'REJECT' %}bg-danger
+                                    {% else %}bg-primary{% endif %}">
+                                    {{ log.get_action_type_display }}
+                                </span>
+                            </td>
+                            <td>{{ log.entity_name|default:"-" }}</td>
+                            <td>{{ log.ip_address|default:"-" }}</td>
+                            <td>
+                                {% if log.status == 'SUCCESS' %}
+                                <span class="text-success"><i class="bi bi-check-circle"></i> Success</span>
+                                {% else %}
+                                <span class="text-danger"><i class="bi bi-x-circle"></i> Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ log.remarks|truncatechars:100 }}</small>
+                                {% if log.path %}
+                                <br><small class="text-muted" style="font-size:0.8em">Path: {{ log.path }}</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No activity logs found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination logic if using ListView pagination -->
+        {% if is_paginated %}
+        <div class="card-footer">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

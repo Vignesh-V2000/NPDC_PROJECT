@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Polar Directory{% endblock %}
+{% block content %}
+<style>
+.polar-directory-hero{background:linear-gradient(135deg,#003366 0%,#004e8c 50%,#00274a 100%);color:#fff;padding:2.5rem 0;text-align:center;margin-bottom:0}
+.polar-directory-hero h1{font-family:'Lato',sans-serif;font-weight:900;font-size:2rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:.5rem}
+.polar-directory-hero p{color:rgba(255,255,255,.7);font-size:1rem}
+.directory-section{background:#f5f7fa;min-height:60vh;padding:3rem 0}
+.pd-panel{background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.08);padding:2rem;height:100%;transition:transform .3s,box-shadow .3s;border:1px solid rgba(0,0,0,.05)}
+.pd-panel:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.pd-header{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #E8751A}
+.pd-header .pd-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#fff}
+.pd-icon.ic-choose{background:linear-gradient(135deg,#003366,#0077b6)}
+.pd-icon.ic-station{background:linear-gradient(135deg,#E8751A,#f5a623)}
+.pd-header h3{font-family:'Lato',sans-serif;font-weight:700;font-size:1.25rem;color:#003366;margin:0}
+.pd-header h3 small{display:block;font-size:.75rem;font-weight:400;color:#888;margin-top:2px}
+.pd-radios{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
+.pd-radio{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:background .2s;border:1px solid transparent}
+.pd-radio:hover{background:#f0f4ff;border-color:#dde4f0}
+.pd-radio input[type=radio]{accent-color:#003366;width:16px;height:16px;cursor:pointer}
+.pd-radio label{cursor:pointer;font-size:.92rem;font-weight:500;color:#333;margin:0}
+.pd-search-btn{background:linear-gradient(135deg,#003366,#005fa3);color:#fff;border:none;padding:.7rem 2.5rem;border-radius:10px;font-weight:600;font-size:.95rem;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:0 4px 15px rgba(0,51,102,.3)}
+.pd-search-btn:hover{background:linear-gradient(135deg,#002244,#004080);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,51,102,.4);color:#fff}
+.pd-search-btn.orange{background:linear-gradient(135deg,#E8751A,#d4680f);box-shadow:0 4px 15px rgba(232,117,26,.3)}
+.pd-search-btn.orange:hover{background:linear-gradient(135deg,#d4680f,#b8560a);box-shadow:0 6px 20px rgba(232,117,26,.4)}
+@media(max-width:768px){.polar-directory-hero h1{font-size:1.4rem}.pd-panel{padding:1.5rem;margin-bottom:1.5rem}}
+</style>
+<section class="polar-directory-hero"><div class="container"><h1><i class="fas fa-globe-americas me-2"></i>Indian Antarctic Expedition Directory</h1><p>Search the comprehensive directory of Indian polar expeditions, stations, and contributors</p></div></section>
+<section class="directory-section"><div class="container"><div class="row g-4">
+<div class="col-lg-6"><div class="pd-panel"><div class="pd-header"><div class="pd-icon ic-choose"><i class="fas fa-search"></i></div><h3>Choose<small>Select a category to search</small></h3></div>
+<form method="get" action="{% url 'users:polar_directory' %}"><div class="pd-radios">
+<div class="pd-radio"><input type="radio" name="choose" id="r1" value="institute" {% if choose == 'institute' %}checked{% endif %}><label for="r1"><i class="fas fa-university me-2 text-primary"></i>Institute</label></div>
+<div class="pd-radio"><input type="radio" name="choose" id="r2" value="project" {% if choose == 'project' %}checked{% endif %}><label for="r2"><i class="fas fa-project-diagram me-2 text-primary"></i>Project / Tech Report</label></div>
+<div class="pd-radio"><input type="radio" name="choose" id="r3" value="member" {% if choose == 'member' %}checked{% endif %}><label for="r3"><i class="fas fa-users me-2 text-primary"></i>Member / Contributor</label></div>
+<div class="pd-radio"><input type="radio" name="choose" id="r4" value="expedition" {% if choose == 'expedition' %}checked{% endif %}><label for="r4"><i class="fas fa-hiking me-2 text-primary"></i>Expedition</label></div>
+<div class="pd-radio"><input type="radio" name="choose" id="r5" value="expedition_role" {% if choose == 'expedition_role' %}checked{% endif %}><label for="r5"><i class="fas fa-user-tag me-2 text-primary"></i>Expedition Member Role</label></div>
+<div class="pd-radio"><input type="radio" name="choose" id="r6" value="expedition_leader" {% if choose == 'expedition_leader' %}checked{% endif %}><label for="r6"><i class="fas fa-user-tie me-2 text-primary"></i>Expedition Leader</label></div>
+<div class="pd-radio"><input type="radio" name="choose" id="r7" value="keyword" {% if choose == 'keyword' %}checked{% endif %}><label for="r7"><i class="fas fa-key me-2 text-primary"></i>Keyword</label></div>
+</div><button type="submit" class="pd-search-btn"><i class="fas fa-search me-2"></i>Search</button></form></div></div>
+<div class="col-lg-6"><div class="pd-panel"><div class="pd-header"><div class="pd-icon ic-station"><i class="fas fa-map-pin"></i></div><h3>Station<small>Search by polar research station</small></h3></div>
+<form method="get" action="{% url 'users:polar_directory' %}"><div class="pd-radios">
+<div class="pd-radio"><input type="radio" name="station" id="s1" value="maitri" {% if station == 'maitri' %}checked{% endif %}><label for="s1"><i class="fas fa-igloo me-2" style="color:#E8751A"></i>Maitri</label></div>
+<div class="pd-radio"><input type="radio" name="station" id="s2" value="bharati" {% if station == 'bharati' %}checked{% endif %}><label for="s2"><i class="fas fa-igloo me-2" style="color:#E8751A"></i>Bharati</label></div>
+<div class="pd-radio"><input type="radio" name="station" id="s3" value="dakshin_gangotri" {% if station == 'dakshin_gangotri' %}checked{% endif %}><label for="s3"><i class="fas fa-igloo me-2" style="color:#E8751A"></i>Dakshin Gangotri</label></div>
+<div class="pd-radio"><input type="radio" name="station" id="s4" value="larsemann_hills" {% if station == 'larsemann_hills' %}checked{% endif %}><label for="s4"><i class="fas fa-mountain me-2" style="color:#E8751A"></i>Larsemann Hills</label></div>
+<div class="pd-radio"><input type="radio" name="station" id="s5" value="south_pole" {% if station == 'south_pole' %}checked{% endif %}><label for="s5"><i class="fas fa-flag me-2" style="color:#E8751A"></i>South Pole</label></div>
+<div class="pd-radio"><input type="radio" name="station" id="s6" value="chandra_basin" {% if station == 'chandra_basin' %}checked{% endif %}><label for="s6"><i class="fas fa-water me-2" style="color:#E8751A"></i>Chandra Basin</label></div>
+</div><button type="submit" class="pd-search-btn orange"><i class="fas fa-search me-2"></i>Search</button></form></div></div>
+</div>
+{% if results %}<div class="row mt-4"><div class="col-12"><div class="pd-panel"><div class="pd-header"><div class="pd-icon ic-choose"><i class="fas fa-list"></i></div><h3>Search Results <small>{{ results|length }} record(s) found</small></h3></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>#</th><th>Title</th><th>Expedition</th><th>Year</th><th>Type</th><th>Action</th></tr></thead><tbody>{% for item in results %}<tr><td>{{ forloop.counter }}</td><td>{{ item.title }}</td><td>{{ item.expedition_number }}</td><td>{{ item.expedition_year }}</td><td><span class="badge bg-primary">{{ item.get_expedition_type_display }}</span></td><td><a href="{% url 'data_submission:view_submission' item.id %}" class="btn btn-sm btn-outline-primary">View</a></td></tr>{% endfor %}</tbody></table></div></div></div></div>{% elif searched %}<div class="row mt-4"><div class="col-12"><div class="pd-panel text-center py-5"><i class="fas fa-search fa-3x text-muted mb-3"></i><h4 class="text-muted">No results found</h4><p class="text-muted">Try selecting a different category or station.</p></div></div></div>{% endif %}
+</div></section>
+{% endblock %}
