@@ -357,7 +357,7 @@
                         <div class="thumb"><img src="{{ ds.thumbnail_url }}" alt="{{ ds.title }}"></div>
                         {% endif %}
                         <div class="data-list-main">
-                            <h6 class="data-item-title"><a href="{% url 'data_submission:view_submission' ds.id %}">{{ ds.title }}</a></h6>
+                            <h6 class="data-item-title"><a href="{% url 'data_submission:view_submission' ds.metadata_id %}">{{ ds.title }}</a></h6>
                             <p class="data-item-abstract" style="text-align: justify;">{{ ds.abstract|truncatewords:25 }}</p>
                         </div>
                     </div>
@@ -377,7 +377,7 @@
                         <div class="thumb"><img src="{{ ds.thumbnail_url }}" alt="{{ ds.title }}"></div>
                         {% endif %}
                         <div class="data-list-main">
-                            <h6 class="data-item-title"><a href="{% url 'data_submission:view_submission' ds.id %}">{{ ds.title }}</a></h6>
+                            <h6 class="data-item-title"><a href="{% url 'data_submission:view_submission' ds.metadata_id %}">{{ ds.title }}</a></h6>
                             <p class="data-item-abstract" style="text-align: justify;">{{ ds.abstract|truncatewords:25 }}</p>
                         </div>
                     </div>
@@ -1267,6 +1267,196 @@
         </div>
     </div>
 </section>
+
+<!-- Weather at Indian Polar Stations -->
+<section class="weather-section">
+    <div class="container py-5">
+        <div class="section-title text-center mb-5">
+            <h2 class="text-white fw-bold mb-3">Weather at Indian Polar Stations</h2>
+            <div class="title-underline"></div>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <!-- Maitri Card -->
+            <div class="col-sm-6 col-lg-3">
+                <div class="weather-card weather-widget" data-lat="-70.7667" data-lon="11.7333">
+                    <div id="carouselMaitri" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="0" class="active"></button>
+                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="2"></button>
+                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="3"></button>
+                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="4"></button>
+                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="5"></button>
+                        </div>
+                        <div class="carousel-inner weather-carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-info text-center mt-4 pt-2">
+                        <h5 class="station-name">Antarctica - Maitri:</h5>
+                        <div class="temperature-display my-1">
+                            <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-7.7&deg; C</span>
+                        </div>
+                        <div class="weather-date fw-datetime">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bharati Card -->
+            <div class="col-sm-6 col-lg-3">
+                <div class="weather-card weather-widget" data-lat="-69.4083" data-lon="76.1950">
+                    <div id="carouselBharati" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="0" class="active"></button>
+                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="2"></button>
+                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="3"></button>
+                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="4"></button>
+                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="5"></button>
+                        </div>
+                        <div class="carousel-inner weather-carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-info text-center mt-4 pt-2">
+                        <h5 class="station-name">Antarctica - Bharati:</h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-4.4&deg; C</span>
+                            </div>
+                        <div class="weather-date fw-datetime">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Himansh Card -->
+            <div class="col-sm-6 col-lg-3">
+                <div class="weather-card weather-widget" data-lat="32.39" data-lon="77.62">
+                    <div id="carouselHimansh" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="0" class="active"></button>
+                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="2"></button>
+                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="3"></button>
+                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="4"></button>
+                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="5"></button>
+                        </div>
+                        <div class="carousel-inner weather-carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-info text-center mt-4 pt-2">
+                        <h5 class="station-name">Himalaya - Himansh:</h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-8.4&deg; C</span>
+                            </div>
+                        <div class="weather-date fw-datetime">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Himadri Card -->
+            <div class="col-sm-6 col-lg-3">
+                <div class="weather-card weather-widget" data-lat="78.92" data-lon="11.93">
+                    <div id="carouselHimadri" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="0" class="active"></button>
+                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="2"></button>
+                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="3"></button>
+                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="4"></button>
+                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="5"></button>
+                        </div>
+                        <div class="carousel-inner weather-carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-info text-center mt-4 pt-2">
+                        <h5 class="station-name">Arctic - Himadri:</h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-3.4&deg; C</span>
+                            </div>
+                        <div class="weather-date fw-datetime">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
 </div>
 <!-- Home Page Specific Styles -->
 <style>
@@ -1606,8 +1796,98 @@
     }
 
     .data-item-title a {
-	@@ -1708,10 +1746,25 @@ <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Himalayas</h4>
+        text-decoration: none;
+        color: inherit;
     }
+
+    /* Weather Section */
+    .weather-section {
+        background-color: #0b192c;
+    }
+    
+    .weather-section .title-underline {
+        width: 60px;
+        height: 3px;
+        background-color: #007bff;
+        margin: 0 auto;
+        border-radius: 2px;
+    }
+
+    .weather-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 12px;
+        height: 100%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .weather-carousel-inner {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .weather-carousel-inner img {
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .weather-card .carousel-indicators {
+        bottom: -35px;
+    }
+    
+    .weather-card .carousel-indicators [data-bs-target] {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #ced4da;
+        border: none;
+        margin: 0 4px;
+        opacity: 1;
+    }
+    
+    .weather-card .carousel-indicators .active {
+        background-color: #adb5bd;
+    }
+    
+    .weather-info {
+        padding-top: 15px;
+    }
+    
+    .weather-info .station-name {
+        color: #0d2b5e;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .temperature-display {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #e53935;
+        border-bottom: 1px solid #ffcdd2;
+        padding-bottom: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        width: auto;
+    }
+    
+    .temperature-display .temp-val {
+        margin-left: 5px;
+    }
+
+    /* Make the thermometer icon blue to match site theme */
+    .temperature-display .fa-thermometer-half {
+        color: #0d6efd;
+    }
+    
+    .weather-date {
+        color: #2e7d32;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-top: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+
 
     .data-item-abstract {
         font-size: 0.9rem;
@@ -1976,29 +2256,57 @@
                 const lon = widget.getAttribute('data-lon');
                 if (!lat || !lon) return;
 
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset&timezone=auto`;
+                // compute the date two days before today and request hourly data for that date
+                const today = new Date();
+                const target = new Date(today);
+                target.setDate(today.getDate() - 2);
+                const yyyy = target.getFullYear();
+                const mm = String(target.getMonth() + 1).padStart(2, '0');
+                const dd = String(target.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD
+
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relativehumidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
 
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
-                        if (!data.current || !data.daily) return;
+                        if (!data) return;
 
-                        // Parse Time (HH:MM) and Date
-                        const dTime = new Date(data.current.time);
-                        const timeStr = String(dTime.getHours()).padStart(2, '0') + ':' + String(dTime.getMinutes()).padStart(2, '0');
+                        // Format date for display e.g. "26 Feb 2026"
+                        const day = String(target.getDate()).padStart(2, '0');
+                        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        const monthStr = months[target.getMonth()];
+                        const year = target.getFullYear();
+                        const timeStr = '11:00 PM';
 
-                        // Parse Date (e.g. 2026-02-23)
-                        const year = dTime.getFullYear();
-                        const month = String(dTime.getMonth() + 1).padStart(2, '0');
-                        const day = String(dTime.getDate()).padStart(2, '0');
-                        const dateStr = `${year}-${month}-${day}`;
-
+                        // Update the datetime display to the fixed 11:00 PM label (official data at 23:00)
                         const dtEl = widget.querySelector('.fw-datetime');
-                        if (dtEl) dtEl.textContent = `${dateStr} ${timeStr} (UTC)`;
+                        if (dtEl) dtEl.textContent = `${day} ${monthStr} ${year} ${timeStr}`;
 
-                        // Parse Sunrise/Sunset
-                        const sunriseIso = data.daily.sunrise[0];
-                        const sunsetIso = data.daily.sunset[0];
+                        // Try to pick the hourly value for 23:00 from the API (timezone=auto -> local times)
+                        let tempVal = null;
+                        if (data.hourly && Array.isArray(data.hourly.time)) {
+                            const times = data.hourly.time;
+                            // find index matching 23:00 precisely
+                            let idx = times.findIndex(t => /T23:00(:00)?$/.test(t));
+                            if (idx === -1) {
+                                // fallback: look for any entry that contains "23:00"
+                                idx = times.findIndex(t => t.includes('23:00'));
+                            }
+                            if (idx !== -1 && data.hourly.temperature_2m && data.hourly.temperature_2m.length > idx) {
+                                tempVal = data.hourly.temperature_2m[idx];
+                            }
+                        }
+
+                        // If we found a temperature at 23:00, update the card. Otherwise, leave existing value.
+                        if (tempVal !== null) {
+                            const tEl = widget.querySelector('.fw-temp');
+                            if (tEl) tEl.textContent = (Math.round(tempVal * 10) / 10) + '\u00B0 C';
+                        }
+
+                        // Parse Sunrise/Sunset from daily if present
+                        const sunriseIso = data.daily && data.daily.sunrise ? data.daily.sunrise[0] : null;
+                        const sunsetIso = data.daily && data.daily.sunset ? data.daily.sunset[0] : null;
 
                         if (sunriseIso) {
                             const dRise = new Date(sunriseIso);

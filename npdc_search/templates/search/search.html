@@ -39,24 +39,31 @@
         border-radius: 20px;
         padding-left: 1em !important;
     }
+
     .ai-toggle .form-check-input {
-        margin-left:0.5px !important;
+        margin-left: 0.5px !important;
     }
+
     .ai-toggle .form-check-label {
         padding-left: 0.5em;
+        font-size: 1.1rem; /* make AI toggle text larger */
     }
+
     .ai-toggle .form-check-input:checked {
         background-color: #0d6efd;
         border-color: #0d6efd;
     }
+
     #aiSummaryCard {
         border-left: 4px solid #0d6efd !important;
         background: linear-gradient(90deg, #f8f9ff, #fff);
     }
+
     #aiSuggestCard {
         border-left: 4px solid #ffc107 !important;
         background: linear-gradient(90deg, #fffef5, #fff);
     }
+
     .ai-badge {
         display: inline-block;
         background: linear-gradient(135deg, #667eea, #764ba2);
@@ -66,21 +73,31 @@
         font-size: 0.75rem;
         font-weight: 600;
     }
+
     .ai-summary-text {
         font-size: 0.95rem;
         line-height: 1.6;
     }
+
+    /* larger font for advanced search toggle link */
+    .advanced-search-toggle {
+        font-size: 1.1rem;
+    }
+
     .ai-suggestion-btn {
         border-radius: 20px;
     }
+
     .ai-suggestion-btn:hover {
         transform: translateY(-1px);
     }
+
     .ai-thinking {
         display: flex;
         align-items: center;
         padding: 8px 0;
     }
+
     .ai-thinking .dot {
         width: 8px;
         height: 8px;
@@ -89,11 +106,27 @@
         margin: 0 3px;
         animation: aiPulse 1.2s infinite;
     }
-    .ai-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
-    .ai-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .ai-thinking .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .ai-thinking .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
     @keyframes aiPulse {
-        0%, 100% { opacity: 0.3; transform: scale(0.8); }
-        50% { opacity: 1; transform: scale(1.2); }
+
+        0%,
+        100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
     }
 </style>
 <div class="container-fluid py-4">
@@ -113,7 +146,7 @@
                         <div class="d-flex align-items-center justify-content-between mt-2">
                             <div class="form-check form-switch ai-toggle mb-0">
                                 <input class="form-check-input" type="checkbox" id="aiSearchToggle" checked>
-                                <label class="form-check-label small" for="aiSearchToggle">
+                                <label class="form-check-label" for="aiSearchToggle">
                                     <span class="ai-badge me-1">🐧Penguin </span>
                                     Smart Search
                                 </label>
@@ -123,7 +156,7 @@
 
                         <!-- Advanced Search Toggle -->
                         <div class="mt-3">
-                            <a class="text-secondary text-decoration-none small fw-bold" data-bs-toggle="collapse"
+                            <a class="text-secondary text-decoration-none fw-bold advanced-search-toggle" data-bs-toggle="collapse"
                                 href="#advancedSearch" role="button" aria-expanded="false"
                                 aria-controls="advancedSearch">
                                 <i class="fas fa-sliders-h me-1"></i>Advanced Search
@@ -160,63 +193,48 @@
                             <i class="fas fa-compass me-1"></i>Expedition Type
                         </h6>
                         {% for opt in expedition_options %}
-                        {% if forloop.counter <= 5 %}
-                        <div class="form-check">
-                            <input class="form-check-input filter-checkbox" type="checkbox" name="expedition"
-                                value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
-                            <label class="form-check-label small" for="exp_{{ opt.value }}">
-                                {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
-                                    data-value="{{ opt.value }}">({{ opt.count }})</span>
-                            </label>
-                        </div>
-                        {% endif %}
+                            {% if forloop.counter <= 5 %}
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="expedition"
+                                        value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
+                                    <label class="form-check-label small" for="exp_{{ opt.value }}">
+                                        {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
+                                            data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                    </label>
+                                </div>
+                            {% endif %}
                         {% endfor %}
 
-                        {% if expedition_options|length > 5 %}
+                    {% if expedition_options|length > 5 %}
                         <div class="collapse" id="collapse_expedition">
                             {% for opt in expedition_options %}
-                            {% if forloop.counter > 5 %}
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="expedition"
-                                    value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
-                                <label class="form-check-label small" for="exp_{{ opt.value }}">
-                                    {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
-                                        data-value="{{ opt.value }}">({{ opt.count }})</span>
-                                </label>
-                            </div>
-                            {% endif %}
+                                {% if forloop.counter > 5 %}
+                                    <div class="form-check">
+                                        <input class="form-check-input filter-checkbox" type="checkbox" name="expedition"
+                                            value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
+                                        <label class="form-check-label small" for="exp_{{ opt.value }}">
+                                            {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
+                                                data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                        </label>
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
-                        <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
-                            data-bs-toggle="collapse" href="#collapse_expedition" role="button" aria-expanded="false"
-                            onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
-                            <i class="fas fa-plus-circle me-1"></i>Show More
-                        </a>
-                        {% endif %}
-                    </div>
+                    <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
+                        data-bs-toggle="collapse" href="#collapse_expedition" role="button" aria-expanded="false"
+                        onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                        <i class="fas fa-plus-circle me-1"></i>Show More
+                    </a>
+                    {% endif %}
+                </div>
 
-                    <!-- Category Filter -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-folder me-1"></i>Category
-                        </h6>
-                        {% for opt in category_options %}
+                <!-- Category Filter -->
+                <div class="mb-3 filter-group">
+                    <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+                        <i class="fas fa-folder me-1"></i>Category
+                    </h6>
+                    {% for opt in category_options %}
                         {% if forloop.counter <= 5 %}
-                        <div class="form-check">
-                            <input class="form-check-input filter-checkbox" type="checkbox" name="category"
-                                value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
-                            <label class="form-check-label small" for="cat_{{ opt.value }}">
-                                {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
-                                    data-value="{{ opt.value }}">({{ opt.count }})</span>
-                            </label>
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-
-                        {% if category_options|length > 5 %}
-                        <div class="collapse" id="collapse_category">
-                            {% for opt in category_options %}
-                            {% if forloop.counter > 5 %}
                             <div class="form-check">
                                 <input class="form-check-input filter-checkbox" type="checkbox" name="category"
                                     value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
@@ -225,245 +243,255 @@
                                         data-value="{{ opt.value }}">({{ opt.count }})</span>
                                 </label>
                             </div>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                        <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
-                            data-bs-toggle="collapse" href="#collapse_category" role="button" aria-expanded="false"
-                            onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
-                            <i class="fas fa-plus-circle me-1"></i>Show More
-                        </a>
                         {% endif %}
-                    </div>
+                    {% endfor %}
 
-                    <!-- ISO Topic Filter -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-globe me-1"></i>ISO Topic
-                        </h6>
-                        {% for opt in iso_options %}
-                        {% if forloop.counter <= 5 %}
+                {% if category_options|length > 5 %}
+                    <div class="collapse" id="collapse_category">
+                        {% for opt in category_options %}
+                            {% if forloop.counter > 5 %}
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category"
+                                        value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
+                                    <label class="form-check-label small" for="cat_{{ opt.value }}">
+                                        {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
+                                            data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                    </label>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
+                    data-bs-toggle="collapse" href="#collapse_category" role="button" aria-expanded="false"
+                    onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                    <i class="fas fa-plus-circle me-1"></i>Show More
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- ISO Topic Filter -->
+            <div class="mb-3 filter-group">
+                <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+                    <i class="fas fa-globe me-1"></i>ISO Topic
+                </h6>
+                {% for opt in iso_options %}
+                    {% if forloop.counter <= 5 %}
                         <div class="form-check">
-                            <input class="form-check-input filter-checkbox" type="checkbox" name="iso"
-                                value="{{ opt.value }}" id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
+                            <input class="form-check-input filter-checkbox" type="checkbox" name="iso" value="{{ opt.value }}"
+                                id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="iso_{{ opt.value }}">
                                 {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
                                     data-value="{{ opt.value }}">({{ opt.count }})</span>
                             </label>
                         </div>
-                        {% endif %}
-                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
 
-                        {% if iso_options|length > 5 %}
-                        <div class="collapse" id="collapse_iso">
-                            {% for opt in iso_options %}
-                            {% if forloop.counter > 5 %}
+            {% if iso_options|length > 5 %}
+                <div class="collapse" id="collapse_iso">
+                    {% for opt in iso_options %}
+                        {% if forloop.counter > 5 %}
                             <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="iso"
-                                    value="{{ opt.value }}" id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
+                                <input class="form-check-input filter-checkbox" type="checkbox" name="iso" value="{{ opt.value }}"
+                                    id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
                                         data-value="{{ opt.value }}">({{ opt.count }})</span>
                                 </label>
                             </div>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                        <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
-                            data-bs-toggle="collapse" href="#collapse_iso" role="button" aria-expanded="false"
-                            onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
-                            <i class="fas fa-plus-circle me-1"></i>Show More
-                        </a>
                         {% endif %}
-                    </div>
+                    {% endfor %}
+                </div>
+            <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more" data-bs-toggle="collapse"
+                href="#collapse_iso" role="button" aria-expanded="false"
+                onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+                <i class="fas fa-plus-circle me-1"></i>Show More
+            </a>
+            {% endif %}
+        </div>
 
-                    <!-- Year Filter -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-calendar me-1"></i>Year
-                        </h6>
-                        <select class="form-select form-select-sm filter-control" id="filterYear" name="year">
-                            <option value="">All Years</option>
-                            {% for opt in year_options %}
-                            <option value="{{ opt.value }}" {% if opt.value in year_selected %}selected{% endif %}>
-                                {{ opt.label }}
-                                <span class="facet-count" data-facet="year" data-value="{{ opt.value }}">({{ opt.count }})</span>
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+        <!-- Year Filter -->
+        <div class="mb-3 filter-group">
+            <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+                <i class="fas fa-calendar me-1"></i>Year
+            </h6>
+            <select class="form-select form-select-sm filter-control" id="filterYear" name="year">
+                <option value="">All Years</option>
+                {% for opt in year_options %}
+                <option value="{{ opt.value }}" {% if opt.value in year_selected %}selected{% endif %}>
+                    {{ opt.label }}
+                    <span class="facet-count" data-facet="year" data-value="{{ opt.value }}">({{ opt.count }})</span>
+                </option>
+                {% endfor %}
+            </select>
+        </div>
 
-                    <!-- Keyword Filter -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-tags me-1"></i>Keywords
-                        </h6>
-                        {% for opt in keyword_options %}
-                        {% if forloop.counter <= 5 %}
+        <!-- Keyword Filter -->
+        <div class="mb-3 filter-group">
+            <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+                <i class="fas fa-tags me-1"></i>Keywords
+            </h6>
+            {% for opt in keyword_options %}
+                {% if forloop.counter <= 5 %}
+                    <div class="form-check">
+                        <input class="form-check-input filter-checkbox" type="checkbox" name="keyword" value="{{ opt.value }}"
+                            id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
+                        <label class="form-check-label small" for="kw_{{ opt.value }}">
+                            {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
+                                data-value="{{ opt.value }}">({{ opt.count }})</span>
+                        </label>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+        {% if keyword_options|length > 5 %}
+            <div class="collapse" id="collapse_keyword">
+                {% for opt in keyword_options %}
+                    {% if forloop.counter > 5 %}
                         <div class="form-check">
-                            <input class="form-check-input filter-checkbox" type="checkbox" name="keyword"
-                                value="{{ opt.value }}" id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
+                            <input class="form-check-input filter-checkbox" type="checkbox" name="keyword" value="{{ opt.value }}"
+                                id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="kw_{{ opt.value }}">
                                 {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
                                     data-value="{{ opt.value }}">({{ opt.count }})</span>
                             </label>
                         </div>
-                        {% endif %}
-                        {% endfor %}
-
-                        {% if keyword_options|length > 5 %}
-                        <div class="collapse" id="collapse_keyword">
-                            {% for opt in keyword_options %}
-                            {% if forloop.counter > 5 %}
-                            <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="keyword"
-                                    value="{{ opt.value }}" id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
-                                <label class="form-check-label small" for="kw_{{ opt.value }}">
-                                    {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
-                                        data-value="{{ opt.value }}">({{ opt.count }})</span>
-                                </label>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                        <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more"
-                            data-bs-toggle="collapse" href="#collapse_keyword" role="button" aria-expanded="false"
-                            onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
-                            <i class="fas fa-plus-circle me-1"></i>Show More
-                        </a>
-                        {% endif %}
-                    </div>
-
-                    <!-- Temporal Filter -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-calendar-alt me-1"></i>Temporal Range
-                        </h6>
-                        <label class="form-label small">Start Date</label>
-                        <input type="date" class="form-control form-control-sm filter-control mb-2" id="filterStart"
-                            name="start" value="{{ start|default:'' }}">
-                        <label class="form-label small">End Date</label>
-                        <input type="date" class="form-control form-control-sm filter-control" id="filterEnd"
-                            name="end" value="{{ end|default:'' }}">
-                    </div>
-
-                    <!-- Bounding Box Filter -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-map-marked-alt me-1"></i>Bounding Box
-                        </h6>
-                        <div class="row g-1">
-                            <div class="col-6">
-                                <input type="number" step="any" class="form-control form-control-sm filter-control"
-                                    placeholder="West" id="filterBboxWest" name="bbox_west"
-                                    value="{{ bbox_west|default:'' }}">
-                            </div>
-                            <div class="col-6">
-                                <input type="number" step="any" class="form-control form-control-sm filter-control"
-                                    placeholder="East" id="filterBboxEast" name="bbox_east"
-                                    value="{{ bbox_east|default:'' }}">
-                            </div>
-                            <div class="col-6">
-                                <input type="number" step="any" class="form-control form-control-sm filter-control"
-                                    placeholder="South" id="filterBboxSouth" name="bbox_south"
-                                    value="{{ bbox_south|default:'' }}">
-                            </div>
-                            <div class="col-6">
-                                <input type="number" step="any" class="form-control form-control-sm filter-control"
-                                    placeholder="North" id="filterBboxNorth" name="bbox_north"
-                                    value="{{ bbox_north|default:'' }}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sort -->
-                    <div class="mb-3 filter-group">
-                        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-                            <i class="fas fa-sort me-1"></i>Sort By
-                        </h6>
-                        <select class="form-select form-select-sm filter-control" id="filterSort" name="sort">
-                            {% for v, d in sort_options %}
-                            <option value="{{ v }}" {% if sort == v %}selected{% endif %}>{{ d }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-outline-danger w-100"
-                        id="clearFilters"><i class="fas fa-times me-1"></i>Clear All Filters</a>
-                </div>
+                    {% endif %}
+                {% endfor %}
             </div>
-        </div>
-        <div class="col-lg-9 col-md-8">
-            <!-- Leaflet Map -->
-            <div id="datasetMap" style="height: 350px; width: 100%; z-index: 0;" class="mb-3 rounded border shadow-sm">
-            </div>
+        <a class="text-primary small text-decoration-none mt-1 d-inline-block toggle-more" data-bs-toggle="collapse"
+            href="#collapse_keyword" role="button" aria-expanded="false"
+            onclick="this.innerHTML = this.innerHTML.includes('More') ? '<i class=\'fas fa-minus-circle me-1\'></i>Show Less' : '<i class=\'fas fa-plus-circle me-1\'></i>Show More'">
+            <i class="fas fa-plus-circle me-1"></i>Show More
+        </a>
+        {% endif %}
+    </div>
 
-            <!-- AI Summary Card (hidden by default) -->
-            <div id="aiSummaryCard" class="card mb-3 border-0 shadow-sm d-none">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                            <span class="ai-badge me-2">🐧 Summary</span>
-                            <small class="text-muted">Powered by AI</small>
-                        </div>
-                        <button type="button" class="btn-close btn-sm" id="dismissSummary" aria-label="Dismiss"></button>
-                    </div>
-                    <div id="aiSummaryContent" class="ai-summary-text">
-                        <div class="ai-thinking">
-                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                            <small class="text-muted ms-1">Generating summary...</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Temporal Filter -->
+    <div class="mb-3 filter-group">
+        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+            <i class="fas fa-calendar-alt me-1"></i>Temporal Range
+        </h6>
+        <label class="form-label small">Start Date</label>
+        <input type="date" class="form-control form-control-sm filter-control mb-2" id="filterStart" name="start"
+            value="{{ start|default:'' }}">
+        <label class="form-label small">End Date</label>
+        <input type="date" class="form-control form-control-sm filter-control" id="filterEnd" name="end"
+            value="{{ end|default:'' }}">
+    </div>
 
-            <!-- AI Suggestions Card (hidden by default, shown on 0 results) -->
-            <div id="aiSuggestCard" class="card mb-3 border-0 shadow-sm d-none">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="ai-badge me-2">🐧 Suggestions</span>
-                        <small class="text-muted">We couldn't find results, but Penguin has ideas</small>
-                    </div>
-                    <div id="aiSuggestContent">
-                        <div class="ai-thinking">
-                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                            <small class="text-muted ms-1">Finding suggestions...</small>
-                        </div>
-                    </div>
-                </div>
+    <!-- Bounding Box Filter -->
+    <div class="mb-3 filter-group">
+        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+            <i class="fas fa-map-marked-alt me-1"></i>Bounding Box
+        </h6>
+        <div class="row g-1">
+            <div class="col-6">
+                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="West"
+                    id="filterBboxWest" name="bbox_west" value="{{ bbox_west|default:'' }}">
             </div>
-
-            <div class="card mb-3 border-0 shadow-sm">
-                <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="fw-bold text-primary fs-4" id="resultCount">{{ page_obj.paginator.count }}</span>
-                        <span id="resultLabel" class="text-muted">dataset{{ page_obj.paginator.count|pluralize }}
-                            found</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div id="loadingSpinner" class="spinner-border spinner-border-sm text-primary d-none"
-                            role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <span class="badge bg-light text-dark" id="pageInfo">Page {{ page_obj.number }} of
-                            {{ page_obj.paginator.num_pages }}</span>
-                    </div>
-                </div>
+            <div class="col-6">
+                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="East"
+                    id="filterBboxEast" name="bbox_east" value="{{ bbox_east|default:'' }}">
             </div>
-
-            <!-- Applied Filters Bar -->
-            <div id="appliedFiltersContainer">
-                {% include 'search/_applied_filters.html' %}
+            <div class="col-6">
+                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="South"
+                    id="filterBboxSouth" name="bbox_south" value="{{ bbox_south|default:'' }}">
             </div>
-
-            <div id="resultsContainer">
-                {% include 'search/_results.html' %}
-            </div>
-            <div id="paginationContainer">
-                {% include 'search/_pagination.html' %}
+            <div class="col-6">
+                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="North"
+                    id="filterBboxNorth" name="bbox_north" value="{{ bbox_north|default:'' }}">
             </div>
         </div>
     </div>
+
+    <!-- Sort -->
+    <div class="mb-3 filter-group">
+        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+            <i class="fas fa-sort me-1"></i>Sort By
+        </h6>
+        <select class="form-select form-select-sm filter-control" id="filterSort" name="sort">
+            {% for v, d in sort_options %}
+            <option value="{{ v }}" {% if sort == v %}selected{% endif %}>{{ d }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-outline-danger w-100" id="clearFilters"><i
+            class="fas fa-times me-1"></i>Clear All Filters</a>
+</div>
+</div>
+</div>
+<div class="col-lg-9 col-md-8">
+    <!-- Leaflet Map -->
+    <div id="datasetMap" style="height: 350px; width: 100%; z-index: 0;" class="mb-3 rounded border shadow-sm">
+    </div>
+
+    <!-- AI Summary Card (hidden by default) -->
+    <div id="aiSummaryCard" class="card mb-3 border-0 shadow-sm d-none">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="ai-badge me-2">🐧 Summary</span>
+                    <small class="text-muted">Powered by AI</small>
+                </div>
+                <button type="button" class="btn-close btn-sm" id="dismissSummary" aria-label="Dismiss"></button>
+            </div>
+            <div id="aiSummaryContent" class="ai-summary-text">
+                <div class="ai-thinking">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    <small class="text-muted ms-1">Generating summary...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Suggestions Card (hidden by default, shown on 0 results) -->
+    <div id="aiSuggestCard" class="card mb-3 border-0 shadow-sm d-none">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+                <span class="ai-badge me-2">🐧 Suggestions</span>
+                <small class="text-muted">We couldn't find results, but Penguin has ideas</small>
+            </div>
+            <div id="aiSuggestContent">
+                <div class="ai-thinking">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    <small class="text-muted ms-1">Finding suggestions...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-body py-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="fw-bold text-primary fs-4" id="resultCount">{{ page_obj.paginator.count }}</span>
+                <span id="resultLabel" class="text-muted">dataset{{ page_obj.paginator.count|pluralize }}
+                    found</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div id="loadingSpinner" class="spinner-border spinner-border-sm text-primary d-none" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="badge bg-light text-dark" id="pageInfo">Page {{ page_obj.number }} of
+                    {{ page_obj.paginator.num_pages }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applied Filters Bar -->
+    <div id="appliedFiltersContainer">
+        {% include 'search/_applied_filters.html' %}
+    </div>
+
+    <div id="resultsContainer">
+        {% include 'search/_results.html' %}
+    </div>
+    <div id="paginationContainer">
+        {% include 'search/_pagination.html' %}
+    </div>
+</div>
+</div>
 </div>
 {{ map_data|json_script:"map-data" }}
 <script>
@@ -472,7 +500,7 @@
         const debounceMs = 300;
 
         /* ---- AI config ---- */
-        const AI_PARSE_URL   = '{% url "search:ai_parse_query" %}';
+        const AI_PARSE_URL = '{% url "search:ai_parse_query" %}';
         const AI_SUGGEST_URL = '{% url "search:ai_suggest" %}';
         const AI_SUMMARY_URL = '{% url "search:ai_summary" %}';
 
@@ -497,691 +525,691 @@
             { value: 'doi', label: 'DOI', type: 'text' },
             {
                 value: 'expedition', label: 'Expedition Type', type: 'select', choices: [
-                    {% for v, d in expedition_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" },{% endfor %}
+                    {% for v, d in expedition_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" }, {% endfor %}
                 ]
             },
-            {
-                value: 'category', label: 'Category', type: 'select', choices: [
-                    {% for v, d in category_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" },{% endfor %}
+    {
+        value: 'category', label: 'Category', type: 'select', choices: [
+            {% for v, d in category_choices %} { value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" }, {% endfor %}
                 ]
             },
-            {
-                value: 'iso', label: 'ISO Topic', type: 'select', choices: [
-                    {% for v, d in iso_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" },{% endfor %}
+    {
+        value: 'iso', label: 'ISO Topic', type: 'select', choices: [
+            {% for v, d in iso_choices %} { value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" }, {% endfor %}
                 ]
             },
-            {
-                value: 'year', label: 'Year', type: 'select', choices: [
-                    {% for v, d in year_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" },{% endfor %}
+    {
+        value: 'year', label: 'Year', type: 'select', choices: [
+            {% for v, d in year_choices %} { value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" }, {% endfor %}
                 ]
             },
-            {
-                value: 'platform', label: 'Platform', type: 'select', choices: [
-                    {% for name in platforms %}{ value: "{{ name|escapejs }}", label: "{{ name|escapejs }}" },{% endfor %}
+    {
+        value: 'platform', label: 'Platform', type: 'select', choices: [
+            {% for name in platforms %} { value: "{{ name|escapejs }}", label: "{{ name|escapejs }}" }, {% endfor %}
                 ]
             },
-            {
-                value: 'instrument', label: 'Instrument', type: 'select', choices: [
-                    {% for name in instruments %}{ value: "{{ name|escapejs }}", label: "{{ name|escapejs }}" },{% endfor %}
+    {
+        value: 'instrument', label: 'Instrument', type: 'select', choices: [
+            {% for name in instruments %} { value: "{{ name|escapejs }}", label: "{{ name|escapejs }}" }, {% endfor %}
                 ]
             },
-            { value: 'submission_date', label: 'Submission Date', type: 'date' },
+    { value: 'submission_date', label: 'Submission Date', type: 'date' },
         ];
 
-        const OPS = [
-            { value: 'and', label: 'AND' },
-            { value: 'or', label: 'OR' }
-        ];
+    const OPS = [
+        { value: 'and', label: 'AND' },
+        { value: 'or', label: 'OR' }
+    ];
 
-        function createQueryRow(index, data = {}) {
-            const row = document.createElement('div');
-            row.className = 'row g-2 mb-2 align-items-center query-row';
-            row.dataset.index = index;
-            if (data.id) row.id = data.id;
+    function createQueryRow(index, data = {}) {
+        const row = document.createElement('div');
+        row.className = 'row g-2 mb-2 align-items-center query-row';
+        row.dataset.index = index;
+        if (data.id) row.id = data.id;
 
-            const colOp = document.createElement('div');
-            colOp.className = 'col-sm-2';
-            const selectOp = document.createElement('select');
-            selectOp.name = 'adv_op';
-            selectOp.className = 'form-select form-select-sm';
-            OPS.forEach(op => {
-                const opt = document.createElement('option');
-                opt.value = op.value;
-                opt.textContent = op.label;
-                if (data.op === op.value) opt.selected = true;
-                selectOp.appendChild(opt);
-            });
-            colOp.appendChild(selectOp);
-            row.appendChild(colOp);
-
-            const colField = document.createElement('div');
-            colField.className = 'col-sm-3';
-            const selectField = document.createElement('select');
-            selectField.name = 'adv_field';
-            selectField.className = 'form-select form-select-sm';
-            SEARCH_FIELDS.forEach(f => {
-                const opt = document.createElement('option');
-                opt.value = f.value;
-                opt.textContent = f.label;
-                if (data.field === f.value) opt.selected = true;
-                selectField.appendChild(opt);
-            });
-            colField.appendChild(selectField);
-            row.appendChild(colField);
-
-            const colVal = document.createElement('div');
-            colVal.className = 'col-sm-6';
-
-            function renderInput(fieldType, fieldConfig) {
-                colVal.innerHTML = '';
-                let inputEl;
-                if (fieldType === 'select' && fieldConfig.choices) {
-                    inputEl = document.createElement('select');
-                    inputEl.className = 'form-select form-select-sm';
-                    const defaultOpt = document.createElement('option');
-                    defaultOpt.value = '';
-                    defaultOpt.textContent = 'Select...';
-                    inputEl.appendChild(defaultOpt);
-                    fieldConfig.choices.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.value;
-                        opt.textContent = c.label;
-                        inputEl.appendChild(opt);
-                    });
-                } else if (fieldType === 'date') {
-                    inputEl = document.createElement('input');
-                    inputEl.type = 'date';
-                    inputEl.className = 'form-control form-control-sm';
-                } else {
-                    inputEl = document.createElement('input');
-                    inputEl.type = 'text';
-                    inputEl.className = 'form-control form-control-sm';
-                    inputEl.placeholder = 'Value...';
-                    inputEl.addEventListener('input', () => {
-                        clearTimeout(searchTimeout);
-                        searchTimeout = setTimeout(triggerSearch, debounceMs);
-                    });
-                }
-                inputEl.name = 'adv_val';
-                if (data.val) inputEl.value = data.val;
-                inputEl.addEventListener('change', () => triggerSearch());
-                colVal.appendChild(inputEl);
-            }
-
-            const initialField = SEARCH_FIELDS.find(f => f.value === (data.field || 'all'));
-            renderInput(initialField.type, initialField);
-
-            selectField.addEventListener('change', function () {
-                const newField = SEARCH_FIELDS.find(f => f.value === this.value);
-                renderInput(newField.type, newField);
-                triggerSearch();
-            });
-
-            row.appendChild(colVal);
-
-            const colAction = document.createElement('div');
-            colAction.className = 'col-sm-1';
-            if (document.querySelectorAll('.query-row').length > 0) {
-                const btnRemove = document.createElement('button');
-                btnRemove.type = 'button';
-                btnRemove.className = 'btn btn-sm btn-outline-danger w-100';
-                btnRemove.innerHTML = '<i class="fas fa-minus"></i>';
-                btnRemove.onclick = function () {
-                    row.remove();
-                    triggerSearch();
-                };
-                colAction.appendChild(btnRemove);
-            }
-            row.appendChild(colAction);
-
-            return row;
-        }
-
-        document.getElementById('addQueryRow').addEventListener('click', () => {
-            const container = document.getElementById('queryBuilder');
-            container.appendChild(createQueryRow(container.children.length));
+        const colOp = document.createElement('div');
+        colOp.className = 'col-sm-2';
+        const selectOp = document.createElement('select');
+        selectOp.name = 'adv_op';
+        selectOp.className = 'form-select form-select-sm';
+        OPS.forEach(op => {
+            const opt = document.createElement('option');
+            opt.value = op.value;
+            opt.textContent = op.label;
+            if (data.op === op.value) opt.selected = true;
+            selectOp.appendChild(opt);
         });
+        colOp.appendChild(selectOp);
+        row.appendChild(colOp);
 
-        /* ---- helpers ---- */
-        function getFilterParams() {
-            const expeditions = Array.from(document.querySelectorAll('input[name="expedition"]:checked')).map(cb => cb.value);
-            const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-            const isos = Array.from(document.querySelectorAll('input[name="iso"]:checked')).map(cb => cb.value);
-            const keywords = Array.from(document.querySelectorAll('input[name="keyword"]:checked')).map(cb => cb.value);
-            const yearEl = document.getElementById('filterYear');
-            const years = yearEl && yearEl.value ? [yearEl.value] : [];
-
-            // Advanced Params
-            const advOps = Array.from(document.querySelectorAll('select[name="adv_op"]')).map(el => el.value);
-            const advFields = Array.from(document.querySelectorAll('select[name="adv_field"]')).map(el => el.value);
-            const advVals = Array.from(document.querySelectorAll('[name="adv_val"]')).map(el => el.value);
-
-            return {
-                query: document.getElementById('searchQuery').value,
-                expedition: expeditions,
-                category: categories,
-                iso: isos,
-                keyword: keywords,
-                year: years,
-                start: document.getElementById('filterStart').value,
-                end: document.getElementById('filterEnd').value,
-                bbox_west: document.getElementById('filterBboxWest').value,
-                bbox_east: document.getElementById('filterBboxEast').value,
-                bbox_south: document.getElementById('filterBboxSouth').value,
-                bbox_north: document.getElementById('filterBboxNorth').value,
-                sort: document.getElementById('filterSort').value,
-                adv_op: advOps,
-                adv_field: advFields,
-                adv_val: advVals,
-                page: 1
-            };
-        }
-
-        function buildQueryString(params) {
-            const parts = [];
-            for (const [key, value] of Object.entries(params)) {
-                if (Array.isArray(value)) {
-                    value.forEach(v => {
-                        if (['adv_op', 'adv_field', 'adv_val'].includes(key)) {
-                            parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(v));
-                        } else if (v) {
-                            parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(v));
-                        }
-                    });
-                } else if (value) {
-                    parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
-                }
-            }
-            return parts.join('&');
-        }
-
-        function updateURL(params) {
-            const qs = buildQueryString(params);
-            const newUrl = window.location.pathname + (qs ? '?' + qs : '');
-            history.pushState(params, '', newUrl);
-        }
-
-        function showLoading() {
-            document.getElementById('loadingSpinner').classList.remove('d-none');
-        }
-        function hideLoading() {
-            document.getElementById('loadingSpinner').classList.add('d-none');
-        }
-
-        function highlightMatches(container, query) {
-            if (!query) return;
-            const words = query.replace(/"([^"]+)"/g, '$1').split(/\s+/).filter(w => w.length > 2);
-            if (words.length === 0) return;
-            const elements = container.querySelectorAll('.search-highlight');
-            elements.forEach(el => {
-                let html = el.textContent;
-                words.forEach(word => {
-                    const regex = new RegExp('(' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-                    html = html.replace(regex, '<span class="search-match">$1</span>');
-                });
-                el.innerHTML = html;
-            });
-        }
-
-        function updateFacets(facets) {
-            document.querySelectorAll('.facet-count').forEach(el => el.textContent = '(0)');
-            ['expedition', 'category', 'iso', 'year', 'keyword'].forEach(facetType => {
-                if (facets[facetType]) {
-                    Object.entries(facets[facetType]).forEach(([val, count]) => {
-                        const el = document.querySelector(`.facet-count[data-facet="${facetType}"][data-value="${val}"]`);
-                        if (el) el.textContent = `(${count})`;
-                    });
-                }
-            });
-        }
-
-        /* ---- AI: hide / show cards ---- */
-        function hideAICards() {
-            document.getElementById('aiSummaryCard').classList.add('d-none');
-            document.getElementById('aiSuggestCard').classList.add('d-none');
-        }
-
-        function resetAISummary() {
-            document.getElementById('aiSummaryContent').innerHTML =
-                '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span><small class="text-muted ms-1">Generating summary...</small></div>';
-        }
-
-        function resetAISuggest() {
-            document.getElementById('aiSuggestContent').innerHTML =
-                '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span><small class="text-muted ms-1">Finding suggestions...</small></div>';
-        }
-
-        /* ---- AI Feature 1: Natural Language Parsing ---- */
-        async function aiParseQuery(rawQuery) {
-            if (!isAIEnabled() || !rawQuery || rawQuery.length < 5) return null;
-            try {
-                const resp = await fetch(AI_PARSE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
-                    body: JSON.stringify({ query: rawQuery })
-                });
-                if (!resp.ok) return null;
-                const data = await resp.json();
-                if (data.success && data.parsed) {
-                    applyParsedFilters(data.parsed);
-                    return data.parsed;
-                }
-            } catch (e) { console.warn('AI parse failed:', e); }
-            return null;
-        }
-
-        function applyParsedFilters(parsed) {
-            if (parsed.keywords) {
-                document.getElementById('searchQuery').value = parsed.keywords;
-            }
-            if (parsed.expedition) {
-                const val = parsed.expedition.toLowerCase();
-                document.querySelectorAll('input[name="expedition"]').forEach(cb => {
-                    if (cb.value.toLowerCase() === val || cb.nextElementSibling.textContent.toLowerCase().includes(val)) {
-                        cb.checked = true;
-                    }
-                });
-            }
-            if (parsed.category) {
-                const val = parsed.category.toLowerCase();
-                document.querySelectorAll('input[name="category"]').forEach(cb => {
-                    if (cb.value.toLowerCase() === val || cb.nextElementSibling.textContent.toLowerCase().includes(val)) {
-                        cb.checked = true;
-                    }
-                });
-            }
-            if (parsed.year) {
-                const yr = parsed.year;
-                const yearEl = document.getElementById('filterYear');
-                if (yearEl) {
-                    Array.from(yearEl.options).forEach(opt => {
-                        if (opt.value === yr || opt.value.includes(yr)) {
-                            yearEl.value = opt.value;
-                        }
-                    });
-                }
-            }
-            if (parsed.start_date) document.getElementById('filterStart').value = parsed.start_date;
-            if (parsed.end_date) document.getElementById('filterEnd').value = parsed.end_date;
-        }
-
-        /* ---- AI Feature 2: Zero-Result Suggestions ---- */
-        async function aiSuggest(query) {
-            if (!isAIEnabled() || !query) return;
-            const card = document.getElementById('aiSuggestCard');
-            const content = document.getElementById('aiSuggestContent');
-            card.classList.remove('d-none');
-            resetAISuggest();
-
-            try {
-                const resp = await fetch(AI_SUGGEST_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
-                    body: JSON.stringify({ query: query })
-                });
-                if (!resp.ok) { card.classList.add('d-none'); return; }
-                const data = await resp.json();
-
-                if (!data.success) { card.classList.add('d-none'); return; }
-
-                let html = '';
-
-                if (data.off_topic) {
-                    html += '<div class="alert alert-info mb-2 py-2"><i class="fas fa-info-circle me-2"></i>This query may be outside our polar/cryosphere dataset scope.</div>';
-                }
-
-                if (data.corrected_query) {
-                    html += '<p class="mb-2">Did you mean: <a href="#" class="fw-bold text-primary ai-suggestion-btn" data-query="' +
-                        data.corrected_query.replace(/"/g, '&quot;') + '">"' + data.corrected_query + '"</a>?</p>';
-                }
-
-                if (data.suggestions && data.suggestions.length > 0) {
-                    html += '<p class="mb-2 small text-muted">Try these related searches:</p><div class="d-flex flex-wrap gap-2">';
-                    data.suggestions.forEach(s => {
-                        html += '<a href="#" class="btn btn-sm btn-outline-primary ai-suggestion-btn" data-query="' +
-                            s.replace(/"/g, '&quot;') + '"><i class="fas fa-search me-1"></i>' + s + '</a>';
-                    });
-                    html += '</div>';
-                }
-
-                content.innerHTML = html || '<p class="text-muted mb-0">No suggestions available.</p>';
-
-                content.querySelectorAll('.ai-suggestion-btn').forEach(btn => {
-                    btn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        document.getElementById('searchQuery').value = this.dataset.query;
-                        hideAICards();
-                        triggerSearch();
-                    });
-                });
-
-            } catch (e) {
-                console.warn('AI suggest failed:', e);
-                card.classList.add('d-none');
-            }
-        }
-
-        /* ---- AI Feature 3: Search Summary ---- */
-        async function aiSummary(query, resultCount) {
-            if (!isAIEnabled() || !query || resultCount === 0) return;
-            const card = document.getElementById('aiSummaryCard');
-            const content = document.getElementById('aiSummaryContent');
-            card.classList.remove('d-none');
-            resetAISummary();
-
-            try {
-                const resp = await fetch(AI_SUMMARY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
-                    body: JSON.stringify({ query: query, result_count: resultCount })
-                });
-                if (!resp.ok) { card.classList.add('d-none'); return; }
-                const data = await resp.json();
-
-                if (data.success && data.summary) {
-                    let text = data.summary
-                        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                        .replace(/\n- /g, '<br>&bull; ')
-                        .replace(/\n/g, '<br>');
-                    content.innerHTML = '<p class="mb-0 ai-summary-text">' + text + '</p>';
-                } else {
-                    card.classList.add('d-none');
-                }
-            } catch (e) {
-                console.warn('AI summary failed:', e);
-                card.classList.add('d-none');
-            }
-        }
-
-        /* ---- Core search with AI integration ---- */
-        function fetchResults(params) {
-            showLoading();
-            hideAICards();
-            const qs = buildQueryString(params);
-            fetch(window.location.pathname + '?' + qs, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('resultsContainer').innerHTML = data.results_html;
-                    document.getElementById('paginationContainer').innerHTML = data.pagination_html;
-                    document.getElementById('resultCount').textContent = data.count;
-                    document.getElementById('resultLabel').textContent = data.count === 1 ? 'dataset found' : 'datasets found';
-
-                    // Update Applied Filters Bar
-                    const afContainer = document.getElementById('appliedFiltersContainer');
-                    if (data.applied_filters_html) {
-                        afContainer.innerHTML = data.applied_filters_html;
-                    } else {
-                        afContainer.innerHTML = '';
-                    }
-
-                    // Update Facets
-                    if (data.facets) {
-                        updateFacets(data.facets);
-                    }
-
-                    const pageInfo = document.getElementById('pageInfo');
-                    if (pageInfo) {
-                        pageInfo.textContent = `Page ${data.current_page} of ${data.num_pages}`;
-                    }
-
-                    highlightMatches(document.getElementById('resultsContainer'), params.query);
-                    updateURL(params);
-                    bindPaginationLinks();
-                    hideLoading();
-
-                    // Update map
-                    if (data.map_data) {
-                        renderMap(data.map_data);
-                    }
-
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                    /* AI: trigger features based on results */
-                    if (isAIEnabled() && params.query && params.query.length >= 3) {
-                        if (data.count === 0) {
-                            aiSuggest(params.query);
-                        } else {
-                            aiSummary(params.query, data.count);
-                        }
-                    }
-                })
-                .catch(err => {
-                    console.error('Search error:', err);
-                    hideLoading();
-                });
-        }
-
-        async function triggerSearch(page) {
-            const params = getFilterParams();
-            if (page) params.page = page;
-
-            /* AI Feature 1: NL query parsing for "conversational" queries */
-            if (isAIEnabled() && !page && params.query && params.query.length >= 10) {
-                const nlWords = /\b(show|find|get|list|give|all|from|about|related|between|before|after|during|recent|latest|data|datasets)\b/i;
-                if (nlWords.test(params.query)) {
-                    const parsed = await aiParseQuery(params.query);
-                    if (parsed) {
-                        const updatedParams = getFilterParams();
-                        updatedParams.page = 1;
-                        fetchResults(updatedParams);
-                        return;
-                    }
-                }
-            }
-
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => fetchResults(params), debounceMs);
-        }
-
-        // Expose removeFilter and clearAllFilters to global scope
-        window.removeFilter = function (type, value, id) {
-            if (['expedition', 'category', 'iso', 'keyword'].includes(type)) {
-                const checkbox = document.getElementById(id);
-                if (checkbox) {
-                    checkbox.checked = false;
-                    triggerSearch();
-                }
-            } else if (type === 'year') {
-                const yearEl = document.getElementById('filterYear');
-                if (yearEl) yearEl.value = '';
-                triggerSearch();
-            } else if (type === 'temporal') {
-                document.getElementById('filterStart').value = '';
-                document.getElementById('filterEnd').value = '';
-                triggerSearch();
-            } else if (type === 'advanced') {
-                const index = parseInt(value);
-                const rows = document.querySelectorAll('.query-row');
-                if (rows[index]) {
-                    rows[index].remove();
-                    triggerSearch();
-                }
-            }
-        };
-
-        window.clearAllFilters = function () {
-            document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
-            document.querySelectorAll('.filter-control').forEach(el => el.value = '');
-            document.getElementById('searchQuery').value = '';
-            document.getElementById('queryBuilder').innerHTML = '';
-            hideAICards();
-            triggerSearch();
-        };
-
-        function bindPaginationLinks() {
-            document.querySelectorAll('.pagination-link').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    triggerSearch(this.dataset.page);
-                });
-            });
-        }
-
-        function initFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('query')) document.getElementById('searchQuery').value = params.get('query');
-
-            // Restore advanced search rows
-            const advOps = params.getAll('adv_op');
-            const advFields = params.getAll('adv_field');
-            const advVals = params.getAll('adv_val');
-            const container = document.getElementById('queryBuilder');
-            container.innerHTML = '';
-
-            if (advOps.length > 0 && advOps.length === advFields.length) {
-                const collapseEl = document.getElementById('advancedSearch');
-                if (collapseEl) collapseEl.classList.add('show');
-
-                advOps.forEach((op, index) => {
-                    const field = advFields[index];
-                    const val = advVals[index];
-                    container.appendChild(createQueryRow(index, { op, field, val, id: `adv_row_${index}` }));
-                });
-            }
-
-            // Restore checkboxes
-            params.getAll('expedition').forEach(val => {
-                const cb = document.getElementById('exp_' + val);
-                if (cb) cb.checked = true;
-            });
-            params.getAll('category').forEach(val => {
-                const cb = document.getElementById('cat_' + val);
-                if (cb) cb.checked = true;
-            });
-            params.getAll('iso').forEach(val => {
-                const cb = document.getElementById('iso_' + val);
-                if (cb) cb.checked = true;
-            });
-            params.getAll('keyword').forEach(val => {
-                const cb = document.getElementById('kw_' + val);
-                if (cb) cb.checked = true;
-            });
-            params.getAll('year').forEach(val => {
-                const yearEl = document.getElementById('filterYear');
-                if (yearEl) yearEl.value = val;
-            });
-
-            if (params.get('start')) document.getElementById('filterStart').value = params.get('start');
-            if (params.get('end')) document.getElementById('filterEnd').value = params.get('end');
-            if (params.get('bbox_west')) document.getElementById('filterBboxWest').value = params.get('bbox_west');
-            if (params.get('bbox_east')) document.getElementById('filterBboxEast').value = params.get('bbox_east');
-            if (params.get('bbox_south')) document.getElementById('filterBboxSouth').value = params.get('bbox_south');
-            if (params.get('bbox_north')) document.getElementById('filterBboxNorth').value = params.get('bbox_north');
-            if (params.get('sort')) document.getElementById('filterSort').value = params.get('sort');
-
-            highlightMatches(document.getElementById('resultsContainer'), params.get('query'));
-        }
-
-        /* ---- Event listeners ---- */
-        document.querySelectorAll('.filter-control').forEach(el => {
-            el.addEventListener('change', () => triggerSearch());
+        const colField = document.createElement('div');
+        colField.className = 'col-sm-3';
+        const selectField = document.createElement('select');
+        selectField.name = 'adv_field';
+        selectField.className = 'form-select form-select-sm';
+        SEARCH_FIELDS.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.value;
+            opt.textContent = f.label;
+            if (data.field === f.value) opt.selected = true;
+            selectField.appendChild(opt);
         });
+        colField.appendChild(selectField);
+        row.appendChild(colField);
 
-        document.querySelectorAll('.filter-checkbox').forEach(el => {
-            el.addEventListener('change', () => triggerSearch());
-        });
+        const colVal = document.createElement('div');
+        colVal.className = 'col-sm-6';
 
-        document.getElementById('searchForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            triggerSearch();
-        });
-
-        document.getElementById('aiSearchToggle').addEventListener('change', function () {
-            document.getElementById('aiStatusText').textContent =
-                this.checked ? 'AI-powered features active' : 'AI features disabled';
-            if (!this.checked) hideAICards();
-        });
-
-        document.getElementById('dismissSummary').addEventListener('click', function () {
-            document.getElementById('aiSummaryCard').classList.add('d-none');
-        });
-
-        window.addEventListener('popstate', function (e) {
-            if (e.state) {
-                initFromURL();
-                fetchResults(e.state);
-            }
-        });
-
-        initFromURL();
-        bindPaginationLinks();
-
-        // ---- Map Implementation ----
-        let map;
-        let markersGroup;
-
-        function initMap() {
-            if (!document.getElementById('datasetMap')) return;
-
-            // create map without default attribution control
-            map = L.map('datasetMap', { attributionControl: false }).setView([20, 0], 2);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: ''  // keep empty or add required credit manually elsewhere
-            }).addTo(map);
-
-            markersGroup = L.featureGroup().addTo(map);
-
-            try {
-                const initialData = JSON.parse(document.getElementById('map-data').textContent);
-                renderMap(initialData);
-            } catch (e) {
-                console.error("Error parsing map data", e);
-            }
-        }
-
-        function renderMap(data) {
-            if (!map || !markersGroup) return;
-            markersGroup.clearLayers();
-
-            data.forEach(item => {
-                if (item.west_longitude !== null && item.north_latitude !== null) {
-                    const lat = (item.south_latitude + item.north_latitude) / 2;
-                    const lng = (item.west_longitude + item.east_longitude) / 2;
-
-                    const marker = L.marker([lat, lng]);
-                    marker.bindPopup(`<strong>${item.title}</strong><br><a href="/data/view/${item.id}/">View Dataset</a>`);
-                    let timer;
-
-                    marker.on('mouseover', function (e) {
-                        if (timer) clearTimeout(timer);
-                        this.openPopup();
-                    });
-
-                    marker.on('mouseout', function (e) {
-                        timer = setTimeout(() => {
-                            this.closePopup();
-                        }, 300);
-                    });
-
-                    marker.on('popupopen', function () {
-                        const popup = this.getPopup();
-                        const popupEl = popup.getElement();
-                        if (popupEl) {
-                            popupEl.addEventListener('mouseenter', () => {
-                                if (timer) clearTimeout(timer);
-                            });
-                            popupEl.addEventListener('mouseleave', () => {
-                                timer = setTimeout(() => {
-                                    marker.closePopup();
-                                }, 300);
-                            });
-                        }
-                    });
-                    marker.addTo(markersGroup);
-                }
-            });
-
-            if (markersGroup.getLayers().length > 0) {
-                map.fitBounds(markersGroup.getBounds(), { padding: [20, 20], maxZoom: 5 });
+        function renderInput(fieldType, fieldConfig) {
+            colVal.innerHTML = '';
+            let inputEl;
+            if (fieldType === 'select' && fieldConfig.choices) {
+                inputEl = document.createElement('select');
+                inputEl.className = 'form-select form-select-sm';
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = 'Select...';
+                inputEl.appendChild(defaultOpt);
+                fieldConfig.choices.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.value;
+                    opt.textContent = c.label;
+                    inputEl.appendChild(opt);
+                });
+            } else if (fieldType === 'date') {
+                inputEl = document.createElement('input');
+                inputEl.type = 'date';
+                inputEl.className = 'form-control form-control-sm';
             } else {
-                map.setView([20, 0], 2);
+                inputEl = document.createElement('input');
+                inputEl.type = 'text';
+                inputEl.className = 'form-control form-control-sm';
+                inputEl.placeholder = 'Value...';
+                inputEl.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(triggerSearch, debounceMs);
+                });
+            }
+            inputEl.name = 'adv_val';
+            if (data.val) inputEl.value = data.val;
+            inputEl.addEventListener('change', () => triggerSearch());
+            colVal.appendChild(inputEl);
+        }
+
+        const initialField = SEARCH_FIELDS.find(f => f.value === (data.field || 'all'));
+        renderInput(initialField.type, initialField);
+
+        selectField.addEventListener('change', function () {
+            const newField = SEARCH_FIELDS.find(f => f.value === this.value);
+            renderInput(newField.type, newField);
+            triggerSearch();
+        });
+
+        row.appendChild(colVal);
+
+        const colAction = document.createElement('div');
+        colAction.className = 'col-sm-1';
+        if (document.querySelectorAll('.query-row').length > 0) {
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button';
+            btnRemove.className = 'btn btn-sm btn-outline-danger w-100';
+            btnRemove.innerHTML = '<i class="fas fa-minus"></i>';
+            btnRemove.onclick = function () {
+                row.remove();
+                triggerSearch();
+            };
+            colAction.appendChild(btnRemove);
+        }
+        row.appendChild(colAction);
+
+        return row;
+    }
+
+    document.getElementById('addQueryRow').addEventListener('click', () => {
+        const container = document.getElementById('queryBuilder');
+        container.appendChild(createQueryRow(container.children.length));
+    });
+
+    /* ---- helpers ---- */
+    function getFilterParams() {
+        const expeditions = Array.from(document.querySelectorAll('input[name="expedition"]:checked')).map(cb => cb.value);
+        const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+        const isos = Array.from(document.querySelectorAll('input[name="iso"]:checked')).map(cb => cb.value);
+        const keywords = Array.from(document.querySelectorAll('input[name="keyword"]:checked')).map(cb => cb.value);
+        const yearEl = document.getElementById('filterYear');
+        const years = yearEl && yearEl.value ? [yearEl.value] : [];
+
+        // Advanced Params
+        const advOps = Array.from(document.querySelectorAll('select[name="adv_op"]')).map(el => el.value);
+        const advFields = Array.from(document.querySelectorAll('select[name="adv_field"]')).map(el => el.value);
+        const advVals = Array.from(document.querySelectorAll('[name="adv_val"]')).map(el => el.value);
+
+        return {
+            query: document.getElementById('searchQuery').value,
+            expedition: expeditions,
+            category: categories,
+            iso: isos,
+            keyword: keywords,
+            year: years,
+            start: document.getElementById('filterStart').value,
+            end: document.getElementById('filterEnd').value,
+            bbox_west: document.getElementById('filterBboxWest').value,
+            bbox_east: document.getElementById('filterBboxEast').value,
+            bbox_south: document.getElementById('filterBboxSouth').value,
+            bbox_north: document.getElementById('filterBboxNorth').value,
+            sort: document.getElementById('filterSort').value,
+            adv_op: advOps,
+            adv_field: advFields,
+            adv_val: advVals,
+            page: 1
+        };
+    }
+
+    function buildQueryString(params) {
+        const parts = [];
+        for (const [key, value] of Object.entries(params)) {
+            if (Array.isArray(value)) {
+                value.forEach(v => {
+                    if (['adv_op', 'adv_field', 'adv_val'].includes(key)) {
+                        parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(v));
+                    } else if (v) {
+                        parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(v));
+                    }
+                });
+            } else if (value) {
+                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+            }
+        }
+        return parts.join('&');
+    }
+
+    function updateURL(params) {
+        const qs = buildQueryString(params);
+        const newUrl = window.location.pathname + (qs ? '?' + qs : '');
+        history.pushState(params, '', newUrl);
+    }
+
+    function showLoading() {
+        document.getElementById('loadingSpinner').classList.remove('d-none');
+    }
+    function hideLoading() {
+        document.getElementById('loadingSpinner').classList.add('d-none');
+    }
+
+    function highlightMatches(container, query) {
+        if (!query) return;
+        const words = query.replace(/"([^"]+)"/g, '$1').split(/\s+/).filter(w => w.length > 2);
+        if (words.length === 0) return;
+        const elements = container.querySelectorAll('.search-highlight');
+        elements.forEach(el => {
+            let html = el.textContent;
+            words.forEach(word => {
+                const regex = new RegExp('(' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                html = html.replace(regex, '<span class="search-match">$1</span>');
+            });
+            el.innerHTML = html;
+        });
+    }
+
+    function updateFacets(facets) {
+        document.querySelectorAll('.facet-count').forEach(el => el.textContent = '(0)');
+        ['expedition', 'category', 'iso', 'year', 'keyword'].forEach(facetType => {
+            if (facets[facetType]) {
+                Object.entries(facets[facetType]).forEach(([val, count]) => {
+                    const el = document.querySelector(`.facet-count[data-facet="${facetType}"][data-value="${val}"]`);
+                    if (el) el.textContent = `(${count})`;
+                });
+            }
+        });
+    }
+
+    /* ---- AI: hide / show cards ---- */
+    function hideAICards() {
+        document.getElementById('aiSummaryCard').classList.add('d-none');
+        document.getElementById('aiSuggestCard').classList.add('d-none');
+    }
+
+    function resetAISummary() {
+        document.getElementById('aiSummaryContent').innerHTML =
+            '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span><small class="text-muted ms-1">Generating summary...</small></div>';
+    }
+
+    function resetAISuggest() {
+        document.getElementById('aiSuggestContent').innerHTML =
+            '<div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span><small class="text-muted ms-1">Finding suggestions...</small></div>';
+    }
+
+    /* ---- AI Feature 1: Natural Language Parsing ---- */
+    async function aiParseQuery(rawQuery) {
+        if (!isAIEnabled() || !rawQuery || rawQuery.length < 5) return null;
+        try {
+            const resp = await fetch(AI_PARSE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ query: rawQuery })
+            });
+            if (!resp.ok) return null;
+            const data = await resp.json();
+            if (data.success && data.parsed) {
+                applyParsedFilters(data.parsed);
+                return data.parsed;
+            }
+        } catch (e) { console.warn('AI parse failed:', e); }
+        return null;
+    }
+
+    function applyParsedFilters(parsed) {
+        if (parsed.keywords) {
+            document.getElementById('searchQuery').value = parsed.keywords;
+        }
+        if (parsed.expedition) {
+            const val = parsed.expedition.toLowerCase();
+            document.querySelectorAll('input[name="expedition"]').forEach(cb => {
+                if (cb.value.toLowerCase() === val || cb.nextElementSibling.textContent.toLowerCase().includes(val)) {
+                    cb.checked = true;
+                }
+            });
+        }
+        if (parsed.category) {
+            const val = parsed.category.toLowerCase();
+            document.querySelectorAll('input[name="category"]').forEach(cb => {
+                if (cb.value.toLowerCase() === val || cb.nextElementSibling.textContent.toLowerCase().includes(val)) {
+                    cb.checked = true;
+                }
+            });
+        }
+        if (parsed.year) {
+            const yr = parsed.year;
+            const yearEl = document.getElementById('filterYear');
+            if (yearEl) {
+                Array.from(yearEl.options).forEach(opt => {
+                    if (opt.value === yr || opt.value.includes(yr)) {
+                        yearEl.value = opt.value;
+                    }
+                });
+            }
+        }
+        if (parsed.start_date) document.getElementById('filterStart').value = parsed.start_date;
+        if (parsed.end_date) document.getElementById('filterEnd').value = parsed.end_date;
+    }
+
+    /* ---- AI Feature 2: Zero-Result Suggestions ---- */
+    async function aiSuggest(query) {
+        if (!isAIEnabled() || !query) return;
+        const card = document.getElementById('aiSuggestCard');
+        const content = document.getElementById('aiSuggestContent');
+        card.classList.remove('d-none');
+        resetAISuggest();
+
+        try {
+            const resp = await fetch(AI_SUGGEST_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ query: query })
+            });
+            if (!resp.ok) { card.classList.add('d-none'); return; }
+            const data = await resp.json();
+
+            if (!data.success) { card.classList.add('d-none'); return; }
+
+            let html = '';
+
+            if (data.off_topic) {
+                html += '<div class="alert alert-info mb-2 py-2"><i class="fas fa-info-circle me-2"></i>This query may be outside our polar/cryosphere dataset scope.</div>';
+            }
+
+            if (data.corrected_query) {
+                html += '<p class="mb-2">Did you mean: <a href="#" class="fw-bold text-primary ai-suggestion-btn" data-query="' +
+                    data.corrected_query.replace(/"/g, '&quot;') + '">"' + data.corrected_query + '"</a>?</p>';
+            }
+
+            if (data.suggestions && data.suggestions.length > 0) {
+                html += '<p class="mb-2 small text-muted">Try these related searches:</p><div class="d-flex flex-wrap gap-2">';
+                data.suggestions.forEach(s => {
+                    html += '<a href="#" class="btn btn-sm btn-outline-primary ai-suggestion-btn" data-query="' +
+                        s.replace(/"/g, '&quot;') + '"><i class="fas fa-search me-1"></i>' + s + '</a>';
+                });
+                html += '</div>';
+            }
+
+            content.innerHTML = html || '<p class="text-muted mb-0">No suggestions available.</p>';
+
+            content.querySelectorAll('.ai-suggestion-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.getElementById('searchQuery').value = this.dataset.query;
+                    hideAICards();
+                    triggerSearch();
+                });
+            });
+
+        } catch (e) {
+            console.warn('AI suggest failed:', e);
+            card.classList.add('d-none');
+        }
+    }
+
+    /* ---- AI Feature 3: Search Summary ---- */
+    async function aiSummary(query, resultCount) {
+        if (!isAIEnabled() || !query || resultCount === 0) return;
+        const card = document.getElementById('aiSummaryCard');
+        const content = document.getElementById('aiSummaryContent');
+        card.classList.remove('d-none');
+        resetAISummary();
+
+        try {
+            const resp = await fetch(AI_SUMMARY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ query: query, result_count: resultCount })
+            });
+            if (!resp.ok) { card.classList.add('d-none'); return; }
+            const data = await resp.json();
+
+            if (data.success && data.summary) {
+                let text = data.summary
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n- /g, '<br>&bull; ')
+                    .replace(/\n/g, '<br>');
+                content.innerHTML = '<p class="mb-0 ai-summary-text">' + text + '</p>';
+            } else {
+                card.classList.add('d-none');
+            }
+        } catch (e) {
+            console.warn('AI summary failed:', e);
+            card.classList.add('d-none');
+        }
+    }
+
+    /* ---- Core search with AI integration ---- */
+    function fetchResults(params) {
+        showLoading();
+        hideAICards();
+        const qs = buildQueryString(params);
+        fetch(window.location.pathname + '?' + qs, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('resultsContainer').innerHTML = data.results_html;
+                document.getElementById('paginationContainer').innerHTML = data.pagination_html;
+                document.getElementById('resultCount').textContent = data.count;
+                document.getElementById('resultLabel').textContent = data.count === 1 ? 'dataset found' : 'datasets found';
+
+                // Update Applied Filters Bar
+                const afContainer = document.getElementById('appliedFiltersContainer');
+                if (data.applied_filters_html) {
+                    afContainer.innerHTML = data.applied_filters_html;
+                } else {
+                    afContainer.innerHTML = '';
+                }
+
+                // Update Facets
+                if (data.facets) {
+                    updateFacets(data.facets);
+                }
+
+                const pageInfo = document.getElementById('pageInfo');
+                if (pageInfo) {
+                    pageInfo.textContent = `Page ${data.current_page} of ${data.num_pages}`;
+                }
+
+                highlightMatches(document.getElementById('resultsContainer'), params.query);
+                updateURL(params);
+                bindPaginationLinks();
+                hideLoading();
+
+                // Update map
+                if (data.map_data) {
+                    renderMap(data.map_data);
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                /* AI: trigger features based on results */
+                if (isAIEnabled() && params.query && params.query.length >= 3) {
+                    if (data.count === 0) {
+                        aiSuggest(params.query);
+                    } else {
+                        aiSummary(params.query, data.count);
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Search error:', err);
+                hideLoading();
+            });
+    }
+
+    async function triggerSearch(page) {
+        const params = getFilterParams();
+        if (page) params.page = page;
+
+        /* AI Feature 1: NL query parsing for "conversational" queries */
+        if (isAIEnabled() && !page && params.query && params.query.length >= 10) {
+            const nlWords = /\b(show|find|get|list|give|all|from|about|related|between|before|after|during|recent|latest|data|datasets)\b/i;
+            if (nlWords.test(params.query)) {
+                const parsed = await aiParseQuery(params.query);
+                if (parsed) {
+                    const updatedParams = getFilterParams();
+                    updatedParams.page = 1;
+                    fetchResults(updatedParams);
+                    return;
+                }
             }
         }
 
-        initMap();
-    })();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => fetchResults(params), debounceMs);
+    }
+
+    // Expose removeFilter and clearAllFilters to global scope
+    window.removeFilter = function (type, value, id) {
+        if (['expedition', 'category', 'iso', 'keyword'].includes(type)) {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.checked = false;
+                triggerSearch();
+            }
+        } else if (type === 'year') {
+            const yearEl = document.getElementById('filterYear');
+            if (yearEl) yearEl.value = '';
+            triggerSearch();
+        } else if (type === 'temporal') {
+            document.getElementById('filterStart').value = '';
+            document.getElementById('filterEnd').value = '';
+            triggerSearch();
+        } else if (type === 'advanced') {
+            const index = parseInt(value);
+            const rows = document.querySelectorAll('.query-row');
+            if (rows[index]) {
+                rows[index].remove();
+                triggerSearch();
+            }
+        }
+    };
+
+    window.clearAllFilters = function () {
+        document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.filter-control').forEach(el => el.value = '');
+        document.getElementById('searchQuery').value = '';
+        document.getElementById('queryBuilder').innerHTML = '';
+        hideAICards();
+        triggerSearch();
+    };
+
+    function bindPaginationLinks() {
+        document.querySelectorAll('.pagination-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                triggerSearch(this.dataset.page);
+            });
+        });
+    }
+
+    function initFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('query')) document.getElementById('searchQuery').value = params.get('query');
+
+        // Restore advanced search rows
+        const advOps = params.getAll('adv_op');
+        const advFields = params.getAll('adv_field');
+        const advVals = params.getAll('adv_val');
+        const container = document.getElementById('queryBuilder');
+        container.innerHTML = '';
+
+        if (advOps.length > 0 && advOps.length === advFields.length) {
+            const collapseEl = document.getElementById('advancedSearch');
+            if (collapseEl) collapseEl.classList.add('show');
+
+            advOps.forEach((op, index) => {
+                const field = advFields[index];
+                const val = advVals[index];
+                container.appendChild(createQueryRow(index, { op, field, val, id: `adv_row_${index}` }));
+            });
+        }
+
+        // Restore checkboxes
+        params.getAll('expedition').forEach(val => {
+            const cb = document.getElementById('exp_' + val);
+            if (cb) cb.checked = true;
+        });
+        params.getAll('category').forEach(val => {
+            const cb = document.getElementById('cat_' + val);
+            if (cb) cb.checked = true;
+        });
+        params.getAll('iso').forEach(val => {
+            const cb = document.getElementById('iso_' + val);
+            if (cb) cb.checked = true;
+        });
+        params.getAll('keyword').forEach(val => {
+            const cb = document.getElementById('kw_' + val);
+            if (cb) cb.checked = true;
+        });
+        params.getAll('year').forEach(val => {
+            const yearEl = document.getElementById('filterYear');
+            if (yearEl) yearEl.value = val;
+        });
+
+        if (params.get('start')) document.getElementById('filterStart').value = params.get('start');
+        if (params.get('end')) document.getElementById('filterEnd').value = params.get('end');
+        if (params.get('bbox_west')) document.getElementById('filterBboxWest').value = params.get('bbox_west');
+        if (params.get('bbox_east')) document.getElementById('filterBboxEast').value = params.get('bbox_east');
+        if (params.get('bbox_south')) document.getElementById('filterBboxSouth').value = params.get('bbox_south');
+        if (params.get('bbox_north')) document.getElementById('filterBboxNorth').value = params.get('bbox_north');
+        if (params.get('sort')) document.getElementById('filterSort').value = params.get('sort');
+
+        highlightMatches(document.getElementById('resultsContainer'), params.get('query'));
+    }
+
+    /* ---- Event listeners ---- */
+    document.querySelectorAll('.filter-control').forEach(el => {
+        el.addEventListener('change', () => triggerSearch());
+    });
+
+    document.querySelectorAll('.filter-checkbox').forEach(el => {
+        el.addEventListener('change', () => triggerSearch());
+    });
+
+    document.getElementById('searchForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        triggerSearch();
+    });
+
+    document.getElementById('aiSearchToggle').addEventListener('change', function () {
+        document.getElementById('aiStatusText').textContent =
+            this.checked ? 'AI-powered features active' : 'AI features disabled';
+        if (!this.checked) hideAICards();
+    });
+
+    document.getElementById('dismissSummary').addEventListener('click', function () {
+        document.getElementById('aiSummaryCard').classList.add('d-none');
+    });
+
+    window.addEventListener('popstate', function (e) {
+        if (e.state) {
+            initFromURL();
+            fetchResults(e.state);
+        }
+    });
+
+    initFromURL();
+    bindPaginationLinks();
+
+    // ---- Map Implementation ----
+    let map;
+    let markersGroup;
+
+    function initMap() {
+        if (!document.getElementById('datasetMap')) return;
+
+        // create map without default attribution control
+        map = L.map('datasetMap', { attributionControl: false }).setView([20, 0], 2);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: ''  // keep empty or add required credit manually elsewhere
+        }).addTo(map);
+
+        markersGroup = L.featureGroup().addTo(map);
+
+        try {
+            const initialData = JSON.parse(document.getElementById('map-data').textContent);
+            renderMap(initialData);
+        } catch (e) {
+            console.error("Error parsing map data", e);
+        }
+    }
+
+    function renderMap(data) {
+        if (!map || !markersGroup) return;
+        markersGroup.clearLayers();
+
+        data.forEach(item => {
+            if (item.west_longitude !== null && item.north_latitude !== null) {
+                const lat = (item.south_latitude + item.north_latitude) / 2;
+                const lng = (item.west_longitude + item.east_longitude) / 2;
+
+                const marker = L.marker([lat, lng]);
+                marker.bindPopup(`<strong>${item.title}</strong><br><a href="/data/view/${item.id}/">View Dataset</a>`);
+                let timer;
+
+                marker.on('mouseover', function (e) {
+                    if (timer) clearTimeout(timer);
+                    this.openPopup();
+                });
+
+                marker.on('mouseout', function (e) {
+                    timer = setTimeout(() => {
+                        this.closePopup();
+                    }, 300);
+                });
+
+                marker.on('popupopen', function () {
+                    const popup = this.getPopup();
+                    const popupEl = popup.getElement();
+                    if (popupEl) {
+                        popupEl.addEventListener('mouseenter', () => {
+                            if (timer) clearTimeout(timer);
+                        });
+                        popupEl.addEventListener('mouseleave', () => {
+                            timer = setTimeout(() => {
+                                marker.closePopup();
+                            }, 300);
+                        });
+                    }
+                });
+                marker.addTo(markersGroup);
+            }
+        });
+
+        if (markersGroup.getLayers().length > 0) {
+            map.fitBounds(markersGroup.getBounds(), { padding: [20, 20], maxZoom: 5 });
+        } else {
+            map.setView([20, 0], 2);
+        }
+    }
+
+    initMap();
+    }) ();
 </script>
 {% endblock %}

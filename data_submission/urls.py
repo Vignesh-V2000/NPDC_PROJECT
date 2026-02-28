@@ -7,10 +7,13 @@ urlpatterns = [
     # User views
     path('submit/instructions/', views.submission_instructions, name='instructions'),
     path('submit/', views.submit_dataset, name='submit_dataset'),
-    path('submit/upload/<int:submission_id>/', views.upload_dataset_files, name='upload_dataset_files'),
-    path('success/<int:submission_id>/', views.submission_success, name='submission_success'),
+    path('submit/upload/<str:metadata_id>/', views.upload_dataset_files, name='upload_dataset_files'),
+    path('success/<str:metadata_id>/', views.submission_success, name='submission_success'),
     path('my-submissions/', views.my_submissions, name='my_submissions'),
-    path('view/<int:submission_id>/', views.view_submission, name='view_submission'),
+    path('view/<str:metadata_id>/', views.view_submission, name='view_submission'),
+    path('export/xml/<str:metadata_id>/', views.export_submission_xml, name='export_submission_xml'),
+    path('get-data/<str:metadata_id>/', views.get_data_view, name='get_data'),
+    path('get-data/<str:metadata_id>/success/', views.get_data_success_view, name='get_data_success'),
 
     # AJAX endpoints
     path('ajax/load-states/', views.load_states, name='ajax_load_states'),
@@ -28,15 +31,19 @@ urlpatterns = [
 
     # Admin / reviewer views
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/all/', views.all_submissions, name='all_submissions'),
     path('admin/review/', views.review_submissions, name='review_submissions'),
     path(
-        'admin/review/<int:submission_id>/',
+        'admin/review/<str:metadata_id>/',
         views.review_submission_detail,
         name='review_submission_detail'
     ),
     path(
-        'admin/edit/<int:submission_id>/',
+        'admin/edit/<str:metadata_id>/',
         views.admin_edit_submission,
         name='admin_edit_submission'
     ),
+    path('admin/data-requests/', views.admin_data_requests_view, name='admin_data_requests'),
+    path('admin/data-requests/<int:request_id>/approve/', views.admin_approve_data_request, name='admin_approve_data_request'),
+    path('admin/data-requests/<int:request_id>/reject/', views.admin_reject_data_request, name='admin_reject_data_request'),
 ]

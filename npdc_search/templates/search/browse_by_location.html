@@ -56,28 +56,30 @@
         border-color: #3672a4;
     }
 
-    /* Table Styles */
+    /* Table Styles - Professional color scheme */
     .location-table-wrapper {
-        background: #fff;
+        background: #ffffff;
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 6px 18px rgba(13, 43, 94, 0.08);
+        border: 1px solid rgba(13, 43, 94, 0.06);
     }
 
     .location-table {
         width: 100%;
-        border-collapse: collapse;
-        font-size: 1rem;
-        color: #333;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        font-size: 0.98rem;
+        color: #1f2d3d;
     }
 
     .location-table thead th {
-        background: #e8ecf1;
-        color: #333;
+        background: linear-gradient(90deg, #0d3b66 0%, #174b86 100%);
+        color: #ffffff;
         font-weight: 700;
-        padding: 1rem 1.2rem;
+        padding: 0.9rem 1.2rem;
         text-align: left;
-        border-bottom: 2px solid #d0d8e4;
+        border: none;
         font-size: 0.95rem;
     }
 
@@ -96,44 +98,56 @@
         width: 150px;
     }
 
+    /* Row card look with subtle shadows and alternating subtle tone */
     .location-table tbody tr {
-        border-bottom: 1px solid #eee;
-        transition: background 0.15s ease;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(20, 40, 80, 0.03);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+        border-radius: 6px;
     }
 
-    .location-table tbody tr:hover {
-        background: #f8fafc;
+    .location-table tbody tr:nth-child(odd) td {
+        background: linear-gradient(90deg, #f6f9fc 0%, #eef6ff 100%);
     }
 
     .location-table tbody td {
-        padding: 0.9rem 1.2rem;
+        padding: 0.85rem 1.2rem;
         vertical-align: middle;
+        background: transparent;
+        border-top: 1px solid rgba(13,43,94,0.02);
     }
 
     .location-table tbody td:first-child {
         text-align: center;
-        font-weight: 600;
-        color: #666;
+        font-weight: 700;
+        color: #2b3b4a;
     }
 
     .location-table tbody td:nth-child(3) {
         text-align: center;
-        font-weight: 600;
+        font-weight: 700;
+        color: #0d3b66;
     }
 
     .location-table tbody td:last-child {
         text-align: center;
     }
 
+    .location-table tbody tr:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(13, 43, 94, 0.09);
+        background: linear-gradient(90deg, #edf6ff 0%, #dceeff 100%);
+    }
+
     .location-table .view-link {
-        color: #0052CC;
+        color: #0d3b66;
         text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s;
+        font-weight: 600;
+        transition: color 0.15s ease;
     }
 
     .location-table .view-link:hover {
-        color: #003366;
+        color: #072745;
         text-decoration: underline;
     }
 

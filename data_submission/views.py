@@ -9,9 +9,10 @@ from django.db import transaction
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Q
 import json
 import logging
 
@@ -305,10 +306,10 @@ def submit_dataset(request):
                 
 
 
-            logger.info(f"Dataset {dataset.id} {'submitted' if dataset.status == 'submitted' else 'saved'} by user {request.user.id}")
+            logger.info(f"Dataset {dataset.metadata_id} {'submitted' if dataset.status == 'submitted' else 'saved'} by user {request.user.id}")
 
             # 🚀 REDIRECT TO FILE UPLOAD STEP
-            return redirect("data_submission:upload_dataset_files", submission_id=dataset.id)
+            return redirect("data_submission:upload_dataset_files", metadata_id=dataset.metadata_id)
 
         messages.error(request, "Please correct the errors below.")
 
@@ -387,15 +388,15 @@ def submit_dataset(request):
             "instrument_formset": instrument_formset,
             "paleo_form": paleo_form,
             "is_edit_mode": is_edit_mode,
-            "dataset_id": dataset.id if dataset else None,
+            "dataset_id": dataset.metadata_id if dataset else None,
         },
     )
 
-def view_submission(request, submission_id):
+def view_submission(request, metadata_id):
     """Read-only view for users to see submission details.
     Published datasets are visible to any logged-in user.
     Draft/submitted/under_review/revision only visible to owner or staff."""
-    submission = get_object_or_404(DatasetSubmission, pk=submission_id)
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
     
     # Published datasets are visible to everyone
     # Draft/submitted/under_review/revision only visible to owner or staff
@@ -411,10 +412,68 @@ def view_submission(request, submission_id):
         }
     )
 
+def export_submission_xml(request, metadata_id):
+    """View to export submission details as XML."""
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Check permissions
+    if submission.status != 'published':
+        if not (request.user.is_authenticated and (request.user == submission.submitter or request.user.is_staff)):
+            raise Http404("No DatasetSubmission matches the given query.")
+            
+    from django.core import serializers
+    from django.http import HttpResponse
+    
+    xml_data = serializers.serialize('xml', [submission])
+    return HttpResponse(xml_data, content_type="application/xml")
+
+def get_data_view(request, metadata_id):
+    """View for the Get Data request form."""
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    from .forms import DatasetRequestForm # Import the form locally
+    
+    if request.method == "POST":
+        form = DatasetRequestForm(request.POST)
+        if form.is_valid():
+            # Save the valid form to the database
+            dataset_request = form.save(commit=False)
+            dataset_request.dataset = submission
+            
+            # Optional: if you want to track which logged-in user made the request, though not required
+            # if request.user.is_authenticated:
+            #     dataset_request.requester = request.user
+                
+            dataset_request.save()
+            
+            # Redirect to success page
+            return redirect('data_submission:get_data_success', metadata_id=submission.metadata_id)
+    else:
+        form = DatasetRequestForm()
+
+    return render(
+        request,
+        'data_submission/get_data.html',
+        {
+            'submission': submission,
+            'form': form,
+        }
+    )
+
+def get_data_success_view(request, metadata_id):
+    """View for the Get Data success message."""
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    return render(
+        request,
+        'data_submission/get_data_success.html',
+        {
+            'submission': submission,
+        }
+    )
 
 @login_required
-def submission_success(request, submission_id):
-    submission = get_object_or_404(DatasetSubmission, pk=submission_id, submitter=request.user)
+def submission_success(request, metadata_id):
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id, submitter=request.user)
     return render(request, 'data_submission/submission_success.html', {'submission': submission})
 
 
@@ -482,19 +541,142 @@ def review_submissions(request):
         # If user is ONLY an expedition admin (not superuser), filter:
         if profile and profile.expedition_admin_type:
             submissions = submissions.filter(expedition_type=profile.expedition_admin_type)
+            
+    # GET Filters
+    query = request.GET.get('q', '').strip()
+    expedition = request.GET.get('expedition', '').strip()
+    category = request.GET.get('category', '').strip()
+    start_date = request.GET.get('start_date', '').strip()
+    end_date = request.GET.get('end_date', '').strip()
+
+    if query:
+        submissions = submissions.filter(
+            Q(title__icontains=query) |
+            Q(abstract__icontains=query) |
+            Q(metadata_id__icontains=query) |
+            Q(submitter__first_name__icontains=query) |
+            Q(submitter__last_name__icontains=query) |
+            Q(submitter__email__icontains=query)
+        )
+    if expedition:
+        submissions = submissions.filter(expedition_type=expedition)
+    if category:
+        submissions = submissions.filter(category=category)
+    if start_date:
+        try:
+            parsed_start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            submissions = submissions.filter(submission_date__date__gte=parsed_start)
+        except ValueError:
+            pass
+    if end_date:
+        try:
+            parsed_end = datetime.strptime(end_date, '%Y-%m-%d').date()
+            submissions = submissions.filter(submission_date__date__lte=parsed_end)
+        except ValueError:
+            pass
+    
+    # Context items needed for the frontend filter UI
+    expedition_choices = DatasetSubmission.EXPEDITION_TYPES
+    category_choices = DatasetSubmission.CATEGORY_CHOICES
     
     return render(
         request,
         'admin/review_submissions.html',
-        {'submissions': submissions}
+        {
+            'submissions': submissions,
+            'current_q': query,
+            'current_expedition': expedition,
+            'current_category': category,
+            'current_start_date': start_date,
+            'current_end_date': end_date,
+            'expedition_choices': expedition_choices,
+            'category_choices': category_choices,
+        }
+    )
+
+
+@login_required
+@user_passes_test(lambda u: is_reviewer(u) or is_admin(u) or is_expedition_admin(u))
+def all_submissions(request):
+    """View to see all datasets (Published, Draft, Pending) with correct expedition filtering."""
+    submissions_list = DatasetSubmission.objects.all().order_by('-submission_date')
+
+    # Filter for Child Admins
+    if not request.user.is_superuser:
+        profile = getattr(request.user, 'profile', None)
+        if profile and profile.expedition_admin_type:
+            submissions_list = submissions_list.filter(expedition_type=profile.expedition_admin_type)
+            
+    # GET Filters
+    query = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+    expedition = request.GET.get('expedition', '').strip()
+    category = request.GET.get('category', '').strip()
+    start_date = request.GET.get('start_date', '').strip()
+    end_date = request.GET.get('end_date', '').strip()
+
+    if query:
+        submissions_list = submissions_list.filter(
+            Q(title__icontains=query) |
+            Q(abstract__icontains=query) |
+            Q(metadata_id__icontains=query) |
+            Q(submitter__first_name__icontains=query) |
+            Q(submitter__last_name__icontains=query) |
+            Q(submitter__email__icontains=query)
+        )
+    if status:
+        submissions_list = submissions_list.filter(status=status)
+    if expedition:
+        submissions_list = submissions_list.filter(expedition_type=expedition)
+    if category:
+        submissions_list = submissions_list.filter(category=category)
+    if start_date:
+        try:
+            parsed_start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            submissions_list = submissions_list.filter(submission_date__date__gte=parsed_start)
+        except ValueError:
+            pass
+    if end_date:
+        try:
+            parsed_end = datetime.strptime(end_date, '%Y-%m-%d').date()
+            submissions_list = submissions_list.filter(submission_date__date__lte=parsed_end)
+        except ValueError:
+            pass
+            
+    # Pagination
+    paginator = Paginator(submissions_list, 10) # 10 submissions per page
+    page_number = request.GET.get('page')
+    submissions = paginator.get_page(page_number)
+    
+    # Context items needed for the frontend filter UI
+    expedition_choices = DatasetSubmission.EXPEDITION_TYPES
+    category_choices = DatasetSubmission.CATEGORY_CHOICES
+    status_choices = DatasetSubmission.STATUS_CHOICES
+    
+    return render(
+        request,
+        'admin/all_submissions.html',
+        {
+            'submissions': submissions,
+            'total_submissions': submissions_list.count(),
+            'current_q': query,
+            'current_status': status,
+            'current_expedition': expedition,
+            'current_category': category,
+            'current_start_date': start_date,
+            'current_end_date': end_date,
+            'expedition_choices': expedition_choices,
+            'category_choices': category_choices,
+            'status_choices': status_choices,
+        }
     )
 
 
 @login_required
 @user_passes_test(lambda u: is_reviewer(u) or is_admin(u) or is_expedition_admin(u))
 @require_http_methods(["GET", "POST"])
-def review_submission_detail(request, submission_id):
-    submission = get_object_or_404(DatasetSubmission, pk=submission_id)
+def review_submission_detail(request, metadata_id):
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
     
     # 🚨 PERMISSION CHECK: Child Admins can only review their type
     if not request.user.is_superuser:
@@ -520,7 +702,7 @@ def review_submission_detail(request, submission_id):
             messages.error(request, f"Invalid status transition from {submission.status} to {status}.")
             return redirect(
                 'data_submission:review_submission_detail',
-                submission_id=submission.id
+                metadata_id=submission.metadata_id
             )
 
         previous_status = submission.status
@@ -547,7 +729,7 @@ We are pleased to inform you that your dataset submission has been reviewed and 
 
 Dataset Details:
 ----------------
-Dataset ID: {submission.id}
+Dataset ID: {submission.metadata_id}
 Title: {submission.title}
 Status: PUBLISHED
 Publication Date: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -566,7 +748,7 @@ National Polar Data Center
                     fail_silently=True,
                 )
                 
-                logger.info(f"Publication notification sent for dataset {submission.id}")
+                logger.info(f"Publication notification sent for dataset {submission.metadata_id}")
                 
         except Exception as e:
             logger.error(f"Failed to send status notification: {str(e)}")
@@ -574,7 +756,7 @@ National Polar Data Center
         messages.success(request, "Submission reviewed successfully.")
         
         # Log the review action
-        logger.info(f"User {request.user.id} changed dataset {submission.id} from {previous_status} to {status}")
+        logger.info(f"User {request.user.id} changed dataset {submission.metadata_id} from {previous_status} to {status}")
         
 
         
@@ -698,11 +880,11 @@ def load_states(request):
 
 
 @login_required
-def upload_dataset_files(request, submission_id):
+def upload_dataset_files(request, metadata_id):
     """
     Step 2: Upload files for the dataset submission.
     """
-    dataset = get_object_or_404(DatasetSubmission, id=submission_id)
+    dataset = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
     
     # RBAC: Only submitter or admin can upload files
     if not (request.user == dataset.submitter or is_admin(request)):
@@ -739,7 +921,7 @@ A new dataset has been submitted / resubmitted for review on the NPDC Portal.
 
 Submission Details:
 -------------------
-Dataset ID: {dataset.id}
+Dataset ID: {dataset.metadata_id}
 Title: {dataset.title}
 Expedition: {dataset.get_expedition_type_display()}
 Submitter: {request.user.get_full_name()} ({request.user.email})
@@ -755,7 +937,7 @@ NPDC Portal System
                         all_emails,
                         fail_silently=True,
                     )
-                logger.info(f"Submission notification sent to admins for dataset {dataset.id}")
+                logger.info(f"Submission notification sent to admins for dataset {dataset.metadata_id}")
             except Exception as e:
                 logger.error(f"Failed to send admin submission notification: {str(e)}")
 
@@ -771,7 +953,7 @@ This email verifies that your dataset submission has been successfully received 
 
 Submission Summary:
 -------------------
-Dataset ID: {dataset.id}
+Dataset ID: {dataset.metadata_id}
 Title: {dataset.title}
 Status: Submitted (Use 'My Submissions' to track status)
 Date: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -796,7 +978,7 @@ National Polar Data Center
 
             
             messages.success(request, "Dataset submitted successfully with files!")
-            return redirect('data_submission:submission_success', submission_id=dataset.id)
+            return redirect('data_submission:submission_success', metadata_id=dataset.metadata_id)
     else:
         from .forms import DatasetUploadForm
         form = DatasetUploadForm(instance=dataset)
@@ -983,11 +1165,11 @@ def ai_review_assist_view(request):
         if not submission_id:
             return JsonResponse({'error': 'Submission ID is required.'}, status=400)
 
-        submission = DatasetSubmission.objects.get(id=submission_id)
+        submission = DatasetSubmission.objects.get(metadata_id=submission_id)
 
         # Build submission data dict for AI analysis
         submission_data = {
-            'id': submission.id,
+            'id': submission.metadata_id,
             'title': submission.title,
             'abstract': submission.abstract,
             'purpose': submission.purpose,
@@ -1016,11 +1198,11 @@ def ai_review_assist_view(request):
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_expedition_admin(u))
-def admin_edit_submission(request, submission_id):
+def admin_edit_submission(request, metadata_id):
     """
     View for Admins (Super & Child) to edit a submission.
     """
-    submission = get_object_or_404(DatasetSubmission, pk=submission_id)
+    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
 
     # 🚨 PERMISSION CHECK: Child Admins can only edit their type
     if not request.user.is_superuser:
@@ -1031,6 +1213,7 @@ def admin_edit_submission(request, submission_id):
                 return redirect('data_submission:review_submissions')
 
     if request.method == "POST":
+        action = request.POST.get("save")
         dataset_form = DatasetSubmissionForm(request.POST, request.FILES, instance=submission)
         
         # Related forms
@@ -1055,34 +1238,82 @@ def admin_edit_submission(request, submission_id):
         scientist_formset = ScientistFormSet(request.POST, instance=submission)
         instrument_formset = InstrumentFormSet(request.POST, instance=submission)
 
-        if all([dataset_form.is_valid(), citation_form.is_valid(), platform_form.is_valid(), 
-                location_form.is_valid(), resolution_form.is_valid(), scientist_formset.is_valid(), 
-                instrument_formset.is_valid(), gps_form.is_valid(), paleo_form.is_valid()]):
+        if action == "PREVIEW":
+            # For Admins: Preview the current form data WITHOUT saving to DB or requiring strict validation
+            # Create a mock dataset from current form fields (commit=False prevents DB save)
+            preview_ds = dataset_form.save(commit=False)
+            preview_ds.id = submission.id
             
+            # Helper to safely grab partial form data
+            def get_partial(f):
+                for v in f.fields.values(): v.required = False
+                if f.is_valid():
+                    try: return f.save(commit=False)
+                    except: return None
+                return None
+
+            preview_ds.citation = get_partial(citation_form) or citation_instance
+            preview_ds.platform = get_partial(platform_form) or platform_instance
+            preview_ds.gps = get_partial(gps_form) or gps_instance
+            preview_ds.location = get_partial(location_form) or location_instance
+            preview_ds.resolution = get_partial(resolution_form) or resolution_instance
+            preview_ds.paleo_temporal = get_partial(paleo_form) or paleo_instance
+            
+            return render(request, 'data_submission/preview_dataset.html', {
+                'dataset': preview_ds,
+                'is_admin_preview': True
+            })
+
+        # For Admins, we only strictly require the main Dataset form and Scientist/Instrument formsets.
+        # Legacy datasets might not have Citation, Platform, etc.
+        main_valid = all([dataset_form.is_valid(), scientist_formset.is_valid(), instrument_formset.is_valid()])
+
+        if main_valid:
             with transaction.atomic():
                 submission = dataset_form.save()
                 
-                # Logic to keep status or update? 
-                # Ideally, admin editing shouldn't reset to draft unless specified.
-                # We keep the status as is.
                 submission.status_updated_at = timezone.now()
-                submission.save()
+                # Save related forms only if they are valid
+                if citation_form.is_valid():
+                    cit = citation_form.save(commit=False)
+                    cit.dataset = submission
+                    cit.save()
+                    
+                if platform_form.is_valid():
+                    plat = platform_form.save(commit=False)
+                    plat.dataset = submission
+                    plat.save()
+                    
+                if gps_form.is_valid():
+                    gps = gps_form.save(commit=False)
+                    gps.dataset = submission
+                    gps.save()
+                    
+                if location_form.is_valid():
+                    loc = location_form.save(commit=False)
+                    loc.dataset = submission
+                    loc.save()
+                    
+                if resolution_form.is_valid():
+                    res = resolution_form.save(commit=False)
+                    res.dataset = submission
+                    res.save()
+                    
+                if paleo_form.is_bound and paleo_form.is_valid():
+                    pal = paleo_form.save(commit=False)
+                    pal.dataset = submission
+                    pal.save()
                 
-                citation_form.save()
-                platform_form.save()
-                gps_form.save()
-                location_form.save()
-                resolution_form.save()
-                if paleo_form.is_bound: # Only save if we bounded it
-                     paleo_form.save()
-                
+                scientist_formset.instance = submission
                 scientist_formset.save()
+                
+                instrument_formset.instance = submission
                 instrument_formset.save()
                 
-                messages.success(request, f"Submission {submission.id} updated successfully.")
-                return redirect("data_submission:review_submission_detail", submission_id=submission.id)
+                messages.success(request, f"Submission {submission.metadata_id} updated successfully.")
+                return redirect("data_submission:review_submission_detail", metadata_id=submission.metadata_id)
         else:
-             messages.error(request, "Please correct the errors below.")
+             messages.error(request, "Please correct the errors on the Main form, Scientists, or Instruments.")
     else:
         # GET - Populate forms with instance data
         dataset_form = DatasetSubmissionForm(instance=submission)
@@ -1111,6 +1342,82 @@ def admin_edit_submission(request, submission_id):
             "paleo_form": paleo_form,
             "is_edit_mode": True,
             "is_admin_edit": True, # Flag for template to adjust UI (e.g. hide 'Save Draft' if needed)
-            "dataset_id": submission.id,
+            "dataset_id": submission.metadata_id,
         },
     )
+
+from .models import DatasetRequest
+
+@user_passes_test(is_admin)
+def admin_data_requests_view(request):
+    """Admin view to list all data requests."""
+    # List all requests, newest first
+    requests_list = DatasetRequest.objects.all().order_by('-request_date')
+    
+    return render(
+        request,
+        'admin/admin_data_requests.html',
+        {
+            'requests': requests_list,
+            'title': 'Data Download Requests',
+        }
+    )
+
+from django.core.mail import send_mail
+from django.conf import settings
+
+@user_passes_test(is_admin)
+def admin_approve_data_request(request, request_id):
+    """Admin view to approve a request and email the user."""
+    req = get_object_or_404(DatasetRequest, id=request_id)
+    
+    if request.method == 'POST':
+        req.status = 'approved'
+        req.reviewed_by = request.user
+        req.reviewed_at = timezone.now()
+        req.save()
+        
+        # Prepare the download link
+        if req.dataset.data_file:
+            download_url = request.build_absolute_uri(req.dataset.data_file.url)
+            link_text = f"Download Link: {download_url}"
+        else:
+            link_text = "This dataset does not currently have a downloadable file attached. Please contact the administrator for manual access."
+
+        # Compile and send the email
+        subject = f"Dataset Request Approved: {req.dataset.metadata_id}"
+        message = (
+            f"Dear {req.first_name} {req.last_name},\n\n"
+            f"Your request to download the dataset '{req.dataset.title}' ({req.dataset.metadata_id}) has been APPROVED.\n\n"
+            f"{link_text}\n\n"
+            f"Thank you,\nNational Polar Data Center"
+        )
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@npdc.ncpor.res.in',
+                [req.email],
+                fail_silently=False,
+            )
+            messages.success(request, f"Request from {req.first_name} {req.last_name} approved! An email with the download link has been sent to {req.email}.")
+        except Exception as e:
+            messages.warning(request, f"Request approved, but failed to send email: {str(e)}")
+        
+    return redirect('data_submission:admin_data_requests')
+
+@user_passes_test(is_admin)
+def admin_reject_data_request(request, request_id):
+    """Admin view to reject a request."""
+    req = get_object_or_404(DatasetRequest, id=request_id)
+    
+    if request.method == 'POST':
+        req.status = 'rejected'
+        req.reviewed_by = request.user
+        req.reviewed_at = timezone.now()
+        req.save()
+        
+        messages.warning(request, f"Request from {req.first_name} {req.last_name} has been rejected.")
+        
+    return redirect('data_submission:admin_data_requests')

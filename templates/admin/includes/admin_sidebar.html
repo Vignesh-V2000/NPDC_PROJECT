@@ -1,53 +1,67 @@
 <!-- Admin Sidebar Navigation -->
-<div class="admin-sidebar {% if is_full_sidebar %}sidebar-full{% endif %}">
-    <div class="sidebar-header">
-        <h5 class="mb-0">
-            <i class="fas fa-user-shield me-2"></i>Admin Panel
-        </h5>
-    </div>
-    <nav class="sidebar-nav">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
-                    href="{% url 'data_submission:admin_dashboard' %}">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'review_submissions' or request.resolver_match.url_name == 'review_submission_detail' %}active{% endif %}"
-                    href="{% url 'data_submission:review_submissions' %}">
-                    <i class="fas fa-clipboard-check me-2"></i>Review Submissions
-                </a>
-            </li>
-            {% if request.user.is_superuser %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active{% endif %}"
-                    href="{% url 'users:user_approval_dashboard' %}">
-                    <i class="fas fa-users-cog me-2"></i>User & Admin Management
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'users:admin_create_user' %}">
-                    <i class="fas fa-user-plus me-2"></i>Create Admin
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    <div class="sidebar-footer">
-        <a href="{% url 'users:home' %}" class="btn btn-outline-light btn-sm w-100">
-            <i class="fas fa-arrow-left me-2"></i>Back to Main Site
-        </a>
+<div class="card border-0 shadow-sm rounded-3 admin-sidebar {% if is_full_sidebar %}sidebar-full{% endif %}">
+    <div class="card-body p-4 d-flex flex-column h-100">
+        <div class="sidebar-header mb-4 pb-3 border-bottom">
+            <h5 class="mb-0 text-dark fw-bold">
+                <i class="fas fa-user-shield me-2 text-primary"></i>Admin Panel
+            </h5>
+        </div>
+        
+        <nav class="sidebar-nav flex-grow-1">
+            <ul class="nav flex-column gap-2">
+                <li class="nav-item">
+                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'admin_dashboard' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                        href="{% url 'data_submission:admin_dashboard' %}">
+                        <i class="fas fa-tachometer-alt me-2 {% if request.resolver_match.url_name != 'admin_dashboard' %}text-muted{% endif %}" style="width:20px;"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'all_submissions' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                        href="{% url 'data_submission:all_submissions' %}">
+                        <i class="fas fa-database me-2 {% if request.resolver_match.url_name != 'all_submissions' %}text-muted{% endif %}" style="width:20px;"></i>All Datasets
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'review_submissions' or request.resolver_match.url_name == 'review_submission_detail' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                        href="{% url 'data_submission:review_submissions' %}">
+                        <i class="fas fa-clipboard-check me-2 {% if request.resolver_match.url_name != 'review_submissions' and request.resolver_match.url_name != 'review_submission_detail' %}text-muted{% endif %}" style="width:20px;"></i>Review Queue
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'admin_data_requests' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                        href="{% url 'data_submission:admin_data_requests' %}">
+                        <i class="fas fa-file-download me-2 {% if request.resolver_match.url_name != 'admin_data_requests' %}text-muted{% endif %}" style="width:20px;"></i>Data Requests
+                    </a>
+                </li>
+                {% if request.user.is_superuser %}
+                <div class="text-uppercase text-muted fw-bold small mt-3 mb-2 px-2" style="font-size: 0.70rem; letter-spacing: 1px;">Access Management</div>
+                <li class="nav-item">
+                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                        href="{% url 'users:user_approval_dashboard' %}">
+                        <i class="fas fa-users-cog me-2 {% if request.resolver_match.url_name != 'user_approval_dashboard' %}text-muted{% endif %}" style="width:20px;"></i>User Approvals
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'admin_create_user' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                        href="{% url 'users:admin_create_user' %}">
+                        <i class="fas fa-user-plus me-2 {% if request.resolver_match.url_name != 'admin_create_user' %}text-muted{% endif %}" style="width:20px;"></i>Create Admin
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer mt-4 pt-4 border-top">
+            <a href="{% url 'users:home' %}" class="btn btn-light w-100 fw-semibold text-muted border transition-all hover-bg-light">
+                <i class="fas fa-arrow-left me-2"></i>Exit to Main Site
+            </a>
+        </div>
     </div>
 </div>
 
 <style>
-    /* Admin Sidebar Styles */
+    /* Admin Sidebar Layout Options */
     .admin-sidebar {
-        background: linear-gradient(180deg, #1A202C 0%, #2D3748 100%);
-        border-radius: 12px;
-        padding: 1.5rem;
-        color: white;
         position: sticky;
         top: 100px;
     }
@@ -55,62 +69,29 @@
     /* Full Sidebar Variant */
     .admin-sidebar.sidebar-full {
         min-height: 100vh;
-        border-radius: 0;
+        border-radius: 0 !important;
+        position: fixed;
         top: 0;
+        left: 0;
         width: 260px;
+        z-index: 1000;
         margin: 0;
+        border-right: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
     }
 
-    .sidebar-header {
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 1rem;
+    /* Transition classes */
+    .transition-all {
+        transition: all 0.2s ease-in-out;
     }
 
-    .sidebar-header h5 {
-        color: white;
-        font-size: 1.1rem;
+    .hover-bg-light:hover {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
     }
-
-    .sidebar-nav .nav-link {
-        color: rgba(255, 255, 255, 0.9) !important;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        margin-bottom: 0.25rem;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-    }
-
-    .sidebar-nav .nav-link:hover {
-        color: white !important;
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-    }
-
-    .sidebar-nav .nav-link.active {
-        color: white !important;
-        background: linear-gradient(135deg, #0052CC 0%, #00A3A1 100%);
-        font-weight: 600;
-    }
-
-    .sidebar-nav .nav-link i {
-        width: 20px;
-    }
-
-    .sidebar-footer {
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 1rem;
-    }
-
-    .sidebar-footer .btn-outline-light {
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .sidebar-footer .btn-outline-light:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.5);
+    
+    .nav-link.hover-bg-light:hover i.text-muted {
+        color: #495057 !important;
     }
 
     /* Responsive adjustments */
@@ -118,6 +99,11 @@
         .admin-sidebar {
             position: static;
             margin-bottom: 2rem;
+        }
+        .admin-sidebar.sidebar-full {
+            position: relative;
+            width: 100%;
+            min-height: auto;
         }
     }
 </style>

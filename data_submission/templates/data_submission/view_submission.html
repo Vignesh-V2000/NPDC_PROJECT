@@ -493,7 +493,7 @@
                     <li class="breadcrumb-item"><a href="/"><i class="fas fa-home"></i></a></li>
                     <li class="breadcrumb-item"><a href="{% url 'data_submission:my_submissions' %}">My Submissions</a>
                     </li>
-                    <li class="breadcrumb-item active">Dataset #{{ submission.id }}</li>
+                    <li class="breadcrumb-item active">Dataset {{ submission.metadata_id }}</li>
                 </ol>
             </nav>
         </div>
@@ -542,7 +542,7 @@
                         <!-- Actions -->
                         <div class="kpdc-actions">
                             {% if submission.status != 'published' %}
-                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.id }}"
+                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
                                 class="kpdc-action-btn btn-primary-filled">
                                 <i class="fas fa-edit"></i> Edit Submission
                             </a>
@@ -558,6 +558,49 @@
                             {% endif %}
                             <div><i class="fas fa-calendar me-1"></i> Submitted: {{ submission.submission_date|date:"M d, Y" }}</div>
                             <div><i class="fas fa-sync-alt me-1"></i> Last Updated: {{ submission.last_updated|date:"M d, Y" }}</div>
+                            <div class="mt-3">
+                                <style>
+                                    .btn-xml {
+                                        background-color: #f8f9fa;
+                                        color: #004f87;
+                                        border: 1px solid #004f87;
+                                        font-weight: 600;
+                                        text-align: center;
+                                        transition: all 0.3s ease;
+                                    }
+                                    .btn-xml:hover {
+                                        background-color: #ffc107; /* Warning yellow */
+                                        color: #000;
+                                        border-color: #ffc107;
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                    }
+                                    
+                                    .btn-get-data {
+                                        background-color: #f8f9fa;
+                                        color: #004f87;
+                                        border: 1px solid #004f87;
+                                        font-weight: 600;
+                                        text-align: center;
+                                        transition: all 0.3s ease;
+                                    }
+                                    .btn-get-data:hover {
+                                        background-color: #198754; /* Bootstrap Success Green */
+                                        color: #fff;
+                                        border-color: #198754;
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                    }
+                                </style>
+                                <div class="d-flex flex-column gap-2 align-items-start">
+                                    <a href="{% url 'data_submission:export_submission_xml' submission.metadata_id %}" target="_blank" class="kpdc-action-btn btn-xml text-decoration-none">
+                                        View XML
+                                    </a>
+                                    <a href="{% url 'data_submission:get_data' submission.metadata_id %}" class="kpdc-action-btn btn-get-data text-decoration-none justify-content-center" style="display:flex; align-items:center;">
+                                        <i class="fas fa-download me-1"></i> Get Data
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -572,7 +615,7 @@
             <table class="kpdc-metadata-table">
                 <tr>
                     <td>Entry ID</td>
-                    <td>NPDC-{{ submission.id|stringformat:"08d" }}</td>
+                    <td>{{ submission.metadata_id }}</td>
                 </tr>
                 {% if submission.doi %}
                 <tr>
@@ -892,7 +935,7 @@
             </table>
         </div>
 
-    </div><!-- /.container -->
+</div><!-- /.container -->
 </div><!-- /.kpdc-page -->
 
 <!-- Leaflet Map -->

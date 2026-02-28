@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Get Dataset - {{ submission.metadata_id }} - NPDC{% endblock %}
+
+{% block content %}
+<div class="kpdc-page pb-5">
+    <div class="container mt-5">
+        <div class="card shadow-sm border-0" style="max-width: 900px; margin: 0 auto;">
+            <div class="card-body p-5">
+                <h5 class="text-center mb-4" style="color: #17a2b8; font-weight: normal; font-size: 1.1rem;">
+                    Please provide the valid email-id. Download link will be sent to the given email-id.
+                </h5>
+                <form id="getDataDummyForm" method="POST" action="{% url 'data_submission:get_data' submission.metadata_id %}">
+                    {% csrf_token %}
+                    <!-- Row 1 -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="First Name" id="reqFirstName" name="first_name" value="{{ form.first_name.value|default_if_none:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Last Name" id="reqLastName" name="last_name" value="{{ form.last_name.value|default_if_none:'' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="email" class="form-control" placeholder="Email Address" id="reqEmail" name="email" value="{{ form.email.value|default_if_none:'' }}">
+                        </div>
+                    </div>
+                    <!-- Row 2 -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Institute Name" id="reqInstitute" name="institute" value="{{ form.institute.value|default_if_none:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" id="reqCountry" name="country">
+                                <option value="India" {% if form.country.value == 'India' %}selected{% endif %}>India</option>
+                                <option value="United States" {% if form.country.value == 'United States' %}selected{% endif %}>United States</option>
+                                <option value="United Kingdom" {% if form.country.value == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
+                                <option value="Other" {% if form.country.value == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Row 3 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Research Area" id="reqResearch" name="research_area" value="{{ form.research_area.value|default_if_none:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Purpose" id="reqPurpose" name="purpose" value="{{ form.purpose.value|default_if_none:'' }}">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label mb-2" style="color: #000;">
+                            <i class="fas fa-shield-alt me-2" style="color: #17a2b8;"></i>CAPTCHA validation
+                        </label>
+                        <div class="captcha-wrapper" style="display: flex; align-items: center; gap: 1rem;">
+                            {{ form.captcha }}
+                        </div>
+                        {% if form.captcha.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.captcha.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- Row 5 Agreements -->
+                    <div class="mb-4">
+                        <p class="mb-2">Please agree to the following:-</p>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="agreeCite" name="agree_cite">
+                            <label class="form-check-label" for="agreeCite" style="font-size: 0.9rem;">
+                                The datasets must be formally cited as the National Polar Data Center, including the URL (<a href="https://npdc.ncpor.res.in/" target="_blank">https://npdc.ncpor.res.in/</a>), in any scientific publication that utilizes or incorporates these datasets.
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="agreeShare" name="agree_share">
+                            <label class="form-check-label" for="agreeShare" style="font-size: 0.9rem;">
+                                The datasets should not be shared with others, however, the NPDC URL (<a href="https://npdc.ncpor.res.in/" target="_blank">https://npdc.ncpor.res.in/</a>) may be shared for the purpose of downloading the datasets.
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Row 6 Download Button -->
+                    <div class="text-center">
+                        <button type="submit" id="downloadBtn" class="btn btn-primary px-4 py-2" style="background-color: #5ea4f3; border-color: #5ea4f3;" disabled>Download</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("getDataDummyForm");
+        const downloadBtn = document.getElementById("downloadBtn");
+        
+        // Select all required inputs and checkboxes
+        const textInputs = form.querySelectorAll('input[type="text"], input[type="email"]');
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        
+        function checkFormValidity() {
+            let isValid = true;
+            
+            // Check if all text/email inputs are not empty
+            textInputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    isValid = false;
+                }
+            });
+            
+            // Check if all agreements are checked
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    isValid = false;
+                }
+            });
+            
+            // Enable or disable the button
+            downloadBtn.disabled = !isValid;
+        }
+
+        // Add event listeners to trigger check when users type or click
+        textInputs.forEach(input => {
+            input.addEventListener('input', checkFormValidity);
+        });
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', checkFormValidity);
+        });
+    });
+</script>
+{% endblock %}
