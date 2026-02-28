@@ -65,6 +65,19 @@
                         <div class="invalid-feedback">
                             Please enter your Email Id.
                         </div>
+
+                        <!-- AI: email not found bubble -->
+                        {% if ai_message == 'not_found' %}
+                        <div class="ai-field-bubble ai-bubble-warning mt-2" role="alert">
+                            <div class="ai-bubble-caret"></div>
+                            <span class="ai-bubble-icon">🐧</span>
+                            <div>
+                                <strong>I couldn't find that email.</strong><br>
+                                <span><code class="ai-code">{{ ai_email }}</code> isn't registered with NPDC.
+                                    <a href="{% url 'users:register' %}" class="ai-link">Create an account?</a></span>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
 
 
@@ -75,7 +88,7 @@
                             <label for="id_password" class="form-label fw-semibold">
                                 <i class="fas fa-key me-2"></i>Password
                             </label>
-                            <a href="#" class="text-decoration-none small text-primary">
+                            <a href="{% url 'users:forgot_password' %}" class="text-decoration-none small text-primary">
                                 Forgot Password?
                             </a>
                         </div>
@@ -92,6 +105,20 @@
                         <div class="invalid-feedback">
                             Please enter your password.
                         </div>
+
+                        <!-- AI: wrong password bubble -->
+                        {% if ai_message == 'suggest_reset' %}
+                        <div class="ai-field-bubble ai-bubble-info mt-2" role="alert">
+                            <div class="ai-bubble-caret ai-caret-info"></div>
+                            <span class="ai-bubble-icon">🐧</span>
+                            <div>
+                                <strong>Password doesn't match.</strong><br>
+                                <span>We found <code class="ai-code">{{ ai_email }}</code> in our database.
+                                    <a href="{% url 'users:forgot_password' %}" class="ai-link ai-link-info">Reset your
+                                        password &rarr;</a></span>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Remember Me -->
@@ -164,6 +191,120 @@
         padding: 1.8rem 2rem;
         box-shadow: var(--shadow-xl);
         border: 1px solid var(--medium-gray);
+    }
+
+    /* ---- AI Field Bubbles ---- */
+    @keyframes aiBubbleIn {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .ai-field-bubble {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 0.83rem;
+        line-height: 1.45;
+        animation: aiBubbleIn 0.3s ease both;
+        margin-bottom: 2px;
+    }
+
+    /* Caret pointing UP (↑) at the field it belongs to */
+    .ai-bubble-caret {
+        position: absolute;
+        top: -8px;
+        left: 18px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #ffc10788;
+        /* default amber, overridden per variant */
+    }
+
+    /* Warning variant — amber/yellow for "email not found" */
+    .ai-bubble-warning {
+        background: #fff8e1;
+        border: 1.5px solid #ffc107;
+    }
+
+    .ai-bubble-warning .ai-bubble-caret {
+        border-bottom-color: #ffc107;
+    }
+
+    .ai-bubble-warning strong {
+        color: #7a5c00;
+    }
+
+    .ai-bubble-warning span {
+        color: #5a4200;
+    }
+
+    /* Info variant — teal/blue for "suggest reset" */
+    .ai-bubble-info {
+        background: #e8f4fd;
+        border: 1.5px solid #0ea5d8;
+    }
+
+    .ai-bubble-info .ai-bubble-caret {
+        border-bottom-color: #0ea5d8;
+    }
+
+    .ai-bubble-info strong {
+        color: #064e6f;
+    }
+
+    .ai-bubble-info span {
+        color: #0a4060;
+    }
+
+    /* Robot icon */
+    .ai-bubble-icon {
+        font-size: 1.2rem;
+        line-height: 1;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    /* Inline code inside bubble */
+    .ai-code {
+        background: rgba(0, 0, 0, .06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        color: inherit;
+        word-break: break-all;
+    }
+
+    /* Links inside bubble */
+    .ai-link {
+        color: #7a5c00;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .ai-link:hover {
+        color: #4e3a00;
+    }
+
+    .ai-link-info {
+        color: #064e6f;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .ai-link-info:hover {
+        color: #032a3e;
     }
 
     .login-icon {
