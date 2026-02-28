@@ -11,10 +11,11 @@ from django.http import Http404
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db.models import Q
 import json
 import logging
+import os
 
 from .forms import PaleoTemporalCoverageForm
 from django.http import JsonResponse
@@ -427,29 +428,45 @@ def export_submission_xml(request, metadata_id):
     xml_data = serializers.serialize('xml', [submission])
     return HttpResponse(xml_data, content_type="application/xml")
 
+
+
 def get_data_view(request, metadata_id):
-    """View for the Get Data request form."""
+    """View for the Get Data request form.
+
+    When the form is submitted we **log** the request (for admins to review) and
+    immediately email the user the dataset PDF (and optionally cc superusers).
+    The previous approval/rejection flow has been removed.
+    """
     submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
-    from .forms import DatasetRequestForm # Import the form locally
-    
+    from .forms import DatasetRequestForm  # Import the form locally
+
+    form = None
     if request.method == "POST":
         form = DatasetRequestForm(request.POST)
         if form.is_valid():
-            # Save the valid form to the database
             dataset_request = form.save(commit=False)
             dataset_request.dataset = submission
-            
-            # Optional: if you want to track which logged-in user made the request, though not required
-            # if request.user.is_authenticated:
-            #     dataset_request.requester = request.user
-                
+            if request.user.is_authenticated:
+                dataset_request.requester = request.user
             dataset_request.save()
-            
+
+            # fire off email notifications (separate function makes testing easier)
+            send_dataset_request_email(dataset_request, request)
+
             # Redirect to success page
             return redirect('data_submission:get_data_success', metadata_id=submission.metadata_id)
     else:
-        form = DatasetRequestForm()
+        # pre-fill the name/email fields for logged-in users
+        if request.user.is_authenticated:
+            form = DatasetRequestForm(initial={
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'email': request.user.email,
+            })
+        else:
+            form = DatasetRequestForm()
 
+    # Render the form (GET or invalid POST)
     return render(
         request,
         'data_submission/get_data.html',
@@ -458,6 +475,85 @@ def get_data_view(request, metadata_id):
             'form': form,
         }
     )
+
+
+def send_dataset_request_email(dataset_request, request):
+    """Compose and send email when a dataset request is created.
+
+    """
+    submission = dataset_request.dataset
+    subject = f"NPDC Dataset Request: {submission.metadata_id}"
+
+    temp_range = ""
+    if submission.temporal_start_date and submission.temporal_end_date:
+        temp_range = f"{submission.temporal_start_date} - {submission.temporal_end_date}"
+    elif submission.temporal_start_date:
+        temp_range = str(submission.temporal_start_date)
+    elif submission.temporal_end_date:
+        temp_range = str(submission.temporal_end_date)
+
+    file_name = None
+    download_url = None
+    if submission.data_file:
+        file_name = os.path.basename(submission.data_file.name)
+        download_url = request.build_absolute_uri(submission.data_file.url)
+
+    body_lines = [
+        f"Dear {dataset_request.first_name} {dataset_request.last_name},",
+        "",
+        "The requested datasets are available for download:",
+        "",
+        f"Dataset: {submission.metadata_id} | {submission.title}" +
+            (f" | {temp_range}" if temp_range else ""),
+        "",
+    ]
+    if file_name:
+        body_lines.append(file_name)
+        if download_url:
+            body_lines.append(f"Please click on above file to download: {download_url}")
+        body_lines.append("")
+    else:
+        body_lines.append("No data file is currently attached; please contact the administrator if you believe this is an error.")
+        body_lines.append("")
+
+    body_lines.extend([
+        "Please note the following:-",
+        "The datasets must be formally cited as the National Polar Data Center, including the URL (https://npdc.ncpor.res.in/), in any scientific publication that utilizes or incorporates these datasets.",
+        "The datasets should not be shared with others, however, the NPDC URL (https://npdc.ncpor.res.in/) may be shared for the purpose of downloading the datasets.",
+        "",
+        "Sincerely,",
+        "",
+        "PDSS Team",
+        "National Polar Data Center",
+        "https://npdc.ncpor.res.in",
+        "",
+        "Note: This is a system generated mail. Please do not reply to this mail",
+    ])
+
+    message = "\n".join(body_lines)
+    admin_emails = list(User.objects.filter(is_superuser=True).values_list('email', flat=True))
+
+    mail = EmailMultiAlternatives(
+        subject=subject,
+        body=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[dataset_request.email],
+        cc=admin_emails,
+    )
+
+    if submission.data_file:
+        try:
+            mail.attach_file(submission.data_file.path)
+        except Exception:
+            pass
+
+    try:
+        mail.send()
+    except Exception as e:
+        print(f"Failed to send dataset email: {e}")
+
+    # helper does not render anything; the caller handles responses
+    # return value intentionally omitted
 
 def get_data_success_view(request, metadata_id):
     """View for the Get Data success message."""
@@ -1363,61 +1459,62 @@ def admin_data_requests_view(request):
         }
     )
 
-from django.core.mail import send_mail
-from django.conf import settings
+# removed email-related imports; approval flow no longer sends mail
 
-@user_passes_test(is_admin)
-def admin_approve_data_request(request, request_id):
-    """Admin view to approve a request and email the user."""
-    req = get_object_or_404(DatasetRequest, id=request_id)
-    
-    if request.method == 'POST':
-        req.status = 'approved'
-        req.reviewed_by = request.user
-        req.reviewed_at = timezone.now()
-        req.save()
-        
-        # Prepare the download link
-        if req.dataset.data_file:
-            download_url = request.build_absolute_uri(req.dataset.data_file.url)
-            link_text = f"Download Link: {download_url}"
-        else:
-            link_text = "This dataset does not currently have a downloadable file attached. Please contact the administrator for manual access."
-
-        # Compile and send the email
-        subject = f"Dataset Request Approved: {req.dataset.metadata_id}"
-        message = (
-            f"Dear {req.first_name} {req.last_name},\n\n"
-            f"Your request to download the dataset '{req.dataset.title}' ({req.dataset.metadata_id}) has been APPROVED.\n\n"
-            f"{link_text}\n\n"
-            f"Thank you,\nNational Polar Data Center"
-        )
-        
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@npdc.ncpor.res.in',
-                [req.email],
-                fail_silently=False,
-            )
-            messages.success(request, f"Request from {req.first_name} {req.last_name} approved! An email with the download link has been sent to {req.email}.")
-        except Exception as e:
-            messages.warning(request, f"Request approved, but failed to send email: {str(e)}")
-        
-    return redirect('data_submission:admin_data_requests')
-
-@user_passes_test(is_admin)
-def admin_reject_data_request(request, request_id):
-    """Admin view to reject a request."""
-    req = get_object_or_404(DatasetRequest, id=request_id)
-    
-    if request.method == 'POST':
-        req.status = 'rejected'
-        req.reviewed_by = request.user
-        req.reviewed_at = timezone.now()
-        req.save()
-        
-        messages.warning(request, f"Request from {req.first_name} {req.last_name} has been rejected.")
-        
-    return redirect('data_submission:admin_data_requests')
+# decorator left behind when functions were commented out
+# @user_passes_test(is_admin)
+# def admin_approve_data_request(request, request_id):
+#     """Admin view to approve a request and email the user."""
+#     req = get_object_or_404(DatasetRequest, id=request_id)
+#     
+#     if request.method == 'POST':
+#         req.status = 'approved'
+#         req.reviewed_by = request.user
+#         req.reviewed_at = timezone.now()
+#         req.save()
+#         
+#         # Prepare the download link
+#         if req.dataset.data_file:
+#             download_url = request.build_absolute_uri(req.dataset.data_file.url)
+#             link_text = f"Download Link: {download_url}"
+#         else:
+#             link_text = "This dataset does not currently have a downloadable file attached. Please contact the administrator for manual access."
+# 
+#         # Compile and send the email
+#         subject = f"Dataset Request Approved: {req.dataset.metadata_id}"
+#         message = (
+#             f"Dear {req.first_name} {req.last_name},\n\n"
+#             f"Your request to download the dataset '{req.dataset.title}' ({req.dataset.metadata_id}) has been APPROVED.\n\n"
+#             f"{link_text}\n\n"
+#             f"Thank you,\nNational Polar Data Center"
+#         )
+#         
+#         try:
+#             send_mail(
+#                 subject,
+#                 message,
+#                 settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@npdc.ncpor.res.in',
+#                 [req.email],
+#                 fail_silently=False,
+#             )
+#             messages.success(request, f"Request from {req.first_name} {req.last_name} approved! An email with the download link has been sent to {req.email}.")
+#         except Exception as e:
+#             messages.warning(request, f"Request approved, but failed to send email: {str(e)}")
+#         
+#     return redirect('data_submission:admin_data_requests')
+# 
+# # decorator left behind
+# # @user_passes_test(is_admin)
+# def admin_reject_data_request(request, request_id):
+#     """Admin view to reject a request."""
+#     req = get_object_or_404(DatasetRequest, id=request_id)
+#     
+#     if request.method == 'POST':
+#         req.status = 'rejected'
+#         req.reviewed_by = request.user
+#         req.reviewed_at = timezone.now()
+#         req.save()
+#         
+#         messages.warning(request, f"Request from {req.first_name} {req.last_name} has been rejected.")
+#         
+#     return redirect('data_submission:admin_data_requests')

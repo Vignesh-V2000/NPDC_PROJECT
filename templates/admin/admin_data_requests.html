@@ -34,8 +34,7 @@
                                     <th class="py-3 px-4 rounded-top-start w-25">Requester</th>
                                     <th class="py-3 w-25">Dataset Requested</th>
                                     <th class="py-3">Purpose</th>
-                                    <th class="py-3">Status</th>
-                                    <th class="py-3 text-end px-4 rounded-top-end w-25">Actions</th>
+                                    <!-- status/actions removed; log-only view -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,6 +48,9 @@
                                         <div class="text-muted" style="font-size: 0.8rem;">
                                             <i class="fas fa-university me-1"></i>{{ req.institute }} ({{ req.country }})
                                         </div>
+                                        {% if req.requester %}
+                                        <div class="text-muted small">Account: {{ req.requester.username }}</div>
+                                        {% endif %}
                                     </td>
                                     <td class="py-3">
                                         <a href="{% url 'data_submission:view_submission' req.dataset.metadata_id %}" target="_blank" class="fw-bold text-primary text-decoration-none hover-underline">{{ req.dataset.metadata_id }}</a>
@@ -63,40 +65,11 @@
                                             {{ req.purpose }}
                                         </div>
                                     </td>
-                                    <td class="py-3">
-                                        <span class="badge rounded-pill
-                                            {% if req.status == 'pending' %}bg-warning text-dark
-                                            {% elif req.status == 'approved' %}bg-success
-                                            {% elif req.status == 'rejected' %}bg-danger{% endif %}">
-                                            {{ req.get_status_display|upper }}
-                                        </span>
-                                    </td>
-                                    <td class="text-end px-4 py-3">
-                                        {% if req.status == 'pending' %}
-                                        <div class="d-flex gap-2 justify-content-end">
-                                            <form method="POST" action="{% url 'data_submission:admin_approve_data_request' req.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-success fw-bold">
-                                                    <i class="fas fa-check me-1"></i> Approve
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{% url 'data_submission:admin_reject_data_request' req.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">
-                                                    <i class="fas fa-times me-1"></i> Reject
-                                                </button>
-                                            </form>
-                                        </div>
-                                        {% else %}
-                                        <div class="text-muted small text-end">
-                                            Reviewed by {{ req.reviewed_by.username }}<br>on {{ req.reviewed_at|date:"M d, Y" }}
-                                        </div>
-                                        {% endif %}
-                                    </td>
+
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
+                                    <td colspan="3" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 text-light"></i>
                                         <h5>No data requests found.</h5>
                                     </td>

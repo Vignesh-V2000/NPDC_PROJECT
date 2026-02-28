@@ -44,6 +44,6 @@ urlpatterns = [
         name='admin_edit_submission'
     ),
     path('admin/data-requests/', views.admin_data_requests_view, name='admin_data_requests'),
-    path('admin/data-requests/<int:request_id>/approve/', views.admin_approve_data_request, name='admin_approve_data_request'),
-    path('admin/data-requests/<int:request_id>/reject/', views.admin_reject_data_request, name='admin_reject_data_request'),
+    # approval/rejection endpoints removed; requests are logged only
+
 ]

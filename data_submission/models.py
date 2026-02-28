@@ -653,6 +653,17 @@ class DatasetRequest(models.Model):
     ]
 
     dataset = models.ForeignKey(DatasetSubmission, on_delete=models.CASCADE, related_name='download_requests')
+
+    # if the requester is a logged in django user we can link it here; otherwise the
+    # form fields capture their name and contact details.
+    requester = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='dataset_requests',
+        help_text="Optional link to the user account that made this request."
+    )
     
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -665,6 +676,9 @@ class DatasetRequest(models.Model):
     agree_cite = models.BooleanField(default=False)
     agree_share = models.BooleanField(default=False)
     
+    # The approval workflow has been removed. The status and review fields are
+    # left in the model for backwards compatibility but are no longer used by the
+    # admin interface. They could eventually be dropped via a migration.
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     request_date = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
@@ -676,7 +690,11 @@ class DatasetRequest(models.Model):
         verbose_name_plural = 'Dataset Download Requests'
 
     def __str__(self):
-        return f"Request by {self.first_name} {self.last_name} for {self.dataset.metadata_id}"
+        parts = [f"Request by {self.first_name} {self.last_name}"]
+        if self.requester:
+            parts.append(f"(user {self.requester.username})")
+        parts.append(f"for {self.dataset.metadata_id}")
+        return " ".join(parts)
 
 
 class LegacyUser(models.Model):
