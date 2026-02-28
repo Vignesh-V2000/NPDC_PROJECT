@@ -10,6 +10,7 @@ from django.core.validators import (
     RegexValidator
 )
 import datetime
+import hashlib
 
 
 # Create custom validators for letters-only fields
@@ -101,9 +102,12 @@ class DatasetSubmission(models.Model):
         ('complete', 'Complete'),
     ]
 
+    # Add these new status choices
     STATUS_CHOICES = [
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
+        ('under_review', 'Under Review'),
+        ('revision', 'Needs Revision'),
         ('published', 'Published'),
     ]
 
@@ -113,10 +117,42 @@ class DatasetSubmission(models.Model):
     # IDENTIFICATION (EXACT JSP LIMITS)
     # ===============================
 
+    metadata_id = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Legacy metadata ID (e.g. MF-725396532)",
+        verbose_name="Metadata ID"
+    )
+
     title = models.CharField(max_length=220)  # JSP: maxSize[220]
     abstract = models.TextField(max_length=1000)  # JSP: maxSize[1000]
     purpose = models.TextField(max_length=1000)  # JSP: maxSize[1000]
     version = models.CharField(max_length=50, default="1.0")
+
+    metadata_name = models.CharField(max_length=500, blank=True)
+    quality = models.TextField(blank=True)
+    access_constraints = models.TextField(blank=True)
+    use_constraints = models.TextField(blank=True)
+    distribution_media = models.CharField(max_length=200, blank=True)
+    distribution_size = models.CharField(max_length=100, blank=True)
+    distribution_format = models.CharField(max_length=100, blank=True)
+    distribution_fees = models.CharField(max_length=100, blank=True)
+    data_set_language = models.CharField(max_length=100, blank=True)
+    related_url_content_type = models.CharField(max_length=200, blank=True)
+    related_url = models.URLField(blank=True, max_length=1000)
+    related_url_description = models.TextField(blank=True)
+    dif_revision_history = models.TextField(blank=True)
+    originating_center = models.CharField(max_length=200, blank=True)
+    multimedia_sample_url = models.URLField(blank=True, max_length=1000)
+    multimedia_sample_format = models.CharField(max_length=100, blank=True)
+    parent_dif = models.CharField(max_length=200, blank=True)
+    internal_directory_name = models.CharField(max_length=500, blank=True)
+    dif_creation_date = models.CharField(max_length=100, blank=True)
+    last_dif_revision_date = models.CharField(max_length=100, blank=True)
+    future_dif_review_date = models.CharField(max_length=100, blank=True)
+    privacy_status = models.CharField(max_length=100, blank=True)
 
     keywords = models.TextField(
         max_length=1000,
@@ -253,6 +289,12 @@ class DatasetSubmission(models.Model):
             current_year = datetime.date.today().year
             self.expedition_year = f"{current_year}-{current_year+1}"
         
+        # Auto-generate metadata_id for new datasets if not already set
+        if not self.metadata_id:
+            raw = f"{self.title}-{datetime.datetime.now().isoformat()}"
+            hash_val = hashlib.md5(raw.encode()).hexdigest()[:10]
+            self.metadata_id = f"MF{hash_val}"
+        
         super().save(*args, **kwargs)
 
     def clean(self):
@@ -339,6 +381,7 @@ class DatasetCitation(models.Model):
     release_place = models.CharField(max_length=100)
     version = models.CharField(max_length=50, blank=True)
     online_resource = models.URLField(blank=True)
+    presentation_form = models.CharField(max_length=200, blank=True)
 
     class Meta:
         verbose_name = "Dataset Citation"
@@ -373,11 +416,14 @@ class ScientistDetail(models.Model):
 
     institute = models.TextField(max_length=200)
     address = models.TextField(max_length=200)
+    address2 = models.TextField(max_length=200, blank=True)
     city = models.CharField(max_length=50)
 
-    country = CountryField(blank_label='Select Country')
+    country = CountryField(blank_label='Select Country', blank=True, null=True)
+    country_raw = models.CharField(max_length=100, blank=True, help_text="Legacy raw country string")
     state = models.CharField(max_length=100)
 
+    fax = models.CharField(max_length=50, blank=True)
 
     postal_code = models.CharField(
         max_length=10,
@@ -433,6 +479,33 @@ class GPSMetadata(models.Model):
     maximum_altitude = models.CharField(max_length=50, blank=True)
     minimum_depth = models.CharField(max_length=50, blank=True)
     maximum_depth = models.CharField(max_length=50, blank=True)
+
+    # Alternate projections (g_, p_)
+    g_southernmost_latitude_deg = models.CharField(max_length=50, blank=True)
+    g_southernmost_latitude_min = models.CharField(max_length=50, blank=True)
+    g_southernmost_latitude_sec = models.CharField(max_length=50, blank=True)
+    g_northernmost_latitude_deg = models.CharField(max_length=50, blank=True)
+    g_northernmost_latitude_min = models.CharField(max_length=50, blank=True)
+    g_northernmost_latitude_sec = models.CharField(max_length=50, blank=True)
+    g_westernmost_longitude_deg = models.CharField(max_length=50, blank=True)
+    g_westernmost_longitude_min = models.CharField(max_length=50, blank=True)
+    g_westernmost_longitude_sec = models.CharField(max_length=50, blank=True)
+    g_easternmost_longitude_deg = models.CharField(max_length=50, blank=True)
+    g_easternmost_longitude_min = models.CharField(max_length=50, blank=True)
+    g_easternmost_longitude_sec = models.CharField(max_length=50, blank=True)
+
+    p_southernmost_latitude_deg = models.CharField(max_length=50, blank=True)
+    p_southernmost_latitude_min = models.CharField(max_length=50, blank=True)
+    p_southernmost_latitude_sec = models.CharField(max_length=50, blank=True)
+    p_northernmost_latitude_deg = models.CharField(max_length=50, blank=True)
+    p_northernmost_latitude_min = models.CharField(max_length=50, blank=True)
+    p_northernmost_latitude_sec = models.CharField(max_length=50, blank=True)
+    p_westernmost_longitude_deg = models.CharField(max_length=50, blank=True)
+    p_westernmost_longitude_min = models.CharField(max_length=50, blank=True)
+    p_westernmost_longitude_sec = models.CharField(max_length=50, blank=True)
+    p_easternmost_longitude_deg = models.CharField(max_length=50, blank=True)
+    p_easternmost_longitude_min = models.CharField(max_length=50, blank=True)
+    p_easternmost_longitude_sec = models.CharField(max_length=50, blank=True)
 
     def clean(self):
         """GPS-specific validation matching JSP rules"""
@@ -512,7 +585,12 @@ class DataResolutionMetadata(models.Model):
     )
 
     latitude_resolution = models.CharField(max_length=50, blank=True)
+    latitude_resolution_min = models.CharField(max_length=50, blank=True)
+    latitude_resolution_sec = models.CharField(max_length=50, blank=True)
+    
     longitude_resolution = models.CharField(max_length=50, blank=True)
+    longitude_resolution_min = models.CharField(max_length=50, blank=True)
+    longitude_resolution_sec = models.CharField(max_length=50, blank=True)
 
     horizontal_resolution_range = models.CharField(max_length=50, blank=True)
 
@@ -563,3 +641,107 @@ class State(models.Model):
 
     def __str__(self):
         return self.name
+
+class DatasetRequest(models.Model):
+    """
+    Model to track user requests for downloading a specific dataset.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    dataset = models.ForeignKey(DatasetSubmission, on_delete=models.CASCADE, related_name='download_requests')
+    
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    institute = models.CharField(max_length=200)
+    country = models.CharField(max_length=100)
+    research_area = models.CharField(max_length=200)
+    purpose = models.TextField()
+    
+    agree_cite = models.BooleanField(default=False)
+    agree_share = models.BooleanField(default=False)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    request_date = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_data_requests')
+
+    class Meta:
+        ordering = ['-request_date']
+        verbose_name = 'Dataset Download Request'
+        verbose_name_plural = 'Dataset Download Requests'
+
+    def __str__(self):
+        return f"Request by {self.first_name} {self.last_name} for {self.dataset.metadata_id}"
+
+
+class LegacyUser(models.Model):
+    user_name = models.CharField(max_length=200, blank=True, null=True)
+    user_id = models.CharField(max_length=200, unique=True)
+    user_password = models.CharField(max_length=200)
+    user_role = models.CharField(max_length=50, blank=True, null=True)
+    account_status = models.CharField(max_length=50, blank=True, null=True)
+    created_by = models.CharField(max_length=200, blank=True, null=True)
+    created_ts = models.CharField(max_length=100, blank=True, null=True)
+    updated_by = models.CharField(max_length=200, blank=True, null=True)
+    updated_ts = models.CharField(max_length=100, blank=True, null=True)
+    data_access_id = models.CharField(max_length=200, blank=True, null=True)
+    designation = models.CharField(max_length=200, blank=True, null=True)
+    organisation = models.CharField(max_length=200, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    e_mail = models.CharField(max_length=200, blank=True, null=True)
+    phone_number = models.CharField(max_length=100, blank=True, null=True)
+    emailvarified = models.CharField(max_length=50, blank=True, null=True)
+    emailtoken = models.CharField(max_length=500, blank=True, null=True)
+    url = models.CharField(max_length=200, blank=True, null=True)
+    ppurl = models.CharField(max_length=200, blank=True, null=True)
+    title = models.CharField(max_length=100, blank=True, null=True)
+    known_as = models.CharField(max_length=200, blank=True, null=True)
+    alt_mobile_no = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Legacy User"
+        verbose_name_plural = "Legacy Users"
+
+    def __str__(self):
+        return self.user_id
+
+class DataCenter(models.Model):
+    dataset = models.ForeignKey(DatasetSubmission, on_delete=models.CASCADE, related_name='data_centers')
+    dc_short_name = models.CharField(max_length=200, blank=True, null=True)
+    dc_long_name = models.CharField(max_length=500, blank=True, null=True)
+    dc_url = models.CharField(max_length=1000, blank=True, null=True)
+    dc_address1 = models.TextField(blank=True, null=True)
+    dc_address2 = models.TextField(blank=True, null=True)
+    dc_city = models.CharField(max_length=200, blank=True, null=True)
+    dc_state = models.CharField(max_length=200, blank=True, null=True)
+    dc_postal_code = models.CharField(max_length=100, blank=True, null=True)
+    dc_country = models.CharField(max_length=200, blank=True, null=True)
+    dc_email = models.CharField(max_length=200, blank=True, null=True)
+    dc_phone = models.CharField(max_length=100, blank=True, null=True)
+    dc_fax = models.CharField(max_length=100, blank=True, null=True)
+
+class Reference(models.Model):
+    dataset = models.ForeignKey(DatasetSubmission, on_delete=models.CASCADE, related_name='references')
+    ref_author = models.TextField(blank=True, null=True)
+    ref_publication_date = models.CharField(max_length=100, blank=True, null=True)
+    ref_title = models.TextField(blank=True, null=True)
+    ref_series = models.TextField(blank=True, null=True)
+    ref_report_number = models.CharField(max_length=200, blank=True, null=True)
+    ref_publication_place = models.CharField(max_length=200, blank=True, null=True)
+    ref_publisher = models.CharField(max_length=200, blank=True, null=True)
+    ref_online_resource = models.TextField(blank=True, null=True)
+
+class NPDCMaster(models.Model):
+    dataset = models.OneToOneField(DatasetSubmission, on_delete=models.CASCADE, related_name='npdc_master')
+    master_id = models.IntegerField(null=True, blank=True)
+    fileinfo_id = models.CharField(max_length=200, blank=True, null=True)
+    data_status = models.CharField(max_length=100, blank=True, null=True)
+    data_ref_id = models.CharField(max_length=200, blank=True, null=True)
+    created_by = models.CharField(max_length=200, blank=True, null=True)
+    updated_by = models.CharField(max_length=200, blank=True, null=True)
+    metadata_status = models.CharField(max_length=100, blank=True, null=True)

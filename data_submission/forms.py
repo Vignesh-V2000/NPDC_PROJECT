@@ -245,6 +245,7 @@ class DatasetUploadForm(forms.ModelForm):
 
 class DatasetCitationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault('prefix', 'citation')
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -491,4 +492,16 @@ class DatasetFilesForm(forms.ModelForm):
                 raise ValidationError("File size too large (Max 500MB).")
         return file
 
+from captcha.fields import CaptchaField
+from .models import DatasetRequest
 
+class DatasetRequestForm(forms.ModelForm):
+    captcha = CaptchaField()
+
+    class Meta:
+        model = DatasetRequest
+        fields = [
+            'first_name', 'last_name', 'email', 
+            'institute', 'country', 'research_area', 'purpose',
+            'agree_cite', 'agree_share'
+        ]

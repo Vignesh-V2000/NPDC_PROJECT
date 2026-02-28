@@ -6,22 +6,22 @@
 
 {% block content %}
 <style>
-    .container {
+    .submission-container {
         color: #333333;
     }
     
-    .container h2,
-    .container h3,
-    .container h4,
-    .container h5,
-    .container h6 {
+    .submission-container h2,
+    .submission-container h3,
+    .submission-container h4,
+    .submission-container h5,
+    .submission-container h6 {
         color: var(--primary-blue) !important;
     }
     
-    .container p,
-    .container span,
-    .container label,
-    .container div {
+    .submission-container p,
+    .submission-container span,
+    .submission-container label,
+    .submission-container div {
         color: #333333;
     }
     
@@ -55,7 +55,7 @@
         color: #333333;
     }
 </style>
-<div class="container py-4">
+<div class="container submission-container py-4">
     <div class="card shadow-sm border-0">
         <div class="card-body p-5">
             <h2 class="mb-4 text-secondary fw-bold">Submit New Dataset</h2>
@@ -240,6 +240,9 @@
                                     🐧 Generate Purpose
                                 </button>
                             </div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ dataset_form.version|as_crispy_field }}
                         </div>
                     </div>
                 </fieldset>

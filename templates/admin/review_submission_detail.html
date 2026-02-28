@@ -1,362 +1,682 @@
 {% extends "base.html" %}
-{% block title %}Review Submission - NPDC{% endblock %}
+{% load static %}
+{% block title %}Review: {{ submission.title }} - NPDC{% endblock %}
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-lg-3">
-            {% include 'admin/includes/admin_sidebar.html' %}
-        </div>
-        <div class="col-lg-9">
-            <div class="row">
-                <div class="col-lg-8">
-                    <nav aria-label="breadcrumb" class="mb-3">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'data_submission:review_submissions' %}">Review
-                                    List</a></li>
-                            <li class="breadcrumb-item active">Dataset #{{ submission.id }}</li>
-                        </ol>
-                    </nav>
-                    <h4 class="fw-bold">Title</h4>
-                    <p>{{ submission.title }}</p>
-                    <h4 class="fw-bold">Abstract</h4>
-                    <p>{{ submission.abstract }}</p>
-                    <h4 class="fw-bold">Purpose</h4>
-                    <p>{{ submission.purpose }}</p>
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Basic Information</h5>
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Submitter</td>
-                            <td>: {{ submission.submitter.first_name }} {{ submission.submitter.last_name }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Submission Date</td>
-                            <td>: {{ submission.submission_date|date:"d/m/Y" }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Status</td>
-                            <td>:
-                                {% if submission.status == 'published' %}
-                                <span class="badge bg-success">{{ submission.status|title }}</span>
-                                {% elif submission.status == 'submitted' %}
-                                <span class="badge bg-warning">{{ submission.status|title }}</span>
-                                {% else %}
-                                <span class="badge bg-secondary">{{ submission.status|title }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Keywords</td>
-                            <td>: {{ submission.keywords }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Topic</td>
-                            <td>: {{ submission.topic }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Data Center</td>
-                            <td>: {{ submission.data_center }}</td>
-                        </tr>
-                    </table>
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Expedition & Project</h5>
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Expedition Type</td>
-                            <td>: {{ submission.expedition_type }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Expedition Year</td>
-                            <td>: {{ submission.expedition_year }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Expedition Number</td>
-                            <td>: {{ submission.expedition_number }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Project Number</td>
-                            <td>: {{ submission.project_number }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Project Name</td>
-                            <td>: {{ submission.project_name }}</td>
-                        </tr>
-                    </table>
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Classification</h5>
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Category</td>
-                            <td>: {{ submission.category }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">ISO Topic</td>
-                            <td>: {{ submission.iso_topic }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Dataset Progress</td>
-                            <td>: {{ submission.data_set_progress }}</td>
-                        </tr>
-                    </table>
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Temporal & Spatial Coverage</h5>
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Start Date</td>
-                            <td>: {{ submission.temporal_start_date|date:"d/m/Y" }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">End Date</td>
-                            <td>: {{ submission.temporal_end_date|date:"d/m/Y" }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">North Latitude</td>
-                            <td>: {{ submission.north_latitude }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">South Latitude</td>
-                            <td>: {{ submission.south_latitude }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">East Longitude</td>
-                            <td>: {{ submission.east_longitude }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">West Longitude</td>
-                            <td>: {{ submission.west_longitude }}</td>
-                        </tr>
-                    </table>
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Contact Information</h5>
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Contact Person</td>
-                            <td>: {{ submission.contact_person }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Contact Email</td>
-                            <td>: {{ submission.contact_email }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Contact Phone</td>
-                            <td>: {{ submission.contact_phone }}</td>
-                        </tr>
-                    </table>
-
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Dataset Citation</h5>
-                    {% if submission.citation %}
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Creator</td>
-                            <td>: {{ submission.citation.creator }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Editor</td>
-                            <td>: {{ submission.citation.editor }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Title</td>
-                            <td>: {{ submission.citation.title }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Series Name</td>
-                            <td>: {{ submission.citation.series_name }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Release Date</td>
-                            <td>: {{ submission.citation.release_date }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Release Place</td>
-                            <td>: {{ submission.citation.release_place }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Version</td>
-                            <td>: {{ submission.citation.version }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Online Resource</td>
-                            <td>: {{ submission.citation.online_resource }}</td>
-                        </tr>
-                    </table>
-                    {% else %}
-                    <p class="text-muted">No citation details available.</p>
-                    {% endif %}
-
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Scientist Details</h5>
-                    {% for scientist in submission.scientists.all %}
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">Scientist #{{ forloop.counter }}</div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6"><strong>Name:</strong> {{ scientist.title }} {{
-                                    scientist.first_name }} {{ scientist.middle_name }} {{ scientist.last_name }}</div>
-                                <div class="col-md-6"><strong>Role:</strong> {{ scientist.role }}</div>
-                                <div class="col-md-6"><strong>Email:</strong> {{ scientist.email }}</div>
-                                <div class="col-md-6"><strong>Phone:</strong> {{ scientist.phone }}</div>
-                                <div class="col-12 mt-2"><strong>Institute:</strong> {{ scientist.institute }}</div>
-                                <div class="col-12"><strong>Address:</strong> {{ scientist.address }}, {{ scientist.city
-                                    }}, {{ scientist.state }}, {{ scientist.country }} - {{ scientist.postal_code }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p class="text-muted">No scientist details available.</p>
-                    {% endfor %}
-
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Instrument Details</h5>
-                    {% for instrument in submission.instruments.all %}
-                    <div class="mb-2">
-                        <strong>{{ instrument.short_name }}</strong>: {{ instrument.long_name }}
-                    </div>
-                    {% empty %}
-                    <p class="text-muted">No instrument details available.</p>
-                    {% endfor %}
-
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">GPS & Paleo-Temporal</h5>
-                    {% if submission.gps %}
-                    <p><strong>GPS Used:</strong> {{ submission.gps.gps_used|yesno:"Yes,No" }}</p>
-                    {% if submission.gps.gps_used %}
-                    <table class="table table-borderless table-sm">
-                        <tr>
-                            <td style="width:200px">Altitude (Min/Max)</td>
-                            <td>: {{ submission.gps.minimum_altitude }} / {{ submission.gps.maximum_altitude }}</td>
-                        </tr>
-                        <tr>
-                            <td>Depth (Min/Max)</td>
-                            <td>: {{ submission.gps.minimum_depth }} / {{ submission.gps.maximum_depth }}</td>
-                        </tr>
-                    </table>
-                    {% endif %}
-                    {% endif %}
-
-                    {% if submission.paleo_temporal %}
-                    <p class="mt-2"><strong>Paleo-Temporal Coverage:</strong></p>
-                    <table class="table table-borderless table-sm">
-                        <tr>
-                            <td style="width:200px">Start Date</td>
-                            <td>: {{ submission.paleo_temporal.paleo_start_date }}</td>
-                        </tr>
-                        <tr>
-                            <td>Stop Date</td>
-                            <td>: {{ submission.paleo_temporal.paleo_stop_date }}</td>
-                        </tr>
-                        <tr>
-                            <td>Chronostratigraphic Unit</td>
-                            <td>: {{ submission.paleo_temporal.chronostratigraphic_unit }}</td>
-                        </tr>
-                    </table>
-                    {% endif %}
-
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Location Metadata</h5>
-                    {% if submission.location %}
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="fw-bold" style="width:200px">Category</td>
-                            <td>: {{ submission.location.location_category }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Type</td>
-                            <td>: {{ submission.location.location_type }}</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-bold">Subregion</td>
-                            <td>: {{ submission.location.location_subregion }}</td>
-                        </tr>
-                    </table>
-                    {% endif %}
-
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Data Resolution</h5>
-                    {% if submission.resolution %}
-                    <table class="table table-borderless">
-                        <td>: {{ submission.resolution.temporal_resolution }} (Range: {{
-                            submission.resolution.temporal_resolution_range }})</td>
-                        </tr>
-                    </table>
-                    {% endif %}
-                </div>
-                <div class="col-lg-4">
-                    <!-- 🐧 AI Reviewer Assistant -->
-                    <div class="card mb-3" id="ai-review-panel">
-                        <div class="card-header bg-info bg-opacity-10 d-flex align-items-center justify-content-between">
-                            <span class="fw-bold text-info"><span style="font-size:1.1em">🐧</span> AI Review Assistant</span>
-                            <button type="button" class="btn btn-sm btn-outline-info" onclick="aiReviewAssist()" id="ai-review-btn">
-                                Analyze
-                            </button>
-                        </div>
-                        <div class="card-body py-2" id="ai-review-body">
-                            <small class="text-muted">Click "Analyze" for an AI-powered quality & completeness assessment.</small>
-                        </div>
-                    </div>
-
-                    <div class="card sticky-top" style="top:80px">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Admin Action</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if submission.status == 'submitted' %}
-                            <form method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="status" value="published">
-                                <p class="mb-3">Review the dataset details and click Publish to make it publicly
-                                    available.</p>
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-success btn-lg">
-                                        <i class="fas fa-globe me-2"></i>Publish Dataset
-                                    </button>
-                                    <a href="{% url 'data_submission:admin_edit_submission' submission.id %}"
-                                        class="btn btn-outline-secondary">
-                                        <i class="fas fa-edit me-2"></i>Edit Submission
-                                    </a>
-                                    <a href="{% url 'data_submission:review_submissions' %}"
-                                        class="btn btn-outline-dark">
-                                        <i class="fas fa-arrow-left me-2"></i>Back to List
-                                    </a>
-                                </div>
-                            </form>
-                            {% elif submission.status == 'published' %}
-                            <div class="alert alert-success mb-3">
-                                <i class="fas fa-check-circle me-2"></i>This dataset has been published.
-                            </div>
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'data_submission:review_submissions' %}" class="btn btn-outline-dark">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to List
-                                </a>
-                            </div>
-                            {% else %}
-                            <div class="alert alert-warning mb-3">
-                                <i class="fas fa-info-circle me-2"></i>This dataset is in draft status.
-                            </div>
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'data_submission:review_submissions' %}" class="btn btn-outline-dark">
-                                    <i class="fas fa-arrow-left me-2"></i>Back to List
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <style>
-    .table-borderless td {
-        padding: 0.25rem 0;
-        vertical-align: top
+    /* ═══════════════════════════════════════════
+       KPDC-Exact Dataset Detail Page (Admin Review)
+       ═══════════════════════════════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+    .kpdc-page {
+        background: white;
+        min-height: 100vh;
+        padding-bottom: 3rem;
+        font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
     }
+
+    .kpdc-breadcrumb-bar {
+        background: #fff;
+        border-bottom: 1px solid #ccd6e0;
+        padding: 0.6rem 0;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb a {
+        color: #004f87;
+        text-decoration: none;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .kpdc-title-section {
+        background: #fff;
+        padding: 1.75rem 0 1.5rem;
+    }
+
+    .kpdc-title-section h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a !important;
+        line-height: 1.35;
+        margin-bottom: 1.25rem;
+        font-family: 'Open Sans', sans-serif;
+        border-bottom: black 2px solid;
+    }
+
+    .kpdc-desc-box {
+        background: white;
+        border: 1px solid #d0dbe6;
+        padding: 1.25rem 1.5rem;
+        font-size: 0.92rem;
+        line-height: 1.75;
+        color: #2f2e2e;
+    }
+
+    .kpdc-desc-box .desc-label {
+        font-weight: 700;
+        color: black;
+        display: block;
+        margin-bottom: 0.2rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpdc-desc-box p {
+        color: #444;
+        margin-bottom: 0.75rem;
+        text-align: justify;
+    }
+
+    .kpdc-desc-box p:last-child {
+        margin-bottom: 0;
+    }
+
+    .kpdc-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 3px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpdc-status-badge.published { background: #d4edda; color: #155724; }
+    .kpdc-status-badge.submitted { background: #fff3cd; color: #856404; }
+    .kpdc-status-badge.draft { background: #e2e3e5; color: #383d41; }
+
+    .kpdc-content-card {
+        margin-top: 1.5rem;
+        overflow: hidden;
+    }
+
+    .kpdc-metadata-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #f9f9f9;
+    }
+
+    .kpdc-metadata-table tr {
+        border-bottom: 1px solid #d0dbe6;
+    }
+
+    .kpdc-metadata-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .kpdc-metadata-table td {
+        padding: 1rem 1.5rem;
+        font-size: 0.95rem;
+        color: #000000;
+        vertical-align: top;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-metadata-table td:first-child {
+        width: 240px;
+        font-weight: 700;
+        color: #0f2844;
+        white-space: nowrap;
+        position: relative;
+        padding-left: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .kpdc-metadata-table td:first-child::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #132d48;
+        font-size: 1.2rem;
+        line-height: 1;
+        top: 1rem;
+    }
+
+    .kpdc-metadata-table td:last-child {
+        color: #222121;
+    }
+
+    .kpdc-section-label {
+        padding: 0.85rem 1.5rem 0.85rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3a5c;
+        position: relative;
+        border-bottom: 1px solid #d0dbe6;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-section-label::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #1a3a5c;
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    .kpdc-personnel-email {
+        color: #004f87;
+    }
+
+    .kpdc-keyword-tag {
+        display: inline-block;
+        padding: 0.2rem 0.55rem;
+        margin: 0.15rem;
+        background: #dce6f0;
+        color: #1a3a5c;
+        border-radius: 2px;
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+
+    .kpdc-map-container {
+        width: 100%;
+        height: 350px;
+        overflow: hidden;
+        position: relative;
+        border: 2px solid #5ba3d9;
+    }
+
+    .kpdc-map-container #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .kpdc-files-table { width: 100%; border-collapse: collapse; }
+    .kpdc-files-table thead th { background: #2a3f5f; padding: 0.7rem 1rem; font-size: 0.85rem; font-weight: 700; color: #fff; text-align: center; }
+    .kpdc-files-table tbody td { padding: 0.75rem 1rem; font-size: 0.88rem; color: #444; border-bottom: 1px solid #d0dbe6; vertical-align: middle; text-align: center; background: #fff; }
+    .kpdc-files-table tbody tr:hover td { background: #f5f8fc; }
+    .kpdc-download-link { color: #004f87; text-decoration: none; font-weight: 500; }
+    .kpdc-download-link:hover { text-decoration: underline; color: #00a3eb; }
+
     .ai-review-issue { font-size: 0.85rem; padding: 2px 0; }
     .ai-review-score-bar { height: 8px; border-radius: 4px; }
     .ai-btn-loading { pointer-events: none; opacity: 0.7; }
+
+    @media (max-width: 991px) {
+        .kpdc-metadata-table td:first-child { width: 180px; }
+        .kpdc-title-section h1 { font-size: 1.4rem; }
+    }
+
+    @media (max-width: 767px) {
+        .kpdc-metadata-table td:first-child { width: auto; display: block; padding-bottom: 0; }
+        .kpdc-metadata-table td:last-child { display: block; padding-top: 0.25rem; padding-left: 2rem; }
+    }
+
+    /* Right-side admin action sidebar - sticky like admin panel */
+    .review-action-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+    @media (max-width: 991px) {
+        .review-action-sidebar {
+            position: static;
+            margin-bottom: 2rem;
+        }
+    }
 </style>
 
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <div class="col-xl-2 col-lg-2 mb-4 mb-lg-0">
+            {% include 'admin/includes/admin_sidebar.html' %}
+        </div>
+        <div class="col-xl-10 col-lg-10">
+
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb" style="font-size: 0.85rem;">
+                        <li class="breadcrumb-item"><a href="{% url 'data_submission:review_submissions' %}" style="color:#004f87;">Review Queue</a></li>
+                        <li class="breadcrumb-item active">{{ submission.metadata_id }}</li>
+                    </ol>
+                </nav>
+
+                <div class="row g-4">
+                    <!-- ═══════════ Left: KPDC Dataset Content (inside kpdc-page) ═══════════ -->
+                    <div class="col-lg-9">
+                      <div class="kpdc-page" style="padding: 1.5rem 2rem;">
+                        <!-- Title -->
+                        <h1 style="font-size:1.75rem; font-weight:700; color:#1a1a1a; line-height:1.35; margin-bottom:0.5rem; border-bottom: black 2px solid; padding-bottom: 0.75rem; font-family:'Open Sans',sans-serif;">
+                            {{ submission.title }}
+                        </h1>
+
+                        {% if submission.metadata_id %}
+                        <span class="badge bg-light text-secondary border font-monospace small mb-3 d-inline-block">{{ submission.metadata_id }}</span>
+                        {% endif %}
+
+                        <!-- Abstract / Purpose -->
+                        <div class="kpdc-desc-box mt-2">
+                            <span class="desc-label">Abstract:</span>
+                            <p>{{ submission.abstract }}</p>
+                            {% if submission.purpose %}
+                            <span class="desc-label">Purpose:</span>
+                            <p>{{ submission.purpose }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- ═══════ Core Metadata Table ═══════ -->
+                        <div class="kpdc-content-card">
+                            <table class="kpdc-metadata-table">
+                                <tr>
+                                    <td>Entry ID</td>
+                                    <td>{{ submission.metadata_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Submitter</td>
+                                    <td>{{ submission.submitter.first_name }} {{ submission.submitter.last_name }}
+                                        (<span class="kpdc-personnel-email">{{ submission.submitter.email }}</span>)</td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td>
+                                        <span class="kpdc-status-badge {{ submission.status }}">
+                                            {% if submission.status == 'published' %}<i class="fas fa-check-circle"></i>
+                                            {% elif submission.status == 'submitted' %}<i class="fas fa-clock"></i>
+                                            {% else %}<i class="fas fa-file-alt"></i>{% endif %}
+                                            {{ submission.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Submission Date</td>
+                                    <td>{{ submission.submission_date|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Last Updated</td>
+                                    <td>{{ submission.last_updated|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Science Keyword</td>
+                                    <td>
+                                        {% for kw in submission.keyword_list %}
+                                        <span class="kpdc-keyword-tag">{{ kw }}</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Topic</td>
+                                    <td>{{ submission.topic }}</td>
+                                </tr>
+                                <tr>
+                                    <td>ISO Topic</td>
+                                    <td>{{ submission.get_iso_topic_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Data Center</td>
+                                    <td>{{ submission.data_center }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- ═══════ Expedition & Project ═══════ -->
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Expedition & Project</div>
+                            <table class="kpdc-metadata-table">
+                                <tr>
+                                    <td>Expedition Type</td>
+                                    <td>{{ submission.get_expedition_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Expedition Year</td>
+                                    <td>{{ submission.expedition_year }}</td>
+                                </tr>
+                                {% if submission.expedition_number %}
+                                <tr>
+                                    <td>Expedition Number</td>
+                                    <td>{{ submission.expedition_number }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td>Project Number</td>
+                                    <td>{{ submission.project_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Project Name</td>
+                                    <td>{{ submission.project_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Category</td>
+                                    <td>{{ submission.get_category_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Dataset Progress</td>
+                                    <td>{{ submission.get_data_set_progress_display }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- ═══════ Temporal & Spatial Coverage ═══════ -->
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Temporal & Spatial Coverage</div>
+                            <table class="kpdc-metadata-table">
+                                <tr>
+                                    <td>Research Period</td>
+                                    <td>{{ submission.temporal_start_date|date:"Y-m-d" }} ~ {{ submission.temporal_end_date|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Spatial Coverage</td>
+                                    <td>
+                                        lat: {{ submission.south_latitude }}&deg; to {{ submission.north_latitude }}&deg;
+                                        &nbsp;&ndash;&nbsp;
+                                        lon: {{ submission.west_longitude }}&deg; to {{ submission.east_longitude }}&deg;
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- ═══════ Map ═══════ -->
+                        <div class="kpdc-content-card" style="margin-top: 0; border-top: none;">
+                            <div class="kpdc-map-container">
+                                <div id="map"></div>
+                            </div>
+                        </div>
+
+                        <!-- ═══════ Personnel / Contact ═══════ -->
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Personnel</div>
+                            <table class="kpdc-metadata-table">
+                                <tr>
+                                    <td>Contact Person</td>
+                                    <td>{{ submission.contact_person }}
+                                        {% if submission.contact_email %} (<span class="kpdc-personnel-email">{{ submission.contact_email }}</span>){% endif %}
+                                        {% if submission.contact_phone %}<br>Phone: {{ submission.contact_phone }}{% endif %}
+                                    </td>
+                                </tr>
+                                {% for scientist in submission.scientists.all %}
+                                <tr>
+                                    <td>Scientist #{{ forloop.counter }}</td>
+                                    <td>
+                                        <strong>{{ scientist.title }} {{ scientist.first_name }} {{ scientist.middle_name }} {{ scientist.last_name }}</strong>
+                                        ({{ scientist.role }})
+                                        {% if scientist.email %}<br><span class="kpdc-personnel-email">{{ scientist.email }}</span>{% endif %}
+                                        {% if scientist.phone %}<br>Phone: {{ scientist.phone }}{% endif %}
+                                        {% if scientist.institute %}<br>Institute: {{ scientist.institute }}{% endif %}
+                                        {% if scientist.address %}<br>{{ scientist.address }}, {{ scientist.city }}, {{ scientist.state }} {{ scientist.postal_code }}, {{ scientist.country }}{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+
+                        <!-- ═══════ Citation ═══════ -->
+                        {% if submission.citation %}
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Dataset Citation</div>
+                            <table class="kpdc-metadata-table">
+                                {% if submission.citation.creator %}
+                                <tr><td>Creator</td><td>{{ submission.citation.creator }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.editor %}
+                                <tr><td>Editor</td><td>{{ submission.citation.editor }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.title %}
+                                <tr><td>Title</td><td>{{ submission.citation.title }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.series_name %}
+                                <tr><td>Series Name</td><td>{{ submission.citation.series_name }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.release_date %}
+                                <tr><td>Release Date</td><td>{{ submission.citation.release_date }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.release_place %}
+                                <tr><td>Release Place</td><td>{{ submission.citation.release_place }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.version %}
+                                <tr><td>Version</td><td>{{ submission.citation.version }}</td></tr>
+                                {% endif %}
+                                {% if submission.citation.online_resource %}
+                                <tr><td>Online Resource</td><td><a href="{{ submission.citation.online_resource }}" target="_blank" style="color:#004f87;">{{ submission.citation.online_resource }}</a></td></tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        <!-- ═══════ Instruments ═══════ -->
+                        {% if submission.instruments.all %}
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Instruments</div>
+                            <table class="kpdc-metadata-table">
+                                {% for instrument in submission.instruments.all %}
+                                <tr>
+                                    <td>{{ instrument.short_name }}</td>
+                                    <td>{{ instrument.long_name }}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        <!-- ═══════ GPS & Paleo-Temporal ═══════ -->
+                        {% if submission.gps or submission.paleo_temporal %}
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">GPS & Paleo-Temporal</div>
+                            <table class="kpdc-metadata-table">
+                                {% if submission.gps and submission.gps.gps_used %}
+                                <tr><td>GPS Used</td><td>{{ submission.gps.gps_used|yesno:"Yes,No" }}</td></tr>
+                                <tr><td>Altitude (Min / Max)</td><td>{{ submission.gps.minimum_altitude }} / {{ submission.gps.maximum_altitude }}</td></tr>
+                                <tr><td>Depth (Min / Max)</td><td>{{ submission.gps.minimum_depth }} / {{ submission.gps.maximum_depth }}</td></tr>
+                                {% endif %}
+                                {% if submission.paleo_temporal %}
+                                <tr><td>Paleo Start Date</td><td>{{ submission.paleo_temporal.paleo_start_date }}</td></tr>
+                                <tr><td>Paleo Stop Date</td><td>{{ submission.paleo_temporal.paleo_stop_date }}</td></tr>
+                                <tr><td>Chronostratigraphic Unit</td><td>{{ submission.paleo_temporal.chronostratigraphic_unit }}</td></tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        <!-- ═══════ Location Metadata ═══════ -->
+                        {% if submission.location %}
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Location</div>
+                            <table class="kpdc-metadata-table">
+                                <tr>
+                                    <td>Location</td>
+                                    <td>
+                                        {% if submission.location.location_category %}{{ submission.location.location_category }}{% endif %}
+                                        {% if submission.location.location_type %} &gt; {{ submission.location.location_type }}{% endif %}
+                                        {% if submission.location.location_subregion %} &gt; {{ submission.location.location_subregion }}{% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        <!-- ═══════ Data Resolution ═══════ -->
+                        {% if submission.resolution %}
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">Data Resolution</div>
+                            <table class="kpdc-metadata-table">
+                                <tr><td>Latitude Resolution</td><td>{{ submission.resolution.latitude_resolution }}</td></tr>
+                                <tr><td>Longitude Resolution</td><td>{{ submission.resolution.longitude_resolution }}</td></tr>
+                                <tr><td>Horizontal Range</td><td>{{ submission.resolution.horizontal_resolution_range }}</td></tr>
+                                <tr><td>Vertical Resolution</td><td>{{ submission.resolution.vertical_resolution }} ({{ submission.resolution.vertical_resolution_range }})</td></tr>
+                                <tr><td>Temporal Resolution</td><td>{{ submission.resolution.temporal_resolution }} ({{ submission.resolution.temporal_resolution_range }})</td></tr>
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        <!-- ═══════ Raw Data / Files ═══════ -->
+                        {% if submission.data_file or submission.metadata_file or submission.readme_file %}
+                        <div class="kpdc-content-card">
+                            <div class="kpdc-section-label">
+                                <span>Raw Data</span>
+                                {% if submission.data_file and submission.file_size_mb %}
+                                <span style="font-weight:400;font-size:0.88rem;color:#666;">File Size</span>
+                                <span style="font-weight:700;color:#333;font-size:0.92rem;">{{ submission.file_size_mb }} MB</span>
+                                {% endif %}
+                            </div>
+                            <table class="kpdc-files-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>File Name</th>
+                                        <th>Size</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if submission.data_file %}
+                                    <tr>
+                                        <td>Rawdata</td>
+                                        <td>{{ submission.data_file.name|truncatechars:80 }}</td>
+                                        <td>{% if submission.file_size_mb %}{{ submission.file_size_mb }} MB{% else %}&mdash;{% endif %}</td>
+                                        <td><a href="{{ submission.data_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if submission.metadata_file %}
+                                    <tr>
+                                        <td>Metadata</td>
+                                        <td>{{ submission.metadata_file.name|truncatechars:80 }}</td>
+                                        <td>&mdash;</td>
+                                        <td><a href="{{ submission.metadata_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if submission.readme_file %}
+                                    <tr>
+                                        <td>Readme</td>
+                                        <td>{{ submission.readme_file.name|truncatechars:80 }}</td>
+                                        <td>&mdash;</td>
+                                        <td><a href="{{ submission.readme_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+
+                      </div><!-- /.kpdc-page -->
+                    </div><!-- /.col-lg-8 -->
+
+                    <!-- ═══════════ Right: Admin Cards (Independent, like sidebar) ═══════════ -->
+                    <div class="col-lg-3">
+                        <div class="review-action-sidebar">
+                            <!-- 🐧 AI Review Assistant Card -->
+                            <div class="card border-0 shadow-sm rounded-3 mb-3" id="ai-review-panel">
+                                <div class="card-body p-4">
+                                    <div class="sidebar-header mb-3 pb-3 border-bottom d-flex align-items-center justify-content-between">
+                                        <h6 class="mb-0 text-dark fw-bold">
+                                            <span style="font-size:1.2em">🐧</span> AI Review
+                                        </h6>
+                                        <button type="button" class="btn btn-sm btn-outline-info px-3 rounded-3 fw-semibold" onclick="aiReviewAssist()" id="ai-review-btn">
+                                            <i class="fas fa-brain me-1"></i> Analyze
+                                        </button>
+                                    </div>
+                                    <div id="ai-review-body">
+                                        <p class="text-muted mb-0" style="font-size: 0.88rem;">Click "Analyze" for an AI-powered quality & completeness assessment.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Admin Action Card -->
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-body p-4">
+                                    <div class="sidebar-header mb-3 pb-3 border-bottom">
+                                        <h6 class="mb-0 text-dark fw-bold">
+                                            <i class="fas fa-clipboard-check me-2 text-primary"></i>Admin Action
+                                        </h6>
+                                    </div>
+
+                                    {% if submission.status == 'submitted' %}
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="published">
+                                        <p class="text-secondary mb-3" style="font-size: 0.88rem;">Review the dataset and take action.</p>
+                                        <nav class="d-flex flex-column gap-2">
+                                            <button type="submit" class="btn btn-success rounded-3 py-2 fw-semibold w-100">
+                                                <i class="fas fa-globe me-2"></i>Publish Dataset
+                                            </button>
+                                            <a href="{% url 'data_submission:admin_edit_submission' submission.metadata_id %}"
+                                                class="btn btn-outline-secondary rounded-3 py-2 fw-semibold w-100">
+                                                <i class="fas fa-edit me-2"></i>Edit Submission
+                                            </a>
+                                            <a href="{% url 'data_submission:review_submissions' %}"
+                                                class="btn btn-light rounded-3 py-2 fw-semibold text-muted border w-100">
+                                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                                            </a>
+                                        </nav>
+                                    </form>
+                                    {% elif submission.status == 'published' %}
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-success px-3 py-2 rounded-3"><i class="fas fa-check-circle me-1"></i> Published</span>
+                                    </div>
+                                    {% if submission.reviewed_at %}
+                                    <p class="text-muted mb-3" style="font-size: 0.82rem;">
+                                        <i class="fas fa-calendar-check me-1"></i> {{ submission.reviewed_at|date:"M d, Y" }}
+                                        {% if submission.reviewed_by %} by {{ submission.reviewed_by.get_full_name }}{% endif %}
+                                    </p>
+                                    {% endif %}
+                                    <a href="{% url 'data_submission:review_submissions' %}" class="btn btn-light rounded-3 py-2 fw-semibold text-muted border w-100">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to List
+                                    </a>
+                                    {% else %}
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-3"><i class="fas fa-file-alt me-1"></i> Draft</span>
+                                    </div>
+                                    <a href="{% url 'data_submission:review_submissions' %}" class="btn btn-light rounded-3 py-2 fw-semibold text-muted border w-100">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to List
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /.col-lg-4 -->
+                </div><!-- /.row -->
+        </div><!-- /.col-xl-10 -->
+    </div><!-- /.row -->
+</div><!-- /.container -->
+
+<!-- Leaflet Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var north = {{ submission.north_latitude|default:"0" }};
+        var south = {{ submission.south_latitude|default:"0" }};
+        var east  = {{ submission.east_longitude|default:"0" }};
+        var west  = {{ submission.west_longitude|default:"0" }};
+
+        var centerLat = (north + south) / 2;
+        var centerLng = (east + west) / 2;
+
+        var map = L.map('map', {
+            center: [centerLat, centerLng],
+            zoom: 3,
+            scrollWheelZoom: true,
+            attributionControl: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '',
+            maxZoom: 18
+        }).addTo(map);
+
+        /* Single marker at the center point */
+        var marker = L.marker([centerLat, centerLng]).addTo(map);
+
+        /* Add popup with dataset title */
+        marker.bindPopup('<strong>{{ submission.title|truncatechars:80 }}</strong>');
+
+        /* Center map on marker */
+        map.setView([centerLat, centerLng], 5);
+    });
+</script>
+
+<!-- AI Review Assistant Script -->
 <script>
     function getCSRFToken() {
         const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
@@ -382,7 +702,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCSRFToken(),
                 },
-                body: JSON.stringify({ submission_id: {{ submission.id }} }),
+                body: JSON.stringify({ submission_id: "{{ submission.metadata_id }}" }),
             });
             const result = await response.json();
 
@@ -390,7 +710,6 @@
                 const d = result.data;
                 let html = '';
 
-                // Completeness Score
                 const score = d.completeness_score || 0;
                 let barColor = score >= 80 ? 'bg-success' : score >= 60 ? 'bg-info' : score >= 40 ? 'bg-warning' : 'bg-danger';
                 html += `<div class="mb-2">
@@ -398,7 +717,6 @@
                     <div class="progress ai-review-score-bar"><div class="progress-bar ${barColor}" style="width:${score}%"></div></div>
                 </div>`;
 
-                // Issues
                 if (d.issues && d.issues.length > 0) {
                     html += '<div class="mb-2"><small class="fw-bold text-danger">Issues:</small>';
                     d.issues.forEach(issue => {
@@ -407,7 +725,6 @@
                     html += '</div>';
                 }
 
-                // Suggestions
                 if (d.suggestions && d.suggestions.length > 0) {
                     html += '<div class="mb-2"><small class="fw-bold text-info">Suggestions:</small>';
                     d.suggestions.forEach(s => {
@@ -416,7 +733,6 @@
                     html += '</div>';
                 }
 
-                // Draft Notes
                 if (d.draft_notes) {
                     html += `<div class="mb-1"><small class="fw-bold">Draft Notes:</small></div>
                     <div class="border rounded p-2 bg-light" style="font-size:0.85rem;">${d.draft_notes}</div>

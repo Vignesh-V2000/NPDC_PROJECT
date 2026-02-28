@@ -6,16 +6,16 @@
 {% block content %}
 
 <div class="container">
-    <div class="row justify-content-center min-vh-75 align-items-center py-5">
-        <div class="col-lg-5 col-md-7">
+    <div class="row justify-content-center min-vh-75 align-items-start py-5">
+        <div class="col-lg-6 col-md-8 mb-4 mb-lg-0">
             <div class="login-card">
                 <!-- Header -->
-                <div class="login-header text-center mb-4">
-                    <div class="login-icon mb-3">
+                <div class="login-header text-center mb-3">
+                    <div class="login-icon mb-2">
                         <i class="fas fa-lock"></i>
                     </div>
                     <h2 class="mb-0"
-                        style="color: var(--primary-blue); font-weight: 800; font-size: 1.5rem; letter-spacing: 0.5px;">
+                        style="color: var(--primary-blue); font-weight: 800; font-size: 1.25rem; letter-spacing: 0.5px;">
                         Access to NPDC</h2>
                 </div>
 
@@ -48,18 +48,17 @@
                     {% endif %}
 
                     <!-- Email Field -->
-                    <div class="form-group mb-4">
+                    <div class="form-group mb-3">
                         <label for="id_username" class="form-label fw-semibold">
                             <i class="fas fa-envelope me-2"></i>Email Id
                         </label>
 
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-envelope"></i>
-                            </span>
-
+                        <div class="position-relative">
+                            <i class="fas fa-envelope position-absolute"
+                                style="left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
                             <input type="text" name="username" class="form-control" id="id_username"
-                                placeholder="Enter your Email Id" required>
+                                placeholder="Enter your Email Id" required
+                                style="padding-left: 2.5rem; width: 100% !important; display: block !important;">
                         </div>
 
                         <div class="invalid-feedback">
@@ -83,22 +82,23 @@
 
 
                     <!-- Password Field -->
-                    <div class="form-group mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label for="id_password" class="form-label fw-semibold">
+                    <div class="form-group mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="id_password" class="form-label fw-semibold mb-0">
                                 <i class="fas fa-key me-2"></i>Password
                             </label>
                             <a href="{% url 'users:forgot_password' %}" class="text-decoration-none small text-primary">
                                 Forgot Password?
                             </a>
                         </div>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-lock"></i>
-                            </span>
+                        <div class="position-relative">
+                            <i class="fas fa-lock position-absolute"
+                                style="left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
                             <input type="password" name="password" class="form-control" id="id_password"
-                                placeholder="Enter your password" required>
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                placeholder="Enter your password" required
+                                style="padding-left: 2.5rem; padding-right: 2.5rem; width: 100% !important; display: block !important;">
+                            <button class="btn btn-link position-absolute" type="button" id="togglePassword"
+                                style="right: 0.5rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); text-decoration: none; padding: 0;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -122,19 +122,19 @@
                     </div>
 
                     <!-- Remember Me -->
-                    <div class="form-check mb-4">
+                    <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="rememberMe">
                         <label class="form-check-label small" for="rememberMe">
                             Remember me on this device
                         </label>
                     </div>
                     <!-- CAPTCHA -->
-                    <div class="form-group mb-4">
+                    <div class="form-group mb-3">
                         <label class="form-label fw-semibold">
-                            <i class="fas fa-shield-alt me-2"></i>Security Verification
+                            <i class="fas fa-shield-alt me-2"></i>CAPTCHA
                         </label>
 
-                        {{ form.captcha }}
+                        <div class="captcha-wrapper">{{ form.captcha }}</div>
 
                         {% if form.captcha.errors %}
                         <div class="text-danger small mt-1">
@@ -144,20 +144,13 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg py-3">
+                    <div class="d-grid gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary btn-lg py-2">
                             <i class="fas fa-sign-in-alt me-2"></i>Sign In to NPDC
                         </button>
                     </div>
                 </form>
 
-                <!-- Registration Link -->
-                <div class="text-center mt-4 pt-4 border-top">
-                    <p class="mb-3" style="color: #333;">New to NPDC?</p>
-                    <a href="{% url 'users:register' %}" class="btn btn-outline-primary px-4">
-                        <i class="fas fa-user-plus me-2"></i>Create Research Account
-                    </a>
-                </div>
             </div>
 
             <!-- Quick Access -->
@@ -179,6 +172,22 @@
             </div>
         </div>
 
+        <!-- Registration Card Column -->
+        <div class="col-lg-5 col-md-7">
+            <div class="register-card bg-white border rounded p-4 shadow-sm">
+                <h4 class="mb-3 text-center" style="color: var(--primary-blue); font-weight: 700;">
+                    New to NPDC?
+                </h4>
+                <p class="text-center text-muted mb-4">Create a research account to submit datasets and
+                    access additional features.</p>
+                <div class="d-grid">
+                    <a href="{% url 'users:register' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Create Research Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -188,9 +197,20 @@
     .login-card {
         background: white;
         border-radius: var(--border-radius-lg);
-        padding: 1.8rem 2rem;
+        padding: 1.5rem 2rem;
         box-shadow: var(--shadow-xl);
         border: 1px solid var(--medium-gray);
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .login-card form {
+        width: 100%;
+    }
+
+    .login-card .form-group {
+        width: 100%;
+        box-sizing: border-box;
     }
 
     /* ---- AI Field Bubbles ---- */
@@ -308,16 +328,16 @@
     }
 
     .login-icon {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         background: var(--gradient-primary);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto;
+        margin: 0 auto 0.5rem;
         color: white;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
 
     .login-header h1 {
@@ -326,15 +346,43 @@
     }
 
     /* Form Styling */
+    .login-card .form-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
     .form-group label {
         color: var(--text-primary);
         font-size: 0.9rem;
         margin-bottom: 0.5rem;
     }
 
-    .input-group {
-        border-radius: var(--border-radius-sm);
-        overflow: hidden;
+    /* Registration card styles */
+    .captcha-wrapper {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .captcha-wrapper input[type="text"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        display: block !important;
+        margin-top: 0.5rem;
+    }
+
+    .captcha-wrapper img.captcha {
+        width: auto !important;
+        max-width: 100%;
+        display: block;
+    }
+
+    /* Force captcha input to full width, but keep image normal size */
+    .register-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        border: 1px solid var(--medium-gray);
     }
 
     .input-group-text {
@@ -345,14 +393,24 @@
     }
 
     .form-control {
-        border: 1px solid var(--medium-gray);
-        padding: 0.75rem 1rem;
+        background-color: #ffffff;
+        color: #333;
+        border: 1px solid #ced4da;
+        padding: 0.6rem 1rem;
         font-size: 0.95rem;
+        border-radius: var(--border-radius-sm);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-control:hover {
+        border-color: var(--accent-teal);
     }
 
     .form-control:focus {
         border-color: var(--accent-teal);
-        box-shadow: 0 0 0 3px rgba(0, 163, 161, 0.1);
+        box-shadow: 0 0 0 3px rgba(0, 163, 161, 0.15);
+        background-color: #f8fdfd;
     }
 
     /* Info Panel */
@@ -503,7 +561,6 @@
     }
 </style>
 
-<!-- JavaScript for Password Toggle and Form Validation -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Password visibility toggle
@@ -527,7 +584,7 @@
                     event.stopPropagation();
                 }
                 form.classList.add('was-validated');
-            }, false);
+            });
         });
 
         // Auto-focus on username field

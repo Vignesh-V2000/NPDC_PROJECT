@@ -664,8 +664,16 @@
                         </a>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{% url 'data_submission:instructions' %}">
-                                <i class="fas fa-upload me-2"></i>Submit New Dataset
+                                <i class="fas fa-upload me-2"></i>Data Submission
                             </a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-search me-1"></i>Search
+                        </a>
+                        <div class="dropdown-menu">
                             <a class="dropdown-item" href="{% url 'search:browse_by_keyword' %}">
                                 <i class="fas fa-tags me-2"></i>Browse by Keyword
                             </a>
@@ -726,9 +734,13 @@
                             <a class="dropdown-item" href="{% url 'data_submission:admin_dashboard' %}">
                                 <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
                             </a>
+                            <a class="dropdown-item" href="{% url 'data_submission:all_submissions' %}">
+                                <i class="fas fa-database me-2"></i>All Datasets
+                            </a>
                             <a class="dropdown-item" href="{% url 'data_submission:review_submissions' %}">
                                 <i class="fas fa-clipboard-check me-2"></i>Review Submissions
                             </a>
+                            {% if user.is_superuser %}
                             <a class="dropdown-item" href="{% url 'users:user_approval_dashboard' %}">
                                 <i class="fas fa-users-cog me-2"></i>User & Admin Management
                             </a>
@@ -740,6 +752,7 @@
                             <a class="dropdown-item" href="{% url 'activity_logs:system_logs' %}">
                                 <i class="fas fa-list-alt me-2"></i>System Logs
                             </a>
+                            {% endif %}
                         </div>
                     </li>
                     {% endif %}
@@ -790,6 +803,9 @@
                     <a class="btn btn-outline-secondary ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
                         target="_blank">
                         <i class="fas fa-file-pdf me-2"></i>User Manual
+                    </a>
+                    <a class="btn btn-outline-secondary ms-2" href="{% url 'users:contact_us' %}">
+                        <i class="fas fa-envelope me-2"></i>Contact Us
                     </a>
                     {% endif %}
                 </div>

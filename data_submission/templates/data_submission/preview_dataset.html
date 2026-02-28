@@ -2,29 +2,28 @@
 
 {% block content %}
 <style>
-    .container {
+    .submission-container {
         color: #333333;
     }
     
-    .container h2,
-    .container h3,
-    .container h4,
-    .container h5,
-    .container h6 {
+    .submission-container h2,
+    .submission-container h3,
+    .submission-container h4,
+    .submission-container h5,
+    .submission-container h6 {
         color: var(--primary-blue) !important;
     }
     
-    .container p,
-    .container span,
-    .container label {
+    .submission-container p,
+    .submission-container span,
+    .submission-container label {
         color: #333333;
     }
 </style>
 
 {% block title %}Preview Dataset - NPDC{% endblock %}
 
-{% block content %}
-<div class="container py-5">
+<div class="container submission-container py-5">
     <div class="row justify-content-center">
         <!-- Main Content -->
         <div class="col-lg-10">
@@ -138,17 +137,22 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="d-flex justify-content-between">
-                <a href="{% url 'data_submission:submit_dataset' %}?submission_id={{ dataset.id }}"
+                {% if is_admin_preview %}
+                <a href="{% url 'data_submission:admin_edit_submission' dataset.metadata_id %}"
+                    class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-arrow-left me-2"></i> Return to Edit & Save
+                </a>
+                {% else %}
+                <a href="{% url 'data_submission:submit_dataset' %}?submission_id={{ dataset.metadata_id }}"
                     class="btn btn-outline-secondary btn-lg">
                     <i class="fas fa-edit me-2"></i>Edit Metadata
                 </a>
 
-                <a href="{% url 'data_submission:upload_dataset_files' dataset.id %}"
+                <a href="{% url 'data_submission:upload_dataset_files' dataset.metadata_id %}"
                     class="btn btn-primary btn-lg px-5">
                     Proceed to Upload <i class="fas fa-arrow-right ms-2"></i>
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>

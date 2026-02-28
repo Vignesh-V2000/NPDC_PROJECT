@@ -4,99 +4,231 @@
 
 {% block content %}
 <div class="container-fluid py-4">
+    <div class="row">
+        <!-- Admin Sidebar -->
+        <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
+            {% include 'admin/includes/admin_sidebar.html' %}
+        </div>
 
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Review Submissions</h2>
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Review Submissions</h2>
         <div class="text-end">
             <span class="badge bg-primary fs-6">{{ submissions|length }} Pending</span>
         </div>
     </div>
 
-    <!-- Review Queue Table -->
-    <div class="mb-5">
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="7" class="fw-bold">Pending and Resubmitted Metadata</th>
-                    </tr>
-                    <tr class="table-light fw-bold text-center">
-                        <th style="width: 5%;">Sl No.</th>
-                        <th style="width: 30%;">Title</th>
-                        <th style="width: 15%;">Submitter</th>
-                        <th style="width: 15%;">Submitted On</th>
-                        <th style="width: 15%;">Updated On</th>
-                        <th style="width: 10%;">Files</th>
-                        <th style="width: 10%;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for submission in submissions %}
-                    <tr>
-                        <td class="text-center">{{ forloop.counter }}</td>
-                        <td>
-                            <div class="fw-bold">{{ submission.title }}</div>
-                            <small class="text-muted d-block text-truncate" style="max-width: 300px;">
-                                {{ submission.abstract|default:"No abstract"|truncatechars:100 }}
-                            </small>
-                            {% if submission.region %}
-                            <span class="badge bg-light text-dark border mt-1">{{ submission.region }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <div>{{ submission.submitter.get_full_name|default:submission.submitter.username }}</div>
-                            <small class="text-muted">{{ submission.submitter.email }}</small>
-                        </td>
-                        <td class="text-center">
-                            <div>{{ submission.submission_date|date:"d-m-Y" }}</div>
-                            <small class="text-muted">{{ submission.submission_date|time:"H:i" }}</small>
-                        </td>
-                        <td class="text-center">
-                            {% if submission.was_updated %}
-                            <div class="text-primary fw-bold">
-                                <i class="fas fa-sync-alt small me-1"></i>{{ submission.status_updated_at|date:"d-m-Y"
-                                }}
-                            </div>
-                            <small class="text-muted">{{ submission.status_updated_at|time:"H:i" }}</small>
+    <!-- Filter Actions -->
+    <div class="card border-0 shadow-sm mb-4 bg-white rounded-3">
+        <div class="card-body p-4">
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <!-- Search Keywords -->
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Search Keywords</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" name="q" class="form-control border-start-0"
+                                placeholder="Title, abstract, submitter..." value="{{ current_q }}">
+                        </div>
+                    </div>
+                    {% if user.is_superuser %}
+                    <!-- Expedition (superuser only) -->
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Expedition</label>
+                        <select name="expedition" class="form-select">
+                            <option value="">All</option>
+                            {% for val, label in expedition_choices %}
+                            {% if current_expedition == val %}
+                            <option value="{{ val }}" selected>{{ label }}</option>
                             {% else %}
-                            <div class="text-muted">-</div>
+                            <option value="{{ val }}">{{ label }}</option>
                             {% endif %}
-                        </td>
-                        <td class="text-center">
-                            {% if submission.data_file %}
-                            <a href="{{ submission.data_file.url }}" class="btn btn-sm btn-outline-secondary"
-                                target="_blank" title="Download File">
-                                <i class="fas fa-download"></i>
-                            </a>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <!-- Category -->
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="">All</option>
+                            {% for val, label in category_choices %}
+                            {% if current_category == val %}
+                            <option value="{{ val }}" selected>{{ label }}</option>
                             {% else %}
-                            <span class="text-muted small">No file</span>
+                            <option value="{{ val }}">{{ label }}</option>
                             {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <a href="{% url 'data_submission:review_submission_detail' submission.id %}"
-                                class="btn btn-primary btn-sm w-100 mb-1">
-                                Review
-                            </a>
-                            <a href="{% url 'data_submission:admin_edit_submission' submission.id %}"
-                                class="btn btn-outline-secondary btn-sm w-100">
-                                Edit
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">
-                            <i class="fas fa-check-circle fa-2x mb-3 d-block text-success"></i>
-                            No pending submissions found. Good job!
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Date Range -->
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Date Range</label>
+                        <div class="input-group">
+                            <input type="date" name="start_date" class="form-control"
+                                value="{{ current_start_date }}">
+                            <span class="input-group-text bg-light text-muted px-2">to</span>
+                            <input type="date" name="end_date" class="form-control"
+                                value="{{ current_end_date }}">
+                        </div>
+                    </div>
+                </div>
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
+                    <a href="?"
+                        class="btn btn-outline-secondary px-4 fw-semibold">
+                        <i class="fas fa-times me-1"></i> Clear
+                    </a>
+                    <button type="submit"
+                        class="btn btn-primary px-4 fw-semibold shadow-sm">
+                        <i class="fas fa-filter me-1"></i> Apply Filters
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
+    <!-- Review Queue Table -->
+    <div class="mb-5">
+        <div class="mb-5">
+            {% for submission in submissions %}
+            <div class="card shadow-sm border-0 mb-4 rounded-3 hover-shadow transition-all">
+                <div class="card-body p-4">
+                    <div class="row g-4 align-items-start">
+                        <!-- Left: Title, Abstract, Badges -->
+                        <div class="col-lg-8 col-xl-9">
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                <span class="status-badge 
+                                    {% if submission.status == 'published' %}status-approved
+                                    {% elif submission.status == 'submitted' %}status-pending
+                                    {% elif submission.status == 'draft' %}status-draft
+                                    {% else %}status-pending{% endif %}">
+                                    {{ submission.get_status_display }}
+                                </span>
+                                {% if submission.expedition_type %}
+                                <span class="badge bg-light text-secondary border px-2 py-1">
+                                    <i class="fas fa-globe-americas me-1"></i>
+                                    {{ submission.get_expedition_type_display }}
+                                </span>
+                                {% endif %}
+                                <span class="text-muted small ms-2">
+                                    <i class="fas fa-hashtag me-1"></i> No. {{ forloop.counter }}
+                                </span>
+                            </div>
+
+                            <h4 class="fw-bold mb-1 text-dark" style="line-height: 1.4;">{{ submission.title }}</h4>
+                            {% if submission.metadata_id %}
+                            <span class="badge bg-light text-secondary border font-monospace small mb-2">{{ submission.metadata_id }}</span>
+                            {% endif %}
+
+                            <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.6;">
+                                {{ submission.abstract|default:"No abstract provided."|truncatechars:350 }}
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-4 text-muted small">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center border"
+                                        style="width: 36px; height: 36px;">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">
+                                            {% if submission.submitter.first_name %}
+                                            {{ submission.submitter.first_name }}
+                                            {{ submission.submitter.last_name }}
+                                            {% else %}
+                                            {{ submission.submitter.username }}
+                                            {% endif %}
+                                        </div>
+                                        <div style="font-size: 0.75rem;">{{ submission.submitter.email }}</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center border"
+                                        style="width: 36px; height: 36px;">
+                                        <i class="far fa-calendar-alt text-success"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">
+                                            {{ submission.submission_date|date:"F d, Y" }}
+                                        </div>
+                                        <div style="font-size: 0.75rem;">
+                                            {{ submission.submission_date|time:"H:i A" }} (Submitted)
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if submission.was_updated %}
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center border"
+                                        style="width: 36px; height: 36px;">
+                                        <i class="fas fa-sync-alt text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">
+                                            {{ submission.status_updated_at|date:"F d, Y" }}
+                                        </div>
+                                        <div style="font-size: 0.75rem;">
+                                            {{ submission.status_updated_at|time:"H:i A" }} (Updated)
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Right: Actions & Files -->
+                        <div class="col-lg-4 col-xl-3">
+                            <div class="d-flex flex-column h-100 gap-3 border-start ps-lg-4">
+                                <div>
+                                    <h6 class="text-uppercase text-muted fw-bold mb-3"
+                                        style="font-size: 0.75rem; letter-spacing: 1px;">Data Access</h6>
+                                    {% if submission.data_file %}
+                                    <a href="{{ submission.data_file.url }}"
+                                        class="btn btn-outline-primary w-100 mb-2 py-2 d-flex align-items-center justify-content-center fw-semibold transition-all"
+                                        target="_blank">
+                                        <i class="fas fa-download me-2"></i> Download Data
+                                    </a>
+                                    {% else %}
+                                    <div
+                                        class="bg-light text-muted p-2 rounded text-center small mb-2 border border-dashed">
+                                        <i class="fas fa-file-excel mb-1 mt-1 d-block opacity-50"></i> No file attached
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mt-auto pt-3 border-top">
+                                    <h6 class="text-uppercase text-muted fw-bold mb-3"
+                                        style="font-size: 0.75rem; letter-spacing: 1px;">Administration</h6>
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'data_submission:review_submission_detail' submission.metadata_id %}"
+                                            class="btn btn-primary py-2 d-flex align-items-center justify-content-center fw-semibold transition-all">
+                                            <i class="fas fa-clipboard-check me-2"></i> Review
+                                        </a>
+                                        <a href="{% url 'data_submission:admin_edit_submission' submission.metadata_id %}"
+                                            class="btn btn-light border py-2 d-flex align-items-center justify-content-center fw-semibold transition-all hover-bg-light">
+                                            <i class="fas fa-edit me-2"></i> Edit Metadata
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 bg-white shadow-sm rounded-3 border border-dashed">
+                <i class="fas fa-check-circle fa-3x text-success mb-3 d-block opacity-75"></i>
+                <h5 class="text-muted fw-bold">No pending submissions found</h5>
+                <p class="text-muted small mb-0">Good job! All datasets have been processed.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -117,6 +249,25 @@
 
     a.small:hover {
         text-decoration: underline;
+    }
+
+    /* Card Styling Extras */
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .hover-shadow:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+        transform: translateY(-2px);
+    }
+
+    .border-dashed {
+        border-style: dashed !important;
+        border-color: #dee2e6 !important;
+    }
+
+    .hover-bg-light:hover {
+        background-color: #f8f9fa !important;
     }
 </style>
 {% endblock %}

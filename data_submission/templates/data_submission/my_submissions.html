@@ -54,7 +54,7 @@
                         <td>{{ submission.title }}</td>
                         <td class="text-center">
                             <div>{{ submission.submission_date|date:"d-m-Y" }}</div>
-                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.id }}"
+                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
                                 class="text-decoration-none small">Edit</a>
                         </td>
                         <td class="text-center">
@@ -63,7 +63,7 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            <a href="{% url 'data_submission:upload_dataset_files' submission.id %}"
+                            <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
                                 class="btn btn-light border btn-sm">Upload</a>
                         </td>
                     </tr>
@@ -100,12 +100,12 @@
                         <td>{{ submission.title }}</td>
                         <td class="text-center">
                             <div>{{ submission.submission_date|date:"d-m-Y" }}</div>
-                            <a href="{% url 'data_submission:view_submission' submission.id %}"
+                            <a href="{% url 'data_submission:view_submission' submission.metadata_id %}"
                                 class="text-decoration-none small">View</a>
                         </td>
                         <td class="text-center">
                             {% if submission.can_be_updated %}
-                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.id }}"
+                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
                                 class="text-decoration-none small">Update</a>
                             {% endif %}
 
@@ -114,7 +114,7 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            <a href="{% url 'data_submission:upload_dataset_files' submission.id %}"
+                            <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
                                 class="btn btn-light border btn-sm">Upload</a>
                         </td>
                     </tr>

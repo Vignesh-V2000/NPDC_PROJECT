@@ -6,12 +6,12 @@
 <div class="container py-5">
     <div class="row">
         <!-- Admin Sidebar -->
-        <div class="col-lg-3">
+        <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
             {% include 'admin/includes/admin_sidebar.html' %}
         </div>
 
         <!-- Main Content -->
-        <div class="col-lg-9">
+        <div class="col-xl-10 col-lg-9">
             <!-- Dashboard Header -->
             <div class="dashboard-header mb-5">
                 <div class="row align-items-center">
@@ -59,28 +59,28 @@
                         </div>
                     </div>
 
-                    <!-- Approved -->
+                    <!-- Published -->
                     <div class="col-md-6 col-xl-3">
                         <div class="stat-card approved">
                             <div class="stat-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-content">
-                                <h3 class="stat-number">{{ approved_submissions }}</h3>
-                                <p class="stat-label">Approved</p>
+                                <h3 class="stat-number">{{ published|default:"0" }}</h3>
+                                <p class="stat-label">Published</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Rejected -->
+                    <!-- Needs Review (Alias for Pending) -->
                     <div class="col-md-6 col-xl-3">
-                        <div class="stat-card rejected">
+                        <div class="stat-card rejected" style="border-top-color: #8b5cf6;">
                             <div class="stat-icon">
-                                <i class="fas fa-times-circle"></i>
+                                <i class="fas fa-search"></i>
                             </div>
                             <div class="stat-content">
-                                <h3 class="stat-number">{{ rejected_submissions }}</h3>
-                                <p class="stat-label">Rejected</p>
+                                <h3 class="stat-number">{{ submitted|default:"0" }}</h3>
+                                <p class="stat-label">Submitted</p>
                             </div>
                         </div>
                     </div>
@@ -133,18 +133,18 @@
                                 <td>{{ submission.submitter.username }}</td>
                                 <td>{{ submission.submission_date|date:"M d, Y" }}</td>
                                 <td>
-                                    {% if submission.status == 'approved' %}
-                                    <span class="badge bg-success">Approved</span>
-                                    {% elif submission.status == 'rejected' %}
-                                    <span class="badge bg-danger">Rejected</span>
-                                    {% elif submission.status == 'under_review' %}
-                                    <span class="badge bg-info text-dark">Under Review</span>
+                                    {% if submission.status == 'published' %}
+                                    <span class="badge bg-success">Published</span>
+                                    {% elif submission.status == 'submitted' %}
+                                    <span class="badge bg-warning text-dark">Pending Review</span>
+                                    {% elif submission.status == 'draft' %}
+                                    <span class="badge bg-secondary">Draft</span>
                                     {% else %}
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="badge bg-info text-dark">{{ submission.get_status_display }}</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="{% url 'data_submission:review_submission_detail' submission.id %}"
+                                    <a href="{% url 'data_submission:review_submission_detail' submission.metadata_id %}"
                                         class="btn btn-sm btn-outline-primary">
                                         Check
                                     </a>
