@@ -666,35 +666,49 @@ class UserLoginView(LoginView):
 
     def form_invalid(self, form):
         """
-        Called on every failed login. After 3 failures:
-        - If email is not in DB -> show 'not_found' AI message
-        - If email IS in DB but wrong password -> show 'suggest_reset' AI message
-        Also logs the attempt to the LoginAttempt table.
+        Called on every failed login submission.
+
+        We only count an attempt against the AI-bubble threshold when the
+        CREDENTIAL check fails (wrong email/password) — NOT when only the
+        CAPTCHA field is wrong. This ensures the bubble appears on exactly
+        the 3rd bad-credential attempt.
+
+        Captcha error key  : 'captcha'
+        Credential error key: '__all__' (non-field error from AuthenticationForm)
         """
         email = self.request.POST.get('username', '').strip().lower()
         ip = _get_client_ip(self.request)
 
-        # Log this failed attempt
-        LoginAttempt.objects.create(email=email, ip_address=ip)
+        # Determine failure type
+        has_credential_error = '__all__' in form.errors
+        extra_context = {}
 
-        # Count recent failures for this email in session
-        attempts = self.request.session.get('login_attempts', 0) + 1
-        self.request.session['login_attempts'] = attempts
-        self.request.session.modified = True
+        if has_credential_error:
+            # Log and count ONLY real credential failures
+            LoginAttempt.objects.create(email=email, ip_address=ip)
 
-        extra_context = {'attempt_count': attempts}
+            attempts = self.request.session.get('login_attempts', 0) + 1
+            self.request.session['login_attempts'] = attempts
+            self.request.session.modified = True
+            extra_context['attempt_count'] = attempts
 
-        if attempts >= 3 and email:
-            if _check_email_exists(email):
-                # Email found — password is wrong, suggest reset
-                extra_context['ai_message'] = 'suggest_reset'
-                extra_context['ai_email'] = email
-            else:
-                # Email not found in any database
-                extra_context['ai_message'] = 'not_found'
-                extra_context['ai_email'] = email
+            # Trigger bubble on the 3rd+ credential failure
+            if attempts >= 3 and email:
+                if _check_email_exists(email):
+                    # Email found — password is wrong, suggest reset
+                    extra_context['ai_message'] = 'suggest_reset'
+                    extra_context['ai_email'] = email
+                else:
+                    # Email not in Django auth_user OR legacy user_login
+                    extra_context['ai_message'] = 'not_found'
+                    extra_context['ai_email'] = email
+        else:
+            # Only captcha failed — pass current count so template knows
+            # how many more real attempts remain before bubble triggers.
+            extra_context['attempt_count'] = self.request.session.get('login_attempts', 0)
 
         return self.render_to_response(self.get_context_data(form=form, **extra_context))
+
 
     def form_valid(self, form):
         """On successful login, clear the failed attempt counter."""

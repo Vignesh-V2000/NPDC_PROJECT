@@ -67,14 +67,16 @@
 
                         <!-- AI: email not found bubble -->
                         {% if ai_message == 'not_found' %}
-                        <div class="ai-field-bubble ai-bubble-warning mt-2" role="alert">
+                        <div class="ai-field-bubble ai-bubble-warning mt-2" id="aiBubbleNotFound" role="alert">
                             <div class="ai-bubble-caret"></div>
                             <span class="ai-bubble-icon">🐧</span>
-                            <div>
+                            <div class="flex-grow-1">
                                 <strong>I couldn't find that email.</strong><br>
                                 <span><code class="ai-code">{{ ai_email }}</code> isn't registered with NPDC.
                                     <a href="{% url 'users:register' %}" class="ai-link">Create an account?</a></span>
                             </div>
+                            <button type="button" class="ai-bubble-close" onclick="closeBubble('aiBubbleNotFound')"
+                                aria-label="Dismiss">&times;</button>
                         </div>
                         {% endif %}
                     </div>
@@ -108,15 +110,17 @@
 
                         <!-- AI: wrong password bubble -->
                         {% if ai_message == 'suggest_reset' %}
-                        <div class="ai-field-bubble ai-bubble-info mt-2" role="alert">
+                        <div class="ai-field-bubble ai-bubble-info mt-2" id="aiBubbleSuggestReset" role="alert">
                             <div class="ai-bubble-caret ai-caret-info"></div>
                             <span class="ai-bubble-icon">🐧</span>
-                            <div>
+                            <div class="flex-grow-1">
                                 <strong>Password doesn't match.</strong><br>
                                 <span>We found <code class="ai-code">{{ ai_email }}</code> in our database.
                                     <a href="{% url 'users:forgot_password' %}" class="ai-link ai-link-info">Reset your
                                         password &rarr;</a></span>
                             </div>
+                            <button type="button" class="ai-bubble-close ai-bubble-close-info"
+                                onclick="closeBubble('aiBubbleSuggestReset')" aria-label="Dismiss">&times;</button>
                         </div>
                         {% endif %}
                     </div>
@@ -325,6 +329,53 @@
 
     .ai-link-info:hover {
         color: #032a3e;
+    }
+
+    /* Close (×) button inside bubble */
+    .ai-bubble-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 0 0 0 6px;
+        flex-shrink: 0;
+        margin-left: auto;
+        color: #9a7a00;
+        opacity: 0.6;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        align-self: flex-start;
+    }
+
+    .ai-bubble-close:hover {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    /* Info variant close button teal colour */
+    .ai-bubble-close-info {
+        color: #064e6f;
+    }
+
+    @keyframes aiBubbleOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 200px;
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-6px);
+            max-height: 0;
+            padding: 0;
+            margin: 0;
+        }
+    }
+
+    .ai-bubble-closing {
+        overflow: hidden;
+        animation: aiBubbleOut 0.25s ease forwards;
     }
 
     .login-icon {
@@ -593,5 +644,13 @@
             usernameField.focus();
         }
     });
+
+    // AI bubble close — called from onclick on the × button
+    function closeBubble(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('ai-bubble-closing');
+        el.addEventListener('animationend', () => el.remove(), { once: true });
+    }
 </script>
 {% endblock %}
