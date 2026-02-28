@@ -1,4 +1,7 @@
 import requests
+import random
+import string
+from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
@@ -13,8 +16,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from .forms import CaptchaLoginForm
 from .forms import NPDCRegisterForm, UserUpdateForm, ProfileUpdateForm, AdminUserEditForm
-from .forms import NPDCRegisterForm, UserUpdateForm, ProfileUpdateForm, AdminUserEditForm
-from .models import Profile
+from .models import Profile, LoginAttempt, PasswordResetOTP
 from data_submission.models import DatasetSubmission
 
 
@@ -625,10 +627,284 @@ def home(request):
         'keyword_options': keyword_options,
     })
 
+# --------------------
+# AI Login Helper
+# --------------------
+
+def _check_email_exists(email):
+    """
+    Check if an email address exists in either the Django auth_user table
+    or the legacy user_login table. Returns True if found.
+    """
+    from .models import UserLogin
+    email = email.strip().lower()
+    if User.objects.filter(email__iexact=email).exists():
+        return True
+    if UserLogin.objects.filter(user_id__iexact=email).exists():
+        return True
+    if UserLogin.objects.filter(e_mail__iexact=email).exists():
+        return True
+    return False
+
+
+def _get_client_ip(request):
+    """Extract the real IP address from the request."""
+    x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded:
+        return x_forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+# --------------------
+# Login View (with AI Smart Messaging)
+# --------------------
+
 class UserLoginView(LoginView):
     authentication_form = CaptchaLoginForm
     template_name = 'registration/login.html'
     redirect_authenticated_user = True
+
+    def form_invalid(self, form):
+        """
+        Called on every failed login. After 3 failures:
+        - If email is not in DB -> show 'not_found' AI message
+        - If email IS in DB but wrong password -> show 'suggest_reset' AI message
+        Also logs the attempt to the LoginAttempt table.
+        """
+        email = self.request.POST.get('username', '').strip().lower()
+        ip = _get_client_ip(self.request)
+
+        # Log this failed attempt
+        LoginAttempt.objects.create(email=email, ip_address=ip)
+
+        # Count recent failures for this email in session
+        attempts = self.request.session.get('login_attempts', 0) + 1
+        self.request.session['login_attempts'] = attempts
+        self.request.session.modified = True
+
+        extra_context = {'attempt_count': attempts}
+
+        if attempts >= 3 and email:
+            if _check_email_exists(email):
+                # Email found — password is wrong, suggest reset
+                extra_context['ai_message'] = 'suggest_reset'
+                extra_context['ai_email'] = email
+            else:
+                # Email not found in any database
+                extra_context['ai_message'] = 'not_found'
+                extra_context['ai_email'] = email
+
+        return self.render_to_response(self.get_context_data(form=form, **extra_context))
+
+    def form_valid(self, form):
+        """On successful login, clear the failed attempt counter."""
+        self.request.session.pop('login_attempts', None)
+        return super().form_valid(form)
+
+
+# --------------------
+# Password Reset (OTP-based)
+# --------------------
+
+def forgot_password(request):
+    """
+    Step 1: User enters their email.
+    - Checks both Django users and legacy user_login table.
+    - Generates a 6-digit OTP saved to PasswordResetOTP.
+    - Sends OTP via email.
+    - Rate-limits by IP: max 10 requests per hour.
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        ip = _get_client_ip(request)
+
+        # --- Rate limiting check ---
+        one_hour_ago = timezone.now() - timedelta(hours=1)
+        recent_attempts = LoginAttempt.objects.filter(
+            ip_address=ip,
+            timestamp__gte=one_hour_ago,
+            was_blocked=True
+        ).count()
+        # Also count OTP requests from this IP
+        otp_requests_this_hour = PasswordResetOTP.objects.filter(
+            email__icontains='',  # all
+        ).filter(created_at__gte=one_hour_ago).count()
+
+        if otp_requests_this_hour >= 10:
+            # Log blocked attempt
+            LoginAttempt.objects.create(email=email, ip_address=ip, was_blocked=True)
+            messages.error(
+                request,
+                "Too many password reset requests from your network. Please try again in an hour."
+            )
+            return render(request, 'registration/forgot_password.html', {'blocked': True})
+
+        # --- Send OTP (regardless of whether email is found — security best practice) ---
+        if email and _check_email_exists(email):
+            # Invalidate any old unused OTPs for this email
+            PasswordResetOTP.objects.filter(email=email, used=False).update(used=True)
+
+            # Generate a fresh 6-digit OTP
+            otp_code = ''.join(random.choices(string.digits, k=6))
+            otp_obj = PasswordResetOTP.objects.create(email=email, otp=otp_code)
+
+            # Send email
+            subject = '[NPDC] Your Password Reset OTP'
+            text_body = f"""Hello,
+
+You requested a password reset for your NPDC account.
+
+Your One-Time Password (OTP): {otp_code}
+
+This OTP is valid for 10 minutes.
+Do NOT share this code with anyone.
+
+If you did not request this, please ignore this email.
+
+Best Regards,
+NPDC Security Team
+"""
+            html_body = render_to_string('emails/password_reset_otp_email.html', {
+                'otp_code': otp_code,
+                'email': email,
+            })
+            try:
+                mail = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[email],
+                )
+                mail.attach_alternative(html_body, 'text/html')
+                mail.send()
+            except Exception as e:
+                print(f"[NPDC] Password reset OTP email failed: {e}")
+
+            # Store email in session for the confirm step
+            request.session['otp_email'] = email
+
+        # Always show the same success message (don't reveal if email exists)
+        return render(request, 'registration/forgot_password.html', {
+            'otp_sent': True,
+            'submitted_email': email,
+        })
+
+    return render(request, 'registration/forgot_password.html')
+
+
+def reset_password_confirm(request):
+    """
+    Step 2: User enters the OTP and their new password.
+    - Validates the OTP against PasswordResetOTP (not used, within 10 min).
+    - Sets the new password on the Django User (creates one from legacy if needed).
+    - Marks OTP as used and clears session.
+    """
+    # Recover the email from session
+    email = request.session.get('otp_email', '').strip().lower()
+
+    if not email:
+        messages.error(request, "Session expired. Please request a new OTP.")
+        return redirect('users:forgot_password')
+
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '').strip()
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        # --- Validate passwords ---
+        import re
+        errors = []
+        if new_password != confirm_password:
+            errors.append("Passwords do not match.")
+        if len(new_password) < 8:
+            errors.append("Password must be at least 8 characters.")
+        if not re.search(r'[A-Z]', new_password):
+            errors.append("Password must contain at least one uppercase letter.")
+        if not re.search(r'[a-z]', new_password):
+            errors.append("Password must contain at least one lowercase letter.")
+        if not re.search(r'\d', new_password):
+            errors.append("Password must contain at least one number.")
+        if not re.search(r'[@$!%*?&]', new_password):
+            errors.append("Password must contain at least one special character (@$!%*?&).")
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'registration/reset_password_confirm.html', {'email': email})
+
+        # --- Validate OTP ---
+        try:
+            otp_obj = PasswordResetOTP.objects.filter(
+                email=email,
+                otp=entered_otp,
+                used=False
+            ).latest('created_at')
+        except PasswordResetOTP.DoesNotExist:
+            messages.error(request, "Invalid OTP. Please check the code and try again.")
+            return render(request, 'registration/reset_password_confirm.html', {'email': email})
+
+        if not otp_obj.is_valid():
+            messages.error(request, "This OTP has expired. Please request a new one.")
+            return redirect('users:forgot_password')
+
+        # --- Apply new password ---
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            # Try legacy — create Django user on the fly
+            from .models import UserLogin
+            try:
+                legacy = UserLogin.objects.filter(
+                    user_id__iexact=email
+                ).first() or UserLogin.objects.filter(e_mail__iexact=email).first()
+            except Exception:
+                legacy = None
+
+            if legacy:
+                name_parts = (legacy.user_name or 'NPDC User').split()
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    first_name=name_parts[0],
+                    last_name=' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
+                    is_active=True,
+                )
+                profile_title = {'mr': 'Mr', 'ms': 'Ms', 'dr': 'Dr', 'prof': 'Prof'}.get(
+                    (legacy.title or '').strip().lower().rstrip('.'), 'Mr'
+                )
+                Profile.objects.update_or_create(
+                    user=user,
+                    defaults={
+                        'title': profile_title,
+                        'organisation': (legacy.organisation or '').strip(),
+                        'organisation_url': (legacy.url or '').strip() if legacy.url else '',
+                        'designation': (legacy.designation or '').strip(),
+                        'is_approved': True,
+                        'approved_at': timezone.now(),
+                    }
+                )
+            else:
+                messages.error(request, "We could not find your account. Please contact support.")
+                return redirect('users:forgot_password')
+
+        user.set_password(new_password)
+        user.save()
+
+        # Mark OTP as used
+        otp_obj.used = True
+        otp_obj.save()
+
+        # Clear session
+        request.session.pop('otp_email', None)
+        request.session.pop('login_attempts', None)
+
+        messages.success(
+            request,
+            "✅ Your password has been reset successfully. You can now log in."
+        )
+        return redirect('users:login')
+
+    return render(request, 'registration/reset_password_confirm.html', {'email': email})
 
 
 @staff_member_required

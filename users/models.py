@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Profile(models.Model):
     TITLE_CHOICES = [
@@ -86,3 +87,42 @@ class UserLogin(models.Model):
         return f"{self.user_id} - {self.user_name}"
 
 
+class LoginAttempt(models.Model):
+    """
+    Tracks failed login attempts per email/IP.
+    Used by the AI login system to decide what message to show the user.
+    """
+    email = models.CharField(max_length=255)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    was_blocked = models.BooleanField(default=False)  # True if request was rate-limited
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"Attempt: {self.email} from {self.ip_address} at {self.timestamp}"
+
+
+class PasswordResetOTP(models.Model):
+    """
+    Stores time-limited 6-digit OTPs for password reset.
+    Valid for 10 minutes after creation.
+    """
+    email = models.EmailField()
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def is_valid(self):
+        """Returns True if OTP was not used and is within 10 minutes."""
+        if self.used:
+            return False
+        elapsed = (timezone.now() - self.created_at).total_seconds()
+        return elapsed < 600  # 10 minutes
+
+    def __str__(self):
+        return f"OTP for {self.email} ({'used' if self.used else 'active'})"
