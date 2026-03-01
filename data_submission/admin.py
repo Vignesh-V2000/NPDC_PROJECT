@@ -9,6 +9,7 @@ from .models import (
     LocationMetadata,
     DataResolutionMetadata,
     State,
+    DatasetRequest,
 )
 
 # ==============================
@@ -183,3 +184,33 @@ class StateAdmin(admin.ModelAdmin):
     list_filter = ('country_code',)
     search_fields = ('name', 'country_code')
     ordering = ('country_code', 'name')
+
+# ==============================
+# DATASET REQUEST ADMIN
+# ==============================
+
+@admin.register(DatasetRequest)
+class DatasetRequestAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'email', 'dataset', 'request_date', 'request_location', 'request_ip')
+    list_filter = ('request_date', 'request_location', 'status')
+    search_fields = ('first_name', 'last_name', 'email', 'request_location', 'request_ip')
+    readonly_fields = ('request_date', 'request_ip', 'request_location', 'reviewed_at')
+    ordering = ('-request_date',)
+    
+    fieldsets = (
+        ('Request Information', {
+            'fields': ('dataset', 'requester', 'request_date', 'status')
+        }),
+        ('Requester Details', {
+            'fields': ('first_name', 'last_name', 'email', 'institute', 'country', 'research_area')
+        }),
+        ('Request Purpose & Agreements', {
+            'fields': ('purpose', 'agree_cite', 'agree_share')
+        }),
+        ('Location & IP Information', {
+            'fields': ('request_location', 'request_ip')
+        }),
+        ('Review Information', {
+            'fields': ('reviewed_by', 'reviewed_at')
+        }),
+    )

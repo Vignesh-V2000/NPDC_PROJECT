@@ -74,23 +74,46 @@ class EmailBackend(ModelBackend):
 
         email = legacy_user.user_id  # user_id is the email/login
 
-        # Check if Django user already exists with this email (may have been created on a previous attempt)
+        # Check if Django user already exists with this email
         try:
             django_user = User.objects.get(email__iexact=email)
-            # User exists but password didn't match earlier — don't override
-            return None
+            # If the user already has a usable password, verify it normally.
+            if django_user.has_usable_password():
+                if django_user.check_password(password) and self.user_can_authenticate(django_user):
+                    return django_user
+                # password didn't match, do not override existing usable password
+                return None
+            # No usable password yet (likely imported); accept whatever they typed,
+            # store it, and return the user.  Next login will be based on this value.
+            django_user.set_password(password)
+            django_user.save()
+            return django_user
         except User.DoesNotExist:
             pass
 
-        # Create the Django user
-        django_user = User.objects.create_user(
+        # Create the Django user (or get existing)
+        django_user, created = User.objects.get_or_create(
             username=email.lower(),
-            email=email.lower(),
-            password=password,  # Set the password they typed
-            first_name=first_name,
-            last_name=last_name,
-            is_active=True,
+            defaults={
+                'email': email.lower(),
+                'first_name': first_name,
+                'last_name': last_name,
+                'is_active': True,
+            }
         )
+        
+        # If user was just created, set the password
+        if created:
+            django_user.set_password(password)
+            django_user.save()
+        elif django_user.has_usable_password():
+            # User exists with usable password, verify it
+            if not django_user.check_password(password):
+                return None
+        else:
+            # User exists but no usable password, set it
+            django_user.set_password(password)
+            django_user.save()
 
         # Set staff status for Administrator role
         if legacy_user.user_role and 'administrator' in legacy_user.user_role.lower():
@@ -109,7 +132,7 @@ class EmailBackend(ModelBackend):
             'soe': 'southern_ocean',
             'him': 'himalaya',
         }
-        expedition_admin_type = expedition_admin_mapping.get(username.lower(), None)
+        expedition_admin_type = expedition_admin_mapping.get(legacy_user.user_id.lower(), None)
 
         Profile.objects.update_or_create(
             user=django_user,

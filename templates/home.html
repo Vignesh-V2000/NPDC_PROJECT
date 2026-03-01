@@ -1203,70 +1203,6 @@
     </div>
 </section>
 
-<!-- Research Regions -->
-<section class="mb-6">
-    <h2 class="text-center mb-5">Research Regions</h2>
-    <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-4">
-
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card antarctic-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/Maitri.jpg' %}" class="w-100" alt="Antarctic"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Antarctic</h4>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card arctic-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/tn_arctic.png' %}" class="w-100" alt="Arctic"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Arctic</h4>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card southern-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/tn_soe.jpg' %}" class="w-100" alt="Southern Ocean"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Southern Ocean</h4>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card himalayan-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="w-100" alt="Himalayas"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Himalayas</h4>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-</section>
 
 <!-- Weather at Indian Polar Stations -->
 <section class="weather-section">
@@ -1312,7 +1248,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Antarctica - Maitri:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset">
+                                Antarctica - Maitri:
+                            </a>
+                        </h5>
                         <div class="temperature-display my-1">
                             <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-7.7&deg; C</span>
                         </div>
@@ -1356,7 +1296,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Antarctica - Bharati:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset">
+                                Antarctica - Bharati:
+                            </a>
+                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-4.4&deg; C</span>
                             </div>
@@ -1400,7 +1344,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Himalaya - Himansh:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset">
+                                Himalaya - Himansh:
+                            </a>
+                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-8.4&deg; C</span>
                             </div>
@@ -1444,7 +1392,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Arctic - Himadri:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset">
+                                Arctic - Himadri:
+                            </a>
+                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-3.4&deg; C</span>
                             </div>
