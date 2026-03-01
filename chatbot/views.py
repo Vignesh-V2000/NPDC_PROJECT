@@ -43,6 +43,16 @@ class NPDCChatbot:
                     'X-Title': 'NPDC Portal Chatbot',
                 },
             })
+
+        # Last fallback: Ollama (local on-system, no API key required)
+        if getattr(settings, 'OLLAMA_ENABLED', False):
+            self.providers.append({
+                'name': 'Ollama',
+                'api_url': getattr(settings, 'OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions'),
+                'api_key': 'ollama',  # Ollama ignores Authorization header but field must be non-empty
+                'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
+                'headers_extra': {},
+            })
         
         # Legacy attributes for backward compatibility
         if self.providers:

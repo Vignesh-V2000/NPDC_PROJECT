@@ -72,6 +72,16 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
             },
         })
 
+    # Last fallback: Ollama (local on-system, no API key required)
+    if getattr(settings, 'OLLAMA_ENABLED', False):
+        providers.append({
+            'name': 'Ollama',
+            'api_url': getattr(settings, 'OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions'),
+            'api_key': 'ollama',
+            'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
+            'headers_extra': {},
+        })
+
     if not providers:
         logger.warning("No AI API keys configured")
         return None
@@ -390,6 +400,16 @@ def _call_llm_chat(system_prompt, user_message, max_tokens=800, temperature=0.3)
                 'HTTP-Referer': 'https://npdc.ncpor.gov.in',
                 'X-Title': 'NPDC AI Search',
             },
+        })
+
+    # Last fallback: Ollama (local on-system, no API key required)
+    if getattr(settings, 'OLLAMA_ENABLED', False):
+        providers.append({
+            'name': 'Ollama',
+            'api_url': getattr(settings, 'OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions'),
+            'api_key': 'ollama',
+            'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
+            'headers_extra': {},
         })
 
     if not providers:

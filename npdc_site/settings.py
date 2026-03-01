@@ -30,6 +30,12 @@ OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
 OPENROUTER_MODEL = os.environ.get('OPENROUTER_MODEL', 'google/gemma-3-4b-it:free')
 OPENROUTER_API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions'
 
+# Last Fallback: Ollama (local on-system AI — no API key required)
+# Run: ollama serve  |  ollama pull llama3.2
+OLLAMA_ENABLED = True
+OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', 'llama3.2')
+OLLAMA_API_ENDPOINT = 'http://localhost:11434/v1/chat/completions'
+
 # Shared settings
 OPENROUTER_TEMPERATURE = 0.7
 OPENROUTER_MAX_TOKENS = 800
