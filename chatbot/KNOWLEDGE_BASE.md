@@ -46,30 +46,36 @@ NPDC manages and archives scientific datasets from polar and Himalayan research 
 
 ## Data Categories
 
+- Agriculture
 - Atmosphere
+- Biological Classification
 - Biosphere
+- Climate Indicators
 - Cryosphere
+- Human Dimensions
+- Land Surface
+- Marine Science
 - Oceans
 - Paleoclimate
 - Solid Earth
-- Land Surface
-- Marine Science
+- Spectral/Engineering
+- Sun-Earth Interactions
+- Terrestrial Hydrosphere
 - Terrestrial Science
-- Human Dimensions
+- Wind Profiler Radar
+- Geotectonic Studies
+- Audio Signals
 
 ---
 
 ## Dataset Submission Process
 
 ### Required Steps
-1. Log in to your NPDC account
-2. Navigate to Data > Submit New Dataset
-3. Fill in identification section (title, abstract, keywords)
-4. Select expedition type and project details
-5. Enter temporal and spatial coverage
-6. Upload data files, metadata, and README
-7. Choose access type and license
-8. Submit for review
+1. Log in to your NPDC account (account must be approved by NPDC staff)
+2. Read submission instructions at `/data/submit/instructions/`
+3. Fill in the metadata form: title, abstract, keywords, expedition details, temporal and spatial coverage
+4. Upload data files, metadata file, and README on the file upload step
+5. Submit for review
 
 ### Required Metadata Fields
 
@@ -91,39 +97,25 @@ NPDC manages and archives scientific datasets from polar and Himalayan research 
 - Temporal: Start and End dates
 - Spatial: Bounding box (West/East longitude, North/South latitude)
 
-#### Access & Licensing
-- Access Type: Open, Restricted, or Embargoed
-- License information
-- Usage restrictions (if any)
-
 ---
 
-## AI-Powered Search Features
+## Search Features
 
-The NPDC portal includes an intelligent search system at `/search/` with the following AI features:
+### Main Search (`/search/`)
+- Full-text and filter-based search with sidebar filters (Expedition Type, Category, ISO Topic, Year, Temporal Range, Bounding Box)
+- Use quotes for exact phrases like "ice core"; start with "10." for DOI search
+- Browse by keyword: `/search/browse/keyword/`
+- Browse by location: `/search/browse/location/`
 
-### 🐧 Penguin Smart Search
-- Toggle on/off with the Smart Search switch on the search page
-- When enabled, searches are enhanced with AI capabilities
+### 🐧 Penguin Assist (AI Search)
+- Toggle on/off with the Smart Search switch on the main search page
+- Understands natural language queries like "show me glacier data from Himalaya 2024" and auto-applies filters
+- Generates a summary card above results when datasets are found
+- Suggests alternative terms and corrections when no results are found
 
-### Natural Language Query Understanding
-- Users can type conversational queries like "show me glacier data from Himalaya 2024"
-- The AI parses the query and auto-applies filters (expedition type, year, category, etc.)
-
-### AI Search Summary
-- When results are found, an AI-generated summary card appears above results
-- Provides a concise overview of what the search results contain
-
-### Zero-Result Recovery
-- When 0 results are found, AI suggests alternative search terms
-- Detects spelling errors and suggests corrections
-- Identifies if a query is outside polar/cryosphere data scope
-
-### Search Tips
-- Use quotes for exact phrases like "ice core"
-- Start with "10." for DOI search
-- Try natural language queries when Smart Search is enabled
-- Use sidebar filters (Expedition Type, Category, ISO Topic, Year, Temporal Range, Bounding Box)
+### AI Search Page (`/search/ai-search/`)
+- Dedicated RAG-based (Retrieval-Augmented Generation) AI search interface
+- Ask questions in plain language to find relevant datasets
 
 ---
 
@@ -193,12 +185,44 @@ When submitting data, you can specify data resolution across three dimensions:
 
 ## Submission Status Workflow
 
-1. **Draft** - Saved but not submitted
-2. **Submitted** - Awaiting reviewer assignment
-3. **Under Review** - Being evaluated by reviewer
-4. **Approved** - Dataset is published and accessible
-5. **Rejected** - Needs revision (can resubmit from draft)
+1. **Draft** - Saved but not submitted; submitter can edit freely
+2. **Submitted** - Sent for review; awaiting staff action
+3. **Under Review** - Being evaluated by a reviewer
+4. **Needs Revision** - Reviewer has requested changes; submitter must update and resubmit
+5. **Published** - Approved and publicly accessible
+
+Note: "Approved" and "Rejected" are not statuses in this system. The terminal positive state is **Published**; the revision state is **Needs Revision**.
 
 ---
 
-*This knowledge base supports the NPDC Portal chatbot. Last updated: February 2026*
+## User Accounts & Registration
+
+- Register at `/register/` — requires name, organisation, organisation URL, and designation
+- New accounts are **pending by default** and must be approved by NPDC staff before login is allowed
+- Staff manage approvals at `/staff/user-approval/`
+- Forgot password: `/forgot-password/` → reset via emailed link at `/reset-password/`
+
+---
+
+## Data Access Requests
+
+- Restricted or embargoed datasets can be requested by logged-in users via `/data/get-data/<id>/`
+- NPDC staff review and approve/reject requests at `/data/admin/data-requests/`
+- Requester is notified by email on approval or rejection
+
+---
+
+## Dataset Export
+
+- Any published dataset can be exported as an XML metadata file at `/data/export/xml/<metadata_id>/`
+
+---
+
+## Polar Directory & Stations
+
+- `/polar-directory/` — lists polar research stations and associated researchers/data
+- `/station/<station_name>/` — detailed page for an individual station
+
+---
+
+*This knowledge base supports the NPDC Portal chatbot. Last updated: March 2026*

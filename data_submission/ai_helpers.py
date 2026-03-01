@@ -13,6 +13,7 @@ Provides 8 AI features for the dataset submission workflow:
 """
 import json
 import re
+import hashlib
 import logging
 from django.conf import settings
 from django.core.cache import cache
@@ -127,7 +128,28 @@ EXPEDITION_SPATIAL_DEFAULTS = {
     "himalaya": {"north": 36.0, "south": 26.0, "east": 105.0, "west": 73.0},
 }
 
-AI_CACHE_TIMEOUT = 300  # 5 minutes
+AI_CACHE_TIMEOUT = 86400  # 24 hours
+
+# Per-user AI rate limit: max requests per window
+AI_RATE_LIMIT_MAX = 30
+AI_RATE_LIMIT_WINDOW = 3600  # 1 hour in seconds
+
+
+def check_ai_rate_limit(user_id):
+    """
+    Check per-user AI rate limit (30 requests per hour).
+    Returns True if the request is allowed, False if the limit has been reached.
+    """
+    cache_key = f"ai_rate_limit:{user_id}"
+    count = cache.get(cache_key, 0)
+    if count >= AI_RATE_LIMIT_MAX:
+        return False
+    # Increment counter; set TTL only on first call so the window is fixed
+    if count == 0:
+        cache.set(cache_key, 1, AI_RATE_LIMIT_WINDOW)
+    else:
+        cache.set(cache_key, count + 1, AI_RATE_LIMIT_WINDOW)
+    return True
 
 
 def _safe_json_parse(text):
@@ -168,7 +190,7 @@ def generate_title(abstract, expedition_type=""):
     if not abstract or len(abstract.strip()) < 20:
         return {"title": "", "alternatives": [], "error": "Abstract is too short to generate a title."}
 
-    cache_key = f"ai_gen_title:{hash(f'{abstract[:200]}:{expedition_type}')}"
+    cache_key = f"ai_gen_title:{hashlib.md5(f'{abstract[:200]}:{expedition_type}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
@@ -180,10 +202,11 @@ def generate_title(abstract, expedition_type=""):
         "himalaya": "Himalayan",
     }.get(expedition_type, "Polar")
 
+    _abstract_trunc = abstract[:1500]
     prompt = f"""You are a scientific metadata expert for the National Polar Data Center (NPDC).
 Generate a concise, descriptive dataset title from the given abstract.
 
-ABSTRACT: {abstract}
+ABSTRACT: {_abstract_trunc}
 EXPEDITION TYPE: {expedition_type}
 
 Requirements:
@@ -226,16 +249,17 @@ def generate_purpose(title, abstract, expedition_type=""):
     if not abstract or len(abstract.strip()) < 20:
         return {"purpose": "", "error": "Abstract is too short to generate a purpose."}
 
-    cache_key = f"ai_gen_purpose:{hash(f'{title}:{abstract[:200]}:{expedition_type}')}"
+    cache_key = f"ai_gen_purpose:{hashlib.md5(f'{title}:{abstract[:200]}:{expedition_type}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
 
+    _abstract_trunc = abstract[:1500]
     prompt = f"""You are a scientific metadata expert for the National Polar Data Center (NPDC).
 Generate a PURPOSE statement for a polar research dataset. The purpose should explain WHY the data was collected.
 
 TITLE: {title}
-ABSTRACT: {abstract}
+ABSTRACT: {_abstract_trunc}
 EXPEDITION TYPE: {expedition_type}
 
 Requirements:
@@ -270,26 +294,27 @@ def classify_dataset(title, abstract, expedition_type=""):
     AI-powered classification of dataset into category, topic, and ISO topic.
     Returns dict with 'category', 'topic', 'iso_topic' keys.
     """
-    cache_key = f"ai_classify:{hash(f'{title}:{abstract[:100]}:{expedition_type}')}"
+    cache_key = f"ai_classify:{hashlib.md5(f'{title}:{abstract[:100]}:{expedition_type}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
 
-    category_list = ", ".join([f"{k} ({v})" for k, v in VALID_CATEGORIES])
-    iso_list = ", ".join([f"{k} ({v})" for k, v in VALID_ISO_TOPICS])
+    category_keys = ", ".join([k for k, _ in VALID_CATEGORIES])
+    iso_keys = ", ".join([k for k, _ in VALID_ISO_TOPICS])
+    _abstract_trunc = abstract[:1000]
 
     prompt = f"""You are a scientific data classification expert for the National Polar Data Center (NPDC).
 Given a dataset title and abstract, classify it into the correct category, topic, and ISO topic.
 
 DATASET TITLE: {title}
-DATASET ABSTRACT: {abstract}
+DATASET ABSTRACT: {_abstract_trunc}
 EXPEDITION TYPE: {expedition_type}
 
-AVAILABLE CATEGORIES (use the key, not the label):
-{category_list}
+AVAILABLE CATEGORIES (use the exact key):
+{category_keys}
 
-AVAILABLE ISO TOPICS (use the key, not the label):
-{iso_list}
+AVAILABLE ISO TOPICS (use the exact key):
+{iso_keys}
 
 For the "topic" field, pick the most relevant scientific sub-topic based on the category.
 
@@ -331,16 +356,17 @@ def suggest_keywords(title, abstract, category="", num_keywords=10):
     AI-powered GCMD-aligned keyword generator.
     Returns list of keyword strings.
     """
-    cache_key = f"ai_keywords:{hash(f'{title}:{abstract[:100]}:{category}')}"
+    cache_key = f"ai_keywords:{hashlib.md5(f'{title}:{abstract[:100]}:{category}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
 
+    _abstract_trunc = abstract[:1000]
     prompt = f"""You are a scientific metadata expert for the National Polar Data Center.
 Generate {num_keywords} relevant GCMD-compatible scientific keywords for this polar research dataset.
 
 TITLE: {title}
-ABSTRACT: {abstract}
+ABSTRACT: {_abstract_trunc}
 CATEGORY: {category}
 
 Requirements:
@@ -380,16 +406,17 @@ def check_abstract_quality(title, abstract, expedition_type=""):
             "suggestions": ["Abstract is too short. Please provide a meaningful description of your dataset."]
         }
 
-    cache_key = f"ai_abstract_q:{hash(f'{title}:{abstract[:200]}')}"
+    cache_key = f"ai_abstract_q:{hashlib.md5(f'{title}:{abstract[:200]}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
 
+    _abstract_trunc = abstract[:1500]
     prompt = f"""You are a scientific writing reviewer for the National Polar Data Center.
 Evaluate the quality of this dataset abstract for a polar research data repository.
 
 TITLE: {title}
-ABSTRACT: {abstract}
+ABSTRACT: {_abstract_trunc}
 EXPEDITION TYPE: {expedition_type}
 
 Score the abstract 0-100 based on these criteria:
@@ -434,7 +461,7 @@ def extract_spatial_data(title, abstract, expedition_type=""):
     AI-powered spatial coordinate extraction.
     Returns dict with north, south, east, west coordinates + zone_type.
     """
-    cache_key = f"ai_spatial:{hash(f'{title}:{abstract[:100]}:{expedition_type}')}"
+    cache_key = f"ai_spatial:{hashlib.md5(f'{title}:{abstract[:100]}:{expedition_type}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
@@ -448,7 +475,7 @@ def extract_spatial_data(title, abstract, expedition_type=""):
 Extract or estimate the geographic bounding box coordinates for this polar research dataset.
 
 TITLE: {title}
-ABSTRACT: {abstract}
+ABSTRACT: {abstract[:1000]}
 EXPEDITION TYPE: {expedition_type}
 
 DEFAULT BOUNDING BOX for this expedition type:
@@ -508,9 +535,17 @@ Respond with ONLY valid JSON:
 
 def prefill_form(title, abstract, expedition_type=""):
     """
-    AI-powered form pre-fill. Calls multiple AI helpers and combines results.
+    AI-powered form pre-fill using a single unified prompt.
+    Combines classification, keywords, abstract quality, and spatial extraction
+    into one API call to minimize token usage and latency.
     Returns a comprehensive dict with all suggested field values.
     """
+    # Check combined cache first
+    combined_cache_key = f"ai_prefill:{hashlib.md5(f'{title}:{abstract[:200]}:{expedition_type}'.encode()).hexdigest()}"
+    cached = cache.get(combined_cache_key)
+    if cached:
+        return cached
+
     result = {
         "classification": {},
         "keywords": [],
@@ -519,60 +554,147 @@ def prefill_form(title, abstract, expedition_type=""):
         "location": {},
     }
 
-    # 1. Classification
-    try:
-        result["classification"] = classify_dataset(title, abstract, expedition_type)
-    except Exception as e:
-        logger.error(f"AI classify error in prefill: {e}")
-        result["classification"] = {"category": "", "topic": "", "iso_topic": ""}
+    defaults = EXPEDITION_SPATIAL_DEFAULTS.get(expedition_type, {
+        "north": 90.0, "south": -90.0, "east": 180.0, "west": -180.0
+    })
+    category_keys = ", ".join([k for k, _ in VALID_CATEGORIES])
+    iso_keys = ", ".join([k for k, _ in VALID_ISO_TOPICS])
+    _abstract_trunc = abstract[:1500]
 
-    # 2. Keywords
-    try:
-        category = result["classification"].get("category", "")
-        result["keywords"] = suggest_keywords(title, abstract, category)
-    except Exception as e:
-        logger.error(f"AI keywords error in prefill: {e}")
-        result["keywords"] = []
+    prompt = f"""You are a scientific metadata expert for the National Polar Data Center (NPDC).
+Given the following polar research dataset, perform ALL four tasks below in a single JSON response.
 
-    # 3. Abstract quality
-    try:
-        result["abstract_quality"] = check_abstract_quality(title, abstract, expedition_type)
-    except Exception as e:
-        logger.error(f"AI abstract quality error in prefill: {e}")
-        result["abstract_quality"] = {"score": 0, "grade": "unknown", "suggestions": []}
+TITLE: {title}
+ABSTRACT: {_abstract_trunc}
+EXPEDITION TYPE: {expedition_type}
+DEFAULT BOUNDING BOX: N={defaults['north']}, S={defaults['south']}, E={defaults['east']}, W={defaults['west']}
 
-    # 4. Spatial data (Coordinates + Subregion)
-    try:
-        spatial_data = extract_spatial_data(title, abstract, expedition_type)
-        result["spatial"] = spatial_data
-    except Exception as e:
-        logger.error(f"AI spatial error in prefill: {e}")
-        # Valid fallback
-        result["spatial"] = EXPEDITION_SPATIAL_DEFAULTS.get(expedition_type, {}).copy()
+TASK 1 — CLASSIFICATION
+Pick one category key and one ISO topic key from the lists below, and choose the most relevant topic name.
+Categories: {category_keys}
+ISO Topics: {iso_keys}
 
-    # 5. Location Details (Category/Type + Subregion from spatial)
+TASK 2 — KEYWORDS
+Generate 10 GCMD-compatible scientific keywords (array of strings).
+
+TASK 3 — ABSTRACT QUALITY
+Score 0–100 for completeness, clarity, scientific rigor, length, and specificity.
+Grade: excellent (>=80), good (>=60), fair (>=40), poor (<40).
+Provide 2–4 concise, actionable suggestions.
+
+TASK 4 — SPATIAL BOUNDING BOX
+Extract or estimate the geographic bounding box. Use the default if no location is found.
+Known locations: Maitri Station (~-70.77,11.73), Bharati Station (~-69.41,76.19),
+Larsemann Hills (~-69.4,76.2), Schirmacher Oasis (~-70.75,11.72), Himadri/Svalbard (~78.92,11.93).
+zone_type: "bounding_box", "global", or "point".
+
+Respond with ONLY valid JSON:
+{{"classification": {{"category": "<key>", "topic": "<topic_name>", "iso_topic": "<key>"}},
+  "keywords": ["kw1", "kw2", "kw3", "kw4", "kw5", "kw6", "kw7", "kw8", "kw9", "kw10"],
+  "abstract_quality": {{"score": <0-100>, "grade": "<excellent|good|fair|poor>", "suggestions": ["...", "..."]}},
+  "spatial": {{"north": <float>, "south": <float>, "east": <float>, "west": <float>, "zone_type": "<type>", "location_name": "<str>", "subregion": "<str>"}}}}"""
+
+    ai_response = _call_openrouter(prompt, max_tokens=800, temperature=0.3)
+    combined = _safe_json_parse(ai_response)
+
+    if combined and isinstance(combined, dict):
+        # --- Process classification ---
+        clf = combined.get("classification", {})
+        valid_cat_keys = [k for k, _ in VALID_CATEGORIES]
+        if clf.get('category') not in valid_cat_keys:
+            clf['category'] = 'cryosphere'
+        cat = clf.get('category', '')
+        valid_topics = CATEGORY_TOPIC_MAP.get(cat, [])
+        if clf.get('topic') not in valid_topics and valid_topics:
+            clf['topic'] = valid_topics[0]
+        valid_iso_keys = [k for k, _ in VALID_ISO_TOPICS]
+        if clf.get('iso_topic') not in valid_iso_keys:
+            clf['iso_topic'] = 'environment'
+        result["classification"] = clf
+
+        # --- Process keywords ---
+        kws = combined.get("keywords", [])
+        if isinstance(kws, list):
+            result["keywords"] = [str(k).strip() for k in kws if k][:10]
+
+        # --- Process abstract quality ---
+        aq = combined.get("abstract_quality", {})
+        if isinstance(aq.get("score"), (int, float)):
+            aq["score"] = max(0, min(100, int(aq["score"])))
+        if "grade" not in aq:
+            s = aq.get("score", 0)
+            aq["grade"] = "excellent" if s >= 80 else "good" if s >= 60 else "fair" if s >= 40 else "poor"
+        aq["suggestions"] = aq.get("suggestions", [])[:4]
+        result["abstract_quality"] = aq
+
+        # --- Process spatial ---
+        spatial_raw = combined.get("spatial", {})
+        final_spatial = defaults.copy()
+        final_spatial['zone_type'] = 'bounding_box'
+        final_spatial['location_name'] = ''
+        final_spatial['subregion'] = ''
+        if isinstance(spatial_raw, dict):
+            try:
+                if 'north' in spatial_raw: final_spatial['north'] = max(-90, min(90, float(spatial_raw['north'])))
+                if 'south' in spatial_raw: final_spatial['south'] = max(-90, min(90, float(spatial_raw['south'])))
+                if 'east' in spatial_raw: final_spatial['east'] = max(-180, min(180, float(spatial_raw['east'])))
+                if 'west' in spatial_raw: final_spatial['west'] = max(-180, min(180, float(spatial_raw['west'])))
+                if final_spatial['north'] < final_spatial['south']:
+                    final_spatial['north'], final_spatial['south'] = final_spatial['south'], final_spatial['north']
+                final_spatial['zone_type'] = spatial_raw.get('zone_type', 'bounding_box')
+                final_spatial['location_name'] = spatial_raw.get('location_name', '')
+                final_spatial['subregion'] = spatial_raw.get('subregion', '')
+            except (ValueError, TypeError):
+                pass
+        result["spatial"] = final_spatial
+
+    else:
+        # Fallback to individual calls if combined response fails
+        logger.warning("Combined prefill AI call failed, falling back to individual calls.")
+        try:
+            result["classification"] = classify_dataset(title, abstract, expedition_type)
+        except Exception as e:
+            logger.error(f"AI classify error in prefill: {e}")
+            result["classification"] = {"category": "", "topic": "", "iso_topic": ""}
+
+        try:
+            category = result["classification"].get("category", "")
+            result["keywords"] = suggest_keywords(title, abstract, category)
+        except Exception as e:
+            logger.error(f"AI keywords error in prefill: {e}")
+            result["keywords"] = []
+
+        try:
+            result["abstract_quality"] = check_abstract_quality(title, abstract, expedition_type)
+        except Exception as e:
+            logger.error(f"AI abstract quality error in prefill: {e}")
+            result["abstract_quality"] = {"score": 0, "grade": "unknown", "suggestions": []}
+
+        try:
+            result["spatial"] = extract_spatial_data(title, abstract, expedition_type)
+        except Exception as e:
+            logger.error(f"AI spatial error in prefill: {e}")
+            result["spatial"] = EXPEDITION_SPATIAL_DEFAULTS.get(expedition_type, {}).copy()
+
+    # Derive location details from expedition type + spatial subregion
     try:
-        # Map expedition type to Location Category/Type
-        # Mapping: Expedition -> (Category, Type)
         exp_map = {
             "antarctic": ("region", "Antarctica"),
             "arctic": ("region", "Arctic"),
             "southern_ocean": ("ocean", "Southern Ocean"),
             "himalaya": ("region", "Himalaya"),
         }
-        
-        loc_cat, loc_type = exp_map.get(expedition_type.lower(), ("", ""))
-        
+        loc_cat, loc_type = exp_map.get((expedition_type or "").lower(), ("", ""))
         result["location"] = {
             "category": loc_cat,
             "type": loc_type,
-            "subregion": result["spatial"].get("subregion", "") 
+            "subregion": result["spatial"].get("subregion", "")
         }
-        
     except Exception as e:
         logger.error(f"AI location logic error: {e}")
         result["location"] = {"category": "", "type": "", "subregion": ""}
 
+    cache.set(combined_cache_key, result, AI_CACHE_TIMEOUT)
     return result
 
 
@@ -587,7 +709,7 @@ def generate_review_notes(submission_data):
                      spatial bounds, temporal dates, etc.
     Returns dict with 'completeness_score', 'issues', 'suggestions', 'draft_notes'.
     """
-    cache_key = f"ai_review:{hash(str(submission_data.get('id', '')))}"
+    cache_key = f"ai_review:{hashlib.md5(str(submission_data.get('id', '')).encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
@@ -655,7 +777,7 @@ def suggest_resolution(title, abstract, expedition_type=""):
     if not abstract or len(abstract.strip()) < 20:
         return {"error": "Abstract is too short to suggest resolution."}
 
-    cache_key = f"ai_resolution:{hash(f'{title}:{abstract[:200]}:{expedition_type}')}"
+    cache_key = f"ai_resolution:{hashlib.md5(f'{title}:{abstract[:200]}:{expedition_type}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached:
         return cached
@@ -667,11 +789,12 @@ def suggest_resolution(title, abstract, expedition_type=""):
         "himalaya": "Himalayan",
     }.get(expedition_type, "Polar")
 
+    _abstract_trunc = abstract[:1500]
     prompt = f"""You are a scientific metadata expert for the National Polar Data Center (NPDC).
 Based on the dataset title, abstract, and expedition type, suggest appropriate data resolution values.
 
 TITLE: {title}
-ABSTRACT: {abstract}
+ABSTRACT: {_abstract_trunc}
 EXPEDITION TYPE: {expedition_label}
 
 IMPORTANT: Think carefully about the TYPE of dataset:

@@ -88,25 +88,32 @@ class NPDCChatbot:
                 {'type': 'himalaya', 'name': 'Himalayan Expeditions', 'description': 'High-altitude research in the Himalayas focusing on glaciology, climate change, and mountain ecosystems.'},
             ],
             'categories': [
+                'Agriculture',
                 'Atmosphere',
+                'Biological Classification',
                 'Biosphere',
+                'Climate Indicators',
                 'Cryosphere',
+                'Human Dimensions',
+                'Land Surface',
+                'Marine Science',
                 'Oceans',
                 'Paleoclimate',
                 'Solid Earth',
-                'Land Surface',
-                'Marine Science',
+                'Spectral/Engineering',
+                'Sun-Earth Interactions',
+                'Terrestrial Hydrosphere',
                 'Terrestrial Science',
+                'Wind Profiler Radar',
+                'Geotectonic Studies',
+                'Audio Signals',
             ],
             'submission_steps': [
-                'Log in to your NPDC account',
-                'Click on "Submit New Dataset" from the Data menu',
-                'Fill in the dataset identification section (title, abstract, keywords)',
-                'Select expedition type and project details',
-                'Enter temporal and spatial coverage information',
-                'Upload your data files, metadata, and README',
-                'Choose access type and license',
-                'Review and submit for approval',
+                'Log in to your NPDC account (account must be approved by NPDC staff first)',
+                'Read the submission instructions at /data/submit/instructions/',
+                'Fill in the metadata form: title, abstract, keywords, expedition type, project details, temporal and spatial coverage',
+                'On the next step, upload your data file, metadata file, and README',
+                'Submit for review — an NPDC reviewer will evaluate and publish or request revisions',
             ],
             'contact': {
                 'name': 'National Polar Data Center (NPDC)',
@@ -153,10 +160,9 @@ class NPDCChatbot:
             from data_submission.models import DatasetSubmission
             
             total_datasets = DatasetSubmission.objects.count()
-            approved_datasets = DatasetSubmission.objects.filter(status='approved').count()
+            approved_datasets = DatasetSubmission.objects.filter(status='published').count()
             pending_datasets = DatasetSubmission.objects.filter(status__in=['submitted', 'under_review']).count()
-            rejected_datasets = DatasetSubmission.objects.filter(status='rejected').count()
-            revision_datasets = DatasetSubmission.objects.filter(status='revision_requested').count()
+            revision_datasets = DatasetSubmission.objects.filter(status='revision').count()
             draft_datasets = DatasetSubmission.objects.filter(status='draft').count()
             
             # Get expedition type breakdown
@@ -169,7 +175,6 @@ class NPDCChatbot:
                 'total_datasets': total_datasets,
                 'approved_datasets': approved_datasets,
                 'pending_datasets': pending_datasets,
-                'rejected_datasets': rejected_datasets,
                 'revision_datasets': revision_datasets,
                 'draft_datasets': draft_datasets,
                 'expedition_counts': {item['expedition_type']: item['count'] for item in expedition_counts},
@@ -189,10 +194,9 @@ class NPDCChatbot:
         if user_type == 'admin':
             stats_text = "\n\n=== CURRENT DATASET STATISTICS (ADMIN VIEW) ==="
             stats_text += f"\nTotal Datasets: {stats['total_datasets']} (all statuses)"
-            stats_text += f"\n  • Approved: {stats['approved_datasets']}"
+            stats_text += f"\n  • Published: {stats['approved_datasets']}"
             stats_text += f"\n  • Pending Review: {stats['pending_datasets']}"
-            stats_text += f"\n  • Revision Requested: {stats['revision_datasets']}"
-            stats_text += f"\n  • Rejected: {stats['rejected_datasets']}"
+            stats_text += f"\n  • Needs Revision: {stats['revision_datasets']}"
             stats_text += f"\n  • Drafts: {stats['draft_datasets']}"
             
             if stats['expedition_counts']:
@@ -205,17 +209,18 @@ class NPDCChatbot:
                 for category, count in sorted(stats['category_counts'].items(), key=lambda x: x[1], reverse=True)[:5]:
                     stats_text += f"\n  • {category}: {count}"
             
+            stats_text += "\n\nStatuses: Published (live), Needs Revision (awaiting submitter), Pending Review (submitted/under_review), Draft (not yet submitted)."
             stats_text += "\n\nUSE THESE EXACT NUMBERS when answering questions about dataset counts."
         
         # Regular users and guests only see approved datasets
         else:
             stats_text = "\n\n=== CURRENT DATASET STATISTICS (PUBLIC VIEW) ==="
-            stats_text += f"\nPublicly Available Datasets: {stats['approved_datasets']}"
+            stats_text += f"\nPublicly Available Datasets: {stats['approved_datasets']} (Published)"
             
             # Filter expedition counts to only show approved
             from data_submission.models import DatasetSubmission
             approved_expedition_counts = DatasetSubmission.objects.filter(
-                status='approved'
+                status='published'
             ).values('expedition_type').annotate(count=Count('id'))
             
             if approved_expedition_counts:
@@ -227,7 +232,7 @@ class NPDCChatbot:
             
             stats_text += "\n\nUSE THESE EXACT NUMBERS when answering questions about available datasets."
             if user_type == 'guest':
-                stats_text += "\n(Note: User is not logged in - only show approved/public datasets)"
+                stats_text += "\n(Note: User is not logged in - only show published/public datasets)"
         
         return stats_text
     
@@ -269,6 +274,15 @@ class NPDCChatbot:
             if any(phrase in message_lower for phrase in ['become user', 'become a user', 'register', 'sign up', 'create account', 'new account']):
                 return self.generate_response(user_message)
             
+            if any(phrase in message_lower for phrase in ['reset password', 'forgot password', 'change password', 'recover password', 'otp', 'reset my password']):
+                return self.generate_response(user_message)
+            
+            if any(phrase in message_lower for phrase in ['edit profile', 'update profile', 'change profile', 'how to edit profile', 'update my profile']):
+                return self.generate_response(user_message)
+            
+            if any(phrase in message_lower for phrase in ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data']):
+                return self.generate_response(user_message)
+            
             # Build page context
             page_context_info = ""
             user_type = getattr(self, 'user_type', 'guest')
@@ -297,7 +311,7 @@ class NPDCChatbot:
                 page_context_info = "\n\nCURRENT PAGE: Dataset Search Page - User is searching for datasets. This page has AI-powered Smart Search features including natural language query understanding, AI result summaries, and zero-result recovery suggestions."
             
             expedition_types = ', '.join([et['name'] for et in kb['expedition_types']])
-            categories = ', '.join(kb['categories'][:6])
+            categories = ', '.join(kb['categories'])
             
             # Build user context
             user_type = getattr(self, 'user_type', 'guest')
@@ -323,28 +337,13 @@ class NPDCChatbot:
                 user_context += "• View all submissions across the portal\n"
                 user_context += "• Edit submission metadata if needed\n"
                 
-                # Add page-specific admin guidance
+                # Add page-specific admin guidance (compact)
                 if page_type == 'review_list':
-                    user_context += "\n\nADMIN TASK: REVIEWING SUBMISSIONS\n"
-                    user_context += "• Current view shows submissions awaiting review\n"
-                    user_context += "• Click 'REVIEW' button to examine submission details\n"
-                    user_context += "• Click 'EDIT' to modify metadata before review\n"
-                    user_context += "• Status badges show: Draft (not submitted), Submitted (in queue), Under Review (assigned to you)\n"
-                    user_context += "• From review detail page, you can: APPROVE, REQUEST CHANGES, or REJECT"
+                    user_context += "\nTASK: Review Queue — click REVIEW to examine, EDIT to modify. Actions: APPROVE, REQUEST CHANGES, REJECT."
                 elif page_type == 'review_detail':
-                    user_context += "\n\nADMIN TASK: EVALUATING SUBMISSION\n"
-                    user_context += "• Review all metadata, files, and author information\n"
-                    user_context += "• Check that all required fields are complete\n"
-                    user_context += "• Verify that data resolution values are reasonable\n"
-                    user_context += "• Ensure all required files (Metadata, Data, README) are uploaded\n"
-                    user_context += "• Actions: APPROVE (publish dataset), REQUEST CHANGES (send feedback), REJECT (return for resubmission)\n"
-                    user_context += "• Use 'REQUEST CHANGES' if metadata needs improvement or files are incomplete"
+                    user_context += "\nTASK: Evaluating submission — verify metadata, files (Metadata/Data/README), resolution. Actions: APPROVE (publish), REQUEST CHANGES (feedback), REJECT."
                 elif page_type == 'admin_dashboard':
-                    user_context += "\n\nADMIN DASHBOARD FEATURES:\n"
-                    user_context += "• View submission statistics by status, expedition type, category\n"
-                    user_context += "• See pending review count and average review time\n"
-                    user_context += "• Access quick links to review queue\n"
-                    user_context += "• Monitor system health and user activity"
+                    user_context += "\nDASHBOARD: Stats by status/expedition/category, pending count, quick links to review queue."
                 
                 user_context += "\n\nProvide admin-specific guidance when answering questions."
             elif user_type == 'user':
@@ -377,7 +376,19 @@ Location: {kb['portal']['location']} | Purpose: {kb['portal']['purpose']}
 Expedition Types: {expedition_types}
 Data Categories: {categories}
 
-NPDC manages scientific datasets from polar and Himalayan research. We provide dataset submission/archival, DOI assignment, access control (Open/Restricted/Embargoed), and metadata standardization (ISO topics)."""
+NPDC manages scientific datasets from polar and Himalayan research. We provide dataset submission/archival, DOI assignment, and metadata standardization (ISO topics).
+Statuses: draft → submitted → under_review → revision (Needs Revision) or published (final approved state). There is NO 'approved' or 'rejected' status.
+
+REGISTRATION: Fill form at /register/ (title, name, email, password, organisation, org URL, designation). After submit, account is INACTIVE - pending NPDC staff approval. No email activation link. User CANNOT log in until admin approves. Confirmation email sent on approval.
+PASSWORD RESET: Go to /forgot-password/ → enter email → receive 6-digit OTP by email (valid 10 minutes, max 10 requests/hour per network) → go to /reset-password/ → enter OTP + new password. Password must be min 8 chars with uppercase, lowercase, number, and special char (@$!%*?&). Do NOT say "click the link in the email" - it is an OTP code, not a link.
+PROFILE EDIT: Go to /profile/ → edit name/organisation/designation/contact details → Save Changes. Two forms are shown at once (personal info + profile details).
+SUBMISSION STEPS: 1) Log in (account must be staff-approved first), 2) Read instructions at /data/submit/instructions/, 3) Fill metadata form (title, abstract max 1000, purpose max 1000, keywords, expedition type/year, project, category, ISO topic, temporal dates, spatial bounding box in DMS), 4) Upload files on next page (data file + metadata file + README, all required), 5) Submit for review.
+
+Data access requests for restricted datasets: /data/get-data/<id>/
+Dataset XML export: /data/export/xml/<id>/
+Polar directory: /polar-directory/ | Station detail: /station/<name>/
+Browse datasets: /search/browse/keyword/ and /search/browse/location/
+Dedicated AI search: /search/ai-search/ (RAG-based)"""
 
             # --- Conditional AI features (only for relevant pages) ---
             if page_type == 'search':
@@ -443,7 +454,7 @@ RULES:
 • HTML only: <strong>, <br>, • for lists, <a href='URL' style='color: #00A3A1;'>. NO markdown (**, ##, *)
 • Never self-introduce unless asked "who are you"/"what is your name". Answer directly
 • Off-topic: brief answer + redirect to NPDC
-• Valid URLs ONLY: / (Home), /register/, /login/, /data/submit/, /data/my-submissions/, /profile/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515
+• Valid URLs ONLY: / (Home), /register/, /login/, /forgot-password/, /data/submit/, /data/submit/instructions/, /data/my-submissions/, /profile/, /search/, /search/ai-search/, /search/browse/keyword/, /search/browse/location/, /polar-directory/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515
 • NCPOR website link only when specifically asked about NCPOR
 • Contact: NCPOR, Headland Sada, Vasco-da-Gama, Goa 403804 | 0091-832-2525515 | npdc@ncpor.res.in | Mon-Fri 9AM-5PM IST
 • Keep responses focused, 2-4 paragraphs, HTML formatted"""
@@ -628,10 +639,9 @@ RULES:
                 if user_type == 'admin':
                     response = "<strong>📊 Dataset Statistics (Admin View)</strong><br><br>"
                     response += f"<strong>Total Datasets:</strong> {stats['total_datasets']}<br>"
-                    response += f"• Approved: {stats['approved_datasets']}<br>"
+                    response += f"• Published: {stats['approved_datasets']}<br>"
                     response += f"• Pending Review: {stats['pending_datasets']}<br>"
-                    response += f"• Revision Requested: {stats['revision_datasets']}<br>"
-                    response += f"• Rejected: {stats['rejected_datasets']}<br>"
+                    response += f"• Needs Revision: {stats['revision_datasets']}<br>"
                     response += f"• Drafts: {stats['draft_datasets']}<br><br>"
                     
                     if stats['expedition_counts']:
@@ -644,10 +654,10 @@ RULES:
                     response = "<strong>📊 Available Datasets</strong><br><br>"
                     response += f"<strong>Publicly Available Datasets:</strong> {stats['approved_datasets']}<br><br>"
                     
-                    # Get approved expedition breakdown
+                    # Get published expedition breakdown
                     from data_submission.models import DatasetSubmission
                     approved_expedition_counts = DatasetSubmission.objects.filter(
-                        status='approved'
+                        status='published'
                     ).values('expedition_type').annotate(count=Count('id'))
                     
                     if approved_expedition_counts:
@@ -658,7 +668,7 @@ RULES:
                             response += f"• {exp_type.replace('_', ' ').title()}: {count}<br>"
                     
                     if user_type == 'guest':
-                        response += "<br><em>Note: Only approved datasets are publicly visible. "
+                        response += "<br><em>Note: Only published datasets are publicly visible. "
                         response += "<a href='/login/' style='color: #00A3A1;'>Login</a> to submit your own datasets.</em>"
                     
                     return response
@@ -670,27 +680,85 @@ RULES:
             return "<strong>📤 Submit a Dataset</strong><br><br>Submit your research data here:<br><a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Submit New Dataset</a><br><br>You'll need to provide metadata, temporal/spatial coverage, and upload your data files."
         
         if self.fuzzy_match(message_lower, ['my submissions', 'my datasets', 'view submissions']):
-            return "<strong>📂 Your Submissions</strong><br><br>View all your submitted datasets:<br><a href='/data/my-submissions/' style='color: #00A3A1; font-weight: bold;'>→ My Submissions</a><br><br>Track status: Draft, Submitted, Under Review, Approved, or Rejected."
+            return "<strong>📂 Your Submissions</strong><br><br>View all your submitted datasets:<br><a href='/data/my-submissions/' style='color: #00A3A1; font-weight: bold;'>→ My Submissions</a><br><br>Track status: Draft → Submitted → Under Review → Needs Revision or Published."
         
         if self.fuzzy_match(message_lower, ['home link', 'go home', 'homepage', 'main page']):
             return "<strong>🏠 Home Page</strong><br><br>Return to the main portal:<br><a href='/' style='color: #00A3A1; font-weight: bold;'>→ Go to Home Page</a>"
         
-        if self.fuzzy_match(message_lower, ['profile', 'my account', 'account settings']):
-            return "<strong>👤 Your Profile</strong><br><br>Manage your account:<br><a href='/profile/' style='color: #00A3A1; font-weight: bold;'>→ View Profile</a>"
+        # Password reset
+        if self.fuzzy_match(message_lower, ['reset password', 'forgot password', 'change password', 'recover password', 'lost password', 'password reset', 'otp']):
+            return (
+                "<strong>🔑 Password Reset</strong><br><br>"
+                "<strong>Steps:</strong><br>"
+                "1. Go to <a href='/forgot-password/' style='color: #00A3A1; font-weight: bold;'>Forgot Password</a> and enter your registered email<br>"
+                "2. You will receive a <strong>6-digit OTP</strong> by email (valid for 10 minutes)<br>"
+                "3. Go to <a href='/reset-password/' style='color: #00A3A1; font-weight: bold;'>Reset Password</a>, enter the OTP and your new password<br>"
+                "4. Confirm your new password and click <strong>Reset Password</strong><br><br>"
+                "<strong>Password requirements:</strong><br>"
+                "• Minimum 8 characters<br>"
+                "• At least one uppercase and one lowercase letter<br>"
+                "• At least one number<br>"
+                "• At least one special character: @$!%*?&<br><br>"
+                "<em>Didn't receive the OTP? Check your spam folder. Max 10 requests per hour.</em>"
+            )
+
+        if self.fuzzy_match(message_lower, ['profile', 'my account', 'account settings', 'edit profile', 'update profile']):
+            return (
+                "<strong>👤 Your Profile</strong><br><br>"
+                "To view or edit your profile, go to: <a href='/profile/' style='color: #00A3A1; font-weight: bold;'>→ Profile Page</a><br><br>"
+                "<strong>You can update:</strong><br>"
+                "• Name and preferred name<br>"
+                "• Organisation name and website URL<br>"
+                "• Designation and contact details (phone, WhatsApp, address)<br>"
+                "• Alternate email and personal profile link<br><br>"
+                "<strong>Steps:</strong><br>"
+                "1. Go to your <a href='/profile/' style='color: #00A3A1;'>Profile Page</a><br>"
+                "2. Edit the fields you want to change<br>"
+                "3. Click <strong>Save Changes</strong> to update your profile"
+            )
         
         # Registration and account creation
         if self.fuzzy_match(message_lower, ['register', 'sign up', 'create account', 'become user', 'new account', 'how to become']):
-            return ("<strong>📝 Register for NPDC</strong><br><br>"
-                   "To become a user and submit datasets, you'll need to register for an account. "
-                   "Please click on the <a href='/register/' style='color: #00A3A1; font-weight: bold;'>Register</a> "
-                   "link. This will take you to the registration form.<br><br>"
-                   "The registration form requires your personal and organizational details, including your email address, "
-                   "password, and contact information. Please ensure your email address is valid as it will be used as your "
-                   "username. After submitting the form, you'll receive a confirmation email – please follow the link in that "
-                   "email to activate your account.")
+            return (
+                "<strong>📝 Register for NPDC</strong><br><br>"
+                "<strong>Steps:</strong><br>"
+                "1. Go to <a href='/register/' style='color: #00A3A1; font-weight: bold;'>Register</a> and fill in the form<br>"
+                "2. Required: Title, Full Name, Email (used as username), Password, Organisation name, Organisation website URL, Designation<br>"
+                "3. Optional: Phone, WhatsApp, Address, Alternate email, Personal profile link<br>"
+                "4. Solve the captcha and submit<br><br>"
+                "<strong>⚠️ Important:</strong> After registration, your account is <strong>pending NPDC staff approval</strong>. "
+                "You <strong>cannot log in</strong> until an admin approves your account.<br><br>"
+                "You will receive a confirmation email when approved. For queries contact "
+                "<a href='mailto:npdc@ncpor.res.in' style='color: #00A3A1;'>npdc@ncpor.res.in</a>."
+            )
         
-        if self.fuzzy_match(message_lower, ['login', 'sign in', 'log in']):
-            return "<strong>🔐 Login</strong><br><br>Access your NPDC account:<br><a href='/login/' style='color: #00A3A1; font-weight: bold;'>→ Login Page</a><br><br>Don't have an account? <a href='/register/' style='color: #00A3A1;'>Register here</a>"
+        if self.fuzzy_match(message_lower, ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data', 'how do i submit']):
+            return (
+                "<strong>📤 How to Submit a Dataset</strong><br><br>"
+                "<strong>Steps:</strong><br>"
+                "1. <strong>Log in</strong> — your account must be approved by NPDC staff first<br>"
+                "2. Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a><br>"
+                "3. Fill in the <strong>metadata form</strong>:<br>"
+                "&nbsp;&nbsp;• Title, Abstract (max 1000 chars), Purpose (max 1000 chars), Keywords<br>"
+                "&nbsp;&nbsp;• Expedition Type, Expedition Year, Project Name &amp; Number<br>"
+                "&nbsp;&nbsp;• Category, ISO Topic, Data Progress<br>"
+                "&nbsp;&nbsp;• Temporal coverage (Start &amp; End dates)<br>"
+                "&nbsp;&nbsp;• Spatial coverage (bounding box in Degrees/Minutes/Seconds)<br>"
+                "4. On the next page, <strong>upload files</strong>: Data file, Metadata file, README (all required)<br>"
+                "5. Click <strong>Submit</strong> — your dataset enters the review queue<br><br>"
+                "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Start Submission</a><br><br>"
+                "<em>Use the 9 AI tools on the form to auto-fill fields, generate keywords, check abstract quality, and more.</em>"
+            )
+
+        if self.fuzzy_match(message_lower, ['login', 'sign in', 'log in', 'how to login']):
+            return (
+                "<strong>🔐 Login</strong><br><br>"
+                "Go to the <a href='/login/' style='color: #00A3A1; font-weight: bold;'>Login Page</a> and enter your registered email and password.<br><br>"
+                "<strong>⚠️ Note:</strong> Your account must be <strong>approved by NPDC staff</strong> before you can log in. "
+                "New registrations are reviewed before access is granted.<br><br>"
+                "<strong>Forgot your password?</strong> Use <a href='/forgot-password/' style='color: #00A3A1;'>Forgot Password</a> to receive a 6-digit OTP by email.<br><br>"
+                "Don't have an account? <a href='/register/' style='color: #00A3A1;'>Register here</a>"
+            )
         
         # ADMIN-SPECIFIC RESPONSES
         user_type = getattr(self, 'user_type', 'guest')
@@ -761,17 +829,150 @@ RULES:
             if any(phrase in message_lower for phrase in ['review queue', 'pending review', 'submissions to review', 'review workflow']):
                 return ("<strong>📋 Review Queue Overview</strong><br><br>"
                        "<strong>Current Status:</strong><br>"
-                       "You have multiple submissions awaiting review (shown as \"20 Pending\").<br><br>"
+                       "You have multiple submissions awaiting review.<br><br>"
                        "<strong>Submission States:</strong><br>"
                        "• <strong>Draft</strong> - User saved but didn't submit<br>"
-                       "• <strong>Submitted</strong> - Awaiting admin assignment<br>"
-                       "• <strong>Under Review</strong> - Assigned to an admin<br>"
-                       "• <strong>Approved</strong> - Published and public<br>"
-                       "• <strong>Rejected</strong> - Returned to submitter<br>"
-                       "• <strong>Revision Requested</strong> - Waiting for submitter changes<br><br>"
+                       "• <strong>Submitted</strong> - Awaiting admin review<br>"
+                       "• <strong>Under Review</strong> - Assigned to a reviewer<br>"
+                       "• <strong>Needs Revision</strong> - Waiting for submitter changes<br>"
+                       "• <strong>Published</strong> - Approved and publicly accessible<br><br>"
                        "<strong>Workflow:</strong><br>"
-                       "Submitted → Under Review → (Approve/Reject/Request Changes) → Final Status")
+                       "Submitted → Under Review → (Publish / Request Changes) → Final Status")
         
+        # AI tools / features
+        if self.fuzzy_match(message_lower, ['ai tool', 'ai feature', 'ai helper', 'auto classify', 'smart keyword', 'abstract quality',
+                                             'auto fill', 'smart form', 'spatial extractor', 'coordinate extractor',
+                                             'title generator', 'purpose generator', 'resolution suggester',
+                                             'reviewer assistant', 'ai submission', 'quick start']):
+            ai_list = '<br>'.join([f"• {f}" for f in kb['ai_features']])
+            return (
+                "<strong>🤖 AI-Powered Submission Tools</strong><br><br>"
+                "The submission form includes <strong>9 AI helper tools</strong> to speed up your submission:<br><br>"
+                f"{ai_list}<br><br>"
+                "<strong>How to use:</strong> Look for the <strong>Quick Start Panel</strong> on the submission form "
+                "or the individual AI buttons next to each metadata field.<br><br>"
+                "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Open Submission Form</a>"
+            )
+
+        # Search features
+        if self.fuzzy_match(message_lower, ['search dataset', 'find dataset', 'browse dataset', 'smart search',
+                                             'ai search', 'penguin search', 'search feature', 'filter dataset',
+                                             'search page', 'how to search', 'natural language search', 'rag search']):
+            return (
+                "<strong>🔍 Dataset Search Features</strong><br><br>"
+                "<strong>Main Search</strong> (<a href='/search/' style='color:#00A3A1;'>/search/</a>):<br>"
+                "• Full-text search with sidebar filters (Expedition Type, Category, ISO Topic, Year, Bounding Box)<br>"
+                "• Use quotes for exact phrases e.g. <em>\"ice core\"</em><br>"
+                "• Start with <em>10.</em> to search by DOI<br>"
+                "• Browse by keyword: <a href='/search/browse/keyword/' style='color:#00A3A1;'>/search/browse/keyword/</a><br>"
+                "• Browse by location: <a href='/search/browse/location/' style='color:#00A3A1;'>/search/browse/location/</a><br><br>"
+                "<strong>🐧 Penguin Assist (Smart Search):</strong><br>"
+                "• Toggle the <strong>Smart Search switch</strong> on the main search page<br>"
+                "• Understands natural language like <em>\"glacier data from Himalaya 2024\"</em> and auto-applies filters<br>"
+                "• Generates an AI summary card above results<br>"
+                "• Suggests alternative terms when no results are found<br><br>"
+                "<strong>Dedicated AI Search</strong> (<a href='/search/ai-search/' style='color:#00A3A1;'>/search/ai-search/</a>):<br>"
+                "• RAG-based interface — ask questions in plain language to find relevant datasets"
+            )
+
+        # Data resolution
+        if self.fuzzy_match(message_lower, ['resolution', 'horizontal resolution', 'vertical resolution',
+                                             'temporal resolution', 'spatial resolution', 'data resolution',
+                                             'resolution field', 'resolution guide']):
+            return (
+                "<strong>📐 Data Resolution Fields</strong><br><br>"
+                f"<strong>Lat/Lon Format:</strong> {kb['resolution_guide']['lat_lon']}<br><br>"
+                f"<strong>Horizontal Resolution (Spatial X-Y):</strong><br>{kb['resolution_guide']['horizontal']}<br><br>"
+                f"<strong>Vertical Resolution (Spatial Z):</strong><br>{kb['resolution_guide']['vertical']}<br><br>"
+                f"<strong>Temporal Resolution:</strong><br>{kb['resolution_guide']['temporal']}<br><br>"
+                "<em>Tip: Use the <strong>AI Resolution Suggester</strong> on the submission form to auto-recommend values.</em>"
+            )
+
+        # Data access requests (restricted datasets)
+        if self.fuzzy_match(message_lower, ['access request', 'restricted dataset', 'request data', 'embargoed',
+                                             'get data', 'data request', 'request access', 'how to access']):
+            return (
+                "<strong>🔒 Data Access Requests</strong><br><br>"
+                "Some datasets are <strong>restricted or embargoed</strong> and require a formal request.<br><br>"
+                "<strong>How to Request Access:</strong><br>"
+                "1. Log in to your NPDC account<br>"
+                "2. Open the dataset detail page<br>"
+                "3. Click the <strong>Request Access</strong> button<br>"
+                "4. Submit your request via <a href='/data/get-data/&lt;id&gt;/' style='color:#00A3A1;'>/data/get-data/&lt;id&gt;/</a><br><br>"
+                "<strong>After Submission:</strong><br>"
+                "• NPDC staff review and approve / reject requests<br>"
+                "• You will receive an <strong>email notification</strong> with the decision<br><br>"
+                "For queries contact <a href='mailto:npdc@ncpor.res.in' style='color:#00A3A1;'>npdc@ncpor.res.in</a>"
+            )
+
+        # Dataset export / XML
+        if self.fuzzy_match(message_lower, ['export', 'xml export', 'download metadata', 'metadata xml',
+                                             'export dataset', 'xml file', 'export xml']):
+            return (
+                "<strong>📄 Dataset XML Export</strong><br><br>"
+                "Any <strong>published dataset</strong> can be exported as an XML metadata file.<br><br>"
+                "<strong>URL format:</strong><br>"
+                "<code>/data/export/xml/&lt;metadata_id&gt;/</code><br><br>"
+                "Open a dataset's detail page and click the <strong>Export XML</strong> button, "
+                "or navigate directly to the URL above with the dataset's ID."
+            )
+
+        # Polar directory / stations
+        if self.fuzzy_match(message_lower, ['polar directory', 'research station', 'polar station',
+                                             'station detail', 'station list', 'directory']):
+            return (
+                "<strong>🗺️ Polar Directory & Stations</strong><br><br>"
+                "<strong>Polar Directory</strong> — lists all polar research stations and associated researchers/datasets:<br>"
+                "<a href='/polar-directory/' style='color:#00A3A1; font-weight:bold;'>→ /polar-directory/</a><br><br>"
+                "<strong>Station Detail</strong> — detailed page for an individual station:<br>"
+                "<a href='/station/&lt;name&gt;/' style='color:#00A3A1;'>/station/&lt;name&gt;/</a><br><br>"
+                "Browse stations to find datasets linked to specific research locations."
+            )
+
+        # DOI questions
+        if self.fuzzy_match(message_lower, ['doi', 'digital object identifier', 'doi assign',
+                                             'search by doi', 'doi search']):
+            return (
+                "<strong>🔗 DOI (Digital Object Identifier)</strong><br><br>"
+                "NPDC assigns DOIs to published datasets for permanent citation.<br><br>"
+                "<strong>During Submission:</strong><br>"
+                "• The DOI field is <strong>optional</strong> — leave it blank if you don't have one yet<br>"
+                "• NPDC may assign a DOI upon approval<br><br>"
+                "<strong>Searching by DOI:</strong><br>"
+                "• On the <a href='/search/' style='color:#00A3A1;'>Search Page</a>, start your query with <em>10.</em> to search by DOI<br>"
+                "(e.g. <em>10.1234/npdc.2024.001</em>)"
+            )
+
+        # Keywords / GCMD
+        if self.fuzzy_match(message_lower, ['keyword', 'gcmd', 'smart keyword', 'suggest keyword', 'keyword generator']):
+            return (
+                "<strong>🏷️ Dataset Keywords</strong><br><br>"
+                "NPDC recommends using <strong>GCMD (Global Change Master Directory)</strong> keywords "
+                "for maximum discoverability.<br><br>"
+                "<strong>How to add keywords:</strong><br>"
+                "• Type keywords in the Keywords field on the submission form<br>"
+                "• Separate multiple keywords with commas<br>"
+                "• Use the <strong>🤖 Smart Keywords Generator</strong> AI tool to auto-suggest GCMD-compliant keywords from your abstract<br><br>"
+                "<em>Good keywords greatly improve how easily other researchers find your dataset.</em>"
+            )
+
+        # ISO Topic categories
+        if self.fuzzy_match(message_lower, ['iso topic', 'iso category', 'iso standard', 'topic category']):
+            iso_topics = [
+                'Climatology / Meteorology / Atmosphere', 'Oceans', 'Environment',
+                'Geoscientific Information', 'Imagery / Base Maps / Earth Cover',
+                'Inland Waters', 'Location', 'Boundaries', 'Biota', 'Economy',
+                'Elevation', 'Farming', 'Health', 'Intelligence / Military',
+                'Society', 'Structure', 'Transportation', 'Utilities / Communication',
+            ]
+            iso_list = '<br>'.join([f"• {t}" for t in iso_topics])
+            return (
+                "<strong>🌐 ISO Topic Categories</strong><br><br>"
+                "ISO Topic is a standardised classification used alongside the Data Category.<br><br>"
+                f"{iso_list}<br><br>"
+                "<em>Use the <strong>Auto-Classify</strong> AI tool on the submission form to get an automatic suggestion.</em>"
+            )
+
         # Dataset submission
         if any(word in message_lower for word in ['submit', 'submission', 'upload', 'how to']):
             steps = '<br>'.join([f"{i+1}. {step}" for i, step in enumerate(kb['submission_steps'])])
@@ -783,40 +984,44 @@ RULES:
         
         # Expeditions
         if any(word in message_lower for word in ['expedition', 'antarctic', 'arctic', 'himalaya', 'southern ocean']):
-            exp_list = '<br>'.join([f"• <strong>{e['name']}</strong> - {e['description'][:60]}..." for e in kb['expedition_types']])
+            exp_list = '<br>'.join([f"• <strong>{e['name']}</strong> - {e['description'][:80]}" for e in kb['expedition_types']])
             return (
                 f"<strong>🧊 Expedition Types</strong><br><br>"
                 f"NPDC archives data from these expedition types:<br><br>{exp_list}<br><br>"
                 f"Select the appropriate type when submitting your dataset."
             )
         
-        # Metadata
+        # Metadata fields
         if any(word in message_lower for word in ['metadata', 'field', 'required', 'information']):
             return (
                 "<strong>📋 Required Metadata Fields</strong><br><br>"
                 "<strong>Identification:</strong><br>"
-                "• Title, Abstract, Purpose<br>"
+                "• Title (max 220 characters)<br>"
+                "• Abstract (max 1000 characters)<br>"
+                "• Purpose (max 1000 characters)<br>"
                 "• Keywords (GCMD recommended)<br>"
                 "• DOI (optional)<br><br>"
                 "<strong>Project Info:</strong><br>"
-                "• Expedition Type & Year<br>"
-                "• Project Name & Number<br>"
-                "• Category & ISO Topic<br><br>"
+                "• Expedition Type &amp; Year<br>"
+                "• Project Name &amp; Number<br>"
+                "• Category &amp; ISO Topic<br>"
+                "• Data Progress<br><br>"
                 "<strong>Coverage:</strong><br>"
-                "• Temporal (start/end dates)<br>"
-                "• Spatial (bounding box coordinates)<br><br>"
-                "<strong>Access:</strong><br>"
-                "• Access Type (Open/Restricted/Embargoed)<br>"
-                "• License information"
+                "• Temporal: Start &amp; End dates<br>"
+                "• Spatial: Bounding box (West/East longitude, North/South latitude in DMS)<br><br>"
+                "<strong>Files (next page):</strong><br>"
+                "• Data file, Metadata file, README — all required<br><br>"
+                "<em>Use AI tools on the form to auto-fill many of these fields.</em>"
             )
         
         # Categories
         if any(word in message_lower for word in ['category', 'categories', 'topic', 'science']):
             cat_list = '<br>'.join([f"• {c}" for c in kb['categories']])
             return (
-                f"<strong>🔬 Data Categories</strong><br><br>"
+                f"<strong>🔬 Data Categories ({len(kb['categories'])} total)</strong><br><br>"
                 f"NPDC supports these scientific categories:<br><br>{cat_list}<br><br>"
-                f"Select the most appropriate category for your dataset."
+                f"Select the most appropriate category for your dataset. "
+                f"Use the <strong>Auto-Classify</strong> AI tool for an automatic suggestion."
             )
         
         # About NPDC
@@ -824,10 +1029,11 @@ RULES:
             return (
                 f"<strong>ℹ️ About NPDC</strong><br><br>"
                 f"{kb['portal']['purpose']}<br><br>"
-                f"<strong>Managed by:</strong><br>"
-                f"• {kb['portal']['organizer']}<br>"
-                f"• {kb['portal']['ministry']}<br><br>"
-                f"We archive data from Antarctic, Arctic, Himalayan, and Southern Ocean expeditions."
+                f"<strong>Organisation:</strong> {kb['portal']['organizer']}<br>"
+                f"<strong>Ministry:</strong> {kb['portal']['ministry']}<br>"
+                f"<strong>Location:</strong> {kb['portal']['location']}<br><br>"
+                f"We archive data from Antarctic, Arctic, Himalayan, and Southern Ocean expeditions "
+                f"and provide DOI assignment, metadata standardisation, and data access management."
             )
         
         # Contact
@@ -844,13 +1050,14 @@ RULES:
         # Status/Review
         if any(word in message_lower for word in ['status', 'review', 'approval', 'pending']):
             return (
-                "<strong>📊 Submission Status</strong><br><br>"
+                "<strong>📊 Submission Status Workflow</strong><br><br>"
                 "Datasets go through these stages:<br><br>"
-                "• <strong>Draft</strong> - Saved but not submitted<br>"
-                "• <strong>Submitted</strong> - Awaiting reviewer assignment<br>"
-                "• <strong>Under Review</strong> - Being evaluated<br>"
-                "• <strong>Approved</strong> - Published and accessible<br>"
-                "• <strong>Rejected</strong> - Needs revision (can resubmit)<br><br>"
+                "• <strong>Draft</strong> — Saved but not submitted; you can edit freely<br>"
+                "• <strong>Submitted</strong> — Awaiting reviewer assignment<br>"
+                "• <strong>Under Review</strong> — Being evaluated by NPDC staff<br>"
+                "• <strong>Needs Revision</strong> — Reviewer requested changes; update and resubmit<br>"
+                "• <strong>Published</strong> — Approved and publicly accessible<br><br>"
+                "<em>Note: There is no 'Approved' or 'Rejected' status — the final positive state is <strong>Published</strong>.</em><br><br>"
                 "<a href='/data/my-submissions/' style='color: #00A3A1;'>→ Check Your Submissions</a>"
             )
         
@@ -859,9 +1066,12 @@ RULES:
             "<strong>Welcome to NPDC Portal!</strong><br><br>"
             "I can help you with:<br>"
             "• 📤 Submitting datasets<br>"
+            "• 🤖 AI submission tools (auto-classify, smart keywords, etc.)<br>"
+            "• 🔍 Searching &amp; filtering datasets<br>"
             "• 🧊 Expedition information<br>"
-            "• 📋 Metadata requirements<br>"
+            "• 📋 Metadata requirements &amp; data resolution<br>"
             "• 📊 Submission status<br>"
+            "• 🔒 Data access requests<br>"
             "• 📧 Contact information<br><br>"
             "What would you like to know?"
         )

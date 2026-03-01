@@ -2164,68 +2164,36 @@
     function autoFillCitation() {
         const userName = '{{ request.user.get_full_name|escapejs }}' || '{{ request.user.username|escapejs }}';
         const userOrg = '{{ request.user.profile.organisation|default:""|escapejs }}';
+        const userOrgUrl = '{{ request.user.profile.organisation_url|default:""|escapejs }}';
+        // Dataset title from the main form (no prefix)
         const datasetTitle = (document.getElementById('id_title') ? document.getElementById('id_title').value.trim() : '');
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD (required by <input type="date">)
 
-        // Creator = user full name
-        const creatorField = document.getElementById('id_creator');
-        if (creatorField && !creatorField.value.trim()) {
-            creatorField.value = userName;
-            markAiFilled('id_creator');
-        }
+        // Citation form uses prefix="citation" → IDs are id_citation-<field>
+        const PREFIX = 'id_citation-';
 
-        // Editor = user full name (same person by default)
-        const editorField = document.getElementById('id_editor');
-        if (editorField && !editorField.value.trim()) {
-            editorField.value = userName;
-            markAiFilled('id_editor');
-        }
-
-        // Citation Title = dataset title
-        const citTitleField = document.getElementById('id_title') ? null : null; // citation title is different
-        // Find the citation title field (it's the second 'title' field in citation form)
-        const citTitle = document.querySelector('#id_citation-title') || document.querySelectorAll('input[name="title"]')[1] || document.getElementById('id_title');
-        // Actually crispy forms prefixes—let's find by name
-        const citTitleEl = document.querySelector('input[name="title"][id="id_title"]');
-        // The citation form title shares name "title" — let's use a different approach
-        // The citation_form.title renders as id_title but there may be a conflict with dataset title
-        // Let's search for the fieldset
-        const citationFieldset = document.getElementById('ai-citation-btn').closest('fieldset');
-        if (citationFieldset) {
-            const titleInput = citationFieldset.querySelector('input[name="title"]');
-            if (titleInput && !titleInput.value.trim() && datasetTitle) {
-                titleInput.value = datasetTitle;
-                titleInput.classList.add('ai-filled-field');
-                setTimeout(() => titleInput.classList.remove('ai-filled-field'), 8000);
+        function setField(fieldName, value) {
+            if (!value) return;
+            const el = document.getElementById(PREFIX + fieldName);
+            if (el && !el.value.trim()) {
+                el.value = value;
+                markAiFilled(PREFIX + fieldName);
             }
         }
 
-        // Series Name = "NPDC Dataset Series"
-        const seriesField = document.getElementById('id_series_name');
-        if (seriesField && !seriesField.value.trim()) {
-            seriesField.value = 'NPDC Dataset Series';
-            markAiFilled('id_series_name');
-        }
+        setField('creator', userName);
+        setField('editor', userName);
+        setField('title', datasetTitle);
+        setField('series_name', 'NPDC Dataset Series');
+        setField('release_place', userOrg || 'National Polar Data Centre, NCPOR, Goa');
+        setField('version', '1.0');
+        setField('online_resource', userOrgUrl);
 
-        // Release Date = today
-        const releaseDateField = document.getElementById('id_release_date');
+        // Release date needs special handling (empty string check differs)
+        const releaseDateField = document.getElementById(PREFIX + 'release_date');
         if (releaseDateField && !releaseDateField.value) {
             releaseDateField.value = today;
-            markAiFilled('id_release_date');
-        }
-
-        // Release Place = user organisation
-        const releasePlaceField = document.getElementById('id_release_place');
-        if (releasePlaceField && !releasePlaceField.value.trim() && userOrg) {
-            releasePlaceField.value = userOrg;
-            markAiFilled('id_release_place');
-        }
-
-        // Version = 1.0
-        const versionField = document.getElementById('id_version');
-        if (versionField && !versionField.value.trim()) {
-            versionField.value = '1.0';
-            markAiFilled('id_version');
+            markAiFilled(PREFIX + 'release_date');
         }
     }
 
@@ -2835,7 +2803,7 @@
     // Form field definitions by section
     const FORM_SECTIONS = {
         identification: [
-            { id: 'expedition_type', name: 'Expedition Type', required: true, weight: 1 },
+            { id: 'expedition_type', name: 'Expedition Type', required: true, weight: 1, customCheck: () => !!document.querySelector('input[name="expedition_type"]:checked') },
             { id: 'id_title', name: 'Title', required: true, weight: 1 },
             { id: 'id_expedition_year', name: 'Expedition Year', required: true, weight: 1 },
             { id: 'id_expedition_number', name: 'Expedition Number', required: false, weight: 0.5 },

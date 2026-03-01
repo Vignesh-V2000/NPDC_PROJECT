@@ -31,6 +31,7 @@ from .ai_helpers import (
     generate_title,
     generate_purpose,
     suggest_resolution,
+    check_ai_rate_limit,
 )
 from .forms import (
     DatasetSubmissionForm,
@@ -993,10 +994,20 @@ National Polar Data Center
 # AI-POWERED API ENDPOINTS
 # =====================================================
 
+def _check_ai_limit(request):
+    """Check per-user AI rate limit. Returns JsonResponse if limited, else None."""
+    if not check_ai_rate_limit(request.user.id):
+        return JsonResponse({'error': 'AI rate limit reached. Please wait before trying again (max 30 requests/hour).'}, status=429)
+    return None
+
+
 @login_required
 @require_post_method
 def ai_classify_view(request):
     """API: AI auto-classify dataset into category, topic, ISO topic."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1017,6 +1028,9 @@ def ai_classify_view(request):
 @require_post_method
 def ai_keywords_view(request):
     """API: AI suggest scientific keywords."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1037,6 +1051,9 @@ def ai_keywords_view(request):
 @require_post_method
 def ai_check_abstract_view(request):
     """API: AI abstract quality checker."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1057,6 +1074,9 @@ def ai_check_abstract_view(request):
 @require_post_method
 def ai_extract_spatial_view(request):
     """API: AI extract/suggest spatial coordinates."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1077,6 +1097,9 @@ def ai_extract_spatial_view(request):
 @require_post_method
 def ai_prefill_view(request):
     """API: AI smart form pre-fill (combines classify + keywords + abstract check + spatial)."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1097,6 +1120,9 @@ def ai_prefill_view(request):
 @require_post_method
 def ai_generate_title_view(request):
     """API: AI-powered dataset title generator from abstract."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         abstract = data.get('abstract', '').strip()
@@ -1116,6 +1142,9 @@ def ai_generate_title_view(request):
 @require_post_method
 def ai_generate_purpose_view(request):
     """API: AI-powered purpose statement generator from title + abstract."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1136,6 +1165,9 @@ def ai_generate_purpose_view(request):
 @require_post_method
 def ai_suggest_resolution_view(request):
     """API: AI-powered data resolution suggester."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         title = data.get('title', '').strip()
@@ -1158,6 +1190,9 @@ def ai_suggest_resolution_view(request):
 @require_post_method
 def ai_review_assist_view(request):
     """API: AI reviewer assistant for submission review."""
+    limited = _check_ai_limit(request)
+    if limited:
+        return limited
     try:
         data = json.loads(request.body)
         submission_id = data.get('submission_id')

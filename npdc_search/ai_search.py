@@ -546,7 +546,7 @@ def ai_search_answer(query, filters=None, top_k=5):
 
     for i, d in enumerate(results, 1):
         ds = {
-            'id': d.id,
+            'id': d.metadata_id,
             'title': d.title,
             'abstract': d.abstract[:150],
             'keywords': d.keywords[:100] if d.keywords else '',
@@ -559,7 +559,7 @@ def ai_search_answer(query, filters=None, top_k=5):
 
         # Compact context for LLM (fewer tokens)
         context_lines.append(
-            f"{i}. [ID: {d.id}] {d.title}\n"
+            f"{i}. [ID: {d.metadata_id}] {d.title}\n"
             f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
             f"   {ds['abstract']}\n"
         )
@@ -644,7 +644,7 @@ def ai_search_answer(query, filters=None, top_k=5):
         # Re-serialize datasets from corrected search results
         for i, d in enumerate(results, 1):
             ds = {
-                'id': d.id,
+                'id': d.metadata_id,
                 'title': d.title,
                 'abstract': d.abstract[:150],
                 'keywords': d.keywords[:100] if d.keywords else '',
@@ -655,7 +655,7 @@ def ai_search_answer(query, filters=None, top_k=5):
             }
             datasets_list.append(ds)
             context_lines.append(
-                f"{i}. [ID: {d.id}] {d.title}\n"
+                f"{i}. [ID: {d.metadata_id}] {d.title}\n"
                 f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
                 f"   {ds['abstract']}\n"
             )
@@ -676,8 +676,12 @@ def ai_search_answer(query, filters=None, top_k=5):
         "3. If the query is unrelated to polar/cryosphere science, start with 'UNRELATED:'.\n"
         "4. If results don't match the question, say you couldn't find matching datasets.\n"
         "5. For total count questions, use the count from the NOTE.\n"
-        "6. Be concise. Use bullet points. Include title, region, period, category.\n"
-        "7. Speak naturally — say 'I found' not 'based on the provided datasets'."
+        "6. Format each result as a SINGLE bullet in this exact structure:\n"
+        "   • Title [ID: X] - Category, Region, StartDate to EndDate\n"
+        "     Brief 1-2 sentence summary of what the dataset contains.\n"
+        "   Do NOT add extra sub-bullets or split metadata across multiple lines.\n"
+        "7. Start with one short sentence like 'I found X datasets related to ...'\n"
+        "8. Speak naturally — say 'I found' not 'based on the provided datasets'."
     )
 
     user_msg = (
@@ -688,7 +692,7 @@ def ai_search_answer(query, filters=None, top_k=5):
         f"Answer naturally, citing dataset titles and IDs."
     )
 
-    answer = _call_llm_chat(system_prompt, user_msg, max_tokens=500, temperature=0.3)
+    answer = _call_llm_chat(system_prompt, user_msg, max_tokens=700, temperature=0.3)
 
     if not answer:
         answer = (
