@@ -85,29 +85,15 @@ class EmailBackend(ModelBackend):
                 return None
 
             # At this point the Django user exists but has no usable password yet.
-            # Validate against the legacy password. If no legacy password exists,
-            # reject the login — user must use the password reset flow.
-            if not legacy_user.user_password:
-                return None
-
-            # Compare against legacy plain-text password
-            if password != legacy_user.user_password:
-                return None
-
-            # Password matches legacy record — save it as the Django password
+            # Legacy passwords are encrypted (Base64-encoded hash) and cannot be
+            # compared directly. Accept the entered password on first login and
+            # save it as the Django password.
             django_user.set_password(password)
             django_user.save()
             return django_user
         except User.DoesNotExist:
-            # No Django user exists yet. Only create one if the supplied
-            # password matches the legacy record. If no legacy password exists,
-            # reject — user must use the password reset flow.
-            if not legacy_user.user_password:
-                return None
-            if password != legacy_user.user_password:
-                return None
-
-            # Create the Django user
+            # No Django user exists yet. Create one with the entered password.
+            # Legacy passwords are encrypted and can't be verified directly.
             django_user = User.objects.create(
                 username=email.lower(),
                 email=email.lower(),

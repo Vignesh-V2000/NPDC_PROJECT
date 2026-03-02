@@ -63,11 +63,6 @@ class Command(BaseCommand):
                 is_admin = legacy_user.user_role and 'administrator' in legacy_user.user_role.lower()
                 django_user.is_staff = is_admin
                 django_user.is_superuser = False
-                
-                # Import password from legacy table
-                if legacy_user.user_password and not django_user.has_usable_password():
-                    django_user.set_password(legacy_user.user_password)
-                
                 django_user.save()
                 
                 # Create or update profile
