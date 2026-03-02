@@ -106,11 +106,21 @@ class LoginAttempt(models.Model):
 
 class PasswordResetOTP(models.Model):
     """
-    Stores time-limited 6-digit OTPs for password reset.
-    Valid for 10 minutes after creation.
+    Originally used to store time‑limited 6-digit OTPs for password resets.
+    After switching to a token/link workflow the table is now repurposed as a
+    simple log of password reset *requests*; instances are created whenever a
+    reset email is sent so that we can continue to rate‑limit by IP.
+
+    We additionally store the base64-encoded token that was delivered in the
+    email.  This allows us to recover from cases where a user clicks a
+    wrapped/truncated link by looking up the correct, full token and
+    redirecting them automatically.
+
+    (Unused OTP values may still exist from earlier deployments.)
     """
     email = models.EmailField()
     otp = models.CharField(max_length=6)
+    token_b64 = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
 
