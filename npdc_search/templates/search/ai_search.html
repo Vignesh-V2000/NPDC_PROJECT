@@ -70,32 +70,9 @@
         <div class="chat-messages" id="chat-messages">
             <!-- Welcome state -->
             <div class="welcome-state" id="welcome-state">
-                <div class="welcome-orbs">
-                    <div class="welcome-orb welcome-orb-1"></div>
-                    <div class="welcome-orb welcome-orb-2"></div>
-                    <div class="welcome-orb welcome-orb-3"></div>
-                </div>
-                <div class="welcome-icon-ring">
-                    <div class="welcome-icon">
-                        <span style="font-size:2rem;">🐧</span>
-                    </div>
-                </div>
-                <h2 class="welcome-title">Penguin Search <small class="text-warning">alpha</small></h2>
-                <p class="welcome-subtitle">Your AI-powered gateway to India's polar and cryospheric research datasets</p>
-                <div class="welcome-chips">
-                    <div class="welcome-chip" onclick="prefillAndSend('What datasets are available about Antarctic ice cores?')">
-                        <i class="fas fa-snowflake"></i>Antarctic ice core datasets
-                    </div>
-                    <div class="welcome-chip" onclick="prefillAndSend('Show me research data from Himalayan glaciers')">
-                        <i class="fas fa-mountain"></i>Himalayan glacier research
-                    </div>
-                    <div class="welcome-chip" onclick="prefillAndSend('What ocean temperature data exists from Southern Ocean expeditions?')">
-                        <i class="fas fa-water"></i>Southern Ocean temperature
-                    </div>
-                    <div class="welcome-chip" onclick="prefillAndSend('Find atmospheric studies from Arctic expeditions')">
-                        <i class="fas fa-wind"></i>Arctic atmospheric studies
-                    </div>
-                </div>
+
+                <h2>🐧 Penguin Search <small class="text-warning">alpha</small></h2>
+                <p>Ask questions about India's polar and cryospheric research datasets</p>
             </div>
         </div>
 
@@ -159,19 +136,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        position: relative;
-    }
-
-    .sidebar-header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 16px;
-        right: 16px;
-        height: 2px;
-        background: linear-gradient(90deg, #0088CC, #8b5cf6, #06b6d4);
-        border-radius: 2px;
-        opacity: 0.5;
     }
 
     .sidebar-brand {
@@ -498,102 +462,17 @@
         justify-content: center;
         text-align: center;
         padding: 2rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Floating Orbs */
-    .welcome-orbs {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    .welcome-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        opacity: 0.12;
-    }
-
-    .welcome-orb-1 {
-        width: 350px;
-        height: 350px;
-        background: #0088CC;
-        top: 10%;
-        left: 15%;
-        animation: wOrb1 9s ease-in-out infinite;
-    }
-
-    .welcome-orb-2 {
-        width: 250px;
-        height: 250px;
-        background: #8b5cf6;
-        top: 20%;
-        right: 15%;
-        animation: wOrb2 11s ease-in-out infinite;
-    }
-
-    .welcome-orb-3 {
-        width: 300px;
-        height: 300px;
-        background: #06b6d4;
-        bottom: 10%;
-        left: 35%;
-        animation: wOrb1 13s ease-in-out infinite reverse;
-    }
-
-    @keyframes wOrb1 {
-        0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(25px, 20px); }
-    }
-
-    @keyframes wOrb2 {
-        0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(-20px, 25px); }
-    }
-
-    /* Icon Ring */
-    .welcome-icon-ring {
-        position: relative;
-        z-index: 1;
-        margin-bottom: 1.25rem;
-    }
-
-    .welcome-icon-ring::before {
-        content: '';
-        position: absolute;
-        inset: -8px;
-        border-radius: 50%;
-        border: 2px solid transparent;
-        background: conic-gradient(from 0deg, #0088CC, #8b5cf6, #06b6d4, #0088CC) border-box;
-        -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        animation: ringRotate 4s linear infinite;
-    }
-
-    @keyframes ringRotate {
-        to { transform: rotate(360deg); }
     }
 
     .welcome-icon {
-        width: 72px;
-        height: 72px;
+        width: 64px;
+        height: 64px;
         background: linear-gradient(135deg, #004F87, #0088CC);
-        border-radius: 50%;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 30px rgba(0, 136, 204, 0.25);
-        animation: iconPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes iconPulse {
-        0%, 100% { box-shadow: 0 0 30px rgba(0, 136, 204, 0.25); }
-        50% { box-shadow: 0 0 50px rgba(0, 136, 204, 0.4); }
+        margin-bottom: 1.25rem;
     }
 
     .welcome-icon i {
@@ -601,34 +480,16 @@
         color: white;
     }
 
-    .welcome-title {
+    .welcome-state h2 {
         color: #FFFFFF;
-        font-size: 1.75rem;
-        font-weight: 800;
+        font-size: 1.5rem;
         margin-bottom: 0.5rem;
-        position: relative;
-        z-index: 1;
-        letter-spacing: -0.02em;
-        background: linear-gradient(135deg, #ffffff, #93c5fd, #ffffff);
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: titleShimmer 4s ease-in-out infinite;
     }
 
-    @keyframes titleShimmer {
-        0%, 100% { background-position: 0% center; }
-        50% { background-position: 200% center; }
-    }
-
-    .welcome-subtitle {
+    .welcome-state p {
         color: rgba(255, 255, 255, 0.45);
         font-size: 0.95rem;
         margin-bottom: 2rem;
-        position: relative;
-        z-index: 1;
-        max-width: 420px;
     }
 
     .welcome-chips {
@@ -636,8 +497,6 @@
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         max-width: 550px;
-        position: relative;
-        z-index: 1;
     }
 
     .welcome-chip {
@@ -649,27 +508,21 @@
         font-size: 0.85rem;
         text-align: left;
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(4px);
+        transition: all 0.2s;
     }
 
     .welcome-chip:hover {
-        background: rgba(0, 136, 204, 0.12);
-        border-color: rgba(0, 136, 204, 0.5);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 136, 204, 0.4);
         color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 136, 204, 0.1);
+        transform: translateY(-1px);
     }
 
     .welcome-chip i {
-        margin-right: 8px;
+        margin-right: 6px;
+        color: #0088CC;
         font-size: 0.8rem;
     }
-
-    .welcome-chip .fa-snowflake { color: #60a5fa; }
-    .welcome-chip .fa-mountain { color: #a78bfa; }
-    .welcome-chip .fa-water { color: #22d3ee; }
-    .welcome-chip .fa-wind { color: #34d399; }
 
     /* ===== MESSAGE BUBBLES ===== */
     .message-row {
@@ -1155,32 +1008,11 @@
         border-radius: 28px;
         padding: 4px;
         transition: all 0.3s;
-        position: relative;
-    }
-
-    .chat-input-wrapper::before {
-        content: '';
-        position: absolute;
-        inset: -1px;
-        border-radius: 28px;
-        padding: 1px;
-        background: linear-gradient(135deg, #0088CC, #8b5cf6, #06b6d4);
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        pointer-events: none;
-    }
-
-    .chat-input-wrapper:focus-within::before {
-        opacity: 1;
     }
 
     .chat-input-wrapper:focus-within {
         border-color: rgba(0, 136, 204, 0.6);
-        box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1), 0 8px 32px rgba(0, 136, 204, 0.08);
+        box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
         background: rgba(255, 255, 255, 0.06);
     }
 
@@ -1218,38 +1050,28 @@
     .send-btn {
         width: 42px;
         height: 42px;
-        background: linear-gradient(135deg, #0088CC, #006fa3);
+        background: #0088CC;
         border: none;
         border-radius: 50%;
         color: white;
         font-size: 0.9rem;
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s;
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(0, 136, 204, 0.25);
     }
 
     .send-btn:hover {
-        background: linear-gradient(135deg, #006fa3, #004F87);
-        transform: scale(1.08) translateY(-1px);
-        box-shadow: 0 6px 20px rgba(0, 136, 204, 0.35);
+        background: #006fa3;
+        transform: scale(1.05);
     }
 
     .send-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
         transform: none;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-6px); }
-        40% { transform: translateX(6px); }
-        60% { transform: translateX(-4px); }
-        80% { transform: translateX(4px); }
     }
 
     .disclaimer {
@@ -1389,11 +1211,6 @@
         sendMessage();
     }
 
-    function prefillAndSend(text) {
-        chatInput.value = text;
-        sendMessage();
-    }
-
     // Get CSRF token from cookie
     function getCsrfToken() {
         const name = 'csrftoken';
@@ -1409,19 +1226,7 @@
 
     function sendMessage(retryQuery) {
         const query = retryQuery || chatInput.value.trim();
-        if (!query || isProcessing) return;
-
-        if (query.length < 3) {
-            // Visual feedback: shake the input and show minimum length message
-            const wrapper = document.querySelector('.chat-input-wrapper');
-            wrapper.style.animation = 'shake 0.4s ease';
-            chatInput.placeholder = 'Please type at least 3 characters...';
-            setTimeout(() => {
-                wrapper.style.animation = '';
-                chatInput.placeholder = 'What would you like to ask?';
-            }, 2000);
-            return;
-        }
+        if (!query || query.length < 3 || isProcessing) return;
 
         isProcessing = true;
         currentQuery = query;
@@ -1558,9 +1363,7 @@
                 const idMatch = content.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/);
                 if (idMatch) {
                     const datasetId = idMatch[1];
-                    const ds = window.currentResponseDatasets ? window.currentResponseDatasets.find(d => String(d.id) === datasetId) : null;
-                    const realId = ds ? (ds.metadata_id || ds.id) : datasetId;
-                    html += `<li><a href="/data/view/${realId}/" target="_blank" class="dataset-result-link">${content} <i class="fas fa-external-link-alt" style="font-size:0.65rem;opacity:0.5;margin-left:3px;"></i></a></li>`;
+                    html += `<li><a href="/data/view/${datasetId}/" target="_blank" class="dataset-result-link">${content} <i class="fas fa-external-link-alt" style="font-size:0.65rem;opacity:0.5;margin-left:3px;"></i></a></li>`;
                 } else {
                     html += `<li>${content}</li>`;
                 }
@@ -1573,9 +1376,7 @@
                     const idMatch = trimmed.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/);
                     if (idMatch) {
                         const datasetId = idMatch[1];
-                        const ds = window.currentResponseDatasets ? window.currentResponseDatasets.find(d => String(d.id) === datasetId) : null;
-                        const realId = ds ? (ds.metadata_id || ds.id) : datasetId;
-                        html += `<p style="margin:0 0 4px 0"><a href="/data/view/${realId}/" target="_blank" class="dataset-result-link">${trimmed} <i class="fas fa-external-link-alt" style="font-size:0.65rem;opacity:0.5;margin-left:3px;"></i></a></p>`;
+                        html += `<p style="margin:0 0 4px 0"><a href="/data/view/${datasetId}/" target="_blank" class="dataset-result-link">${trimmed} <i class="fas fa-external-link-alt" style="font-size:0.65rem;opacity:0.5;margin-left:3px;"></i></a></p>`;
                     } else {
                         html += `<p style="margin:0 0 4px 0">${trimmed}</p>`;
                     }
@@ -1628,7 +1429,6 @@
     }
 
     function appendAIMessage(answer, datasets, correctedQuery, suggestions, responseTime) {
-        window.currentResponseDatasets = datasets; // Save so formatAnswer can use it
         const row = document.createElement('div');
         row.className = 'message-row message-ai';
 
@@ -1640,8 +1440,7 @@
         if (datasets.length > 0) {
             pillsHtml = '<div class="source-pills" style="display:none;">';
             datasets.forEach((ds, i) => {
-                const lnkId = ds.metadata_id || ds.id;
-                pillsHtml += `<a class="source-pill" href="/data/view/${lnkId}/" target="_blank" title="${escapeHtml(ds.title)}">${i + 1}</a>`;
+                pillsHtml += `<a class="source-pill" href="/data/view/${ds.id}/" target="_blank" title="${escapeHtml(ds.title)}">${i + 1}</a>`;
             });
             pillsHtml += '</div>';
         }
@@ -1777,9 +1576,8 @@
             const color = colors[i % colors.length];
             const period = (ds.temporal_start && ds.temporal_end && ds.temporal_start !== 'None')
                 ? `${ds.temporal_start} — ${ds.temporal_end}` : '';
-            const lnkId = ds.metadata_id || ds.id;
             html += `
-                <a href="/data/view/${lnkId}/" target="_blank" class="research-item">
+                <a href="/data/view/${ds.id}/" target="_blank" class="research-item">
                     <span class="research-item-num" style="background:${color}">${i + 1}</span>
                     <div class="research-item-info">
                         <div class="research-item-title">${escapeHtml(ds.title)}</div>
