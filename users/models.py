@@ -80,7 +80,7 @@ class UserLogin(models.Model):
     alt_mobile_no = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'user_login'
 
     def __str__(self):

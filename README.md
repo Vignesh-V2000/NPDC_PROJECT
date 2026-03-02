@@ -97,6 +97,8 @@ psql -U postgres -d metainfo -f metainfo_23_feb2026.sql
 python manage.py migrate
 ```
 
+> **Note:** Data download requests no longer require admin approval; they are simply recorded for staff to review as a log.  The old approval/rejection workflow has been removed.
+
 ### 7. Create the cache table
 
 ```bash

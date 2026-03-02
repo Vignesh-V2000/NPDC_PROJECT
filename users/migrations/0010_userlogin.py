@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'user_login',
-                'managed': False,
+                'managed': True,
             },
         ),
     ]
