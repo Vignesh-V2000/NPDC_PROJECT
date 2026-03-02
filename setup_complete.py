@@ -190,6 +190,9 @@ def step_4c_setup_child_admins():
             try:
                 legacy_user = UserLogin.objects.get(user_id=username)
                 
+                # Use the actual password from the legacy database
+                actual_password = legacy_user.user_password if legacy_user.user_password else 'admin123'
+                
                 django_user, created = User.objects.get_or_create(
                     username=username,
                     defaults={
@@ -207,9 +210,9 @@ def step_4c_setup_child_admins():
                     django_user.is_staff = True
                     django_user.save()
                 
-                # Set password if not set or for new creation
+                # Set password from legacy database
                 if created or not django_user.has_usable_password():
-                    django_user.set_password(child_admin_password)
+                    django_user.set_password(actual_password)
                     django_user.save()
                 
                 # Create/update profile with expedition type

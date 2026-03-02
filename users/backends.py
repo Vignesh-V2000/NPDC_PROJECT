@@ -85,77 +85,36 @@ class EmailBackend(ModelBackend):
                 return None
 
             # At this point the Django user exists but has no usable password yet.
-            # Legacy data may still contain the real password; if so we must
-            # validate against it rather than blindly accepting whatever the
-            # user typed.  This avoids the situation where a first-time login
-            # with the wrong password locks the user in with that incorrect
-            # value.
-            if legacy_user.user_password:
-                # legacy_password may be stored plain‑text in the old table.
-                # compare directly; if your system used hashing you would need
-                # to apply the same algorithm here instead.
-                if password != legacy_user.user_password:
-                    # entered password doesn't match the one already in the
-                    # database, reject the login.
-                    return None
+            # Validate against the legacy password. If no legacy password exists,
+            # reject the login — user must use the password reset flow.
+            if not legacy_user.user_password:
+                return None
 
-            # Either there was no legacy password recorded or it matched the
-            # supplied value; store the (correct) password on the Django user
-            # and return them.
+            # Compare against legacy plain-text password
+            if password != legacy_user.user_password:
+                return None
+
+            # Password matches legacy record — save it as the Django password
             django_user.set_password(password)
             django_user.save()
             return django_user
         except User.DoesNotExist:
-            # No Django user exists yet.  Only create one if the supplied
-            # password matches the legacy record (if present).
-            if legacy_user.user_password and password != legacy_user.user_password:
+            # No Django user exists yet. Only create one if the supplied
+            # password matches the legacy record. If no legacy password exists,
+            # reject — user must use the password reset flow.
+            if not legacy_user.user_password:
+                return None
+            if password != legacy_user.user_password:
                 return None
 
-            # Create the Django user (or get existing)
-            django_user, created = User.objects.get_or_create(
+            # Create the Django user
+            django_user = User.objects.create(
                 username=email.lower(),
-                defaults={
-                    'email': email.lower(),
-                    'first_name': first_name,
-                    'last_name': last_name,
-                    'is_active': True,
-                }
+                email=email.lower(),
+                first_name=first_name,
+                last_name=last_name,
+                is_active=True,
             )
-            
-            # If user was just created, set the password
-            if created:
-                django_user.set_password(password)
-                django_user.save()
-            elif django_user.has_usable_password():
-                # User exists with usable password, verify it
-                if not django_user.check_password(password):
-                    return None
-            else:
-                # User exists but no usable password, set it
-                django_user.set_password(password)
-                django_user.save()
-
-        # Create the Django user (or get existing)
-        django_user, created = User.objects.get_or_create(
-            username=email.lower(),
-            defaults={
-                'email': email.lower(),
-                'first_name': first_name,
-                'last_name': last_name,
-                'is_active': True,
-            }
-        )
-        
-        # If user was just created, set the password
-        if created:
-            django_user.set_password(password)
-            django_user.save()
-        elif django_user.has_usable_password():
-            # User exists with usable password, verify it
-            if not django_user.check_password(password):
-                return None
-        else:
-            # User exists but no usable password, set it
             django_user.set_password(password)
             django_user.save()
 
