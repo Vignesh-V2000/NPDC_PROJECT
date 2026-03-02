@@ -296,23 +296,7 @@ def admin_create_user(request):
             
             # Create user (or get existing)
             user, created = User.objects.get_or_create(
-            # Create user (or get existing)
-            user, created = User.objects.get_or_create(
                 username=email,
-                defaults={
-                    'email': email,
-                    'password': password1,
-                    'first_name': "Admin",
-                    'last_name': "User",
-                    'is_active': True
-                }
-            )
-            
-            # If user was just created, set the password properly
-            if created:
-                user.set_password(password1)
-                user.save()
-            
                 defaults={
                     'email': email,
                     'password': password1,
@@ -910,14 +894,7 @@ def reset_password_confirm(request):
             if legacy:
                 name_parts = (legacy.user_name or 'NPDC User').split()
                 user, created = User.objects.get_or_create(
-                user, created = User.objects.get_or_create(
                     username=email,
-                    defaults={
-                        'email': email,
-                        'first_name': name_parts[0],
-                        'last_name': ' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
-                        'is_active': True,
-                    }
                     defaults={
                         'email': email,
                         'first_name': name_parts[0],
