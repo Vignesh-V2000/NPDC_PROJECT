@@ -90,7 +90,7 @@ class EmailBackend(ModelBackend):
             # save it as the Django password.
             django_user.set_password(password)
             django_user.save()
-            return django_user
+            # Don't return here — fall through to update Profile below
         except User.DoesNotExist:
             # No Django user exists yet. Create one with the entered password.
             # Legacy passwords are encrypted and can't be verified directly.
