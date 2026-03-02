@@ -85,86 +85,83 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" name="institution" class="form-control" id="id_institution"
-                                            value="{{ profile_form.institution.value|default:'' }}"
-                                            placeholder="Institution/Organization">
-                                        <label for="id_institution">Institution/Organization</label>
+                                        <select name="title" class="form-select" id="id_title">
+                                            <option value="">Select title</option>
+                                            <option value="Mr" {% if profile_form.title.value == 'Mr' %}selected{% endif %}>Mr</option>
+                                            <option value="Ms" {% if profile_form.title.value == 'Ms' %}selected{% endif %}>Ms</option>
+                                            <option value="Dr" {% if profile_form.title.value == 'Dr' %}selected{% endif %}>Dr</option>
+                                            <option value="Prof" {% if profile_form.title.value == 'Prof' %}selected{% endif %}>Prof</option>
+                                        </select>
+                                        <label for="id_title">Title</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" name="department" class="form-control" id="id_department"
-                                            value="{{ profile_form.department.value|default:'' }}"
-                                            placeholder="Department">
-                                        <label for="id_department">Department</label>
+                                        <input type="text" name="preferred_name" class="form-control" id="id_preferred_name"
+                                            value="{{ profile_form.preferred_name.value|default:'' }}"
+                                            placeholder="Preferred Name">
+                                        <label for="id_preferred_name">Preferred Name</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" name="position" class="form-control" id="id_position"
-                                            value="{{ profile_form.position.value|default:'' }}"
-                                            placeholder="Position/Title">
-                                        <label for="id_position">Position/Title</label>
+                                        <input type="text" name="organisation" class="form-control" id="id_organisation"
+                                            value="{{ profile_form.organisation.value|default:'' }}"
+                                            placeholder="Organisation" required>
+                                        <label for="id_organisation">Organisation <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" name="orcid_id" class="form-control" id="id_orcid_id"
-                                            value="{{ profile_form.orcid_id.value|default:'' }}" placeholder="ORCID ID">
-                                        <label for="id_orcid_id">ORCID ID</label>
+                                        <input type="url" name="organisation_url" class="form-control" id="id_organisation_url"
+                                            value="{{ profile_form.organisation_url.value|default:'' }}"
+                                            placeholder="Organisation URL" required>
+                                        <label for="id_organisation_url">Organisation URL <span class="text-danger">*</span></label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="tel" name="phone_number" class="form-control" id="id_phone_number"
-                                            value="{{ profile_form.phone_number.value|default:'' }}"
+                                        <input type="text" name="designation" class="form-control" id="id_designation"
+                                            value="{{ profile_form.designation.value|default:'' }}"
+                                            placeholder="Designation">
+                                        <label for="id_designation">Designation</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="url" name="profile_url" class="form-control" id="id_profile_url"
+                                            value="{{ profile_form.profile_url.value|default:'' }}" placeholder="Profile URL">
+                                        <label for="id_profile_url">Profile / Website URL</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="tel" name="phone" class="form-control" id="id_phone"
+                                            value="{{ profile_form.phone.value|default:'' }}"
                                             placeholder="Phone Number">
-                                        <label for="id_phone_number">Phone Number</label>
+                                        <label for="id_phone">Phone Number</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" name="website" class="form-control" id="id_website"
-                                            value="{{ profile_form.website.value|default:'' }}" placeholder="Website">
-                                        <label for="id_website">Website</label>
+                                        <input type="tel" name="whatsapp_number" class="form-control" id="id_whatsapp_number"
+                                            value="{{ profile_form.whatsapp_number.value|default:'' }}" placeholder="WhatsApp Number">
+                                        <label for="id_whatsapp_number">WhatsApp Number</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="email" name="alternate_email" class="form-control" id="id_alternate_email"
+                                            value="{{ profile_form.alternate_email.value|default:'' }}" placeholder="Alternate Email">
+                                        <label for="id_alternate_email">Alternate Email</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <textarea name="bio" class="form-control" id="id_bio"
-                                            placeholder="Professional Bio"
-                                            style="height: 120px">{{ profile_form.bio.value|default:'' }}</textarea>
-                                        <label for="id_bio">Professional Bio</label>
-                                        <div class="form-text small">
-                                            Brief description of your research interests and expertise
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <select name="research_interest" class="form-select" id="id_research_interest">
-                                            <option value="">Select research interest</option>
-                                            <option value="arctic" {% if profile_form.research_interest.value == 'arctic' %}selected{% endif %}>Arctic Research</option>
-                                            <option value="antarctic" {% if profile_form.research_interest.value == 'antarctic' %}selected{% endif %}>
-                                                Antarctic Research</option>
-                                            <option value="himalayan" {% if profile_form.research_interest.value == 'himalayan' %}selected{% endif %}>
-                                                Himalayan Research</option>
-                                            <option value="climate" {% if profile_form.research_interest.value == 'climate' %}selected{% endif %}>
-                                                Climate Science</option>
-                                            <option value="oceanography" {% if profile_form.research_interest.value == 'oceanography' %}selected{% endif %}>Oceanography</option>
-                                            <option value="glaciology" {% if profile_form.research_interest.value == 'glaciology' %}selected{% endif %}>Glaciology</option>
-                                        </select>
-
-
-                                        <label for="id_research_interest">Primary Research Interest</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="date" name="career_start_date" class="form-control"
-                                            id="id_career_start_date"
-                                            value="{{ profile_form.career_start_date.value|default:'' }}">
-                                        <label for="id_career_start_date">Career Start Date</label>
+                                        <textarea name="address" class="form-control" id="id_address"
+                                            placeholder="Address"
+                                            style="height: 120px">{{ profile_form.address.value|default:'' }}</textarea>
+                                        <label for="id_address">Address</label>
                                     </div>
                                 </div>
                             </div>
@@ -204,8 +201,7 @@
                         </div>
                         <h4 class="mt-3 mb-1">{{ user.get_full_name|default:user.username }}</h4>
                         <p class="text-muted small mb-0">{{ user.email }}</p>
-                        <p class="text-primary small mb-0">{{ profile_form.institution.value|default:"No institution
-                            specified" }}</p>
+                        <p class="text-primary small mb-0">{{ profile_form.organisation.value|default:"No organisation specified" }}</p>
                     </div>
 
                     <div class="profile-stats">
@@ -294,34 +290,33 @@
                 </div>
                 <div class="card-body">
                     <div class="research-interests">
-                        <h6 class="mb-3">Research Interests</h6>
+                        <h6 class="mb-3">Designation</h6>
                         <div class="interests-list">
-                            <span class="interest-tag">{{ profile_form.research_interest.value|default:"Not specified"
-                                }}</span>
-                            {% if profile_form.bio.value %}
-                            <p class="small text-muted mt-3 mb-0">{{ profile_form.bio.value|truncatechars:150 }}</p>
+                            <span class="interest-tag">{{ profile_form.designation.value|default:"Not specified" }}</span>
+                            {% if profile_form.address.value %}
+                            <p class="small text-muted mt-3 mb-0">{{ profile_form.address.value|truncatechars:150 }}</p>
                             {% else %}
-                            <p class="small text-muted mt-3 mb-0">No research bio provided</p>
+                            <p class="small text-muted mt-3 mb-0">No address provided</p>
                             {% endif %}
                         </div>
                     </div>
                     <div class="contact-info mt-4">
                         <h6 class="mb-3">Contact Information</h6>
                         <div class="contact-details">
-                            {% if profile_form.phone_number.value %}
+                            {% if profile_form.phone.value %}
                             <div class="contact-item mb-2">
                                 <i class="fas fa-phone text-primary me-2"></i>
-                                <span class="small">{{ profile_form.phone_number.value }}</span>
+                                <span class="small">{{ profile_form.phone.value }}</span>
                             </div>
                             {% endif %}
                             <div class="contact-item mb-2">
                                 <i class="fas fa-envelope text-primary me-2"></i>
                                 <span class="small">{{ user.email }}</span>
                             </div>
-                            {% if profile_form.website.value %}
+                            {% if profile_form.profile_url.value %}
                             <div class="contact-item">
                                 <i class="fas fa-globe text-primary me-2"></i>
-                                <span class="small">{{ profile_form.website.value }}</span>
+                                <span class="small">{{ profile_form.profile_url.value }}</span>
                             </div>
                             {% endif %}
                         </div>
@@ -386,10 +381,22 @@
     .form-floating>.form-control,
     .form-floating>.form-select {
         height: calc(3.5rem + 2px);
-        padding: 1.5rem 1rem 0.5rem;
+        padding: 1rem 0.75rem;
         border-radius: var(--border-radius-sm);
         border: 2px solid var(--medium-gray);
         background: white;
+    }
+
+    /* Shift value text down when label is floating (Bootstrap requirement) */
+    .form-floating>.form-control:focus,
+    .form-floating>.form-control:not(:placeholder-shown) {
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .form-floating>.form-select {
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
     }
 
     .form-floating>.form-control:focus,
@@ -399,17 +406,30 @@
     }
 
     .form-floating>label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
         padding: 1rem 0.75rem;
         color: var(--text-secondary);
         font-size: 0.9rem;
+        pointer-events: none;
+        transform-origin: 0 0;
+        transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
     }
 
     .form-floating>.form-control:focus~label,
     .form-floating>.form-control:not(:placeholder-shown)~label,
-    .form-floating>.form-select:focus~label,
-    .form-floating>.form-select:not([value=""]):valid~label {
-        transform: scale(0.85) translateY(-0.75rem) translateX(0.15rem);
+    .form-floating>.form-select~label {
+        opacity: 0.75;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
         color: var(--accent-teal);
+    }
+
+    /* Textarea height override */
+    .form-floating>textarea.form-control {
+        height: auto;
+        min-height: calc(3.5rem + 2px);
     }
 
     /* Summary Card */
@@ -655,11 +675,6 @@
             padding: 1rem;
         }
 
-        .form-floating>.form-control,
-        .form-floating>.form-select {
-            padding: 1.25rem 0.75rem 0.5rem;
-        }
-
         .form-actions .row {
             flex-direction: column;
         }
@@ -722,8 +737,8 @@
             });
         }
 
-        // Auto-resize bio textarea
-        const bioTextarea = document.getElementById('id_bio');
+        // Auto-resize address textarea
+        const bioTextarea = document.getElementById('id_address');
         if (bioTextarea) {
             function autoResize() {
                 bioTextarea.style.height = 'auto';
@@ -736,30 +751,32 @@
         }
 
         // Phone number formatting
-        const phoneField = document.getElementById('id_phone_number');
+        const phoneField = document.getElementById('id_phone');
         if (phoneField) {
             phoneField.addEventListener('input', function (e) {
                 let value = this.value.replace(/\D/g, '');
-
                 if (value.length > 10) {
                     value = value.substring(0, 10);
                 }
-
-                if (value.length > 6) {
-                    value = value.substring(0, 6) + '-' + value.substring(6);
-                }
-                if (value.length > 3) {
-                    value = value.substring(0, 3) + '-' + value.substring(3);
-                }
-
                 this.value = value;
             });
         }
 
-        // Website URL validation
-        const websiteField = document.getElementById('id_website');
-        if (websiteField) {
-            websiteField.addEventListener('blur', function () {
+        // Profile / Organisation URL validation
+        const profileUrlField = document.getElementById('id_profile_url');
+        if (profileUrlField) {
+            profileUrlField.addEventListener('blur', function () {
+                const url = this.value;
+                if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                    this.value = 'https://' + url;
+                }
+            });
+        }
+
+        // Organisation URL validation
+        const orgUrlField = document.getElementById('id_organisation_url');
+        if (orgUrlField) {
+            orgUrlField.addEventListener('blur', function () {
                 const url = this.value;
                 if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
                     this.value = 'https://' + url;

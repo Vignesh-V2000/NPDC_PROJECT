@@ -147,8 +147,8 @@
                             <div class="form-check form-switch ai-toggle mb-0">
                                 <input class="form-check-input" type="checkbox" id="aiSearchToggle" checked>
                                 <label class="form-check-label" for="aiSearchToggle">
-                                    <span class="ai-badge me-1">🐧Penguin </span>
-                                    Smart Search
+                                    <span class="ai-badge me-1">🐧 Penguin</span>
+                                    Assist
                                 </label>
                             </div>
                             <small class="text-muted" id="aiStatusText">AI-powered features active</small>
@@ -1118,7 +1118,7 @@
 
     document.getElementById('aiSearchToggle').addEventListener('change', function () {
         document.getElementById('aiStatusText').textContent =
-            this.checked ? 'AI-powered features active' : 'AI features disabled';
+            this.checked ? 'Penguin Assist active' : 'Penguin Assist disabled';
         if (!this.checked) hideAICards();
     });
 
