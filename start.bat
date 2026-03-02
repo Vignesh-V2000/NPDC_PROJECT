@@ -50,17 +50,25 @@ python manage.py createcachetable 2>nul
 echo       Done.
 echo.
 
-:: Run complete setup (import users, datasets, link submitters)
-echo [6/7] Running complete setup (legacy data import)...
-python setup_complete.py
-echo       Done.
+:: Run complete setup ONLY on first run
+if exist ".setup_done" (
+    echo [6/7] Setup already completed. Skipping import.
+    echo       To re-import, delete .setup_done and run start.bat again.
+) else (
+    echo [6/7] Running first-time setup (legacy data import^)...
+    python setup_complete.py
+    if not errorlevel 1 (
+        echo. > .setup_done
+        echo       Setup complete. Marker file created.
+    )
+)
 echo.
 
 :: Start server
 echo ==========================================
 echo [7/7] Starting development server...
-echo       Open http://localhost:8000
+echo       Open http://localhost:10000
 echo       Press Ctrl+C to stop.
 echo ==========================================
 echo.
-python manage.py runserver 8000
+python manage.py runserver 10000
