@@ -469,11 +469,18 @@
                                     class="btn btn-primary px-3 fw-semibold shadow-sm transition-all text-white border-0" style="background: #3b82f6; border-radius: 8px;">
                                     View Details <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
-                                {% if request.user.is_superuser %}
                                 <a href="{% url 'data_submission:admin_edit_submission' submission.metadata_id %}"
                                     class="btn btn-light px-3 fw-semibold shadow-sm transition-all border" style="border-radius: 8px;">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                {% if request.user.is_superuser %}
+                                <form method="post" action="{% url 'data_submission:admin_delete_dataset' submission.metadata_id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-light px-3 fw-semibold shadow-sm transition-all border text-danger" style="border-radius: 8px;"
+                                        onclick="return confirm('⚠️ Delete this dataset?\n\n{{ submission.title|truncatechars:60 }}\n\nThis action CANNOT be undone.');">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
                                 {% endif %}
                             </div>
                         </div>

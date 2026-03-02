@@ -954,6 +954,20 @@ def delete_dataset(request, submission_id):
     return redirect("data_submission:my_submissions")
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@require_http_methods(["POST"])
+def admin_delete_dataset(request, metadata_id):
+    """Only super admin (is_superuser) can delete datasets after publish.
+    Child admins (ARC, ANT, etc.) are blocked by the is_superuser check."""
+    dataset = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    title = dataset.title
+    dataset.delete()
+    messages.success(request, f'Dataset "{title}" deleted successfully.')
+    logger.info(f"Super admin {request.user.id} deleted dataset {metadata_id}")
+    return redirect("data_submission:all_submissions")
+
+
 # =====================================================
 # LOGGER SETUP
 # =====================================================
