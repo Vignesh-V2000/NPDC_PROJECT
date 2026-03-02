@@ -6,6 +6,18 @@
 {% block container_wrapper_end %}{% endblock %}
 
 {% block content %}
+<style>
+    .table-container-scroll {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    .table-container-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    }
+</style>
 <div class="container-fluid py-4">
     <div class="row">
         <!-- Admin Sidebar -->

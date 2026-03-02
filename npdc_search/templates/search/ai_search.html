@@ -1555,7 +1555,7 @@
                 if (!inList) { html += '<ul>'; inList = true; }
                 let content = trimmed.replace(/^[-•●*]\s+/, '').replace(/^\d+\.\s+/, '');
                 // If this bullet has a dataset ID, make the whole item a clickable link
-                const idMatch = content.match(/\[ID:\s*(\d+)\]/);
+                const idMatch = content.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/);
                 if (idMatch) {
                     const datasetId = idMatch[1];
                     const ds = window.currentResponseDatasets ? window.currentResponseDatasets.find(d => String(d.id) === datasetId) : null;
@@ -1570,7 +1570,7 @@
                     html += '<br>';
                 } else {
                     // Even non-bullet lines: if they contain [ID: X], make them a link
-                    const idMatch = trimmed.match(/\[ID:\s*(\d+)\]/);
+                    const idMatch = trimmed.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/);
                     if (idMatch) {
                         const datasetId = idMatch[1];
                         const ds = window.currentResponseDatasets ? window.currentResponseDatasets.find(d => String(d.id) === datasetId) : null;
@@ -1585,7 +1585,7 @@
         if (inList) html += '</ul>';
 
         // Style [ID: X] references as badges
-        html = html.replace(/\[ID:\s*(\d+)\]/g, '<span class="dataset-id-badge">[ID: $1]</span>');
+        html = html.replace(/\[ID:\s*([A-Za-z0-9_-]+)\]/g, '<span class="dataset-id-badge">[ID: $1]</span>');
 
         return html;
     }

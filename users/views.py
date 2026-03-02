@@ -188,14 +188,14 @@ NPDC Portal System
 @login_required
 def profile(request):
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
 
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
             messages.success(request, 'Your profile has been updated!')
-            return redirect('profile')
+            return redirect('users:profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
@@ -296,7 +296,23 @@ def admin_create_user(request):
             
             # Create user (or get existing)
             user, created = User.objects.get_or_create(
+            # Create user (or get existing)
+            user, created = User.objects.get_or_create(
                 username=email,
+                defaults={
+                    'email': email,
+                    'password': password1,
+                    'first_name': "Admin",
+                    'last_name': "User",
+                    'is_active': True
+                }
+            )
+            
+            # If user was just created, set the password properly
+            if created:
+                user.set_password(password1)
+                user.save()
+            
                 defaults={
                     'email': email,
                     'password': password1,
@@ -683,35 +699,49 @@ class UserLoginView(LoginView):
 
     def form_invalid(self, form):
         """
-        Called on every failed login. After 3 failures:
-        - If email is not in DB -> show 'not_found' AI message
-        - If email IS in DB but wrong password -> show 'suggest_reset' AI message
-        Also logs the attempt to the LoginAttempt table.
+        Called on every failed login submission.
+
+        We only count an attempt against the AI-bubble threshold when the
+        CREDENTIAL check fails (wrong email/password) — NOT when only the
+        CAPTCHA field is wrong. This ensures the bubble appears on exactly
+        the 3rd bad-credential attempt.
+
+        Captcha error key  : 'captcha'
+        Credential error key: '__all__' (non-field error from AuthenticationForm)
         """
         email = self.request.POST.get('username', '').strip().lower()
         ip = _get_client_ip(self.request)
 
-        # Log this failed attempt
-        LoginAttempt.objects.create(email=email, ip_address=ip)
+        # Determine failure type
+        has_credential_error = '__all__' in form.errors
+        extra_context = {}
 
-        # Count recent failures for this email in session
-        attempts = self.request.session.get('login_attempts', 0) + 1
-        self.request.session['login_attempts'] = attempts
-        self.request.session.modified = True
+        if has_credential_error:
+            # Log and count ONLY real credential failures
+            LoginAttempt.objects.create(email=email, ip_address=ip)
 
-        extra_context = {'attempt_count': attempts}
+            attempts = self.request.session.get('login_attempts', 0) + 1
+            self.request.session['login_attempts'] = attempts
+            self.request.session.modified = True
+            extra_context['attempt_count'] = attempts
 
-        if attempts >= 3 and email:
-            if _check_email_exists(email):
-                # Email found — password is wrong, suggest reset
-                extra_context['ai_message'] = 'suggest_reset'
-                extra_context['ai_email'] = email
-            else:
-                # Email not found in any database
-                extra_context['ai_message'] = 'not_found'
-                extra_context['ai_email'] = email
+            # Trigger bubble on the 3rd+ credential failure
+            if attempts >= 3 and email:
+                if _check_email_exists(email):
+                    # Email found — password is wrong, suggest reset
+                    extra_context['ai_message'] = 'suggest_reset'
+                    extra_context['ai_email'] = email
+                else:
+                    # Email not in Django auth_user OR legacy user_login
+                    extra_context['ai_message'] = 'not_found'
+                    extra_context['ai_email'] = email
+        else:
+            # Only captcha failed — pass current count so template knows
+            # how many more real attempts remain before bubble triggers.
+            extra_context['attempt_count'] = self.request.session.get('login_attempts', 0)
 
         return self.render_to_response(self.get_context_data(form=form, **extra_context))
+
 
     def form_valid(self, form):
         """On successful login, clear the failed attempt counter."""
@@ -880,7 +910,14 @@ def reset_password_confirm(request):
             if legacy:
                 name_parts = (legacy.user_name or 'NPDC User').split()
                 user, created = User.objects.get_or_create(
+                user, created = User.objects.get_or_create(
                     username=email,
+                    defaults={
+                        'email': email,
+                        'first_name': name_parts[0],
+                        'last_name': ' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
+                        'is_active': True,
+                    }
                     defaults={
                         'email': email,
                         'first_name': name_parts[0],
@@ -1277,6 +1314,10 @@ def station_detail(request, station_name):
             'location': 'Schirmacher Oasis, Queen Maud Land, East Antarctica',
             'description': 'Established in 1989, Maitri is India\'s second permanent research station in Antarctica. Situated on an ice-free rocky plateau, it serves as a self-sustaining base capable of year-round operations. Water is supplied by the nearby Lake Priyadarshini. The station facilitates research in geology, glaciology, atmospheric sciences, and microbiology.',
             'facilities': 'Living quarters for 25-70 personnel, scientific laboratories, satellite communication center, medical facilities, snow vehicles, and a water filtration system.',
+            'name': 'Maitri (Friendship Research Centre)',
+            'location': 'Schirmacher Oasis, Queen Maud Land, East Antarctica',
+            'description': 'Established in 1989, Maitri is India\'s second permanent research station in Antarctica. Situated on an ice-free rocky plateau, it serves as a self-sustaining base capable of year-round operations. Water is supplied by the nearby Lake Priyadarshini. The station facilitates research in geology, glaciology, atmospheric sciences, and microbiology.',
+            'facilities': 'Living quarters for 25-70 personnel, scientific laboratories, satellite communication center, medical facilities, snow vehicles, and a water filtration system.',
             'image': 'images/stations/Maitri.jpg'
         },
         'bharati': {
@@ -1284,9 +1325,16 @@ def station_detail(request, station_name):
             'location': 'Larsemann Hills, East Antarctica',
             'description': 'Commissioned in 2012, Bharati is India\'s third Antarctic research facility. It is a state-of-the-art station constructed using 134 recycled shipping containers designed to withstand extreme coastal Antarctic conditions. It focuses on oceanographic studies and understanding the geological history of the Indian subcontinent\'s continental breakup.',
             'facilities': 'Accommodates 47-72 personnel, oceanography and continental physics labs, automated heating/AC, satellite communication modules, and the Antarctica Ground Station for Earth Observation Satellites (AGEOS).',
+            'location': 'Larsemann Hills, East Antarctica',
+            'description': 'Commissioned in 2012, Bharati is India\'s third Antarctic research facility. It is a state-of-the-art station constructed using 134 recycled shipping containers designed to withstand extreme coastal Antarctic conditions. It focuses on oceanographic studies and understanding the geological history of the Indian subcontinent\'s continental breakup.',
+            'facilities': 'Accommodates 47-72 personnel, oceanography and continental physics labs, automated heating/AC, satellite communication modules, and the Antarctica Ground Station for Earth Observation Satellites (AGEOS).',
             'image': 'images/stations/Bharati.jpg'
         },
         'svalbard': {
+            'name': 'Himadri',
+            'location': 'Ny-Ålesund, Spitsbergen, Svalbard, Norway',
+            'description': 'Inaugurated in 2008, Himadri is India\'s first permanent Arctic research station. Located near the North Pole, it shifted to year-round operations in 2023-2024 to study phenomena during the polar nights. Research focuses on aerosol radiation, space weather, fjord dynamics, microbial communities, and glaciology.',
+            'facilities': 'Accommodates up to eight scientists, offering living space, workspaces, computer rooms, and access to the nearby Gruvebadet Observatory for atmospheric data collection.',
             'name': 'Himadri',
             'location': 'Ny-Ålesund, Spitsbergen, Svalbard, Norway',
             'description': 'Inaugurated in 2008, Himadri is India\'s first permanent Arctic research station. Located near the North Pole, it shifted to year-round operations in 2023-2024 to study phenomena during the polar nights. Research focuses on aerosol radiation, space weather, fjord dynamics, microbial communities, and glaciology.',
@@ -1298,11 +1346,15 @@ def station_detail(request, station_name):
             'location': 'Sutri Dhaka, Chandra Basin, Spiti Valley, Himachal Pradesh (Altitude: 4,080m)',
             'description': 'Unveiled in 2016, Himansh is India\'s high-altitude remote research station in the Himalayas ("Water Tower of Asia"). Its primary objective is to monitor and study the dynamics and mass balance of Himalayan glaciers, which impact the hydrology and sustainable water supply for major river systems.',
             'facilities': 'Accommodation for eight people, laboratory unit, automatic weather stations, water level recorders, ground-penetrating radars, geodetic GPS, and satellite phone terminals.',
+            'location': 'Sutri Dhaka, Chandra Basin, Spiti Valley, Himachal Pradesh (Altitude: 4,080m)',
+            'description': 'Unveiled in 2016, Himansh is India\'s high-altitude remote research station in the Himalayas ("Water Tower of Asia"). Its primary objective is to monitor and study the dynamics and mass balance of Himalayan glaciers, which impact the hydrology and sustainable water supply for major river systems.',
+            'facilities': 'Accommodation for eight people, laboratory unit, automatic weather stations, water level recorders, ground-penetrating radars, geodetic GPS, and satellite phone terminals.',
             'image': 'images/stations/Himansh.jpg'
         },
         'sagar-nidhi': {
             'name': 'Sagar Nidhi',
             'location': 'Southern Ocean',
+            'description': 'Sagar Nidhi is an oceanographic research vessel playing a critical role in India\'s polar and marine science programs.',
             'description': 'Sagar Nidhi is an oceanographic research vessel playing a critical role in India\'s polar and marine science programs.',
             'facilities': 'Ocean monitoring, remote sensing, and underwater robotics.',
             'image': 'images/stations/Sagar_Nidhi.jpg'

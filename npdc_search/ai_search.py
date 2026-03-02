@@ -72,6 +72,16 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
             },
         })
 
+    # Last fallback: Ollama (local on-system, no API key required)
+    if getattr(settings, 'OLLAMA_ENABLED', False):
+        providers.append({
+            'name': 'Ollama',
+            'api_url': getattr(settings, 'OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions'),
+            'api_key': 'ollama',
+            'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
+            'headers_extra': {},
+        })
+
     if not providers:
         logger.warning("No AI API keys configured")
         return None
@@ -392,6 +402,16 @@ def _call_llm_chat(system_prompt, user_message, max_tokens=800, temperature=0.3)
             },
         })
 
+    # Last fallback: Ollama (local on-system, no API key required)
+    if getattr(settings, 'OLLAMA_ENABLED', False):
+        providers.append({
+            'name': 'Ollama',
+            'api_url': getattr(settings, 'OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions'),
+            'api_key': 'ollama',
+            'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
+            'headers_extra': {},
+        })
+
     if not providers:
         logger.warning("No AI API keys configured for chat")
         return None
@@ -560,7 +580,7 @@ def ai_search_answer(query, filters=None, top_k=5):
 
         # Compact context for LLM (fewer tokens)
         context_lines.append(
-            f"{i}. [ID: {d.id}] {d.title}\n"
+            f"{i}. [ID: {d.metadata_id}] {d.title}\n"
             f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
             f"   {ds['abstract']}\n"
         )
@@ -657,7 +677,7 @@ def ai_search_answer(query, filters=None, top_k=5):
             }
             datasets_list.append(ds)
             context_lines.append(
-                f"{i}. [ID: {d.id}] {d.title}\n"
+                f"{i}. [ID: {d.metadata_id}] {d.title}\n"
                 f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
                 f"   {ds['abstract']}\n"
             )
@@ -678,8 +698,12 @@ def ai_search_answer(query, filters=None, top_k=5):
         "3. If the query is unrelated to polar/cryosphere science, start with 'UNRELATED:'.\n"
         "4. If results don't match the question, say you couldn't find matching datasets.\n"
         "5. For total count questions, use the count from the NOTE.\n"
-        "6. Be concise. Use bullet points. Include title, region, period, category.\n"
-        "7. Speak naturally — say 'I found' not 'based on the provided datasets'."
+        "6. Format each result as a SINGLE bullet in this exact structure:\n"
+        "   • Title [ID: X] - Category, Region, StartDate to EndDate\n"
+        "     Brief 1-2 sentence summary of what the dataset contains.\n"
+        "   Do NOT add extra sub-bullets or split metadata across multiple lines.\n"
+        "7. Start with one short sentence like 'I found X datasets related to ...'\n"
+        "8. Speak naturally — say 'I found' not 'based on the provided datasets'."
     )
 
     user_msg = (
@@ -690,7 +714,7 @@ def ai_search_answer(query, filters=None, top_k=5):
         f"Answer naturally, citing dataset titles and IDs."
     )
 
-    answer = _call_llm_chat(system_prompt, user_msg, max_tokens=500, temperature=0.3)
+    answer = _call_llm_chat(system_prompt, user_msg, max_tokens=700, temperature=0.3)
 
     if not answer:
         answer = (

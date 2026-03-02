@@ -575,6 +575,31 @@
             });
         });
 
+        // CAPTCHA Refresh
+        const captchaRefreshBtns = document.querySelectorAll('.js-captcha-refresh');
+        captchaRefreshBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const wrapper = this.closest('.captcha-group') || this.closest('form');
+                const captchaImg = wrapper.querySelector('img.captcha');
+                const captchaInput = wrapper.querySelector('input[name="captcha_0"]');
+                
+                if (captchaImg && captchaInput) {
+                    fetch("{% url 'captcha-refresh' %}", {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        captchaImg.src = data.image_url;
+                        captchaInput.value = data.key;
+                    })
+                    .catch(error => console.error('Error refreshing captcha:', error));
+                }
+            });
+        });
+
         // Initialize Bootstrap Tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

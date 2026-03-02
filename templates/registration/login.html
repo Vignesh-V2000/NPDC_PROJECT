@@ -534,6 +534,31 @@
             });
         });
 
+        // CAPTCHA Refresh
+        const captchaRefreshBtns = document.querySelectorAll('.js-captcha-refresh');
+        captchaRefreshBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const wrapper = this.closest('.form-group');
+                const captchaImg = wrapper.querySelector('img.captcha');
+                const captchaInput = wrapper.querySelector('input[name="captcha_0"]');
+                
+                if (captchaImg && captchaInput) {
+                    fetch("{% url 'captcha-refresh' %}", {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        captchaImg.src = data.image_url;
+                        captchaInput.value = data.key;
+                    })
+                    .catch(error => console.error('Error refreshing captcha:', error));
+                }
+            });
+        });
+
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('id_password');
@@ -564,5 +589,13 @@
             usernameField.focus();
         }
     });
+
+    // AI bubble close — called from onclick on the × button
+    function closeBubble(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('ai-bubble-closing');
+        el.addEventListener('animationend', () => el.remove(), { once: true });
+    }
 </script>
 {% endblock %}
