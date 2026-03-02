@@ -10,23 +10,23 @@
             data-bs-interval="3000" data-bs-pause="false">
             <div class="carousel-inner h-100">
                 <div class="carousel-item active h-100">
-                    <img src="{% static 'images/slider_images/1.jpg' %}" class="d-block w-100 h-70 hero-slide-img"
+                    <img src="{% static 'images/slider_images/1.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 1">
                 </div>
                 <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/2.jpg' %}" class="d-block w-100 h-70 hero-slide-img"
+                    <img src="{% static 'images/slider_images/2.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 2">
                 </div>
                 <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/3.jpg' %}" class="d-block w-100 h-70 hero-slide-img"
+                    <img src="{% static 'images/slider_images/3.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 3">
                 </div>
                 <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/4.jpg' %}" class="d-block w-100 h-70 hero-slide-img"
+                    <img src="{% static 'images/slider_images/4.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 4">
                 </div>
                 <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/5.jpg' %}" class="d-block w-100 h-70 hero-slide-img"
+                    <img src="{% static 'images/slider_images/5.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 5">
                 </div>
             </div>
@@ -1219,7 +1219,7 @@
 <section class="weather-section">
     <div class="container py-5">
         <div class="section-title text-center mb-5">
-            <h2 class="text-white fw-bold mb-3">Weather at Indian Polar Stations</h2>
+            <h2 class="fw-bold mb-3" style="color: #0f172a;">Weather at Indian Polar Stations</h2>
             <div class="title-underline"></div>
         </div>
         
@@ -1731,9 +1731,11 @@
 
     /* Weather Section */
     .weather-section {
-        background-color: var(--nsidc-primary);
-        background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 600px);
+        background-color: #ffffff;
+        background-image: none;
         position: relative; border-radius: 1.5rem; margin-bottom: 4rem; overflow: hidden;
+        border: 1px solid var(--nsidc-border);
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
     }
 
     .weather-section .title-underline {
@@ -1773,25 +1775,25 @@
         margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;
     }
 
-    /* CTA Section - Professional gradient */
+    /* CTA Section - White */
     .cta-section {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        border-radius: 1.5rem; padding: 4rem; color: #ffffff;
-        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.2); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);
+        background: #ffffff;
+        border-radius: 1.5rem; padding: 4rem; color: #0f172a;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05); position: relative; overflow: hidden; border: 1px solid #e2e8f0;
     }
     .cta-section::after {
         content: ''; position: absolute; top: -50%; right: -10%; width: 50%; height: 200%;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%); transform: rotate(-15deg); pointer-events: none;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 60%); transform: rotate(-15deg); pointer-events: none;
     }
 
-    .cta-section h2 { color: #ffffff !important; font-weight: 800; font-size: 2.2rem; margin-bottom: 1rem; letter-spacing: -0.025em; }
-    .cta-section p { color: #94a3b8; font-size: 1.15rem; line-height: 1.6; }
+    .cta-section h2 { color: #0f172a !important; font-weight: 800; font-size: 2.2rem; margin-bottom: 1rem; letter-spacing: -0.025em; }
+    .cta-section p { color: #64748b; font-size: 1.15rem; line-height: 1.6; }
     
-    .cta-section .btn-primary { background-color: #3b82f6; border: none; font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); transition: all 0.2s; }
+    .cta-section .btn-primary { background-color: #3b82f6; border: none; font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); transition: all 0.2s; color: #ffffff; }
     .cta-section .btn-primary:hover { background-color: #2563eb; box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
     
-    .cta-section .btn-outline-primary { color: #ffffff; border: 2px solid rgba(255,255,255,0.2); font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; backdrop-filter: blur(4px); }
-    .cta-section .btn-outline-primary:hover { background-color: #ffffff; color: #0f172a; border-color: #ffffff; transform: translateY(-2px); }
+    .cta-section .btn-outline-primary { color: #0f172a; border: 2px solid #e2e8f0; font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; }
+    .cta-section .btn-outline-primary:hover { background-color: #0f172a; color: #ffffff; border-color: #0f172a; transform: translateY(-2px); }
 
     /* Adjustments */
     @media (max-width: 992px) {

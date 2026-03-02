@@ -176,10 +176,10 @@
                                 </div>
                                 <h3 class="fw-bold mb-3">New to NPDC?</h3>
                                 <p class="mb-5 px-md-3 text-white-50" style="font-size: 1.05rem; line-height: 1.6;">
-                                    Create a research account to submit datasets, access specialized tools, and contribute to Earth science data preservation.
+                                    Create a user account to submit and update metadata with dataset and contribute to the Earth Science Data Systems.
                                 </p>
                                 <a href="{% url 'users:register' %}" class="btn btn-outline-light-modern btn-lg px-4 rounded-pill">
-                                    <i class="fas fa-user-plus me-2"></i>Create Research Account
+                                    <i class="fas fa-user-plus me-2"></i>Create User Account
                                 </a>
 
                                 <div class="mt-auto pt-5 w-100 text-center">
@@ -534,31 +534,6 @@
             });
         });
 
-        // CAPTCHA Refresh
-        const captchaRefreshBtns = document.querySelectorAll('.js-captcha-refresh');
-        captchaRefreshBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const wrapper = this.closest('.form-group');
-                const captchaImg = wrapper.querySelector('img.captcha');
-                const captchaInput = wrapper.querySelector('input[name="captcha_0"]');
-                
-                if (captchaImg && captchaInput) {
-                    fetch("{% url 'captcha-refresh' %}", {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        captchaImg.src = data.image_url;
-                        captchaInput.value = data.key;
-                    })
-                    .catch(error => console.error('Error refreshing captcha:', error));
-                }
-            });
-        });
-
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('id_password');
@@ -589,13 +564,5 @@
             usernameField.focus();
         }
     });
-
-    // AI bubble close — called from onclick on the × button
-    function closeBubble(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.add('ai-bubble-closing');
-        el.addEventListener('animationend', () => el.remove(), { once: true });
-    }
 </script>
 {% endblock %}
