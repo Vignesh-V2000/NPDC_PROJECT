@@ -1,33 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <!-- Dashboard Header -->
-    <div class="dashboard-header mb-6">
+<!-- Modern Hero Dashboard Header -->
+<div class="dsf-hero">
+    <!-- Animated Orbs -->
+    <div class="dsf-hero-orb orb-1"></div>
+    <div class="dsf-hero-orb orb-2"></div>
+    <div class="dsf-hero-orb orb-3"></div>
+
+    <div class="container position-relative z-1">
         <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="h2 mb-2">Dashboard</h1>
-                <p class="text-secondary mb-0">
-                    Welcome back, <span class="fw-semibold text-primary">{{ user.get_full_name|default:user.username }}</span>
-                    {% if user.email %}<span class="mx-2">•</span>{{ user.email }}{% endif %}
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="dsf-step-pill">
+                        <i class="fas {% if is_admin %}fa-shield-alt{% else %}fa-user-astronaut{% endif %} me-2"></i>
+                        {% if is_admin %}Administrator Space{% else %}Researcher Space{% endif %}
+                    </span>
+                </div>
+                
+                <h1 class="dsf-hero-title mb-3">
+                    Welcome back,<br/>
+                    <span class="text-gradient">{{ user.get_full_name|default:user.username }}</span>
+                </h1>
+                
+                <p class="dsf-hero-sub mb-0">
+                    <i class="fas fa-envelope-open-text me-2 opacity-75"></i> {{ user.email }}
                 </p>
             </div>
-            <div class="col-md-4 text-md-end">
-                <div class="user-badge">
+            
+            <div class="col-lg-4 text-lg-end">
+                <div class="hero-user-badge">
                     <div class="badge-icon">
                         {% if is_admin %}
-                        <i class="fas fa-user-shield"></i>
+                            <i class="fas fa-user-shield"></i>
                         {% else %}
-                        <i class="fas fa-user-circle"></i>
+                            <i class="fas fa-user-circle"></i>
                         {% endif %}
                     </div>
-                    <div class="badge-text">
-                        <small class="text-muted">Account Type</small>
-                        <div class="fw-semibold">
+                    <div class="badge-text" style="text-align: left;">
+                        <small class="text-white-50 d-block mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Account Type</small>
+                        <div class="fw-bold text-white" style="font-size: 1.1rem;">
                             {% if is_admin %}
-                            Administrator
+                                Administrator
                             {% else %}
-                            Researcher
+                                Researcher
                             {% endif %}
                         </div>
                     </div>
@@ -35,7 +51,9 @@
             </div>
         </div>
     </div>
+</div>
 
+<div class="container dashboard-content-wrapper">
     <!-- Content Panels -->
     {% if is_admin %}
         {% include "dashboard/admin_panel.html" %}
@@ -46,63 +64,122 @@
 
 <!-- Dashboard Styles -->
 <style>
-    .dashboard-header {
-        padding: 2rem 0;
-        border-bottom: 1px solid var(--medium-gray);
+    /* ═══ Modern Hero Header ═══ */
+    .dsf-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: -3rem; /* Overlap the content slightly */
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: white;
     }
     
-    .user-badge {
+    .dsf-hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.25;
+        z-index: 0;
+        animation: floatOrb 15s infinite alternate ease-in-out;
+    }
+    .orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; right: 10%; }
+    .orb-2 { width: 250px; height: 250px; background: #10b981; bottom: -50px; left: 10%; animation-delay: -5s; }
+    .orb-3 { width: 200px; height: 200px; background: #8b5cf6; top: 20%; right: 40%; animation-delay: -10s; }
+    
+    @keyframes floatOrb {
+        0% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0, 0) scale(1); }
+    }
+
+    .dsf-step-pill {
         display: inline-flex;
         align-items: center;
-        gap: 1rem;
-        background: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #e2e8f0 !important;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        backdrop-filter: blur(4px);
+    }
+    .dsf-step-pill i {
+        color: #60a5fa;
+    }
+
+    .dsf-hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1.15;
+        letter-spacing: -1px;
     }
     
-    .badge-icon {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-primary);
+    .text-gradient {
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .dsf-hero-sub {
+        font-size: 1.15rem;
+        color: #e2e8f0 !important;
+        font-weight: 400;
+        opacity: 0.9;
+    }
+
+    /* User Badge in Hero */
+    .hero-user-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 1rem 1.5rem;
+        border-radius: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, background 0.3s ease;
+    }
+    
+    .hero-user-badge:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .hero-user-badge .badge-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8));
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.2);
     }
-    
-    .badge-text {
-        text-align: left;
+
+    /* Content Wrapper Offset */
+    .dashboard-content-wrapper {
+        position: relative;
+        z-index: 10;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
     }
-    
-    .badge-text small {
-        font-size: 0.75rem;
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-    
-    .badge-text .fw-semibold {
-        font-size: 0.9rem;
-        color: var(--primary-blue);
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-header {
-            padding: 1.5rem 0;
-        }
-        
-        .user-badge {
-            margin-top: 1rem;
-            justify-content: center;
-            width: 100%;
-        }
-        
-        .col-md-4.text-md-end {
-            text-align: left !important;
-        }
+
+    @media (max-width: 991.98px) {
+        .dsf-hero-title { font-size: 2.25rem; }
+        .hero-user-badge { width: 100%; justify-content: flex-start; margin-top: 1rem; }
+        .dashboard-content-wrapper { padding-top: 5rem; }
     }
 </style>
 {% endblock %}

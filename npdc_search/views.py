@@ -31,7 +31,7 @@ from .ai_search import (
 logger = logging.getLogger(__name__)
 
 
-RESULTS_PER_PAGE = 20
+RESULTS_PER_PAGE = 10
 
 
 def search_view(request):
@@ -316,7 +316,7 @@ def search_view(request):
         south_latitude__isnull=False,
         north_latitude__isnull=False
     ).values(
-        'id', 'title',
+        'id', 'metadata_id', 'title',
         'west_longitude', 'east_longitude',
         'south_latitude', 'north_latitude'
     ))

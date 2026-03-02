@@ -2,8 +2,11 @@
 
 {% block title %}Admin Dashboard - NPDC{% endblock %}
 
+{% block container_wrapper %}
+<div class="container-fluid py-4">
+{% endblock container_wrapper %}
+
 {% block content %}
-<div class="container py-5">
     <div class="row">
         <!-- Admin Sidebar -->
         <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
@@ -21,8 +24,8 @@
                                 <i class="fas fa-user-shield me-2"></i>Administrator Panel
                             </span>
                         </div>
-                        <h1 class="display-6 fw-bold mb-3">Administration Dashboard</h1>
-                        <p class="text-secondary mb-0">
+                        <h1 class="display-6 fw-bold mb-3 text-dark" style="color: var(--text-dark) !important;">Administration Dashboard</h1>
+                        <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">
                             Monitor system activity and manage data submissions
                         </p>
                     </div>
@@ -41,85 +44,95 @@
                 <div class="row g-4">
                     <!-- Total Submissions -->
                     <div class="col-xl-3 col-lg-6">
-                        <div class="stat-card total">
-                            <div class="stat-icon">
-                                <i class="fas fa-database"></i>
+                        <a href="{% url 'data_submission:all_submissions' %}" class="stat-link d-block h-100">
+                            <div class="stat-card total">
+                                <div class="stat-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="stat-number counter-value" data-target="{{ total_submissions }}">0</h3>
+                                    <p class="stat-label">Total Submissions</p>
+                                    <small class="stat-change">All datasets submitted</small>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <h3 class="stat-number">{{ total_submissions }}</h3>
-                                <p class="stat-label">Total Submissions</p>
-                                <small class="stat-change">All datasets submitted</small>
-                            </div>
-                        </div>
+                        </a>
                     </div>
 
                     <!-- Pending Review -->
                     <div class="col-xl-3 col-lg-6">
-                        <div class="stat-card pending">
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
+                        <a href="{% url 'data_submission:review_submissions' %}" class="stat-link d-block h-100">
+                            <div class="stat-card pending">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="stat-number counter-value" data-target="{{ pending_submissions }}">0</h3>
+                                    <p class="stat-label">Pending Review</p>
+                                    <small class="stat-change">Require attention</small>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <h3 class="stat-number">{{ pending_submissions }}</h3>
-                                <p class="stat-label">Pending Review</p>
-                                <small class="stat-change">Require attention</small>
-                            </div>
-                        </div>
+                        </a>
                     </div>
 
                     <!-- Published -->
                     <div class="col-xl-3 col-lg-6">
-                        <div class="stat-card approved">
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
+                        <a href="{% url 'data_submission:all_submissions' %}" class="stat-link d-block h-100">
+                            <div class="stat-card approved">
+                                <div class="stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="stat-number counter-value" data-target="{{ published|default:'0' }}">0</h3>
+                                    <p class="stat-label">Published</p>
+                                    <small class="stat-change">Published datasets</small>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <h3 class="stat-number">{{ published|default:"0" }}</h3>
-                                <p class="stat-label">Published</p>
-                                <small class="stat-change">Published datasets</small>
-                            </div>
-                        </div>
+                        </a>
                     </div>
 
                     <!-- Active Users (Super Admin Only) -->
                     {% if request.user.is_superuser %}
                     <div class="col-xl-3 col-lg-6">
-                        <div class="stat-card users">
-                            <div class="stat-icon">
-                                <i class="fas fa-users"></i>
+                        <a href="{% url 'users:user_approval_dashboard' %}" class="stat-link d-block h-100">
+                            <div class="stat-card users">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="stat-number counter-value" data-target="{{ user_count }}">0</h3>
+                                    <p class="stat-label">Registered Users</p>
+                                    <small class="stat-change">Active researchers</small>
+                                </div>
                             </div>
-                            <div class="stat-content">
-                                <h3 class="stat-number">{{ user_count }}</h3>
-                                <p class="stat-label">Registered Users</p>
-                                <small class="stat-change">Active researchers</small>
-                            </div>
-                        </div>
+                        </a>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="quick-actions mb-5">
-                <h4 class="h5 mb-4">Quick Actions</h4>
-                <div class="row g-4">
+            <!-- Dashboard Body -->
+            <div class="row g-4 mb-5">
+                <!-- Left Column: Quick Actions -->
+                <div class="{% if request.user.is_superuser %}col-lg-9{% else %}col-12{% endif %} pe-lg-5 d-flex flex-column">
+                    <h4 class="h5 mb-4 px-2">Quick Actions</h4>
+                    <div class="row gx-4 gy-4 flex-grow-1">
                     <!-- Review Submissions -->
-                    <div class="col-lg-4">
+                    <div class="{% if request.user.is_superuser %}col-xl-4 col-lg-6{% else %}col-md-6{% endif %}">
                         <div class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-clipboard-check"></i>
                             </div>
                             <div class="action-content">
-                                <h5 class="h6 mb-2">Review Submissions</h5>
+                                <h5 class="mb-2">Review Submissions</h5>
                                 <p class="text-secondary small mb-3">
                                     Evaluate and process pending dataset submissions
                                 </p>
                                 <div class="action-stats">
-                                    <span class="badge bg-warning">{{ pending_submissions }} pending</span>
+                                    <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3 py-2">{{ pending_submissions }} pending</span>
                                 </div>
                                 <a href="{% url 'data_submission:review_submissions' %}"
-                                    class="btn btn-primary w-100 mt-3">
-                                    <i class="fas fa-search me-2"></i>Review Now
+                                    class="btn btn-primary w-100 mt-3 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-search"></i>Review Now
                                 </a>
                             </div>
                         </div>
@@ -127,128 +140,55 @@
 
                     {% if request.user.is_superuser %}
                     <!-- Manage Users -->
-                    <div class="col-lg-4">
+                    <div class="col-xl-4 col-lg-6">
                         <div class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-users-cog"></i>
                             </div>
                             <div class="action-content">
-                                <h5 class="h6 mb-2">User Management</h5>
+                                <h5 class="mb-2">User Management</h5>
                                 <p class="text-secondary small mb-3">
                                     Manage user accounts, permissions, and access levels
                                 </p>
                                 <div class="action-stats">
-                                    <span class="badge bg-info">{{ user_count }} users</span>
+                                    <span class="badge bg-info text-dark rounded-pill shadow-sm px-3 py-2">{{ user_count }} active users</span>
                                 </div>
-                                <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-dark w-100 mt-3">
-                                    <i class="fas fa-user-cog me-2"></i>Manage Users
+                                <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-dark w-100 mt-3 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-user-cog"></i>Manage Users
                                 </a>
                             </div>
                         </div>
                     </div>
 
                     <!-- System Administration -->
-                    <div class="col-lg-4">
+                    <div class="col-xl-4 col-lg-6">
                         <div class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-cogs"></i>
                             </div>
                             <div class="action-content">
-                                <h5 class="h6 mb-2">System Administration</h5>
+                                <h5 class="mb-2">System Administration</h5>
                                 <p class="text-secondary small mb-3">
                                     Advanced system configuration and database management
                                 </p>
                                 <div class="action-stats">
-                                    <span class="badge bg-secondary">Advanced</span>
+                                    <span class="badge bg-secondary text-white rounded-pill shadow-sm px-3 py-2">Advanced</span>
                                 </div>
-                                <a href="{% url 'admin:index' %}" class="btn btn-outline-dark w-100 mt-3">
-                                    <i class="fas fa-terminal me-2"></i>Django Admin
+                                <a href="{% url 'admin:index' %}" class="btn btn-outline-dark w-100 mt-3 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-terminal"></i>Django Admin
                                 </a>
                             </div>
                         </div>
                     </div>
                     {% endif %}
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="row g-4">
-                <!-- Recent Submissions -->
-                <div class="{% if request.user.is_superuser %}col-lg-8{% else %}col-12{% endif %}">
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <h5 class="mb-0">Recent Submissions</h5>
-                            <a href="{% url 'data_submission:review_submissions' %}" class="small text-primary">
-                                View All <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                        <div class="activity-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Dataset</th>
-                                            <th>Submitter</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for submission in recent_submissions %}
-                                        <tr>
-                                            <td>
-                                                <div class="dataset-info">
-                                                    <strong>{{ submission.title|truncatechars:40 }}</strong>
-                                                    <small class="text-muted d-block">{{
-                                                        submission.data_type|default:"Not specified" }}</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="user-info">
-                                                    <span class="user-avatar-sm">{{
-                                                        submission.submitter.username|first|upper }}</span>
-                                                    {{ submission.submitter.username }}
-                                                </div>
-                                            </td>
-                                            <td>{{ submission.submission_date|date:"M d, Y" }}</td>
-                                            <td>
-                                                <span class="status-badge 
-                                            {% if submission.status == 'published' %}status-approved
-                                            {% elif submission.status == 'submitted' %}status-pending
-                                            {% elif submission.status == 'draft' %}status-draft
-                                            {% else %}status-pending{% endif %}">
-                                                    {{ submission.get_status_display }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'data_submission:review_submission_detail' submission.metadata_id %}"
-                                                    class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye me-1"></i> Review
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% empty %}
-                                        <tr>
-                                            <td colspan="5" class="text-center py-4">
-                                                <div class="empty-state-sm">
-                                                    <i class="fas fa-inbox fa-2x text-muted mb-3"></i>
-                                                    <p class="text-muted mb-0">No recent submissions</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <!-- System Metrics (Super Admin Only) -->
+                <!-- Right Column: System Metrics (Super Admin Only) -->
                 {% if request.user.is_superuser %}
-                <div class="col-lg-4">
-                    <div class="metrics-card">
+                <div class="col-lg-3 d-flex flex-column">
+                    <h4 class="h5 mb-4 px-2">System Metrics</h4>
+                    <div class="metrics-card flex-grow-1">
                         <div class="card-header">
                             <h5 class="mb-0">System Metrics</h5>
                         </div>
@@ -258,65 +198,8 @@
                                 <div class="metric-header">
                                     <h6 class="mb-2">Submission Distribution</h6>
                                 </div>
-                                <div class="metric-chart">
-                                    <div class="chart-bar">
-                                        <div class="chart-label">Approved</div>
-                                        <div class="chart-bar-bg">
-                                            <div class="chart-bar-fill approved"
-                                                style="width: {% widthratio published total_submissions 100 %}%">
-                                            </div>
-                                        </div>
-                                        <div class="chart-value">{{ published|default:"0" }}</div>
-                                    </div>
-                                    <div class="chart-bar">
-                                        <div class="chart-label">Pending</div>
-                                        <div class="chart-bar-bg">
-                                            <div class="chart-bar-fill pending"
-                                                style="width: {% widthratio pending_submissions total_submissions 100 %}%">
-                                            </div>
-                                        </div>
-                                        <div class="chart-value">{{ pending_submissions }}</div>
-                                    </div>
-                                    <div class="chart-bar">
-                                        <div class="chart-label">Rejected</div>
-                                        <div class="chart-bar-bg">
-                                            <div class="chart-bar-fill rejected"
-                                                style="width: {% widthratio rejected_submissions total_submissions 100 %}%">
-                                            </div>
-                                        </div>
-                                        <div class="chart-value">{{ rejected_submissions }}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Quick Stats -->
-                            <div class="quick-stats mt-4">
-                                <div class="stat-item-sm">
-                                    <div class="stat-icon-sm">
-                                        <i class="fas fa-calendar-alt"></i>
-                                    </div>
-                                    <div class="stat-content-sm">
-                                        <span class="stat-label-sm">Today's Submissions</span>
-                                        <span class="stat-number-sm">{{ today_submissions|default:"0" }}</span>
-                                    </div>
-                                </div>
-                                <div class="stat-item-sm">
-                                    <div class="stat-icon-sm">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <div class="stat-content-sm">
-                                        <span class="stat-label-sm">This Week</span>
-                                        <span class="stat-number-sm">{{ week_submissions|default:"0" }}</span>
-                                    </div>
-                                </div>
-                                <div class="stat-item-sm">
-                                    <div class="stat-icon-sm">
-                                        <i class="fas fa-user-plus"></i>
-                                    </div>
-                                    <div class="stat-content-sm">
-                                        <span class="stat-label-sm">New Users (7d)</span>
-                                        <span class="stat-number-sm">{{ new_users_week|default:"0" }}</span>
-                                    </div>
+                                <div class="metric-chart" style="position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center;">
+                                    <canvas id="submissionChart"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -324,6 +207,83 @@
                 </div>
                 {% endif %}
             </div>
+
+            <!-- Recent Submissions Table -->
+            <div class="recent-submissions-section mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h4 class="h5 mb-0">Recent Submissions</h4>
+                    <a href="{% url 'data_submission:all_submissions' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">View All</a>
+                </div>
+                <div class="activity-card">
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0 compact-table">
+                            <thead class="sticky-top bg-white z-1">
+                                <tr>
+                                    <th>Dataset Details</th>
+                                    <th>Submitter</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for submission in recent_submissions %}
+                                <tr>
+                                    <td>
+                                        <div class="dataset-info">
+                                            <strong class="d-block text-truncate" style="max-width: 250px;" title="{{ submission.title }}">{{ submission.title }}</strong>
+                                            <span class="text-muted small align-middle"><i class="fas fa-fingerprint me-1"></i>{{ submission.metadata_id|default:"Pending ID" }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-circle bg-light text-primary border border-primary border-opacity-25 fw-bold rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:34px; height:34px; font-size:12px;">
+                                                {{ submission.submitter.first_name|default:"U"|make_list|first }}{{ submission.submitter.last_name|default:"S"|make_list|first }}
+                                            </div>
+                                            <div>
+                                                <span class="d-block fw-semibold" style="font-size: 0.9rem; color: var(--text-dark);">
+                                                    {% if submission.submitter.get_full_name %}{{ submission.submitter.get_full_name }}{% else %}{{ submission.submitter.email }}{% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted small fw-medium">
+                                            <i class="far fa-calendar-alt me-1"></i>{{ submission.submission_date|date:"M d, Y" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if submission.status == 'published' %}
+                                        <span class="badge status-approved"><i class="fas fa-check-circle me-1"></i>Published</span>
+                                        {% elif submission.status == 'submitted' or submission.status == 'under_review' %}
+                                        <span class="badge status-pending"><i class="fas fa-clock me-1"></i>Pending</span>
+                                        {% elif submission.status == 'revision' %}
+                                        <span class="badge status-rejected"><i class="fas fa-exclamation-circle me-1"></i>Revision</span>
+                                        {% else %}
+                                        <span class="badge status-draft"><i class="fas fa-pencil-alt me-1"></i>Draft</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'data_submission:review_submission_detail' submission.pk %}" class="btn btn-sm btn-light btn-view-action" data-bs-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-chevron-right text-muted"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-5">
+                                        <i class="fas fa-folder-open fs-1 mb-3 text-secondary opacity-25"></i>
+                                        <p class="mb-0 fw-medium">No recent submissions found.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
 
             <!-- Advanced Management (Super Admin Only) -->
             {% if request.user.is_superuser %}
@@ -379,177 +339,276 @@
 
 <!-- Admin Dashboard Styles -->
 <style>
+    /* Modern Dashboard Variables */
+    :root {
+        --dash-bg: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.9);
+        --card-border: rgba(255, 255, 255, 0.5);
+        --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); /* Softer, broader shadow */
+        --glass-shadow-hover: 0 15px 50px rgba(0, 136, 204, 0.2);
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        
+        --grad-blue: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        --grad-orange: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        --grad-green: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        --grad-purple: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        
+        --glow-blue: rgba(59, 130, 246, 0.4);
+        --glow-orange: rgba(245, 158, 11, 0.4);
+        --glow-green: rgba(16, 185, 129, 0.4);
+        --glow-purple: rgba(139, 92, 246, 0.4);
+    }
+    
+    body {
+        background-color: var(--dash-bg);
+    }
+
     /* Dashboard Header */
     .dashboard-header {
-        padding: 2rem 0;
-        border-bottom: 1px solid var(--medium-gray);
+        padding: 2.5rem 2rem;
+        background: linear-gradient(120deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
+        background-size: 200% 200%;
+        animation: gradientMesh 12s ease infinite;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        margin-bottom: 2.5rem;
+        border: 1px solid rgba(255,255,255,0.8);
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes gradientMesh {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0,136,204,0.08) 0%, transparent 70%);
+        border-radius: 50%;
     }
 
     .header-badge .badge {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
+        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        background: var(--grad-orange) !important;
+        box-shadow: 0 4px 15px var(--glow-orange);
+        border: none;
+        letter-spacing: 0.5px;
     }
 
     .system-status .badge {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
+        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        background: var(--grad-green) !important;
+        box-shadow: 0 4px 15px var(--glow-green);
+        border: none;
+        letter-spacing: 0.5px;
     }
 
     /* Stats Summary */
+    .stat-link {
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+    .stat-link:hover {
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+    
     .stats-summary {
-        margin-bottom: 3rem;
+        margin-bottom: 3.5rem;
     }
 
     .stat-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 1.5rem;
+        padding: 1.8rem;
+        box-shadow: var(--glass-shadow);
         display: flex;
         align-items: center;
         gap: 1.5rem;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         height: 100%;
+        position: relative;
+        overflow: hidden;
     }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        opacity: 0.8;
+    }
+
+    .stat-card.total::after { background: var(--grad-blue); }
+    .stat-card.pending::after { background: var(--grad-orange); }
+    .stat-card.approved::after { background: var(--grad-green); }
+    .stat-card.users::after { background: var(--grad-purple); }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .stat-card.total {
-        border-top: 4px solid #3B82F6;
-    }
-
-    .stat-card.pending {
-        border-top: 4px solid #F59E0B;
-    }
-
-    .stat-card.approved {
-        border-top: 4px solid #10B981;
-    }
-
-    .stat-card.users {
-        border-top: 4px solid #8B5CF6;
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: var(--glass-shadow-hover);
+        border-color: rgba(0, 136, 204, 0.2);
     }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: var(--border-radius-sm);
+        width: 65px;
+        height: 65px;
+        border-radius: 1.2rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         color: white;
+        transition: transform 0.3s ease;
     }
 
-    .stat-card.total .stat-icon {
-        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    .stat-card:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg);
     }
 
-    .stat-card.pending .stat-icon {
-        background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
-    }
-
-    .stat-card.approved .stat-icon {
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-    }
-
-    .stat-card.users .stat-icon {
-        background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-    }
+    .stat-card.total .stat-icon { background: var(--grad-blue); box-shadow: 0 8px 20px var(--glow-blue); }
+    .stat-card.pending .stat-icon { background: var(--grad-orange); box-shadow: 0 8px 20px var(--glow-orange); }
+    .stat-card.approved .stat-icon { background: var(--grad-green); box-shadow: 0 8px 20px var(--glow-green); }
+    .stat-card.users .stat-icon { background: var(--grad-purple); box-shadow: 0 8px 20px var(--glow-purple); }
 
     .stat-content {
         flex: 1;
     }
 
     .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 2.8rem;
+        font-weight: 800;
         line-height: 1;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary);
+        margin-bottom: 0.35rem;
+        color: var(--text-dark);
+        letter-spacing: -1px;
     }
 
     .stat-label {
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 0.25rem;
-        color: var(--text-primary);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
     }
 
     .stat-change {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
+        color: #94a3b8;
+        font-size: 0.8rem;
     }
 
     /* Quick Actions */
     .quick-actions {
-        margin-bottom: 3rem;
+        margin-bottom: 3.5rem;
     }
 
     .action-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        padding: 2rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        transition: all 0.3s ease;
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 1.5rem;
+        padding: 2.5rem 2rem;
+        box-shadow: var(--glass-shadow);
+        transition: all 0.4s ease;
         height: 100%;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        text-align: center;
     }
 
     .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--accent-teal);
+        transform: translateY(-8px);
+        box-shadow: var(--glass-shadow-hover);
+        border-color: rgba(0, 136, 204, 0.3);
     }
 
     .action-icon {
-        width: 70px;
-        height: 70px;
-        background: rgba(0, 51, 102, 0.1);
-        border-radius: var(--border-radius-md);
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(0, 136, 204, 0.1) 0%, rgba(0, 136, 204, 0.05) 100%);
+        border: 1px solid rgba(0, 136, 204, 0.15);
+        border-radius: 2rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
-        color: var(--primary-blue);
-        font-size: 1.8rem;
+        margin-bottom: 1.8rem;
+        color: #0088CC;
+        font-size: 2.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover .action-icon {
+        background: #0088CC;
+        color: white;
+        box-shadow: 0 10px 25px rgba(0, 136, 204, 0.3);
+        transform: scale(1.05);
     }
 
     .action-content {
         flex: 1;
+        width: 100%;
     }
 
     .action-content h5 {
-        color: var(--primary-blue);
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 1.25rem;
     }
 
     .action-stats {
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .action-card .btn {
+        border-radius: 12px;
+        padding: 0.8rem 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
     }
 
     /* Activity Card */
     .activity-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
+        background: var(--card-bg);
+        border-radius: 1.5rem;
+        box-shadow: var(--glass-shadow);
+        border: 1px solid var(--card-border);
         overflow: hidden;
         height: 100%;
     }
 
     .activity-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
+        padding: 1.8rem 2rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--light-gray);
+        background: transparent;
+    }
+    
+    .activity-header h5 {
+        font-weight: 700;
+        color: var(--text-dark);
     }
 
     .activity-body {
@@ -561,47 +620,106 @@
         margin-bottom: 0;
     }
 
+    .compact-table th {
+        padding: 0.8rem 1rem !important;
+        font-size: 0.7rem !important;
+    }
+    .compact-table td {
+        padding: 0.8rem 1rem !important;
+    }
+
+    /* Custom Scrollbar for Table */
+    .table-responsive::-webkit-scrollbar {
+        width: 6px;
+    }
+    .table-responsive::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.02);
+    }
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: rgba(0,136,204,0.2);
+        border-radius: 4px;
+    }
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,136,204,0.4);
+    }
+
     .table thead th {
-        border-bottom: 2px solid var(--medium-gray);
-        font-weight: 600;
-        color: var(--text-primary);
-        padding: 1rem 1.5rem;
-        background: var(--light-gray);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        padding: 1.2rem 1.5rem;
+        background: #f8fafc;
+        border-top: none;
     }
 
     .table tbody td {
-        padding: 1rem 1.5rem;
+        padding: 1.2rem 1.5rem;
         vertical-align: middle;
-        border-color: var(--medium-gray);
+        border-color: rgba(0,0,0,0.03);
+        color: var(--text-dark);
+    }
+
+    .table tbody tr {
+        transition: background-color 0.2s ease;
     }
 
     .table tbody tr:hover {
-        background-color: var(--light-gray);
+        background-color: rgba(0, 136, 204, 0.03);
     }
 
     /* Dataset Info */
     .dataset-info {
-        max-width: 250px;
+        max-width: 280px;
+    }
+    
+    .dataset-info strong {
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    .btn-view-action {
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .btn-view-action:hover {
+        background: var(--primary-blue);
+        transform: translateX(3px);
+    }
+    .btn-view-action:hover i {
+        color: white !important;
     }
 
     /* User Info */
     .user-info {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.8rem;
+        font-weight: 500;
     }
 
     .user-avatar-sm {
-        width: 30px;
-        height: 30px;
-        background: var(--gradient-primary);
+        width: 35px;
+        height: 35px;
+        background: var(--grad-blue);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 0.875rem;
-        font-weight: 600;
+        font-size: 0.9rem;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
     }
 
     /* Status Badges */
@@ -864,14 +982,17 @@
     }
 </style>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <!-- JavaScript for Admin Dashboard -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Animate stat numbers
         function animateStats() {
-            const statNumbers = document.querySelectorAll('.stat-number');
+            const statNumbers = document.querySelectorAll('.counter-value');
             statNumbers.forEach(stat => {
-                const target = parseInt(stat.textContent) || 0;
+                const target = parseInt(stat.getAttribute('data-target')) || 0;
                 if (target > 0) {
                     animateNumber(stat, 0, target, 1500);
                 }
@@ -894,15 +1015,67 @@
         // Initialize animations
         animateStats();
 
-        // Update chart animations
-        const chartBars = document.querySelectorAll('.chart-bar-fill');
-        chartBars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.width = '0%';
-            setTimeout(() => {
-                bar.style.width = width;
-            }, 500);
-        });
+        // Chart.js Configuration
+        const ctx = document.getElementById('submissionChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Approved', 'Pending', 'Rejected'],
+                    datasets: [{
+                        data: [
+                            parseInt('{{ published|default:"0" }}'),
+                            parseInt('{{ pending_submissions }}'),
+                            parseInt('{{ rejected_submissions }}')
+                        ],
+                        backgroundColor: [
+                            '#10B981', // green for approved
+                            '#F59E0B', // amber for pending
+                            '#EF4444'  // red for rejected
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    family: "'Open Sans', sans-serif",
+                                    size: 13,
+                                    weight: '600'
+                                },
+                                color: '#595959'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 29, 54, 0.9)', // deep navy
+                            titleFont: { size: 14, family: "'Open Sans', sans-serif" },
+                            bodyFont: { size: 13, family: "'Open Sans', sans-serif" },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+
 
         // Status badge hover effects
         const statusBadges = document.querySelectorAll('.status-badge');

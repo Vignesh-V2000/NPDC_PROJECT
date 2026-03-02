@@ -1,101 +1,371 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>System Activity Logs</h2>
-        <span>Showing last {{ logs|length }} entries</span>
-    </div>
+{% block title %}System Logs - NPDC{% endblock %}
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-striped table-hover mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Time</th>
-                            <th>User</th>
-                            <th>Action</th>
-                            <th>Entity</th>
-                            <th>IP Address</th>
-                            <th>Status</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in logs %}
-                        <tr>
-                            <td>{{ log.action_time|date:"Y-m-d H:i:s" }}</td>
-                            <td>
-                                {% if log.actor %}
-                                <span class="badge bg-secondary">{{ log.actor.username }}</span>
-                                {% else %}
-                                <span class="badge bg-warning text-dark">System/Anon</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge 
-                                    {% if log.action_type == 'LOGIN' %}bg-info
-                                    {% elif log.action_type == 'LOGOUT' %}bg-secondary
-                                    {% elif log.action_type == 'CREATE' %}bg-success
-                                    {% elif log.action_type == 'DELETE' %}bg-danger
-                                    {% elif log.action_type == 'APPROVE' %}bg-success
-                                    {% elif log.action_type == 'REJECT' %}bg-danger
-                                    {% else %}bg-primary{% endif %}">
-                                    {{ log.get_action_type_display }}
-                                </span>
-                            </td>
-                            <td>{{ log.entity_name|default:"-" }}</td>
-                            <td>{{ log.ip_address|default:"-" }}</td>
-                            <td>
-                                {% if log.status == 'SUCCESS' %}
-                                <span class="text-success"><i class="bi bi-check-circle"></i> Success</span>
-                                {% else %}
-                                <span class="text-danger"><i class="bi bi-x-circle"></i> Failed</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ log.remarks|truncatechars:100 }}</small>
-                                {% if log.path %}
-                                <br><small class="text-muted" style="font-size:0.8em">Path: {{ log.path }}</small>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-4">No activity logs found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% block container_wrapper %}{% endblock %}
+{% block container_wrapper_end %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Admin Sidebar -->
+        <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
+            {% include 'admin/includes/admin_sidebar.html' %}
         </div>
 
-        <!-- Pagination logic if using ListView pagination -->
-        {% if is_paginated %}
-        <div class="card-footer">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mb-0">
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9">
+
+            <!-- ═══ Hero Banner ═══ -->
+            <style>
+                .syslog-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2.2rem 2rem 1.8rem;
+                    border-radius: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                    margin-bottom: 1.5rem;
+                }
+                .syslog-hero-orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(60px);
+                    opacity: 0.15;
+                    pointer-events: none;
+                }
+                .syslog-hero-orb-1 {
+                    width: 300px; height: 300px;
+                    background: #3b82f6;
+                    top: -100px; left: -50px;
+                    animation: slOrbFloat1 8s ease-in-out infinite;
+                }
+                .syslog-hero-orb-2 {
+                    width: 200px; height: 200px;
+                    background: #8b5cf6;
+                    top: -50px; right: 10%;
+                    animation: slOrbFloat2 10s ease-in-out infinite;
+                }
+                .syslog-hero-orb-3 {
+                    width: 250px; height: 250px;
+                    background: #06b6d4;
+                    bottom: -80px; right: 30%;
+                    animation: slOrbFloat1 12s ease-in-out infinite reverse;
+                }
+                @keyframes slOrbFloat1 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(20px, 15px); }
+                }
+                @keyframes slOrbFloat2 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(-15px, 20px); }
+                }
+                .syslog-hero-title {
+                    color: #ffffff;
+                    font-weight: 800;
+                    font-size: 1.6rem;
+                    letter-spacing: -0.02em;
+                    margin-bottom: 0.3rem;
+                    position: relative;
+                    z-index: 2;
+                }
+                .syslog-hero-title-icon { color: #60a5fa; }
+                .syslog-hero-sub {
+                    color: #94a3b8;
+                    font-size: 0.92rem;
+                    position: relative;
+                    z-index: 2;
+                    margin-bottom: 0;
+                }
+                .syslog-count-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    font-size: 0.78rem;
+                    color: #94a3b8;
+                    background: rgba(255,255,255,0.06);
+                    padding: 0.3rem 0.75rem;
+                    border-radius: 2rem;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    position: relative;
+                    z-index: 2;
+                }
+                .syslog-count-dot {
+                    width: 7px; height: 7px;
+                    background: #a78bfa;
+                    border-radius: 50%;
+                    animation: slCountPulse 2s ease-in-out infinite;
+                }
+                @keyframes slCountPulse {
+                    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(167,139,250,0.4); }
+                    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(167,139,250,0); }
+                }
+
+                /* Table */
+                .syslog-table-card {
+                    border-radius: 0.85rem;
+                    border: 1px solid rgba(0,0,0,0.04);
+                    box-shadow: 0 8px 32px rgba(15,23,42,0.07);
+                    overflow: hidden;
+                }
+                .syslog-table-scroll {
+                    max-height: 650px;
+                    overflow-y: auto;
+                }
+                .syslog-table { margin-bottom: 0; }
+                .syslog-table thead th {
+                    position: sticky;
+                    top: 0;
+                    z-index: 2;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                    color: #e2e8f0;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    letter-spacing: 0.6px;
+                    text-transform: uppercase;
+                    padding: 1rem 1rem;
+                    border: none;
+                    white-space: nowrap;
+                }
+                .syslog-table thead th::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0; left: 0; right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+                }
+                .syslog-table tbody tr {
+                    transition: all 0.2s ease;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .syslog-table tbody tr:hover { background-color: #f8fafc; }
+                .syslog-table tbody tr:last-child { border-bottom: none; }
+                .syslog-table tbody td {
+                    padding: 0.75rem 1rem;
+                    vertical-align: middle;
+                    font-size: 0.85rem;
+                    color: #334155;
+                }
+
+                /* Action Badges */
+                .sl-action-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                    padding: 0.25rem 0.6rem;
+                    border-radius: 2rem;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                }
+                .sl-action-login { background: #dbeafe; color: #1d4ed8; }
+                .sl-action-logout { background: #f1f5f9; color: #64748b; }
+                .sl-action-create { background: #dcfce7; color: #15803d; }
+                .sl-action-delete { background: #fee2e2; color: #991b1b; }
+                .sl-action-approve { background: #ecfdf5; color: #059669; }
+                .sl-action-reject { background: #fef2f2; color: #dc2626; }
+                .sl-action-default { background: #eff6ff; color: #2563eb; }
+
+                .sl-user-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.3rem;
+                    padding: 0.2rem 0.55rem;
+                    border-radius: 0.4rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                }
+                .sl-user-known { background: #e0e7ff; color: #4338ca; }
+                .sl-user-system { background: #fef3c7; color: #92400e; }
+
+                .sl-status-success { color: #16a34a; font-weight: 700; font-size: 0.82rem; }
+                .sl-status-failed { color: #dc2626; font-weight: 700; font-size: 0.82rem; }
+
+                .sl-details-text {
+                    font-size: 0.78rem;
+                    color: #64748b;
+                    line-height: 1.4;
+                }
+                .sl-path-text {
+                    font-size: 0.72rem;
+                    color: #94a3b8;
+                    font-family: monospace;
+                }
+                .sl-time-text {
+                    font-size: 0.82rem;
+                    color: #475569;
+                    font-weight: 600;
+                    white-space: nowrap;
+                }
+
+                /* Pagination */
+                .syslog-pagination .page-link {
+                    border: 1px solid #e2e8f0;
+                    color: #475569;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    padding: 0.5rem 0.85rem;
+                    transition: all 0.2s ease;
+                    border-radius: 0.5rem;
+                    margin: 0 0.15rem;
+                }
+                .syslog-pagination .page-link:hover {
+                    background: #3b82f6;
+                    border-color: #3b82f6;
+                    color: #fff;
+                    transform: translateY(-1px);
+                }
+                .syslog-pagination .page-item.active .page-link {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                    border-color: #2563eb;
+                    color: #fff;
+                    box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+                }
+                .syslog-pagination .page-item.disabled .page-link {
+                    color: #cbd5e1;
+                    background: #f8fafc;
+                }
+            </style>
+
+            <!-- Hero Banner -->
+            <div class="syslog-hero">
+                <div class="syslog-hero-orb syslog-hero-orb-1"></div>
+                <div class="syslog-hero-orb syslog-hero-orb-2"></div>
+                <div class="syslog-hero-orb syslog-hero-orb-3"></div>
+
+                <div class="text-center mb-3">
+                    <h3 class="syslog-hero-title">
+                        <i class="fas fa-server me-2 syslog-hero-title-icon"></i>System Activity Logs
+                    </h3>
+                    <p class="syslog-hero-sub">Monitor all system activities, user actions, and security events</p>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <div class="syslog-count-pill">
+                        <span class="syslog-count-dot"></span>
+                        Showing last {{ logs|length }} entries
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Table -->
+            <div class="card syslog-table-card border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive syslog-table-scroll">
+                        <table class="table syslog-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-clock me-1" style="color: #60a5fa;"></i>Time</th>
+                                    <th><i class="fas fa-user me-1" style="color: #a78bfa;"></i>User</th>
+                                    <th><i class="fas fa-bolt me-1" style="color: #fbbf24;"></i>Action</th>
+                                    <th><i class="fas fa-cube me-1" style="color: #34d399;"></i>Entity</th>
+                                    <th><i class="fas fa-network-wired me-1" style="color: #f472b6;"></i>IP</th>
+                                    <th><i class="fas fa-flag me-1" style="color: #fb923c;"></i>Status</th>
+                                    <th><i class="fas fa-info-circle me-1" style="color: #94a3b8;"></i>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>
+                                        <span class="sl-time-text">{{ log.action_time|date:"M d, Y" }}</span>
+                                        <div class="text-muted" style="font-size: 0.72rem;">{{ log.action_time|date:"H:i:s" }}</div>
+                                    </td>
+                                    <td>
+                                        {% if log.actor %}
+                                        <span class="sl-user-badge sl-user-known">
+                                            <i class="fas fa-user"></i>{{ log.actor.username }}
+                                        </span>
+                                        {% else %}
+                                        <span class="sl-user-badge sl-user-system">
+                                            <i class="fas fa-robot"></i>System
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="sl-action-badge
+                                            {% if log.action_type == 'LOGIN' %}sl-action-login
+                                            {% elif log.action_type == 'LOGOUT' %}sl-action-logout
+                                            {% elif log.action_type == 'CREATE' %}sl-action-create
+                                            {% elif log.action_type == 'DELETE' %}sl-action-delete
+                                            {% elif log.action_type == 'APPROVE' %}sl-action-approve
+                                            {% elif log.action_type == 'REJECT' %}sl-action-reject
+                                            {% else %}sl-action-default{% endif %}">
+                                            {{ log.get_action_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log.entity_name|default:"—" }}</td>
+                                    <td>
+                                        <code style="font-size: 0.78rem; background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 0.3rem; color: #475569;">
+                                            {{ log.ip_address|default:"—" }}
+                                        </code>
+                                    </td>
+                                    <td>
+                                        {% if log.status == 'SUCCESS' %}
+                                        <span class="sl-status-success"><i class="fas fa-check-circle me-1"></i>Success</span>
+                                        {% else %}
+                                        <span class="sl-status-failed"><i class="fas fa-times-circle me-1"></i>Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="sl-details-text">{{ log.remarks|truncatechars:100 }}</div>
+                                        {% if log.path %}
+                                        <div class="sl-path-text mt-1">
+                                            <i class="fas fa-link me-1"></i>{{ log.path }}
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="fas fa-inbox fa-3x d-block mb-3" style="color: #cbd5e1;"></i>
+                                        <h5 class="fw-bold text-secondary">No activity logs found</h5>
+                                        <p class="text-muted small mb-0">System activities will appear here once they are recorded.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination syslog-pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-left me-1"></i> Prev</span>
                     </li>
                     {% endif %}
 
-                    <li class="page-item disabled">
+                    <li class="page-item active">
                         <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
                     </li>
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next <i class="fas fa-chevron-right ms-1"></i></span>
                     </li>
                     {% endif %}
                 </ul>
             </nav>
+            {% endif %}
+
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

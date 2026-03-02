@@ -1,83 +1,179 @@
 {% extends "base.html" %}
 
+{% block title %}Data Submission Instructions - NPDC{% endblock %}
+
 {% block content %}
 <style>
-    .instructions-container {
-        color: #FFFFFF;
+    /* Hero Banner */
+    .dsi-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        padding: 3rem 2rem 2.5rem;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
     }
-    
-    .instructions-container h4 {
-        color: var(--accent-teal) !important;
+    .dsi-hero-orb {
+        position: absolute; border-radius: 50%;
+        filter: blur(60px); opacity: 0.15; pointer-events: none;
     }
-    
-    .instructions-container span,
-    .instructions-container div {
-        color: #FFFFFF;
+    .dsi-hero-orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; left: -50px; animation: dsiOrb1 8s ease-in-out infinite; }
+    .dsi-hero-orb-2 { width: 200px; height: 200px; background: #8b5cf6; top: -50px; right: 10%; animation: dsiOrb2 10s ease-in-out infinite; }
+    .dsi-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: dsiOrb1 12s ease-in-out infinite reverse; }
+    @keyframes dsiOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
+    @keyframes dsiOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
+    .dsi-hero-title { color:#fff; font-weight:800; font-size:1.8rem; letter-spacing:-0.02em; margin-bottom:0.4rem; position:relative; z-index:2; }
+    .dsi-hero-title i { color: #60a5fa; }
+    .dsi-hero-sub { color:#94a3b8; font-size:0.95rem; position:relative; z-index:2; margin-bottom:1.5rem; max-width:600px; }
+    .dsi-hero-cta {
+        position: relative; z-index: 2;
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff; border: none; padding: 0.7rem 1.75rem;
+        border-radius: 0.6rem; font-weight: 700; font-size: 0.95rem;
+        text-decoration: none; transition: all 0.25s ease;
+        box-shadow: 0 4px 16px rgba(37,99,235,0.35);
     }
+    .dsi-hero-cta:hover {
+        transform: translateY(-2px); color: #fff;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.45);
+    }
+
+    /* Guidelines Card */
+    .dsi-guidelines-card {
+        border-radius: 0.85rem;
+        border: 1px solid rgba(0,0,0,0.04) !important;
+        box-shadow: 0 6px 24px rgba(15,23,42,0.06);
+        overflow: hidden;
+    }
+    .dsi-guidelines-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #e2e8f0; padding: 1rem 1.5rem; font-weight: 700; font-size: 0.92rem;
+    }
+    .dsi-guidelines-header::after {
+        content: ''; display: block; height: 3px; margin-top: 0.75rem;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+        border-radius: 2px;
+    }
+    .dsi-guideline-item {
+        display: flex; align-items: flex-start; gap: 0.85rem;
+        padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9;
+        transition: background 0.15s ease;
+    }
+    .dsi-guideline-item:hover { background: #f8fafc; }
+    .dsi-guideline-item:last-child { border-bottom: none; }
+    .dsi-guideline-icon {
+        width: 32px; height: 32px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; font-size: 0.75rem;
+    }
+    .dsi-icon-1 { background: #dbeafe; color: #1d4ed8; }
+    .dsi-icon-2 { background: #e0e7ff; color: #4338ca; }
+    .dsi-icon-3 { background: #dcfce7; color: #15803d; }
+    .dsi-icon-4 { background: #fef3c7; color: #92400e; }
+    .dsi-guideline-text { color: #334155; font-size: 0.9rem; line-height: 1.6; }
+
+    /* Contact Card */
+    .dsi-contact-card {
+        border-radius: 0.85rem;
+        border: 1px solid rgba(0,0,0,0.04) !important;
+        box-shadow: 0 6px 24px rgba(15,23,42,0.06);
+        overflow: hidden;
+    }
+    .dsi-contact-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #e2e8f0; padding: 1rem 1.5rem; font-weight: 700; font-size: 0.92rem;
+    }
+    .dsi-contact-header::after {
+        content: ''; display: block; height: 3px; margin-top: 0.75rem;
+        background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+        border-radius: 2px;
+    }
+    .dsi-contact-body { padding: 1.5rem; }
+    .dsi-contact-org { font-weight: 700; font-size: 1rem; color: #0f172a; margin-bottom: 0.15rem; }
+    .dsi-contact-line { color: #475569; font-size: 0.88rem; line-height: 1.6; }
+    .dsi-contact-detail {
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 0.5rem 0; font-size: 0.88rem;
+    }
+    .dsi-contact-detail-icon {
+        width: 28px; height: 28px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; flex-shrink: 0;
+    }
+    .dsi-cd-pin { background: #fef2f2; color: #dc2626; }
+    .dsi-cd-tel { background: #ecfdf5; color: #059669; }
+    .dsi-cd-email { background: #eff6ff; color: #2563eb; }
 </style>
-<div class="container py-5 instructions-container">
+
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Header/Action Section -->
-            <div class="mb-5">
-                <a href="{% url 'data_submission:submit_dataset' %}" class="btn btn-outline-dark px-4 py-2"
-                    style=" color: #FFFFFF;border: 2px solid; font-weight: 500;">
-                    Click here to submit New Dataset
+
+            <!-- Hero Banner -->
+            <div class="dsi-hero text-center">
+                <div class="dsi-hero-orb dsi-hero-orb-1"></div>
+                <div class="dsi-hero-orb dsi-hero-orb-2"></div>
+                <div class="dsi-hero-orb dsi-hero-orb-3"></div>
+                <h2 class="dsi-hero-title"><i class="fas fa-cloud-upload-alt me-2"></i>Data Submission</h2>
+                <p class="dsi-hero-sub mx-auto">Submit your polar research datasets along with metadata for proper archival in the National Polar Data Center</p>
+                <a href="{% url 'data_submission:submit_dataset' %}" class="dsi-hero-cta">
+                    <i class="fas fa-plus-circle"></i> Submit New Dataset
                 </a>
             </div>
 
-            <!-- Guidelines Section -->
-            <div class="mb-5">
-                <ul class="list-unstyled" style="line-height: 2;">
-                    <li class="d-flex mb-3">
-                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
-                        <span>Please submit the datasets collected during the respective expedition along with
-                            metadata.</span>
-                    </li>
-                    <li class="d-flex mb-3">
-                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
-                        <span>The datasets include observational data from the Arctic, Antarctic, Southern Ocean, and
-                            Himalaya spanning both short-term and long-term periods.</span>
-                    </li>
-                    <li class="d-flex mb-3">
-                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
-                        <span>These datasets will be properly archived with corresponding metadata and the project you
-                            have participated.</span>
-                    </li>
-                    <li class="d-flex mb-3">
-                        <i class="fas fa-circle me-3 mt-2" style="font-size: 6px;"></i>
-                        <span>Our NPDC is technical data repository for the Polar Datasets under Scientific Committee on
-                            Antarctic Research (SCAR)- Standing Committee on Antarctic Data Management (SCADM).</span>
-                    </li>
-                </ul>
-            </div>
-
-            <hr class="my-5">
-
-            <!-- Contact Details Section -->
-            <div class="mb-5">
-                <h4 class="mb-4 text-decoration-underline fw-bold">Contact Details of Data Center</h4>
-
-                <div class="fw-bold mb-1">SIC-PDSS</div>
-                <div class="mb-1">National Polar Data Center (NPDC)</div>
-                <div class="mb-1">National Centre for Polar & Ocean Research (NCPOR)</div>
-                <div class="mb-1">Ministry of Earth Sciences, Government of India</div>
-                <div class="mb-1">Headland Sada, Vasco-da-Gama</div>
-                <div class="mb-3">Goa, INDIA</div>
-
-                <div class="d-flex align-items-center mb-1">
-                    <span style="width: 60px;" class="fw-bold">Pin :</span>
-                    <span>403 804</span>
+            <!-- Guidelines -->
+            <div class="card dsi-guidelines-card border-0 mb-4">
+                <div class="dsi-guidelines-header">
+                    <i class="fas fa-book-open me-2"></i>Submission Guidelines
                 </div>
-                <div class="d-flex align-items-center mb-1">
-                    <span style="width: 60px;" class="fw-bold">Tel :</span>
-                    <span>0091-832-2525515</span>
-                </div>
-                <div class="d-flex align-items-center mb-1">
-                    <span style="width: 60px;" class="fw-bold">e-mail:</span>
-                    <span>npdc@ncpor.res.in / vssamy@ncpor.res.in</span>
+                <div>
+                    <div class="dsi-guideline-item">
+                        <div class="dsi-guideline-icon dsi-icon-1"><i class="fas fa-database"></i></div>
+                        <div class="dsi-guideline-text">Please submit the datasets collected during the respective expedition along with metadata.</div>
+                    </div>
+                    <div class="dsi-guideline-item">
+                        <div class="dsi-guideline-icon dsi-icon-2"><i class="fas fa-globe-americas"></i></div>
+                        <div class="dsi-guideline-text">The datasets include observational data from the Arctic, Antarctic, Southern Ocean, and Himalaya spanning both short-term and long-term periods.</div>
+                    </div>
+                    <div class="dsi-guideline-item">
+                        <div class="dsi-guideline-icon dsi-icon-3"><i class="fas fa-archive"></i></div>
+                        <div class="dsi-guideline-text">These datasets will be properly archived with corresponding metadata and the project you have participated.</div>
+                    </div>
+                    <div class="dsi-guideline-item">
+                        <div class="dsi-guideline-icon dsi-icon-4"><i class="fas fa-award"></i></div>
+                        <div class="dsi-guideline-text">Our NPDC is technical data repository for the Polar Datasets under Scientific Committee on Antarctic Research (SCAR) — Standing Committee on Antarctic Data Management (SCADM).</div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Contact Details -->
+            <div class="card dsi-contact-card border-0">
+                <div class="dsi-contact-header">
+                    <i class="fas fa-headset me-2"></i>Contact Details of Data Center
+                </div>
+                <div class="dsi-contact-body">
+                    <div class="dsi-contact-org">SIC-PDSS</div>
+                    <div class="dsi-contact-line">National Polar Data Center (NPDC)</div>
+                    <div class="dsi-contact-line">National Centre for Polar &amp; Ocean Research (NCPOR)</div>
+                    <div class="dsi-contact-line">Ministry of Earth Sciences, Government of India</div>
+                    <div class="dsi-contact-line mb-3">Headland Sada, Vasco-da-Gama, Goa, INDIA</div>
+
+                    <div class="dsi-contact-detail">
+                        <div class="dsi-contact-detail-icon dsi-cd-pin"><i class="fas fa-map-pin"></i></div>
+                        <span class="dsi-contact-line"><strong>Pin:</strong> 403 804</span>
+                    </div>
+                    <div class="dsi-contact-detail">
+                        <div class="dsi-contact-detail-icon dsi-cd-tel"><i class="fas fa-phone-alt"></i></div>
+                        <span class="dsi-contact-line"><strong>Tel:</strong> 0091-832-2525515</span>
+                    </div>
+                    <div class="dsi-contact-detail">
+                        <div class="dsi-contact-detail-icon dsi-cd-email"><i class="fas fa-envelope"></i></div>
+                        <span class="dsi-contact-line"><strong>Email:</strong> npdc@ncpor.res.in / vssamy@ncpor.res.in</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

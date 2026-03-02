@@ -1,217 +1,337 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="loc-page-wrapper">
+    <div class="container py-4 py-md-5">
+
+        <!-- Page Header -->
+        <div class="loc-hero text-center mb-5">
+            <div class="loc-hero-icon mx-auto mb-3">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h2 class="loc-hero-title">Browse by Location</h2>
+            <p class="loc-hero-sub mx-auto">
+                Explore datasets utilizing our location registry
+            </p>
+        </div>
+
+        <!-- Region Tabs -->
+        <div class="region-tabs-wrapper mb-4">
+            <div class="region-tabs">
+                {% for region in regions %}
+                <a class="region-tab {% if region.active %}active{% endif %}" href="?region={{ region.key }}">
+                    <i class="fas fa-{% if region.key == 'arctic' %}snowflake{% elif region.key == 'antarctic' %}icicles{% elif region.key == 'himalayan' %}mountain{% elif region.key == 'southern_ocean' %}water{% else %}globe-americas{% endif %} me-1"></i>
+                    {{ region.label }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Location Table -->
+        {% for region in regions %}
+        {% if region.active %}
+        {% if region.locations %}
+        <div class="loc-table-card">
+            <div class="loc-table-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="fas fa-globe-americas me-2 opacity-75"></i>
+                        <span class="fw-bold">{{ region.label }}</span>
+                    </div>
+                    <span class="loc-table-badge">{{ region.locations|length }} Locations</span>
+                </div>
+            </div>
+            <div class="loc-table-body">
+                <table class="location-table">
+                    <thead>
+                        <tr>
+                            <th class="th-sl">Sl.No</th>
+                            <th class="th-name">Location</th>
+                            <th class="th-count"># Datasets</th>
+                            <th class="th-action">View Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loc in region.locations %}
+                        <tr class="loc-row" style="--row-delay: {{ forloop.counter0 }}">
+                            <td class="td-sl">{{ loc.sl_no }}</td>
+                            <td class="td-name">
+                                <i class="fas fa-map-pin me-2 text-primary opacity-50"></i>{{ loc.name }}
+                            </td>
+                            <td class="td-count">
+                                <span class="count-badge">{{ loc.count }}</span>
+                            </td>
+                            <td class="td-action">
+                                <a href="{% url 'search:search' %}?query={{ loc.name|urlencode }}" class="view-link">
+                                    Explore <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-globe-americas"></i>
+            </div>
+            <h5 class="mt-3 fw-bold text-secondary">No Data Yet</h5>
+            <p class="text-muted">No location data available for this region yet.</p>
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+    </div>
+</div>
+
 <style>
-    .browse-header {
-        background: linear-gradient(135deg, #003366 0%, #0052CC 100%);
-        color: white;
-        padding: 2.5rem 2rem;
-        border-radius: 16px;
-        margin-bottom: 2rem;
-        text-align: center;
+    .loc-page-wrapper {
+        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        min-height: calc(100vh - 120px);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    .browse-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
+    /* Hero Header */
+    .loc-hero-icon {
+        width: 72px;
+        height: 72px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: #ffffff;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.85rem;
+        box-shadow: 0 8px 24px rgba(29, 78, 216, 0.25);
+        animation: floatIcon 3s ease-in-out infinite;
     }
 
-    .browse-header p {
-        opacity: 0.85;
-        font-size: 1.05rem;
-        margin: 0;
+    @keyframes floatIcon {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    .loc-hero-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 2.2rem;
+        letter-spacing: -0.03em;
+    }
+
+    .loc-hero-sub {
+        color: #64748b;
+        font-size: 1.1rem;
+        max-width: 480px;
+        line-height: 1.6;
+    }
+
+    /* Region Tabs */
+    .region-tabs-wrapper {
+        display: flex;
+        justify-content: center;
     }
 
     .region-tabs {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 2rem;
+        display: inline-flex;
+        background: #ffffff;
+        border-radius: 0.75rem;
+        padding: 0.35rem;
+        gap: 0.25rem;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.04);
         flex-wrap: wrap;
+        justify-content: center;
     }
 
     .region-tab {
-        padding: 0.6rem 1.8rem;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.9rem;
+        padding: 0.55rem 1.25rem;
+        border-radius: 0.55rem;
+        font-weight: 600;
+        font-size: 0.85rem;
         text-decoration: none;
-        color: #003366;
-        background: #e8ecf1;
-        border: 2px solid transparent;
-        letter-spacing: 0.5px;
-        transition: all 0.2s ease;
+        color: #64748b;
+        background: transparent;
+        border: none;
+        letter-spacing: 0.2px;
+        transition: all 0.25s ease;
+        white-space: nowrap;
     }
 
     .region-tab:hover {
-        background: #d0d8e4;
-        color: #003366;
+        background: #f1f5f9;
+        color: #0f172a;
         text-decoration: none;
     }
 
     .region-tab.active {
-        background: #3672a4;
-        color: #fff;
-        border-color: #3672a4;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
     }
 
-    /* Table Styles - Professional color scheme */
-    .location-table-wrapper {
+    .region-tab.active:hover {
+        color: #ffffff;
+    }
+
+    /* Table Card */
+    .loc-table-card {
         background: #ffffff;
-        border-radius: 12px;
+        border-radius: 0.85rem;
         overflow: hidden;
-        box-shadow: 0 6px 18px rgba(13, 43, 94, 0.08);
-        border: 1px solid rgba(13, 43, 94, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07);
     }
 
+    .loc-table-header {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #ffffff;
+        padding: 0.85rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .loc-table-badge {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(4px);
+        padding: 0.3rem 0.85rem;
+        border-radius: 2rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .loc-table-body {
+        overflow-x: auto;
+    }
+
+    /* Table */
     .location-table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 8px;
-        font-size: 0.98rem;
-        color: #1f2d3d;
+        border-collapse: collapse;
+        font-size: 0.93rem;
+        color: #334155;
+        table-layout: fixed;
     }
 
     .location-table thead th {
-        background: linear-gradient(90deg, #0d3b66 0%, #174b86 100%);
-        color: #ffffff;
+        background: #f8fafc;
+        color: #64748b;
         font-weight: 700;
-        padding: 0.9rem 1.2rem;
+        padding: 0.75rem 1.25rem;
         text-align: left;
-        border: none;
-        font-size: 0.95rem;
+        border-bottom: 2px solid #e2e8f0;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .location-table thead th:first-child {
-        text-align: center;
-        width: 80px;
+    .th-sl { text-align: center; width: 70px; }
+    .th-count { text-align: center; width: 120px; }
+    .th-action { text-align: center; width: 140px; }
+
+    /* Rows */
+    .loc-row {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f5f9;
+        animation: rowSlideIn 0.4s ease both;
+        animation-delay: calc(var(--row-delay) * 0.03s);
     }
 
-    .location-table thead th:nth-child(3) {
-        text-align: center;
-        width: 150px;
+    @keyframes rowSlideIn {
+        from { opacity: 0; transform: translateX(-8px); }
+        to { opacity: 1; transform: translateX(0); }
     }
 
-    .location-table thead th:last-child {
-        text-align: center;
-        width: 150px;
+    .loc-row:last-child {
+        border-bottom: none;
     }
 
-    /* Row card look with subtle shadows and alternating subtle tone */
-    .location-table tbody tr {
-        background: #ffffff;
-        box-shadow: 0 2px 6px rgba(20, 40, 80, 0.03);
-        transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-        border-radius: 6px;
-    }
-
-    .location-table tbody tr:nth-child(odd) td {
-        background: linear-gradient(90deg, #f6f9fc 0%, #eef6ff 100%);
+    .loc-row:hover {
+        background: linear-gradient(90deg, #eff6ff, #f8fafc);
     }
 
     .location-table tbody td {
-        padding: 0.85rem 1.2rem;
+        padding: 0.8rem 1.25rem;
         vertical-align: middle;
-        background: transparent;
-        border-top: 1px solid rgba(13,43,94,0.02);
     }
 
-    .location-table tbody td:first-child {
+    .td-sl {
         text-align: center;
         font-weight: 700;
-        color: #2b3b4a;
+        color: #334155;
+        font-size: 0.95rem;
     }
 
-    .location-table tbody td:nth-child(3) {
+    .td-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .td-count {
         text-align: center;
-        font-weight: 700;
-        color: #0d3b66;
     }
 
-    .location-table tbody td:last-child {
+    .count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-weight: 800;
+        font-size: 0.85rem;
+        min-width: 36px;
+        height: 28px;
+        padding: 0 0.55rem;
+        border-radius: 0.4rem;
+    }
+
+    .td-action {
         text-align: center;
     }
 
-    .location-table tbody tr:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(13, 43, 94, 0.09);
-        background: linear-gradient(90deg, #edf6ff 0%, #dceeff 100%);
-    }
-
-    .location-table .view-link {
-        color: #0d3b66;
+    .view-link {
+        color: #3b82f6;
         text-decoration: none;
         font-weight: 600;
-        transition: color 0.15s ease;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
     }
 
-    .location-table .view-link:hover {
-        color: #072745;
-        text-decoration: underline;
+    .view-link:hover {
+        color: #1d4ed8;
     }
 
+    .view-link i {
+        transition: transform 0.2s ease;
+        display: inline-block;
+    }
+
+    .loc-row:hover .view-link i {
+        transform: translateX(3px);
+    }
+
+    /* Empty State */
     .empty-state {
         text-align: center;
-        padding: 3rem 2rem;
-        color: #888;
+        padding: 4rem 2rem;
+        background: #ffffff;
+        border-radius: 0.85rem;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
     }
 
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        display: block;
-        color: #ccc;
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        color: #cbd5e1;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
     }
 </style>
-
-<div class="browse-header">
-    <h1><i class="fas fa-map-marker-alt me-2"></i>Browse by Location</h1>
-    <p>Explore datasets utilizing our location registry</p>
-</div>
-
-<!-- Tabs -->
-<div class="region-tabs">
-    {% for region in regions %}
-    <a class="region-tab {% if region.active %}active{% endif %}" href="?region={{ region.key }}">{{ region.label }}</a>
-    {% endfor %}
-</div>
-
-<!-- Location Table -->
-{% for region in regions %}
-{% if region.active %}
-{% if region.locations %}
-<div class="location-table-wrapper">
-    <table class="location-table">
-        <thead>
-            <tr>
-                <th>Sl.No</th>
-                <th>Location</th>
-                <th># Datasets</th>
-                <th>View Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for loc in region.locations %}
-            <tr>
-                <td>{{ loc.sl_no }}</td>
-                <td>{{ loc.name }}</td>
-                <td>{{ loc.count }}</td>
-                <td>
-                    <a href="{% url 'search:search' %}?query={{ loc.name|urlencode }}" class="view-link">click to
-                        view</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% else %}
-<div class="empty-state">
-    <i class="fas fa-globe-americas"></i>
-    <p>No location data available for this region yet.</p>
-</div>
-{% endif %}
-{% endif %}
-{% endfor %}
 {% endblock %}

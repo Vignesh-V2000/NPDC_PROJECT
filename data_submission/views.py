@@ -658,6 +658,7 @@ def admin_dashboard(request):
         'submitted': submissions.filter(status='submitted').count(),
         'published': submissions.filter(status='published').count(),
         'pending_submissions': submissions.filter(status='submitted').count(),
+        'rejected_submissions': submissions.filter(status='revision').count(),
         'user_count': User.objects.count(),
         'recent_submissions': submissions.order_by('-submission_date')[:10],
     }
