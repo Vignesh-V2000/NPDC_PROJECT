@@ -547,6 +547,7 @@ def ai_search_answer(query, filters=None, top_k=5):
     for i, d in enumerate(results, 1):
         ds = {
             'id': d.id,
+            'metadata_id': d.metadata_id,
             'title': d.title,
             'abstract': d.abstract[:150],
             'keywords': d.keywords[:100] if d.keywords else '',
@@ -645,6 +646,7 @@ def ai_search_answer(query, filters=None, top_k=5):
         for i, d in enumerate(results, 1):
             ds = {
                 'id': d.id,
+                'metadata_id': d.metadata_id,
                 'title': d.title,
                 'abstract': d.abstract[:150],
                 'keywords': d.keywords[:100] if d.keywords else '',

@@ -3,63 +3,63 @@
 
 <div class="admin-dashboard">
     <!-- Quick Stats Overview -->
-    <div class="row mb-5">
+    <div class="row mb-5 mt-4">
         <div class="col-12">
-            <h2 class="h4 mb-4">Administration Overview</h2>
+            <h4 class="mb-4 text-dark fw-bold border-bottom pb-2">Administration Overview</h4>
         </div>
         
         <!-- Pending Reviews -->
         <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-            <div class="stat-card pending">
-                <div class="stat-icon">
+            <div class="stat-card modern-card pending">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">0</h3>
-                    <p class="stat-label">Pending Reviews</p>
-                    <small class="stat-change">Ready for evaluation</small>
+                    <h3 class="stat-number text-dark fw-bold">0</h3>
+                    <p class="stat-label text-muted text-uppercase small fw-bold mb-1">Pending Reviews</p>
+                    <small class="stat-change text-secondary">Ready for evaluation</small>
                 </div>
             </div>
         </div>
         
         <!-- Total Submissions -->
         <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-            <div class="stat-card total">
-                <div class="stat-icon">
+            <div class="stat-card modern-card total">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">
                     <i class="fas fa-database"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">0</h3>
-                    <p class="stat-label">Total Submissions</p>
-                    <small class="stat-change">All time submissions</small>
+                    <h3 class="stat-number text-dark fw-bold">0</h3>
+                    <p class="stat-label text-muted text-uppercase small fw-bold mb-1">Submissions</p>
+                    <small class="stat-change text-secondary">All time total</small>
                 </div>
             </div>
         </div>
         
         <!-- Active Users -->
         <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-            <div class="stat-card users">
-                <div class="stat-icon">
+            <div class="stat-card modern-card users">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">0</h3>
-                    <p class="stat-label">Active Users</p>
-                    <small class="stat-change">Registered researchers</small>
+                    <h3 class="stat-number text-dark fw-bold">0</h3>
+                    <p class="stat-label text-muted text-uppercase small fw-bold mb-1">Active Users</p>
+                    <small class="stat-change text-secondary">Registered researchers</small>
                 </div>
             </div>
         </div>
         
         <!-- Approved Datasets -->
         <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-            <div class="stat-card approved">
-                <div class="stat-icon">
+            <div class="stat-card modern-card approved">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #34d399);">
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">0</h3>
-                    <p class="stat-label">Approved Datasets</p>
-                    <small class="stat-change">Published to portal</small>
+                    <h3 class="stat-number text-dark fw-bold">0</h3>
+                    <p class="stat-label text-muted text-uppercase small fw-bold mb-1">Approved</p>
+                    <small class="stat-change text-secondary">Published to portal</small>
                 </div>
             </div>
         </div>
@@ -68,27 +68,27 @@
     <!-- Administration Actions -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="h4 mb-4">Administration Actions</h2>
+            <h4 class="mb-4 text-dark fw-bold border-bottom pb-2">Administration Actions</h4>
         </div>
         
         <!-- Review Submissions -->
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="action-card">
-                <div class="action-icon">
+            <div class="action-card modern-card">
+                <div class="action-icon bg-warning-light text-warning" style="background: #fffbeb;">
                     <i class="fas fa-clipboard-check"></i>
                 </div>
                 <div class="action-content">
-                    <h4 class="h5 mb-2">Review Submissions</h4>
-                    <p class="text-secondary mb-3">
+                    <h5 class="fw-bold text-dark mb-2">Review Submissions</h5>
+                    <p class="text-muted small mb-4 lh-base">
                         Evaluate and approve/reject submitted datasets with detailed metadata review.
                     </p>
-                    <div class="action-stats">
-                        <span class="badge bg-warning">0 pending</span>
+                    <div class="action-stats mb-3 pt-2 border-top">
+                        <span class="badge bg-warning text-dark me-1">0 pending</span>
                         <span class="badge bg-success">0 approved</span>
                     </div>
                     <a href="{% url 'data_submission:review_submissions' %}" 
-                       class="btn btn-primary w-100 mt-3">
-                        <i class="fas fa-search me-2"></i>Review Submissions
+                       class="btn btn-warning text-dark w-100 fw-bold shadow-sm" style="border: none;">
+                        <i class="fas fa-search me-2"></i> Review Submissions
                     </a>
                 </div>
             </div>
@@ -96,22 +96,22 @@
         
         <!-- System Administration -->
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="action-card">
-                <div class="action-icon">
+            <div class="action-card modern-card">
+                <div class="action-icon bg-secondary-light text-secondary">
                     <i class="fas fa-cogs"></i>
                 </div>
                 <div class="action-content">
-                    <h4 class="h5 mb-2">System Administration</h4>
-                    <p class="text-secondary mb-3">
+                    <h5 class="fw-bold text-dark mb-2">System Admin</h5>
+                    <p class="text-muted small mb-4 lh-base">
                         Access Django admin for system-level configuration and user management.
                     </p>
-                    <div class="action-stats">
-                        <span class="badge bg-info">Advanced</span>
+                    <div class="action-stats mb-3 pt-2 border-top">
+                        <span class="badge bg-info text-dark me-1">Advanced</span>
                         <span class="badge bg-dark">System</span>
                     </div>
                     <a href="/admin/" 
-                       class="btn btn-dark w-100 mt-3">
-                        <i class="fas fa-terminal me-2"></i>Open Admin Panel
+                       class="btn btn-dark w-100 fw-bold shadow-sm">
+                        <i class="fas fa-terminal me-2"></i> Open Django Admin
                     </a>
                 </div>
             </div>
@@ -119,22 +119,22 @@
         
         <!-- Analytics Dashboard -->
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="action-card">
-                <div class="action-icon">
+            <div class="action-card modern-card">
+                <div class="action-icon bg-info-light text-info" style="background: #e0f2fe; color: #0284c7 !important;">
                     <i class="fas fa-chart-line"></i>
                 </div>
                 <div class="action-content">
-                    <h4 class="h5 mb-2">Analytics Dashboard</h4>
-                    <p class="text-secondary mb-3">
+                    <h5 class="fw-bold text-dark mb-2">Analytics Dashboard</h5>
+                    <p class="text-muted small mb-4 lh-base">
                         View detailed submission statistics, user activity, and data usage analytics.
                     </p>
-                    <div class="action-stats">
-                        <span class="badge bg-primary">Reports</span>
-                        <span class="badge bg-info">Charts</span>
+                    <div class="action-stats mb-3 pt-2 border-top">
+                        <span class="badge bg-primary text-light me-1">Reports</span>
+                        <span class="badge bg-info text-dark">Charts</span>
                     </div>
                     <a href="{% url 'data_submission:admin_dashboard' %}" 
-                       class="btn btn-outline-primary w-100 mt-3">
-                        <i class="fas fa-chart-bar me-2"></i>View Analytics
+                       class="btn btn-outline-info w-100 fw-bold border-2" style="color: #0284c7;">
+                        <i class="fas fa-chart-bar me-2"></i> View Analytics
                     </a>
                 </div>
             </div>
@@ -144,38 +144,50 @@
     <!-- Recent Activity -->
     <div class="row">
         <div class="col-12">
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h4 class="h5 mb-0">Recent Activity</h4>
-                    <a href="#" class="small text-primary">View All</a>
+            <div class="activity-card modern-card">
+                <div class="card-header border-bottom bg-white d-flex justify-content-between align-items-center py-3 px-4">
+                    <h5 class="mb-0 text-dark fw-bold">Recent Activity</h5>
+                    <a href="{% url 'data_submission:review_submissions' %}" class="small text-primary text-decoration-none fw-bold">View All <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
-                <div class="activity-body">
+                <div class="card-body p-0">
                     <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-user-plus text-success"></i>
+                        <!-- Example Activity Items (Placeholder) -->
+                        <div class="activity-item d-flex align-items-center p-4 border-bottom transition-hover">
+                            <div class="activity-icon me-3">
+                                <span class="status-badge new shadow-sm"><i class="fas fa-plus"></i></span>
                             </div>
-                            <div class="activity-content">
-                                <p class="mb-1">New researcher registration</p>
-                                <small class="text-muted">Just now</small>
+                            <div class="activity-content flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark">New User Registration</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 2 hours ago <span class="mx-2">•</span> User: dr.smith@example.com</small>
                             </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-upload text-primary"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p class="mb-1">Dataset submission received</p>
-                                <small class="text-muted">2 hours ago</small>
+                            <div class="activity-action ms-3">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold">Review</button>
                             </div>
                         </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-check-circle text-info"></i>
+                        
+                        <div class="activity-item d-flex align-items-center p-4 border-bottom transition-hover">
+                            <div class="activity-icon me-3">
+                                <span class="status-badge pending shadow-sm"><i class="fas fa-file-upload"></i></span>
                             </div>
-                            <div class="activity-content">
-                                <p class="mb-1">Dataset approved for publication</p>
-                                <small class="text-muted">Yesterday</small>
+                            <div class="activity-content flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark">Antarctic Ice Core Data 2018-2023</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 5 hours ago <span class="mx-2">•</span> Status: Pending Review</small>
+                            </div>
+                            <div class="activity-action ms-3">
+                                <a href="{% url 'data_submission:review_submissions' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">Evaluate</a>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item d-flex align-items-center p-4 transition-hover">
+                            <div class="activity-icon me-3">
+                                <span class="status-badge approved shadow-sm"><i class="fas fa-check"></i></span>
+                            </div>
+                            <div class="activity-content flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark">Southern Ocean Bathymetry update</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 1 day ago <span class="mx-2">•</span> Action: Approved by SuperAdmin</small>
+                            </div>
+                            <div class="activity-action ms-3">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold">Details</button>
                             </div>
                         </div>
                     </div>
@@ -187,227 +199,136 @@
 
 <!-- Admin Panel Styles -->
 <style>
-    /* Stat Cards */
+    /* Administration Dashboard Styles */
+    .admin-dashboard {
+        animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══ Modern Card Base ═══ */
+    .modern-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    .modern-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        border-color: rgba(203, 213, 225, 0.6);
+    }
+
+    /* ═══ Stat Cards ═══ */
     .stat-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
         display: flex;
         align-items: center;
         gap: 1.5rem;
-        transition: all 0.3s ease;
-        height: 100%;
+        padding: 1.75rem;
     }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
+    .stat-card::after {
+        content: ''; position: absolute; bottom: 0; left: 0; height: 4px; width: 100%;
+        transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
     }
-    
-    .stat-card.pending {
-        border-top: 4px solid #FF6B35;
-    }
-    
-    .stat-card.total {
-        border-top: 4px solid #3B82F6;
-    }
-    
-    .stat-card.users {
-        border-top: 4px solid #10B981;
-    }
-    
-    .stat-card.approved {
-        border-top: 4px solid #8B5CF6;
-    }
-    
+    .stat-card:hover::after { transform: scaleX(1); }
+    .stat-card.pending::after { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .stat-card.total::after { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .stat-card.users::after { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .stat-card.approved::after { background: linear-gradient(90deg, #10b981, #34d399); }
+
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: var(--border-radius-sm);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: white;
+        width: 65px; height: 65px;
+        border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.75rem; color: white;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
     }
-    
-    .stat-card.pending .stat-icon {
-        background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
-    }
-    
-    .stat-card.total .stat-icon {
-        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-    }
-    
-    .stat-card.users .stat-icon {
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-    }
-    
-    .stat-card.approved .stat-icon {
-        background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-    }
-    
-    .stat-content {
-        flex: 1;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary);
-    }
-    
-    .stat-label {
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary);
-    }
-    
-    .stat-change {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-    
-    /* Action Cards */
+    .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-5deg); }
+
+    .stat-content { flex: 1; z-index: 2; }
+    .stat-number { font-size: 2.5rem; line-height: 1; letter-spacing: -1px; }
+
+    /* ═══ Action Cards ═══ */
     .action-card {
-        background: white;
-        border-radius: var(--border-radius-md);
         padding: 2rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        transition: all 0.3s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+        display: flex; flex-direction: column;
     }
-    
-    .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--accent-teal);
-    }
-    
     .action-icon {
-        width: 70px;
-        height: 70px;
-        background: rgba(0, 51, 102, 0.1);
-        border-radius: var(--border-radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        color: var(--primary-blue);
-        font-size: 1.8rem;
+        width: 55px; height: 55px;
+        border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 1.5rem; font-size: 1.5rem;
+        transition: all 0.3s ease;
     }
+    .bg-primary-light { background: #eff6ff; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-secondary-light { background: #f8fafc; }
+    .bg-warning-light { background: #fffbeb; }
+    .bg-info-light { background: #e0f2fe; }
     
-    .action-content {
-        flex: 1;
+    .action-card:hover .action-icon {
+        transform: scale(1.1); color: #fff !important;
     }
+    .action-card:hover .bg-warning-light { background: #f59e0b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+    .action-card:hover .bg-secondary-light { background: #64748b; box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3); }
+    .action-card:hover .bg-info-light { background: #0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
     
-    .action-content h4 {
-        color: var(--primary-blue);
-    }
-    
-    .action-stats {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    /* Activity Card */
+    .action-content { flex: 1; display: flex; flex-direction: column; }
+    .action-content a { margin-top: auto; border-radius: 0.5rem; padding: 0.6rem 1rem; }
+    .action-content a:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+
+    /* ═══ Activity Lists ═══ */
     .activity-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        height: 100%;
         overflow: hidden;
     }
-    
     .activity-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--light-gray);
+        padding: 1.25rem 1.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        background: #ffffff;
+        display: flex; justify-content: space-between; align-items: center;
     }
-    
-    .activity-body {
-        padding: 0;
-    }
-    
-    .activity-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+    .activity-header h4 { font-weight: 700; color: #1e293b; font-size: 1.1rem; }
     
     .activity-item {
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border-bottom: 1px solid var(--medium-gray);
-        transition: background-color 0.2s ease;
+        padding: 1.25rem 1.75rem;
+        display: flex; align-items: center; gap: 1rem;
+        border-bottom: 1px solid #f8fafc;
+        transition: background 0.2s;
     }
+    .activity-item:hover { background: #f8fafc; }
+    .activity-item:last-child { border-bottom: none; }
     
-    .activity-item:last-child {
-        border-bottom: none;
+    .status-badge {
+        width: 42px; height: 42px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1rem; color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+    .status-badge.pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .status-badge.approved { background: linear-gradient(135deg, #10b981, #059669); }
+    .status-badge.rejected { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .status-badge.new { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
     
-    .activity-item:hover {
-        background-color: var(--light-gray);
-    }
-    
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(0, 51, 102, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-blue);
-        font-size: 1rem;
-    }
-    
-    .activity-content {
-        flex: 1;
-    }
-    
-    .activity-content p {
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-    }
-    
+    .activity-content p { color: #1e293b; font-size: 0.95rem; }
+    .activity-content small { font-size: 0.8rem; font-weight: 500; }
+    .activity-action .btn { border-radius: 0.4rem; font-weight: 600; font-size: 0.8rem; padding: 0.3rem 0.8rem; }
+
     @media (max-width: 768px) {
-        .stat-card {
-            padding: 1.25rem;
-            gap: 1rem;
-        }
-        
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.25rem;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-        }
-        
-        .action-card {
-            padding: 1.5rem;
-        }
-        
-        .action-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
+        .stat-card { padding: 1.25rem; }
+        .stat-number { font-size: 2rem; }
+        .action-card { padding: 1.5rem; }
     }
 </style>
 

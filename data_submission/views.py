@@ -54,6 +54,47 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+def get_location_from_ip(ip_address):
+    """
+    Get location information from IP address using ip-api.com
+    Returns: "City, Country" or full location string or empty if lookup fails
+    """
+    if not ip_address or ip_address == '127.0.0.1':
+        return "Local/Unknown"
+    
+    try:
+        import requests
+        import json
+        
+        url = f'http://ip-api.com/json/{ip_address}'
+        response = requests.get(url, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('status') == 'success':
+                city = data.get('city', '')
+                region = data.get('regionName', '')
+                country = data.get('country', '')
+                
+                # Build location string
+                parts = []
+                if city:
+                    parts.append(city)
+                if region and region != city:
+                    parts.append(region)
+                if country:
+                    parts.append(country)
+                
+                location = ', '.join(parts) if parts else 'Unknown Location'
+                return location
+    except Exception as e:
+        # Log the exception but don't fail the request
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Error getting location for IP {ip_address}: {str(e)}")
+    
+    return "Unknown Location"
+
 # =====================================================
 # ROLE CHECK HELPERS (RBAC)
 # =====================================================
@@ -448,6 +489,11 @@ def get_data_view(request, metadata_id):
             dataset_request.dataset = submission
             if request.user.is_authenticated:
                 dataset_request.requester = request.user
+            
+            # Capture IP address and location
+            dataset_request.request_ip = get_client_ip(request)
+            dataset_request.request_location = get_location_from_ip(dataset_request.request_ip)
+            
             dataset_request.save()
 
             # fire off email notifications (separate function makes testing easier)
@@ -611,6 +657,7 @@ def admin_dashboard(request):
         'submitted': submissions.filter(status='submitted').count(),
         'published': submissions.filter(status='published').count(),
         'pending_submissions': submissions.filter(status='submitted').count(),
+        'rejected_submissions': submissions.filter(status='revision').count(),
         'user_count': User.objects.count(),
         'recent_submissions': submissions.order_by('-submission_date')[:10],
     }
@@ -1446,15 +1493,40 @@ from .models import DatasetRequest
 
 @user_passes_test(is_admin)
 def admin_data_requests_view(request):
-    """Admin view to list all data requests."""
-    # List all requests, newest first
-    requests_list = DatasetRequest.objects.all().order_by('-request_date')
+    """Admin view to list all data requests.
+    
+    - Superuser/staff can see all requests
+    - Expedition admins can only see requests for their assigned expedition type
+    """
+    # Get base queryset
+    requests_list = DatasetRequest.objects.all().select_related(
+        'dataset', 'requester', 'reviewed_by'
+    ).order_by('-request_date')
+    
+    # Filter by expedition type if user is an expedition admin (not superuser)
+    if not request.user.is_superuser:
+        # Get the user's profile
+        try:
+            profile = request.user.profile
+            if profile.expedition_admin_type:
+                # Filter to only requests for datasets with this expedition type
+                requests_list = requests_list.filter(
+                    dataset__expedition_type=profile.expedition_admin_type
+                )
+        except:
+            # If no profile or error, return empty queryset for non-superusers
+            requests_list = requests_list.none()
+    
+    # Pagination logic
+    paginator = Paginator(requests_list, 10)  # 10 requests per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     return render(
         request,
         'admin/admin_data_requests.html',
         {
-            'requests': requests_list,
+            'requests': page_obj,
             'title': 'Data Download Requests',
         }
     )

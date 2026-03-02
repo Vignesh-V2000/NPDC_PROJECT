@@ -98,21 +98,200 @@ def step_4_import_users():
     """Import user accounts from legacy SQL dump."""
     print_section("STEP 4: Import User Accounts from Legacy SQL")
     
-    legacy_file = BASE_DIR / 'user_login_22_oct_2025.sql'
-    if not legacy_file.exists():
-        print(f"⚠️  Legacy file not found: {legacy_file}")
-        print("   Skipping user import (use existing users only)")
-        return True
-    
     try:
-        print(f"   Reading: {legacy_file.name}")
-        # This is a placeholder—actual import would parse the SQL
-        # For now, we assume users are already in the system or will be created during metadata import
-        print("✅ Legacy users will be matched/created during metadata import")
+        print("   Running: python manage.py import_users_legacy")
+        call_command('import_users_legacy', verbosity=1)
+        print("✅ Legacy users imported with roles and admin assignments")
         return True
     except Exception as e:
         print(f"⚠️  User import had issues: {e}")
+        print("   Users will still be created on-demand during login")
         return True  # Don't fail completely
+
+
+def step_4b_setup_superuser():
+    """Ensure superuser is properly configured as superuser."""
+    print_section("STEP 4B: Setup Superuser Account")
+    
+    try:
+        from django.contrib.auth.models import User
+        from users.models import UserLogin, Profile
+        from django.utils import timezone
+        
+        # Get or create superuser@gmail.com
+        legacy_user = UserLogin.objects.filter(e_mail='info@ncaor.org').first()
+        if not legacy_user:
+            print("⚠️  Legacy superuser not found, skipping superuser setup")
+            return True
+        
+        django_user, created = User.objects.get_or_create(
+            username=legacy_user.user_id.lower(),
+            defaults={
+                'email': 'info@ncaor.org',
+                'first_name': 'Super',
+                'last_name': 'User',
+                'is_active': True,
+                'is_staff': True,
+                'is_superuser': True,
+            }
+        )
+        
+        # Ensure they are superuser
+        if not django_user.is_superuser:
+            django_user.is_superuser = True
+            django_user.save()
+        
+        # Set password if not set
+        if not django_user.has_usable_password():
+            django_user.set_password('admin123')
+            django_user.save()
+        
+        # Update email
+        if django_user.email != 'info@ncaor.org':
+            django_user.email = 'info@ncaor.org'
+            django_user.save()
+        
+        # Create/update profile
+        Profile.objects.update_or_create(
+            user=django_user,
+            defaults={
+                'title': 'Dr',
+                'organisation': 'NCAOR',
+                'designation': 'SuperUser',
+                'is_approved': True,
+                'approved_at': timezone.now(),
+            }
+        )
+        
+        status = "Created" if created else "Updated"
+        print(f"   ✓ {status} superuser: superuser@gmail.com / info@ncaor.org")
+        print(f"   ✓ Password: admin123")
+        return True
+        
+    except Exception as e:
+        print(f"⚠️  Superuser setup had issues: {e}")
+        return True
+
+
+def step_4c_setup_child_admins():
+    """Setup expedition child admins (ant, arc, soe, him)."""
+    print_section("STEP 4C: Setup Expedition Child Admins")
+    
+    try:
+        from django.contrib.auth.models import User
+        from users.models import UserLogin, Profile
+        from django.utils import timezone
+        
+        expedition_map = {'ant': 'antarctic', 'arc': 'arctic', 'soe': 'southern_ocean', 'him': 'himalaya'}
+        # Default passwords for child admins (can be changed after login)
+        child_admin_password = 'admin123'
+        
+        for username, expedition in expedition_map.items():
+            try:
+                legacy_user = UserLogin.objects.get(user_id=username)
+                
+                django_user, created = User.objects.get_or_create(
+                    username=username,
+                    defaults={
+                        'email': legacy_user.e_mail or f'{username}@ncaor.gov.in',
+                        'first_name': 'Test',
+                        'last_name': username.upper(),
+                        'is_active': True,
+                        'is_staff': True,
+                        'is_superuser': False,
+                    }
+                )
+                
+                # Ensure staff status
+                if not django_user.is_staff:
+                    django_user.is_staff = True
+                    django_user.save()
+                
+                # Set password if not set or for new creation
+                if created or not django_user.has_usable_password():
+                    django_user.set_password(child_admin_password)
+                    django_user.save()
+                
+                # Create/update profile with expedition type
+                Profile.objects.update_or_create(
+                    user=django_user,
+                    defaults={
+                        'title': 'Mr',
+                        'organisation': legacy_user.organisation or 'NCAOR',
+                        'designation': legacy_user.designation or 'ITHEAD',
+                        'is_approved': True,
+                        'approved_at': timezone.now(),
+                        'expedition_admin_type': expedition,
+                    }
+                )
+                
+                status = "Created" if created else "Updated"
+                print(f"   ✓ {status}: {username} ({expedition} admin)")
+                
+            except UserLogin.DoesNotExist:
+                print(f"   ⚠️  Legacy user '{username}' not found")
+        
+        return True
+        
+    except Exception as e:
+        print(f"⚠️  Child admin setup had issues: {e}")
+        return True
+
+
+def step_4d_create_test_metadata():
+    """Create sample test metadata for each expedition."""
+    print_section("STEP 4D: Create Sample Test Metadata")
+    
+    try:
+        print("   Running: python manage.py create_test_metadata")
+        call_command('create_test_metadata', verbosity=0)
+        print("   ✓ Sample metadata created for ant, arc, soe, him (dated 28 Feb 2026)")
+        return True
+        
+    except Exception as e:
+        print(f"⚠️  Test metadata creation had issues: {e}")
+        return True
+
+
+def step_4e_reassign_vssamy():
+    """Reassign all datasets to vssamy@ncpor.res.in."""
+    print_section("STEP 4E: Reassign Datasets to vssamy@ncpor.res.in")
+    
+    try:
+        from django.contrib.auth.models import User
+        from data_submission.models import DatasetSubmission
+        from users.models import UserLogin
+        
+        # Get or create vssamy user
+        try:
+            vssamy_user = User.objects.get(username='vssamy@ncpor.res.in')
+        except User.DoesNotExist:
+            legacy = UserLogin.objects.filter(e_mail='vssamy@ncpor.res.in').first()
+            if legacy:
+                vssamy_user = User.objects.create_user(
+                    username='vssamy@ncpor.res.in',
+                    email='vssamy@ncpor.res.in',
+                    first_name='V Sakthivel',
+                    last_name='Samy',
+                    is_active=True,
+                )
+            else:
+                vssamy_user = User.objects.create_user(
+                    username='vssamy@ncpor.res.in',
+                    email='vssamy@ncpor.res.in',
+                    first_name='Sakthivel',
+                    last_name='Samy',
+                    is_active=True,
+                )
+        
+        # Reassign all datasets
+        count = DatasetSubmission.objects.all().update(submitter=vssamy_user)
+        print(f"   ✓ Reassigned {count} datasets to: {vssamy_user.username}")
+        return True
+        
+    except Exception as e:
+        print(f"⚠️  Dataset reassignment had issues: {e}")
+        return True
 
 
 def step_5_import_legacy_data():
@@ -191,13 +370,27 @@ def step_8_final_summary():
     print_section("STEP 8: Setup Complete 🎉")
     
     print("✅ NPDC is ready to use!\n")
-    print("Next steps:")
+    print("AUTOMATIC SETUP COMPLETED:")
+    print("  ✓ Superuser: superuser@gmail.com / admin123")
+    print("  ✓ Child Admins (with expedition types):")
+    print("    - ant (Antarctic) / ant / admin123")
+    print("    - arc (Arctic) / arc / admin123")
+    print("    - soe (Southern Ocean) / soe / admin123")
+    print("    - him (Himalaya) / him / admin123")
+    print("  ✓ Sample test metadata created (28 Feb 2026)")
+    print("  ✓ All datasets assigned to: vssamy@ncpor.res.in")
+    print("\nNEXT STEPS:")
     print("  1. Start the dev server:")
     print("     python manage.py runserver")
     print("\n  2. Visit the website:")
     print("     http://localhost:8000")
     print("\n  3. Admin panel:")
     print("     http://localhost:8000/admin")
+    print("     Username: superuser@gmail.com or admin")
+    print("     Password: admin123")
+    print("\n  4. Child Admin Dashboards:")
+    print("     Username: ant, arc, soe, or him")
+    print("     Password: admin123")
     print("\nTo reset and reimport from scratch later:")
     print("  python manage.py flush --noinput")
     print("  python setup_complete.py")
@@ -217,6 +410,10 @@ def main():
         ("Migrations", step_2_check_migrations),
         ("Existing Data Check", step_3_count_existing_data),
         ("Import Users", step_4_import_users),
+        ("Setup Superuser", step_4b_setup_superuser),
+        ("Setup Child Admins", step_4c_setup_child_admins),
+        ("Create Test Metadata", step_4d_create_test_metadata),
+        ("Reassign Datasets", step_4e_reassign_vssamy),
         ("Import Metadata", step_5_import_legacy_data),
         ("Link Submitters", step_6_link_submitters),
         ("Verify Data", step_7_verify_data),

@@ -491,6 +491,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+<style>
     .custom-legend-list {
         list-style: none;
         padding: 0;
@@ -502,64 +503,74 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         font-size: 0.85rem;
-        color: #333;
+        color: #334155;
+        font-family: 'Inter', sans-serif;
     }
 
     .custom-legend-label {
         display: flex;
-        align-items: center;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    /* Compact summary tables to match graph card sizing */
-    .compact-table {
-        border-color: #8ab4f8;
-        border-radius: 6px;
-        overflow: hidden;
-        margin-bottom: 0.5rem;
-    }
-
-    .compact-table th,
-    .compact-table td {
-        padding: 0.35rem 0.6rem !important;
-        font-size: 0.92rem;
-        vertical-align: middle;
-        border-color: #cfe3ff !important;
-    }
-
-    .compact-table thead th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        font-size: 0.95rem;
-    }
-
-    /* Slightly reduce spacing between tables and cards */
-    .table-responsive {
-        margin-top: 0.5rem;
-    }
-
-    /* Compact year title */
-    .compact-year-title {
-        font-weight: 600;
-        letter-spacing: 0.2px;
-        margin-bottom: 0.4rem;
+        align-items: flex-start;
+        font-weight: 500;
+        color: #0f172a;
+        word-break: break-all;
+        padding-right: 10px;
+        flex: 1;
+        line-height: 1.3;
     }
 
     .custom-legend-dot {
         display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 10px;
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        margin-right: 12px;
+        margin-top: 3px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        flex-shrink: 0;
     }
 
     .custom-legend-value {
-        font-weight: 500;
-        color: #555;
+        font-weight: 600;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
     }
+
+    .compact-table {
+        border-color: #e2e8f0;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    .compact-table th, .compact-table td {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem;
+        vertical-align: middle;
+        border-color: #f1f5f9 !important;
+    }
+
+    .compact-table thead th {
+        background-color: #f8fafc;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .compact-year-title {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.75rem;
+        color: #0f172a;
+    }
+</style>
 </style>
 
 <script>
@@ -1203,70 +1214,6 @@
     </div>
 </section>
 
-<!-- Research Regions -->
-<section class="mb-6">
-    <h2 class="text-center mb-5">Research Regions</h2>
-    <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-4">
-
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card antarctic-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/Maitri.jpg' %}" class="w-100" alt="Antarctic"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Antarctic</h4>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card arctic-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/tn_arctic.png' %}" class="w-100" alt="Arctic"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Arctic</h4>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card southern-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/tn_soe.jpg' %}" class="w-100" alt="Southern Ocean"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Southern Ocean</h4>
-
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="{% url 'users:polar_directory' %}" class="text-decoration-none">
-                <div class="region-card himalayan-card h-100">
-                    <div class="region-header p-0">
-                        <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="w-100" alt="Himalayas"
-                            style="height: 180px; object-fit: cover;">
-                    </div>
-                    <div class="region-body py-3 text-center">
-                        <h4 class="h5 mb-2 fw-bold" style="color: #D32F2F;">Himalayas</h4>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-</section>
 
 <!-- Weather at Indian Polar Stations -->
 <section class="weather-section">
@@ -1312,7 +1259,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Antarctica - Maitri:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset">
+                                Antarctica - Maitri:
+                            </a>
+                        </h5>
                         <div class="temperature-display my-1">
                             <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-7.7&deg; C</span>
                         </div>
@@ -1356,7 +1307,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Antarctica - Bharati:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset">
+                                Antarctica - Bharati:
+                            </a>
+                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-4.4&deg; C</span>
                             </div>
@@ -1400,7 +1355,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Himalaya - Himansh:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset">
+                                Himalaya - Himansh:
+                            </a>
+                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-8.4&deg; C</span>
                             </div>
@@ -1444,7 +1403,11 @@
                     </div>
                     
                     <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">Arctic - Himadri:</h5>
+                        <h5 class="station-name">
+                            <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset">
+                                Arctic - Himadri:
+                            </a>
+                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-3.4&deg; C</span>
                             </div>
@@ -1460,636 +1423,34 @@
 </div>
 <!-- Home Page Specific Styles -->
 <style>
-    /* Section Spacing */
+    :root {
+        --nsidc-bg: #f1f5f9;
+        --nsidc-surface: #ffffff;
+        --nsidc-border: #e2e8f0;
+        --nsidc-text-main: #0f172a;
+        --nsidc-text-muted: #64748b;
+        --nsidc-primary: #0f2c59;
+        --nsidc-accent: #3b82f6;
+    }
+
+    body {
+        background-color: var(--nsidc-bg) !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
     .mb-6 {
-        margin-bottom: 4.5rem !important;
+        margin-bottom: 4rem !important;
     }
 
     /* Hero Section */
     .hero-section {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-        padding: 5rem 0;
-        border-radius: var(--border-radius-lg);
-        margin-bottom: 3rem;
-        position: relative;
-        overflow: hidden;
-        color: #ffffff;
-    }
-
-    /* Force hero heading & paragraph to white */
-    .hero-section h1,
-    .hero-section p,
-    .hero-section .lead {
-        color: #ffffff;
-    }
-
-
-
-    .hero-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("{% static 'images/pattern-snow.svg' %}") center/cover;
-        opacity: 0.1;
-        pointer-events: none;
-    }
-
-    .hero-content h1 {
-        font-size: 3.5rem;
-        line-height: 1.2;
-        margin-bottom: 1.5rem;
-    }
-
-    .hero-illustration {
-        position: relative;
-    }
-
-    .globe-gradient {
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-        border-radius: 50%;
-        padding: 2rem;
-        display: inline-block;
-    }
-
-    .floating-icons {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-    }
-
-    .icon-circle {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.2rem;
-        animation: float 6s ease-in-out infinite;
-    }
-
-    .icon-circle:nth-child(2) {
-        animation-delay: 1s;
-    }
-
-    .icon-circle:nth-child(3) {
-        animation-delay: 2s;
-    }
-
-    .icon-circle:nth-child(4) {
-        animation-delay: 3s;
-    }
-
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-20px);
-        }
-    }
-
-    /* Mission Card */
-    .mission-card {
-        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-        border-radius: var(--border-radius-lg);
-        padding: 3rem;
-        margin-bottom: 3rem;
-    }
-
-    .mission-icon {
-        font-size: 8rem;
-        color: var(--accent-teal);
-        opacity: 0.8;
-    }
-
-    /* Statistics Cards */
-    .stat-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        padding: 2rem;
-        box-shadow: var(--shadow-sm);
-        transition: all 0.3s ease;
-        text-align: center;
-        height: 100%;
-        color: #333333;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .stat-icon {
-        width: 70px;
-        height: 70px;
-        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--secondary-blue) 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        color: white;
-        font-size: 1.8rem;
-    }
-
-    .stat-content h3 {
-        color: var(--primary-blue) !important;
-    }
-
-    .stat-content p,
-    .stat-content small {
-        color: #333333;
-    }
-
-    /* Feature Cards — NSIDC-inspired: clean, modern, minimal borders */
-    .feature-card {
-        background: #fafbfc;
-        border: 1px solid #e0e6ed;
-        border-radius: 8px;
-        padding: 2rem;
-        transition: all 0.3s ease;
-        height: 100%;
-        color: #2c3e50;
-    }
-
-    .feature-card:hover {
-        border-color: var(--accent-teal);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .feature-card h4 {
-        color: var(--primary-blue) !important;
-        font-weight: 600;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        margin-bottom: 1rem;
-    }
-
-    .feature-card p,
-    .feature-card li {
-        color: #4a5568;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.6;
-        font-size: 0.95rem;
-    }
-
-    .feature-icon {
-        width: 60px;
-        height: 60px;
-        background: rgba(0, 163, 161, 0.1);
-        border-radius: var(--border-radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        color: var(--accent-teal);
-        font-size: 1.5rem;
-    }
-
-    .feature-list {
-        list-style: none;
-        padding-left: 0;
-    }
-
-    .feature-list li {
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    /* Region Cards — Clean layout with subtle shadows */
-    .region-card {
-        background: #fafbfc;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        height: 100%;
-        color: #2c3e50;
-        border: 1px solid #e0e6ed;
-    }
-
-    .region-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    }
-
-    .region-card h4 {
-        color: var(--primary-blue) !important;
-        min-height: 3rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        padding: 0 1rem;
-        text-align: center;
-        line-height: 1.4;
-    }
-
-    .region-card p {
-        color: #4a5568;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.6;
-    }
-
-    .region-header {
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .region-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: var(--border-radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.2rem;
-    }
-
-    .arctic-card .region-icon {
-        background: #3B82F6;
-    }
-
-    .antarctic-card .region-icon {
-        background: #8B5CF6;
-    }
-
-    .himalayan-card .region-icon {
-        background: #10B981;
-    }
-
-    .region-body {
-        padding: 0 1.5rem 1.5rem;
-    }
-
-    .region-stats {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .stat-badge {
-        background: var(--light-gray);
-        color: var(--text-secondary);
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    /* Recent & Popular Data Cards */
-    .data-list-card {
-        background: #ffffff;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: 0 8px 20px rgba(12, 30, 60, 0.06);
-        border-top: 4px solid rgba(3, 102, 214, 0.12);
-        color: #2c3e50;
-    }
-
-    .data-list-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--primary-blue) !important;
-        margin-bottom: 1.2rem;
-        padding-bottom: 0.8rem;
-        border-bottom: 1px solid var(--medium-gray);
-    }
-    .data-list-item {
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #eef3f8;
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-    }
-
-    .data-list-item:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
-    .data-item-title {
-        font-size: 1.0rem;
-        font-weight: 700;
-        color: #102a43 !important;
-        margin-bottom: 0.2rem;
-    }
-
-    .data-item-title a {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    /* Weather Section */
-    .weather-section {
-        background-color: #0b192c;
-    }
-    
-    .weather-section .title-underline {
-        width: 60px;
-        height: 3px;
-        background-color: #007bff;
-        margin: 0 auto;
-        border-radius: 2px;
-    }
-
-    .weather-card {
-        background: #ffffff;
-        border-radius: 10px;
-        padding: 12px;
-        height: 100%;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .weather-carousel-inner {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .weather-carousel-inner img {
-        height: 180px;
-        object-fit: cover;
-    }
-    
-    .weather-card .carousel-indicators {
-        bottom: -35px;
-    }
-    
-    .weather-card .carousel-indicators [data-bs-target] {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: #ced4da;
-        border: none;
-        margin: 0 4px;
-        opacity: 1;
-    }
-    
-    .weather-card .carousel-indicators .active {
-        background-color: #adb5bd;
-    }
-    
-    .weather-info {
-        padding-top: 15px;
-    }
-    
-    .weather-info .station-name {
-        color: #0d2b5e;
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .temperature-display {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #e53935;
-        border-bottom: 1px solid #ffcdd2;
-        padding-bottom: 0.5rem;
-        display: inline-flex;
-        align-items: center;
-        width: auto;
-    }
-    
-    .temperature-display .temp-val {
-        margin-left: 5px;
-    }
-
-    /* Make the thermometer icon blue to match site theme */
-    .temperature-display .fa-thermometer-half {
-        color: #0d6efd;
-    }
-    
-    .weather-date {
-        color: #2e7d32;
-        font-weight: 700;
-        font-size: 0.85rem;
-        margin-top: 0.8rem;
-        margin-bottom: 0.5rem;
-    }
-
-
-    .data-item-abstract {
-        font-size: 0.9rem;
-        color: #475569;
-        margin-bottom: 0;
-        line-height: 1.6;
-    }
-
-    .data-list-item .thumb {
-        width: 84px;
-        height: 56px;
-        flex: 0 0 84px;
-        overflow: hidden;
-        border-radius: 6px;
-        background-color: #dbeafe;
-    }
-
-    .data-list-item .thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    /* CTA Section */
-    .cta-section {
-        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-        border-radius: var(--border-radius-lg);
-        padding: 3rem;
-        color: #333333;
-    }
-
-    .cta-section h2 {
-        color: var(--primary-blue) !important;
-    }
-
-    .cta-section p {
-        color: #333333;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .hero-section {
-            padding: 3rem 0;
-            text-align: center;
-        }
-
-        .hero-content h1 {
-            font-size: 2.5rem;
-        }
-
-        .mission-card {
-            padding: 2rem;
-        }
-
-        .mission-icon {
-            font-size: 5rem;
-            margin-top: 2rem;
-        }
-
-        .stat-card,
-        .feature-card,
-        .region-card {
-            margin-bottom: 1.5rem;
-        }
-
-        .cta-section {
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .cta-section .btn {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .hero-content h1 {
-            font-size: 2rem;
-        }
-
-        .display-5 {
-            font-size: 2.5rem;
-        }
-    }
-
-    /* Chart Cards */
-    .chart-card {
-        background: #fff;
-        border-radius: var(--border-radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        color: #333333;
-    }
-
-    .chart-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--primary-blue) !important;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #f0f2f5;
-        padding-bottom: 0.8rem;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 250px;
-        width: 100%;
-    }
-
-
-    /* Metric Cards */
-    .metric-card {
-        background: #fff;
-        border: 1px solid var(--medium-gray);
-        border-radius: var(--border-radius-sm);
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: var(--shadow-sm);
-        transition: transform 0.2s;
-        color: #333333;
-    }
-
-    .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .metric-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .metric-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #666666;
-        text-transform: uppercase;
-        margin-bottom: 0.2rem;
-    }
-
-    .metric-value {
-        font-size: 1.5rem;
-        font-weight: 300;
-        color: var(--primary-blue) !important;
-        margin: 0;
-    }
-
-    .metric-icon {
-        font-size: 1.8rem;
-        color: var(--secondary-blue);
-        opacity: 0.8;
-    }
-
-    /* Viz Cards */
-    .viz-card {
-        background: #fff;
-        border: 1px solid var(--medium-gray);
-        border-radius: var(--border-radius-sm);
-        padding: 0;
-        /* Header is separate */
-        box-shadow: var(--shadow-sm);
-        overflow: hidden;
-        color: #333333;
-    }
-
-    .viz-title {
-        background: #f8f9fa;
-        padding: 1rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--primary-blue) !important;
-        border-bottom: 1px solid var(--medium-gray);
-        margin: 0;
-    }
-
-    .viz-container {
-        padding: 1rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 350px;
-        width: 100%;
-    }
-
-    #map-container {
-        z-index: 1;
-        /* Fix for leaflet */
-    }
-
-    /* Hero Section with Video */
-    .hero-section {
         background: transparent;
-        min-height: 75vh;
+        min-height: 70vh;
         display: flex;
         align-items: center;
         padding: 0;
         border-radius: 0;
-        margin-bottom: 0;
+        margin-bottom: 3.5rem;
         position: relative;
         overflow: hidden;
         color: #ffffff;
@@ -2097,151 +1458,349 @@
 
     .hero-media-wrapper {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        overflow: hidden;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 1; overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
     }
 
     .hero-slide-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        width: 100%; height: 100%; object-fit: cover;
     }
 
     .hero-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to bottom,
-                transparent 0%,
-                rgba(0, 0, 0, 0.6) 80%,
-                var(--deep-navy) 100%);
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.6) 50%, #001d36 100%);
         z-index: 2;
     }
 
-    /* Semi-transparent stat card icons */
-    .stat-icon.semi-transparent {
-        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--secondary-blue) 100%);
-        opacity: 0.9;
+    /* Feature Cards - Modernized */
+    .feature-card {
+        background: var(--nsidc-surface);
+        border: 1px solid var(--nsidc-border);
+        border-radius: 1.25rem;
+        padding: 2.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        color: var(--nsidc-text-main);
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.01);
+        position: relative;
+        overflow: hidden;
     }
 
-    .stat-icon.semi-transparent i {
-        color: white !important;
+    .feature-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #0ea5e9);
     }
 
-    /* ──────────────────────────────────────────────────────── */
-    /* Home Advanced Search Section Styles                      */
-    /* ──────────────────────────────────────────────────────── */
+    .feature-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+        transform: translateY(-4px);
+    }
+
+    .feature-card h4 {
+        color: var(--nsidc-primary) !important;
+        font-weight: 800;
+        font-size: 1.4rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        letter-spacing: -0.025em;
+    }
+
+    .feature-card h4 i {
+        color: var(--nsidc-accent);
+        font-size: 1.3rem;
+        background: #eff6ff;
+        padding: 0.6rem;
+        border-radius: 0.5rem;
+        margin-right: 0.75rem !important;
+    }
+
+    .feature-card p, .feature-card li {
+        color: var(--nsidc-text-muted);
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .feature-list {
+        list-style: none; padding-left: 0; margin-bottom: 1.5rem;
+    }
+
+    .feature-list li {
+        margin-bottom: 0.85rem; display: flex; align-items: flex-start;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .feature-list i {
+        margin-top: 4px; color: #10b981 !important; font-size: 1.1rem;
+    }
+
+    /* Primary Action Buttons */
+    .feature-card .btn-primary, #homeSearchForm .btn-primary {
+        background: #0f172a;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .feature-card .btn-primary:hover, #homeSearchForm .btn-primary:hover {
+        background: #1e293b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
+    }
+
+    /* Search Section Wrapper */
     .home-search-wrapper {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: var(--border-radius-lg);
+        background: var(--nsidc-surface);
+        border: 1px solid var(--nsidc-border);
+        border-radius: 1.25rem;
         padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05);
     }
 
     .home-search-sidebar {
         background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: var(--border-radius-md);
+        border: 1px solid var(--nsidc-border);
+        border-radius: 0.75rem;
         overflow: hidden;
         height: 100%;
     }
 
     .home-search-sidebar-header {
-        background: var(--primary-blue);
-        color: #fff;
-        padding: 0.85rem 1.2rem;
+        background: var(--nsidc-primary);
+        color: #ffffff;
+        padding: 1.25rem;
+        border-bottom: none;
+    }
+
+    .home-search-sidebar-header h5 {
+        font-size: 1.05rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; text-transform: uppercase;
     }
 
     .home-search-sidebar-body {
-        padding: 1.2rem;
-        max-height: 500px;
-        overflow-y: auto;
+        padding: 1.5rem; max-height: 600px; overflow-y: auto;
     }
+
+    .home-search-sidebar-body::-webkit-scrollbar { width: 6px; }
+    .home-search-sidebar-body::-webkit-scrollbar-track { background: transparent; }
+    .home-search-sidebar-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
     .home-filter-label {
-        display: block;
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--text-secondary);
-        margin-bottom: 0.35rem;
-        letter-spacing: 0.3px;
+        display: block; font-size: 0.8rem; font-weight: 700;
+        text-transform: uppercase; color: #334155; margin-bottom: 0.75rem;
+        letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;
     }
 
+    .filter-group .form-check-label {
+        color: #475569; font-weight: 500; font-size: 0.9rem;
+    }
+
+    .filter-group .facet-count {
+        background: #e2e8f0; color: #475569 !important;
+        padding: 0.1rem 0.4rem; border-radius: 1rem; font-size: 0.75rem; margin-left: 0.25rem; font-weight: 600;
+    }
+
+    .form-check-input {
+        border-color: #cbd5e1; margin-top: 0.2rem;
+    }
+    .form-check-input:checked {
+        background-color: var(--nsidc-accent); border-color: var(--nsidc-accent);
+    }
+
+    /* Map Card */
     .home-search-map-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: var(--border-radius-md);
+        background: var(--nsidc-surface);
+        border: 1px solid var(--nsidc-border);
+        border-radius: 0.75rem;
         overflow: hidden;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
     }
 
     .home-search-map-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #e2e8f0;
-        background: #f8fafc;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 1rem 1.5rem; border-bottom: 1px solid var(--nsidc-border); background: #f8fafc;
     }
 
-    .home-search-map {
-        height: 380px;
-        width: 100%;
-        z-index: 1;
+    .home-search-map-header h6 {
+        font-weight: 800; color: var(--nsidc-primary); margin: 0; font-size: 1.1rem;
     }
 
+    .home-search-map-header .badge {
+        font-weight: 700; padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: #dbeafe !important; color: #1e40af !important;
+    }
+
+    .home-search-map { height: 450px; width: 100%; z-index: 1; }
+
+    /* Advanced Search Configurator */
     .home-search-adv-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: var(--border-radius-md);
-        overflow: hidden;
-        box-shadow: var(--shadow-sm);
+        background: var(--nsidc-surface); border: 1px solid var(--nsidc-border);
+        border-radius: 0.75rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
     }
 
     .home-search-adv-toggle {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        text-decoration: none;
-        cursor: pointer;
-        transition: background 0.2s;
+        display: flex; align-items: center; padding: 1.25rem 1.5rem;
+        font-weight: 700; font-size: 1rem; color: var(--nsidc-primary);
+        text-decoration: none; cursor: pointer; transition: background 0.2s, color 0.2s; background: #f8fafc;
     }
 
-    .home-search-adv-toggle:hover {
-        background: #f8fafc;
-        color: var(--primary-blue);
+    .home-search-adv-toggle:hover { background: #f1f5f9; color: var(--nsidc-text-main); }
+    .home-search-adv-body { padding: 1.5rem; background: var(--nsidc-surface); border-top: 1px solid var(--nsidc-border); }
+
+    /* Recent & Popular Data Cards */
+    .data-list-card {
+        background: var(--nsidc-surface); border: 1px solid var(--nsidc-border);
+        border-radius: 1.25rem; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05);
+        color: var(--nsidc-text-main); position: relative;
     }
 
-    .home-search-adv-chevron {
-        transition: transform 0.3s ease;
-        font-size: 0.75rem;
+    .data-list-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #0f172a; border-radius: 1.25rem 1.25rem 0 0;
     }
 
-    .home-search-adv-body {
-        padding: 1rem;
-        background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
+    .data-list-title {
+        font-size: 1.35rem; font-weight: 800; color: var(--nsidc-primary) !important;
+        margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; letter-spacing: -0.025em;
     }
 
+    .data-list-title i { color: #3b82f6; background: #eff6ff; padding: 0.5rem; border-radius: 0.5rem; margin-right: 0.75rem !important; }
+
+    .data-list-item {
+        margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; gap: 16px; align-items: flex-start;
+    }
+    .data-list-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+    .data-item-title {
+        font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; line-height: 1.4;
+    }
+    .data-item-title a { text-decoration: none; color: #0f172a; transition: color 0.2s ease; }
+    .data-item-title a:hover { color: #3b82f6; text-decoration: underline; }
+
+    .data-item-abstract {
+        font-size: 0.9rem; color: #64748b; margin-bottom: 0; line-height: 1.6;
+    }
+
+    .data-list-item .thumb {
+        width: 110px; height: 75px; flex: 0 0 110px; overflow: hidden;
+        border-radius: 0.5rem; background-color: #f8fafc; border: 1px solid #e2e8f0;
+    }
+
+    /* Chart Cards */
+    .chart-card, .viz-card {
+        background: var(--nsidc-surface); border-radius: 1.25rem; border: 1px solid var(--nsidc-border);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05); color: #334155; padding: 1.75rem; height: 100%; transition: transform 0.3s ease;
+    }
+    .chart-card:hover, .viz-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1); }
+
+    .chart-title, .viz-title {
+        font-size: 1.2rem; font-weight: 800; color: var(--nsidc-primary) !important;
+        margin-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; letter-spacing: -0.025em;
+    }
+
+    .viz-card { padding: 0; }
+    .viz-card .viz-title { padding: 1.75rem 1.75rem 1rem; margin-bottom: 0; border-bottom: 1px solid #f1f5f9; }
+    .viz-container { padding: 1.5rem; height: 380px; width: 100%; }
+
+    /* Summary Metric Cards */
+    .metric-card {
+        background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem;
+        padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;
+        transition: all 0.2s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05);
+        border-color: #cbd5e1; background: #ffffff;
+    }
+
+    .metric-label {
+        font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.5px;
+    }
+    .metric-value {
+        font-size: 1.8rem; font-weight: 800; color: #0f172a !important; margin: 0; line-height: 1; letter-spacing: -0.025em;
+    }
+
+    .metric-icon {
+        font-size: 1.5rem; color: #3b82f6; background: #eff6ff;
+        width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem;
+    }
+
+    /* Weather Section */
+    .weather-section {
+        background-color: var(--nsidc-primary);
+        background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 600px);
+        position: relative; border-radius: 1.5rem; margin-bottom: 4rem; overflow: hidden;
+    }
+
+    .weather-section .title-underline {
+        width: 80px; height: 4px; background: linear-gradient(90deg, #3b82f6, #0ea5e9); margin: 0 auto; border-radius: 2px;
+    }
+
+    .weather-card {
+        background: #ffffff; border-radius: 1rem; padding: 1rem; height: 100%;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease; color: #0f172a;
+    }
+    .weather-card:hover {
+        transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); border-color: #cbd5e1;
+    }
+
+    .weather-carousel-inner { border-radius: 0.5rem; overflow: hidden; }
+    .weather-carousel-inner img { height: 180px; object-fit: cover; filter: brightness(0.9); }
+
+    .weather-card .carousel-indicators { bottom: -30px; }
+    
+    .weather-info { padding-top: 1.5rem; }
+    
+    .weather-info .station-name {
+        color: #0f172a; font-weight: 800; font-size: 1.1rem; margin-bottom: 1rem; letter-spacing: 0.5px;
+    }
+    .weather-info .station-name a:hover { color: #3b82f6; }
+    
+    .temperature-display {
+        font-size: 1.8rem; font-weight: 800; color: #0f172a;
+        border-bottom: 2px solid #e2e8f0; padding-bottom: 0.75rem;
+        display: inline-flex; align-items: center;
+    }
+    .temperature-display .fa-thermometer-half { color: #3b82f6; }
+    
+    .weather-date {
+        color: #64748b; font-weight: 700; font-size: 0.85rem; margin-top: 1.25rem;
+        margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* CTA Section - Professional gradient */
+    .cta-section {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 1.5rem; padding: 4rem; color: #ffffff;
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.2); position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);
+    }
+    .cta-section::after {
+        content: ''; position: absolute; top: -50%; right: -10%; width: 50%; height: 200%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%); transform: rotate(-15deg); pointer-events: none;
+    }
+
+    .cta-section h2 { color: #ffffff !important; font-weight: 800; font-size: 2.2rem; margin-bottom: 1rem; letter-spacing: -0.025em; }
+    .cta-section p { color: #94a3b8; font-size: 1.15rem; line-height: 1.6; }
+    
+    .cta-section .btn-primary { background-color: #3b82f6; border: none; font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); transition: all 0.2s; }
+    .cta-section .btn-primary:hover { background-color: #2563eb; box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
+    
+    .cta-section .btn-outline-primary { color: #ffffff; border: 2px solid rgba(255,255,255,0.2); font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; backdrop-filter: blur(4px); }
+    .cta-section .btn-outline-primary:hover { background-color: #ffffff; color: #0f172a; border-color: #ffffff; transform: translateY(-2px); }
+
+    /* Adjustments */
+    @media (max-width: 992px) {
+        .cta-section { padding: 3rem; text-align: center; }
+        .cta-section .d-flex { justify-content: center; margin-top: 2rem; }
+    }
     @media (max-width: 768px) {
-        .home-search-map {
-            height: 260px;
-        }
-
-        .home-search-wrapper {
-            padding: 1rem;
-        }
+        .hero-section { min-height: 50vh; margin-bottom: 3rem; }
+        .home-search-map { height: 350px; }
     }
 </style>
 {% endblock %}

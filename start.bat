@@ -7,16 +7,16 @@ echo.
 
 :: Create virtual environment if it doesn't exist
 if not exist ".venv\Scripts\activate.bat" (
-    echo [1/5] Creating virtual environment...
+    echo [1/7] Creating virtual environment...
     python -m venv .venv
     echo       Done.
 ) else (
-    echo [1/5] Virtual environment found.
+    echo [1/7] Virtual environment found.
 )
 echo.
 
 :: Activate virtual environment
-echo [2/5] Activating virtual environment...
+echo [2/7] Activating virtual environment...
 call .venv\Scripts\activate.bat
 if errorlevel 1 (
     echo ERROR: Could not activate virtual environment.
@@ -27,27 +27,38 @@ echo       Done.
 echo.
 
 :: Install/update dependencies
-echo [3/6] Installing dependencies...
+echo [3/7] Installing dependencies...
 pip install -r requirements.txt -q
 echo       Done.
 echo.
 
+:: Load legacy database SQL
+echo [4/7] Loading legacy database schema...
+psql -U postgres -d npdc -f user_login_22_oct_2025.sql 2>nul
+if errorlevel 1 (
+    echo WARNING: Could not load SQL file. Make sure PostgreSQL is running and user_login table exists.
+    echo          This is only needed on first setup.
+) else (
+    echo       Done.
+)
+echo.
+
 :: Run migrations
-echo [4/6] Running migrations...
+echo [5/7] Running migrations...
 python manage.py migrate
 python manage.py createcachetable 2>nul
 echo       Done.
 echo.
 
 :: Run complete setup (import users, datasets, link submitters)
-echo [5/6] Running complete setup (legacy data import)...
+echo [6/7] Running complete setup (legacy data import)...
 python setup_complete.py
 echo       Done.
 echo.
 
 :: Start server
 echo ==========================================
-echo [6/6] Starting development server...
+echo [7/7] Starting development server...
 echo       Open http://localhost:8000
 echo       Press Ctrl+C to stop.
 echo ==========================================

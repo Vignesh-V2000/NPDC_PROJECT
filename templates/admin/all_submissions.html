@@ -2,6 +2,9 @@
 
 {% block title %}All Datasets - NPDC{% endblock %}
 
+{% block container_wrapper %}{% endblock %}
+{% block container_wrapper_end %}{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
     <div class="row">
@@ -12,128 +15,324 @@
 
         <!-- Main Content -->
         <div class="col-xl-10 col-lg-9">
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">All Dataset Submissions</h2>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-6">{{ total_submissions }} Total Datasets</span>
-                </div>
-            </div>
 
-            <!-- Filter Actions -->
-            <div class="card border-0 shadow-sm mb-4 bg-white rounded-3">
-                <div class="card-body p-4">
-                    <form method="get">
-                        <div class="row g-3 align-items-end">
-                            <!-- Search Keywords -->
-                            <div class="col-lg-3 col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Search Keywords</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                                    <input type="text" name="q" class="form-control border-start-0"
-                                        placeholder="Title, abstract, submitter..." value="{{ current_q }}">
-                                </div>
-                            </div>
-                            <!-- Status -->
-                            <div class="col-lg-2 col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="">All</option>
-                                    {% for val, label in status_choices %}
-                                    {% if current_status == val %}
-                                    <option value="{{ val }}" selected>{{ label }}</option>
-                                    {% else %}
-                                    <option value="{{ val }}">{{ label }}</option>
-                                    {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            {% if user.is_superuser %}
-                            <!-- Expedition (superuser only) -->
-                            <div class="col-lg-2 col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Expedition</label>
-                                <select name="expedition" class="form-select">
-                                    <option value="">All</option>
-                                    {% for val, label in expedition_choices %}
-                                    {% if current_expedition == val %}
-                                    <option value="{{ val }}" selected>{{ label }}</option>
-                                    {% else %}
-                                    <option value="{{ val }}">{{ label }}</option>
-                                    {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            {% endif %}
-                            <!-- Category -->
-                            <div class="col-lg-2 col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Category</label>
-                                <select name="category" class="form-select">
-                                    <option value="">All</option>
-                                    {% for val, label in category_choices %}
-                                    {% if current_category == val %}
-                                    <option value="{{ val }}" selected>{{ label }}</option>
-                                    {% else %}
-                                    <option value="{{ val }}">{{ label }}</option>
-                                    {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <!-- Date Range -->
-                            <div class="col-lg-3 col-md-6">
-                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Date Range</label>
-                                <div class="input-group">
-                                    <input type="date" name="start_date" class="form-control"
-                                        value="{{ current_start_date }}">
-                                    <span class="input-group-text bg-light text-muted px-2">to</span>
-                                    <input type="date" name="end_date" class="form-control"
-                                        value="{{ current_end_date }}">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Action Buttons -->
-                        <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
-                            <a href="?page=1"
-                                class="btn btn-outline-secondary px-4 fw-semibold">
-                                <i class="fas fa-times me-1"></i> Clear
-                            </a>
-                            <button type="submit"
-                                class="btn btn-primary px-4 fw-semibold shadow-sm">
-                                <i class="fas fa-filter me-1"></i> Apply Filters
+            <!-- ═══ Hero Search Banner ═══ -->
+            <style>
+                .datasets-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2.2rem 2rem 1.8rem;
+                    border-radius: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                    margin-bottom: 1.5rem;
+                }
+                .datasets-hero-orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(60px);
+                    opacity: 0.15;
+                    pointer-events: none;
+                }
+                .datasets-hero-orb-1 {
+                    width: 300px; height: 300px;
+                    background: #3b82f6;
+                    top: -100px; left: -50px;
+                    animation: dOrbFloat1 8s ease-in-out infinite;
+                }
+                .datasets-hero-orb-2 {
+                    width: 200px; height: 200px;
+                    background: #8b5cf6;
+                    top: -50px; right: 10%;
+                    animation: dOrbFloat2 10s ease-in-out infinite;
+                }
+                .datasets-hero-orb-3 {
+                    width: 250px; height: 250px;
+                    background: #06b6d4;
+                    bottom: -80px; right: 30%;
+                    animation: dOrbFloat1 12s ease-in-out infinite reverse;
+                }
+                @keyframes dOrbFloat1 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(20px, 15px); }
+                }
+                @keyframes dOrbFloat2 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(-15px, 20px); }
+                }
+                .datasets-hero-title {
+                    color: #ffffff;
+                    font-weight: 800;
+                    font-size: 1.6rem;
+                    letter-spacing: -0.02em;
+                    margin-bottom: 0.3rem;
+                    position: relative;
+                    z-index: 2;
+                }
+                .datasets-hero-title-icon { color: #60a5fa; }
+                .datasets-hero-sub {
+                    color: #94a3b8;
+                    font-size: 0.92rem;
+                    position: relative;
+                    z-index: 2;
+                    margin-bottom: 0;
+                }
+                /* Search bar */
+                .datasets-hero-bar {
+                    position: relative;
+                    z-index: 2;
+                }
+                .datasets-hero-bar-inner {
+                    display: flex;
+                    align-items: center;
+                    background: #ffffff;
+                    border-radius: 0.75rem;
+                    padding: 0.35rem 0.35rem 0.35rem 1.25rem;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05);
+                    transition: box-shadow 0.3s ease;
+                }
+                .datasets-hero-bar-inner:focus-within {
+                    box-shadow: 0 8px 40px rgba(59,130,246,0.3), 0 0 0 2px rgba(59,130,246,0.3);
+                }
+                .datasets-search-icon {
+                    color: #94a3b8;
+                    font-size: 1.1rem;
+                    margin-right: 0.75rem;
+                    flex-shrink: 0;
+                }
+                .datasets-hero-input {
+                    flex: 1;
+                    border: none;
+                    outline: none;
+                    font-size: 1.05rem;
+                    color: #0f172a;
+                    background: transparent;
+                    padding: 0.65rem 0;
+                }
+                .datasets-hero-input::placeholder { color: #94a3b8; }
+                .datasets-hero-btn {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                    color: #ffffff;
+                    border: none;
+                    padding: 0.7rem 1.75rem;
+                    border-radius: 0.6rem;
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+                    box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+                    white-space: nowrap;
+                }
+                .datasets-hero-btn:hover {
+                    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+                }
+                /* Count pill */
+                .datasets-count-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    font-size: 0.78rem;
+                    color: #94a3b8;
+                    background: rgba(255,255,255,0.06);
+                    padding: 0.3rem 0.75rem;
+                    border-radius: 2rem;
+                    border: 1px solid rgba(255,255,255,0.08);
+                }
+                .datasets-count-dot {
+                    width: 7px; height: 7px;
+                    background: #22c55e;
+                    border-radius: 50%;
+                    animation: dcountPulse 2s ease-in-out infinite;
+                }
+                @keyframes dcountPulse {
+                    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+                    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+                }
+                /* Advanced Filters Toggle */
+                .adv-filters-toggle {
+                    color: #60a5fa !important;
+                    font-size: 0.88rem;
+                    text-decoration: none !important;
+                    font-weight: 600;
+                    position: relative;
+                    z-index: 2;
+                    cursor: pointer;
+                }
+                .adv-filters-toggle:hover { color: #93c5fd !important; }
+                /* Advanced Filters Panel */
+                .adv-filters-panel {
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 0.6rem;
+                    padding: 1.25rem;
+                    backdrop-filter: blur(8px);
+                    position: relative;
+                    z-index: 2;
+                }
+                .adv-filters-panel .form-label {
+                    color: #94a3b8;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                    margin-bottom: 0.35rem;
+                }
+                .adv-filters-panel .form-select,
+                .adv-filters-panel .form-control {
+                    background: rgba(255,255,255,0.9);
+                    border: 1px solid rgba(255,255,255,0.3);
+                    border-radius: 0.5rem;
+                    font-size: 0.88rem;
+                    color: #334155;
+                }
+                .adv-filters-panel .form-select:focus,
+                .adv-filters-panel .form-control:focus {
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+                    background: #fff;
+                }
+                .adv-filters-panel .btn-apply-adv {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                    color: #fff;
+                    border: none;
+                    font-weight: 700;
+                    padding: 0.55rem 1.5rem;
+                    border-radius: 0.5rem;
+                    font-size: 0.85rem;
+                    transition: all 0.25s ease;
+                    box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+                }
+                .adv-filters-panel .btn-apply-adv:hover {
+                    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                    transform: translateY(-1px);
+                }
+                .adv-filters-panel .btn-clear-adv {
+                    background: rgba(255,255,255,0.1);
+                    color: #cbd5e1;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    font-weight: 600;
+                    padding: 0.55rem 1.5rem;
+                    border-radius: 0.5rem;
+                    font-size: 0.85rem;
+                    transition: all 0.25s ease;
+                }
+                .adv-filters-panel .btn-clear-adv:hover {
+                    background: rgba(255,255,255,0.15);
+                    color: #fff;
+                }
+            </style>
+
+            <div class="datasets-hero">
+                <!-- Floating Orbs -->
+                <div class="datasets-hero-orb datasets-hero-orb-1"></div>
+                <div class="datasets-hero-orb datasets-hero-orb-2"></div>
+                <div class="datasets-hero-orb datasets-hero-orb-3"></div>
+
+                <!-- Title -->
+                <div class="text-center mb-3">
+                    <h3 class="datasets-hero-title">
+                        <i class="fas fa-database me-2 datasets-hero-title-icon"></i>All Dataset Submissions
+                    </h3>
+                    <p class="datasets-hero-sub">Browse and manage all polar scientific datasets across expeditions</p>
+                </div>
+
+                <!-- Search Bar -->
+                <form method="get" id="adminSearchForm">
+                    <div class="datasets-hero-bar mb-3">
+                        <div class="datasets-hero-bar-inner">
+                            <i class="fas fa-search datasets-search-icon"></i>
+                            <input type="text" name="q" class="datasets-hero-input"
+                                placeholder="Search by title, keyword, submitter, project..."
+                                value="{{ current_q }}">
+                            <button type="submit" class="datasets-hero-btn">
+                                <i class="fas fa-search me-1"></i> Search
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- Controls Row -->
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="datasets-count-pill">
+                            <span class="datasets-count-dot"></span>
+                            {{ total_submissions }} datasets available
+                        </div>
+                        <a class="adv-filters-toggle" data-bs-toggle="collapse" href="#advancedFiltersPanel" role="button" aria-expanded="false">
+                            <i class="fas fa-sliders-h me-1"></i> Advanced Search
+                        </a>
+                    </div>
+
+                    <!-- Advanced Filters (Collapsible) -->
+                    <div class="collapse" id="advancedFiltersPanel">
+                        <div class="adv-filters-panel mt-2">
+                            <div class="row g-3 align-items-end">
+                                <!-- Status -->
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="">All</option>
+                                        {% for val, label in status_choices %}
+                                        <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% if request.user.is_superuser %}
+                                <!-- Expedition -->
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Expedition</label>
+                                    <select name="expedition" class="form-select">
+                                        <option value="">All</option>
+                                        {% for val, label in expedition_choices %}
+                                        <option value="{{ val }}" {% if current_expedition == val %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                                <!-- Category -->
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Category</label>
+                                    <select name="category" class="form-select">
+                                        <option value="">All</option>
+                                        {% for val, label in category_choices %}
+                                        <option value="{{ val }}" {% if current_category == val %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- Date Range -->
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Date Range</label>
+                                    <div class="input-group">
+                                        <input type="date" name="start_date" class="form-control"
+                                            value="{{ current_start_date }}">
+                                        <span class="input-group-text px-2" style="background: rgba(255,255,255,0.85); font-size: 0.8rem; color: #64748b;">to</span>
+                                        <input type="date" name="end_date" class="form-control"
+                                            value="{{ current_end_date }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Filter Action Buttons -->
+                            <div class="d-flex justify-content-end gap-2 mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                                <a href="?page=1" class="btn btn-clear-adv">
+                                    <i class="fas fa-times me-1"></i> Clear
+                                </a>
+                                <button type="submit" class="btn btn-apply-adv">
+                                    <i class="fas fa-filter me-1"></i> Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
 
             <!-- Datasets List View -->
             <div class="mb-5">
                 {% for submission in submissions %}
-                <div class="card shadow-sm border-0 mb-4 rounded-3 hover-shadow transition-all">
+                <div class="card mb-4 shadow-sm result-card border-0 hover-shadow transition-all" style="border-top: 4px solid #0d6efd !important;">
                     <div class="card-body p-4">
-                        <div class="row g-4 align-items-start">
-                            <!-- Left: Title, Abstract, Badges -->
-                            <div class="col-lg-8 col-xl-9">
-                                <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-                                    <span class="status-badge 
-                                        {% if submission.status == 'published' %}status-approved
-                                        {% elif submission.status == 'submitted' %}status-pending
-                                        {% elif submission.status == 'draft' %}status-draft
-                                        {% else %}status-pending{% endif %}">
-                                        {{ submission.get_status_display }}
-                                    </span>
-                                    {% if submission.expedition_type %}
-                                    <span class="badge bg-light text-secondary border px-2 py-1">
-                                        <i class="fas fa-globe-americas me-1"></i>
-                                        {{ submission.get_expedition_type_display }}
-                                    </span>
-                                    {% endif %}
-                                    <span class="text-muted small ms-2">
-                                        <i class="fas fa-hashtag me-1"></i> No.
-                                        {{ submissions.start_index|add:forloop.counter0 }}
-                                    </span>
-                                </div>
-
-                                <h4 class="fw-bold mb-1" style="line-height: 1.4;">
+                        <!-- Header: Title and Status -->
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h4 class="card-title fw-bold mb-1" style="line-height: 1.4;">
                                     <a href="{% url 'data_submission:review_submission_detail' submission.metadata_id %}" 
                                        class="text-dark text-decoration-none hover-text-primary transition-all">
                                         {{ submission.title }}
@@ -142,82 +341,140 @@
                                 {% if submission.metadata_id %}
                                 <span class="badge bg-light text-secondary border font-monospace small mb-2">{{ submission.metadata_id }}</span>
                                 {% endif %}
+                            </div>
+                            <div class="text-end shrink-0 ms-3">
+                                <span class="status-badge 
+                                    {% if submission.status == 'published' %}status-approved
+                                    {% elif submission.status == 'submitted' %}status-pending
+                                    {% elif submission.status == 'draft' %}status-draft
+                                    {% else %}status-pending{% endif %} mb-2 d-inline-block">
+                                    {{ submission.get_status_display }}
+                                </span>
+                                <div class="text-muted small">
+                                    <i class="fas fa-hashtag me-1"></i> No. {{ submissions.start_index|add:forloop.counter0 }}
+                                </div>
+                            </div>
+                        </div>
 
-                                <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.6;">
-                                    {{ submission.abstract|default:"No abstract provided."|truncatechars:350 }}
-                                </p>
+                        <!-- Abstract -->
+                        <div class="abstract-container mb-3">
+                            <p class="card-text text-muted mb-0 abstract-preview" style="font-size: 0.95rem; line-height: 1.6;">
+                                {{ submission.abstract|default:"No abstract provided."|truncatechars:250 }}
+                            </p>
+                            {% if submission.abstract|length > 250 %}
+                            <div class="abstract-full d-none">
+                                <p class="card-text text-muted mb-0" style="font-size: 0.95rem; line-height: 1.6;">{{ submission.abstract }}</p>
+                            </div>
+                            <a href="#" class="small text-primary abstract-toggle text-decoration-none fw-semibold d-inline-block mt-1" onclick="this.previousElementSibling.classList.toggle('d-none');
+                                            this.previousElementSibling.previousElementSibling.classList.toggle('d-none');
+                                            this.textContent = this.textContent === 'Show more' ? 'Show less' : 'Show more';
+                                            return false;">Show more</a>
+                            {% endif %}
+                        </div>
 
-                                <div class="d-flex flex-wrap gap-4 text-muted small">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center border"
-                                            style="width: 36px; height: 36px;">
-                                            <i class="fas fa-user text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">
-                                                {% if submission.submitter.first_name %}
-                                                {{ submission.submitter.first_name }}
-                                                {{ submission.submitter.last_name }}
-                                                {% else %}
-                                                {{ submission.submitter.username }}
-                                                {% endif %}
-                                            </div>
-                                            <div style="font-size: 0.75rem;">{{ submission.submitter.email }}</div>
+                        <!-- Badges Row -->
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            {% if submission.expedition_type %}
+                            <span class="badge rounded-pill px-3 py-2 border" style="background-color: #edf2ff; color: #1d4ed8; border-color: #dbeafe !important;">
+                                <i class="fas fa-globe-americas me-1"></i>{{ submission.get_expedition_type_display }}
+                            </span>
+                            {% endif %}
+                            {% if submission.category %}
+                            <span class="badge rounded-pill px-3 py-2 border" style="background-color: #f8fafc; color: #475569; border-color: #e2e8f0 !important;">
+                                <i class="fas fa-folder me-1"></i>{{ submission.get_category_display }}
+                            </span>
+                            {% endif %}
+                            {% if submission.expedition_year %}
+                            <span class="badge rounded-pill px-3 py-2 border" style="background-color: #ecfdf5; color: #059669; border-color: #d1fae5 !important;">
+                                <i class="fas fa-calendar me-1"></i>{{ submission.expedition_year }}
+                            </span>
+                            {% endif %}
+                            {% if submission.iso_topic %}
+                            <span class="badge rounded-pill px-3 py-2 border" style="background-color: #fefce8; color: #a16207; border-color: #fef08a !important;">
+                                <i class="fas fa-tags me-1"></i>{{ submission.get_iso_topic_display }}
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- 3-Column Details -->
+                        <div class="row g-3 text-muted small border-top pt-3">
+                            <!-- Spatial Extent -->
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <div class="me-3 mt-1">
+                                        <div style="background-color: #ecfdf5; width: 36px; height: 36px; border-radius: 8px;" class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-map-marked-alt text-success fs-5"></i>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle p-2 me-2 d-flex align-items-center justify-content-center border"
-                                            style="width: 36px; height: 36px;">
-                                            <i class="far fa-calendar-alt text-success"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">
-                                                {{ submission.submission_date|date:"F d, Y" }}
-                                            </div>
-                                            <div style="font-size: 0.75rem;">
-                                                {{ submission.submission_date|time:"H:i A" }}
-                                            </div>
-                                        </div>
+                                    <div>
+                                        <div class="fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Spatial Extent</div>
+                                        <div>{{ submission.south_latitude }}°S to {{ submission.north_latitude }}°N</div>
+                                        <div>{{ submission.west_longitude }}°W to {{ submission.east_longitude }}°E</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Right: Actions & Files -->
-                            <div class="col-lg-4 col-xl-3">
-                                <div class="d-flex flex-column h-100 gap-3 border-start ps-lg-4">
-                                    <div>
-                                        <h6 class="text-uppercase text-muted fw-bold mb-3"
-                                            style="font-size: 0.75rem; letter-spacing: 1px;">Data Access</h6>
-                                        {% if submission.data_file %}
-                                        <a href="{{ submission.data_file.url }}"
-                                            class="btn btn-outline-primary w-100 mb-2 py-2 d-flex align-items-center justify-content-center fw-semibold transition-all"
-                                            target="_blank">
-                                            <i class="fas fa-download me-2"></i> Download Data
-                                        </a>
-                                        {% else %}
-                                        <div
-                                            class="bg-light text-muted p-2 rounded text-center small mb-2 border border-dashed">
-                                            <i class="fas fa-file-excel mb-1 mt-1 d-block opacity-50"></i> No file
-                                            attached
+                            <!-- Temporal Coverage -->
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <div class="me-3 mt-1">
+                                        <div style="background-color: #eff6ff; width: 36px; height: 36px; border-radius: 8px;" class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-clock text-primary fs-5"></i>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Temporal Coverage</div>
+                                        {% if submission.temporal_start_date %}
+                                            <div>{{ submission.temporal_start_date|date:"M d, Y" }} — </div>
+                                            <div>{{ submission.temporal_end_date|date:"M d, Y" }}</div>
+                                        {% else %}
+                                            <div>Not specified</div>
                                         {% endif %}
                                     </div>
+                                </div>
+                            </div>
 
-                                    <div class="mt-auto pt-3 border-top">
-                                        <h6 class="text-uppercase text-muted fw-bold mb-3"
-                                            style="font-size: 0.75rem; letter-spacing: 1px;">Administration</h6>
-                                        <div class="d-grid gap-2">
-                                            <a href="{% url 'data_submission:review_submission_detail' submission.metadata_id %}"
-                                                class="btn btn-primary py-2 d-flex align-items-center justify-content-center fw-semibold transition-all">
-                                                <i class="fas fa-clipboard-check me-2"></i> Review
-                                            </a>
-                                            <a href="{% url 'data_submission:admin_edit_submission' submission.metadata_id %}"
-                                                class="btn btn-light border py-2 d-flex align-items-center justify-content-center fw-semibold transition-all hover-bg-light">
-                                                <i class="fas fa-edit me-2"></i> Edit Metadata
-                                            </a>
+                            <!-- Status & Data File -->
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <div class="me-3 mt-1">
+                                        <div style="background-color: #f5f3ff; width: 36px; height: 36px; border-radius: 8px;" class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-database" style="color: #8b5cf6; font-size: 1.25rem;"></i>
                                         </div>
                                     </div>
+                                    <div>
+                                        <div class="fw-bold text-muted mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Status</div>
+                                        <div class="fw-semibold text-dark">{{ submission.get_status_display }}</div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="mt-4 pt-4 border-top d-flex justify-content-between align-items-center gap-2">
+                            <div class="d-flex align-items-center text-muted small gap-3">
+                                <div class="d-flex align-items-center">
+                                    <div style="background-color: #e0e7ff; color: #4338ca; width: 28px; height: 28px; border-radius: 50%;" class="d-flex align-items-center justify-content-center me-2 fw-bold">
+                                        <i class="fas fa-user" style="font-size: 0.7rem;"></i>
+                                    </div>
+                                    <span class="fw-semibold">{{ submission.submitter.username }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-plus me-2 text-secondary"></i>
+                                    <span>{{ submission.submission_date|date:"M d, Y" }}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'data_submission:review_submission_detail' submission.metadata_id %}"
+                                    class="btn btn-primary px-3 fw-semibold shadow-sm transition-all text-white border-0" style="background: #3b82f6; border-radius: 8px;">
+                                    View Details <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                                {% if request.user.is_superuser %}
+                                <a href="{% url 'data_submission:admin_edit_submission' submission.metadata_id %}"
+                                    class="btn btn-light px-3 fw-semibold shadow-sm transition-all border" style="border-radius: 8px;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -293,6 +550,11 @@
 
     a.small:hover {
         text-decoration: underline;
+    }
+
+    .abstract-full {
+        max-height: 300px;
+        overflow-y: auto;
     }
 
     /* Status Badges */

@@ -1,568 +1,539 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Login - NPDC{% endblock %}
 
 {% block content %}
+<div class="login-page-wrapper">
+    <div class="container py-4 py-md-5">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-11 col-md-12">
+                <div class="modern-auth-container shadow-lg overflow-hidden border-0" style="border-radius: 1.25rem;">
+                    <div class="row g-0">
+                        <!-- Left Side: Login Form -->
+                        <div class="col-lg-7 auth-form-section bg-white">
+                            <div class="login-content-inner p-4 p-md-5">
+                                <!-- Header -->
+                                <div class="login-header mb-4">
+                                    <div class="login-icon-modern">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </div>
+                                    <h2 class="login-title">Access to NPDC</h2>
+                                    <p class="login-subtitle">Sign in to manage and submit polar Earth science data.</p>
+                                </div>
 
-<div class="container">
-    <div class="row justify-content-center min-vh-75 align-items-start py-5">
-        <div class="col-lg-6 col-md-8 mb-4 mb-lg-0">
-            <div class="login-card">
-                <!-- Header -->
-                <div class="login-header text-center mb-3">
-                    <div class="login-icon mb-2">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <h2 class="mb-0"
-                        style="color: var(--primary-blue); font-weight: 800; font-size: 1.25rem; letter-spacing: 0.5px;">
-                        Access to NPDC</h2>
-                </div>
+                                <!-- Messages -->
+                                {% if messages %}
+                                <div class="messages-container mb-4">
+                                    {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                                        <div class="d-flex align-items-center">
+                                            {% if message.tags == 'success' %}
+                                            <i class="fas fa-check-circle fs-5 me-2 text-success"></i>
+                                            {% elif message.tags == 'error' %}
+                                            <i class="fas fa-exclamation-circle fs-5 me-2 text-danger"></i>
+                                            {% else %}
+                                            <i class="fas fa-info-circle fs-5 me-2 text-info"></i>
+                                            {% endif %}
+                                            <div>{{ message }}</div>
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
 
-                <!-- Messages -->
-                {% if messages %}
-                <div class="messages-container mb-4">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {% if message.tags == 'success' %}
-                        <i class="fas fa-check-circle me-2"></i>
-                        {% elif message.tags == 'error' %}
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        {% else %}
-                        <i class="fas fa-info-circle me-2"></i>
-                        {% endif %}
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
+                                <!-- Login Form -->
+                                <form method="post" class="needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    {% if form.non_field_errors %}
+                                    <div class="alert alert-danger border-0 shadow-sm rounded-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-exclamation-triangle fs-5 me-2 text-danger"></i>
+                                            <div>{{ form.non_field_errors }}</div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
 
-                <!-- Login Form -->
-                <form method="post" class="needs-validation" novalidate>
-                    {% csrf_token %}
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
-                    </div>
-                    {% endif %}
+                                    <!-- Email Field -->
+                                    <div class="form-group mb-4">
+                                        <label for="id_username" class="form-label d-flex align-items-center">
+                                            <i class="fas fa-envelope me-2 text-secondary"></i>Email Id
+                                        </label>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-envelope input-prefix-icon"></i>
+                                            <input type="text" name="username" class="form-control form-control-lg form-control-modern" id="id_username"
+                                                placeholder="Enter your Email Id" required>
+                                        </div>
+                                        <div class="invalid-feedback mt-2">
+                                            Please enter your Email Id.
+                                        </div>
 
-                    <!-- Email Field -->
-                    <div class="form-group mb-3">
-                        <label for="id_username" class="form-label fw-semibold">
-                            <i class="fas fa-envelope me-2"></i>Email Id
-                        </label>
+                                        <!-- AI: email not found bubble -->
+                                        {% if ai_message == 'not_found' %}
+                                        <div class="ai-field-bubble ai-bubble-warning mt-2 shadow-sm" role="alert">
+                                            <div class="ai-bubble-caret"></div>
+                                            <span class="ai-bubble-icon">🐧</span>
+                                            <div>
+                                                <strong>I couldn't find that email.</strong><br>
+                                                <span><code class="ai-code">{{ ai_email }}</code> isn't registered with NPDC.
+                                                    <a href="{% url 'users:register' %}" class="ai-link fw-bold">Create an account?</a></span>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
 
-                        <div class="position-relative">
-                            <i class="fas fa-envelope position-absolute"
-                                style="left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
-                            <input type="text" name="username" class="form-control" id="id_username"
-                                placeholder="Enter your Email Id" required
-                                style="padding-left: 2.5rem; width: 100% !important; display: block !important;">
-                        </div>
+                                    <!-- Password Field -->
+                                    <div class="form-group mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="id_password" class="form-label mb-0 d-flex align-items-center">
+                                                <i class="fas fa-key me-2 text-secondary"></i>Password
+                                            </label>
+                                            <a href="{% url 'users:forgot_password' %}" class="auth-text-link small fw-semibold">
+                                                Forgot Password?
+                                            </a>
+                                        </div>
+                                        <div class="input-icon-wrapper">
+                                            <i class="fas fa-lock input-prefix-icon"></i>
+                                            <input type="password" name="password" class="form-control form-control-lg form-control-modern pe-5" id="id_password"
+                                                placeholder="Enter your password" required>
+                                            <button class="btn btn-link toggle-password-btn" type="button" id="togglePassword">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="invalid-feedback mt-2">
+                                            Please enter your password.
+                                        </div>
 
-                        <div class="invalid-feedback">
-                            Please enter your Email Id.
-                        </div>
+                                        <!-- AI: wrong password bubble -->
+                                        {% if ai_message == 'suggest_reset' %}
+                                        <div class="ai-field-bubble ai-bubble-info mt-2 shadow-sm" role="alert">
+                                            <div class="ai-bubble-caret ai-caret-info"></div>
+                                            <span class="ai-bubble-icon">🐧</span>
+                                            <div>
+                                                <strong>Password doesn't match.</strong><br>
+                                                <span>We found <code class="ai-code">{{ ai_email }}</code> in our database.
+                                                    <a href="{% url 'users:forgot_password' %}" class="ai-link ai-link-info fw-bold">Reset your
+                                                        password &rarr;</a></span>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
 
-                        <!-- AI: email not found bubble -->
-                        {% if ai_message == 'not_found' %}
-                        <div class="ai-field-bubble ai-bubble-warning mt-2" role="alert">
-                            <div class="ai-bubble-caret"></div>
-                            <span class="ai-bubble-icon">🐧</span>
-                            <div>
-                                <strong>I couldn't find that email.</strong><br>
-                                <span><code class="ai-code">{{ ai_email }}</code> isn't registered with NPDC.
-                                    <a href="{% url 'users:register' %}" class="ai-link">Create an account?</a></span>
+                                    <!-- Remember Me -->
+                                    <div class="form-check mb-4 custom-checkbox-modern">
+                                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                                        <label class="form-check-label pt-1 ms-1 text-secondary" for="rememberMe">
+                                            Remember me on this device
+                                        </label>
+                                    </div>
+
+                                    <!-- CAPTCHA -->
+                                    <div class="form-group mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label mb-0 d-flex align-items-center">
+                                                <i class="fas fa-shield-alt me-2 text-secondary"></i>Security Check
+                                            </label>
+                                            <button type="button" class="btn btn-sm btn-link js-captcha-refresh auth-text-link p-0 fw-semibold">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh Image
+                                            </button>
+                                        </div>
+                                        <div class="captcha-wrapper modern-captcha rounded p-3">
+                                            {{ form.captcha }}
+                                        </div>
+                                        {% if form.captcha.errors %}
+                                        <div class="text-danger small mt-2 fw-medium">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ form.captcha.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="d-grid mt-4 pt-2">
+                                        <button type="submit" class="btn btn-primary-modern btn-lg d-flex align-items-center justify-content-center">
+                                            <span class="me-2">Sign In to NPDC</span>
+                                            <i class="fas fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Quick Access -->
+                                    <div class="quick-links mt-4 pt-4 d-flex justify-content-center gap-3 flex-wrap">
+                                        <a href="{% url 'users:home' %}"><i class="fas fa-home me-1"></i>Home</a>
+                                        <a href="#"><i class="fas fa-question-circle me-1"></i>Help</a>
+                                        <a href="#"><i class="fas fa-phone me-1"></i>Support</a>
+                                        <a href="#"><i class="fas fa-file-alt me-1"></i>Docs</a>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                        {% endif %}
-                    </div>
 
+                        <!-- Right Side: Registration / Info -->
+                        <div class="col-lg-5 auth-info-section text-white position-relative">
+                            <div class="auth-info-content h-100 p-4 p-md-5 d-flex flex-column justify-content-center align-items-center text-center">
+                                <div class="npdc-logo-ring mb-4">
+                                    <img src="{% static 'images/logos/npdc_logo.jpg' %}" alt="NPDC Logo" class="npdc-auth-logo">
+                                </div>
+                                <h3 class="fw-bold mb-3">New to NPDC?</h3>
+                                <p class="mb-5 px-md-3 text-white-50" style="font-size: 1.05rem; line-height: 1.6;">
+                                    Create a research account to submit datasets, access specialized tools, and contribute to Earth science data preservation.
+                                </p>
+                                <a href="{% url 'users:register' %}" class="btn btn-outline-light-modern btn-lg px-4 rounded-pill">
+                                    <i class="fas fa-user-plus me-2"></i>Create Research Account
+                                </a>
 
-
-                    <!-- Password Field -->
-                    <div class="form-group mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="id_password" class="form-label fw-semibold mb-0">
-                                <i class="fas fa-key me-2"></i>Password
-                            </label>
-                            <a href="{% url 'users:forgot_password' %}" class="text-decoration-none small text-primary">
-                                Forgot Password?
-                            </a>
-                        </div>
-                        <div class="position-relative">
-                            <i class="fas fa-lock position-absolute"
-                                style="left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
-                            <input type="password" name="password" class="form-control" id="id_password"
-                                placeholder="Enter your password" required
-                                style="padding-left: 2.5rem; padding-right: 2.5rem; width: 100% !important; display: block !important;">
-                            <button class="btn btn-link position-absolute" type="button" id="togglePassword"
-                                style="right: 0.5rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); text-decoration: none; padding: 0;">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="invalid-feedback">
-                            Please enter your password.
-                        </div>
-
-                        <!-- AI: wrong password bubble -->
-                        {% if ai_message == 'suggest_reset' %}
-                        <div class="ai-field-bubble ai-bubble-info mt-2" role="alert">
-                            <div class="ai-bubble-caret ai-caret-info"></div>
-                            <span class="ai-bubble-icon">🐧</span>
-                            <div>
-                                <strong>Password doesn't match.</strong><br>
-                                <span>We found <code class="ai-code">{{ ai_email }}</code> in our database.
-                                    <a href="{% url 'users:forgot_password' %}" class="ai-link ai-link-info">Reset your
-                                        password &rarr;</a></span>
+                                <div class="mt-auto pt-5 w-100 text-center">
+                                    <p class="small text-white-50 m-0">
+                                        National Centre for Polar and Ocean Research<br>
+                                        Earth System Science Organization
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        {% endif %}
                     </div>
-
-                    <!-- Remember Me -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="rememberMe">
-                        <label class="form-check-label small" for="rememberMe">
-                            Remember me on this device
-                        </label>
-                    </div>
-                    <!-- CAPTCHA -->
-                    <div class="form-group mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-shield-alt me-2"></i>CAPTCHA
-                        </label>
-
-                        <div class="captcha-wrapper">{{ form.captcha }}</div>
-
-                        {% if form.captcha.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.captcha.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="d-grid gap-2 mt-2">
-                        <button type="submit" class="btn btn-primary btn-lg py-2">
-                            <i class="fas fa-sign-in-alt me-2"></i>Sign In to NPDC
-                        </button>
-                    </div>
-                </form>
-
-            </div>
-
-            <!-- Quick Access -->
-            <div class="mt-4">
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="{% url 'users:home' %}" class="btn btn-link text-muted small">
-                        <i class="fas fa-home me-1"></i>Home
-                    </a>
-                    <a href="#" class="btn btn-link text-muted small">
-                        <i class="fas fa-question-circle me-1"></i>Help
-                    </a>
-                    <a href="#" class="btn btn-link text-muted small">
-                        <i class="fas fa-phone me-1"></i>Support
-                    </a>
-                    <a href="#" class="btn btn-link text-muted small">
-                        <i class="fas fa-file-alt me-1"></i>Documentation
-                    </a>
                 </div>
             </div>
         </div>
-
-        <!-- Registration Card Column -->
-        <div class="col-lg-5 col-md-7">
-            <div class="register-card bg-white border rounded p-4 shadow-sm">
-                <h4 class="mb-3 text-center" style="color: var(--primary-blue); font-weight: 700;">
-                    New to NPDC?
-                </h4>
-                <p class="text-center text-muted mb-4">Create a research account to submit datasets and
-                    access additional features.</p>
-                <div class="d-grid">
-                    <a href="{% url 'users:register' %}" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-user-plus me-2"></i>Create Research Account
-                    </a>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
 <!-- Login Page Styles -->
 <style>
-    /* Login Card */
-    .login-card {
-        background: white;
-        border-radius: var(--border-radius-lg);
-        padding: 1.5rem 2rem;
-        box-shadow: var(--shadow-xl);
-        border: 1px solid var(--medium-gray);
-        box-sizing: border-box;
-        width: 100%;
-    }
-
-    .login-card form {
-        width: 100%;
-    }
-
-    .login-card .form-group {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* ---- AI Field Bubbles ---- */
-    @keyframes aiBubbleIn {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .ai-field-bubble {
-        position: relative;
+    /* NSIDC / Professional Theme Base Variables & Wrapper */
+    .login-page-wrapper {
+        background-color: #f1f5f9; /* Clean frosty slate background */
+        min-height: calc(100vh - 120px);
         display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        border-radius: 10px;
-        padding: 10px 14px;
-        font-size: 0.83rem;
-        line-height: 1.45;
-        animation: aiBubbleIn 0.3s ease both;
-        margin-bottom: 2px;
+        align-items: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Caret pointing UP (↑) at the field it belongs to */
-    .ai-bubble-caret {
-        position: absolute;
-        top: -8px;
-        left: 18px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 8px solid #ffc10788;
-        /* default amber, overridden per variant */
+    /* Outer Container */
+    .modern-auth-container {
+        display: flex;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        border-radius: 1.25rem;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
     }
 
-    /* Warning variant — amber/yellow for "email not found" */
-    .ai-bubble-warning {
-        background: #fff8e1;
-        border: 1.5px solid #ffc107;
+    /* Left Form Area */
+    .auth-form-section {
+        position: relative;
+    }
+    
+    .login-content-inner {
+        max-width: 520px;
+        margin: 0 auto;
     }
 
-    .ai-bubble-warning .ai-bubble-caret {
-        border-bottom-color: #ffc107;
-    }
-
-    .ai-bubble-warning strong {
-        color: #7a5c00;
-    }
-
-    .ai-bubble-warning span {
-        color: #5a4200;
-    }
-
-    /* Info variant — teal/blue for "suggest reset" */
-    .ai-bubble-info {
-        background: #e8f4fd;
-        border: 1.5px solid #0ea5d8;
-    }
-
-    .ai-bubble-info .ai-bubble-caret {
-        border-bottom-color: #0ea5d8;
-    }
-
-    .ai-bubble-info strong {
-        color: #064e6f;
-    }
-
-    .ai-bubble-info span {
-        color: #0a4060;
-    }
-
-    /* Robot icon */
-    .ai-bubble-icon {
-        font-size: 1.2rem;
-        line-height: 1;
-        flex-shrink: 0;
-        margin-top: 1px;
-    }
-
-    /* Inline code inside bubble */
-    .ai-code {
-        background: rgba(0, 0, 0, .06);
-        padding: 1px 5px;
-        border-radius: 4px;
-        font-size: 0.78rem;
-        color: inherit;
-        word-break: break-all;
-    }
-
-    /* Links inside bubble */
-    .ai-link {
-        color: #7a5c00;
-        font-weight: 600;
-        text-decoration: underline;
-    }
-
-    .ai-link:hover {
-        color: #4e3a00;
-    }
-
-    .ai-link-info {
-        color: #064e6f;
-        font-weight: 600;
-        text-decoration: underline;
-    }
-
-    .ai-link-info:hover {
-        color: #032a3e;
-    }
-
-    .login-icon {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-primary);
-        border-radius: 50%;
+    /* Login Header */
+    .login-icon-modern {
+        width: 56px;
+        height: 56px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 0.5rem;
-        color: white;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), 0 4px 6px rgba(29, 78, 216, 0.05);
     }
 
-    .login-header h1 {
-        color: var(--primary-blue);
-        font-weight: 700;
-    }
-
-    /* Form Styling */
-    .login-card .form-group {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .form-group label {
-        color: var(--text-primary);
-        font-size: 0.9rem;
+    .login-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 1.8rem;
         margin-bottom: 0.5rem;
+        letter-spacing: -0.025em;
     }
 
-    /* Registration card styles */
-    .captcha-wrapper {
-        width: 100% !important;
-        box-sizing: border-box !important;
+    .login-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.5;
     }
 
-    .captcha-wrapper input[type="text"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        display: block !important;
-        margin-top: 0.5rem;
+    /* Form Elements */
+    .form-label {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.9rem;
     }
 
-    .captcha-wrapper img.captcha {
-        width: auto !important;
-        max-width: 100%;
-        display: block;
+    .input-icon-wrapper {
+        position: relative;
     }
 
-    /* Force captcha input to full width, but keep image normal size */
-    .register-card {
-        background: white;
-        border-radius: var(--border-radius-lg);
-        border: 1px solid var(--medium-gray);
+    .input-prefix-icon {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 1.1rem;
+        z-index: 5;
     }
 
-    .input-group-text {
-        background-color: var(--light-gray);
-        border: 1px solid var(--medium-gray);
-        color: var(--text-secondary);
-        padding: 0.75rem 1rem;
+    .form-control-modern {
+        padding-left: 3rem !important;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        color: #0f172a;
+        background-color: #f8fafc;
+        transition: all 0.2s ease-in-out;
     }
 
-    .form-control {
+    .form-control-modern:hover {
+        border-color: #cbd5e1;
+    }
+
+    .form-control-modern:focus {
+        border-color: #3b82f6;
         background-color: #ffffff;
-        color: #333;
-        border: 1px solid #ced4da;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        outline: none;
+    }
+
+    .toggle-password-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        z-index: 5;
+        transition: color 0.2s ease;
+    }
+
+    .toggle-password-btn:hover {
+        color: #3b82f6;
+    }
+    
+    .auth-text-link {
+        color: #2563eb;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .auth-text-link:hover {
+        color: #1e3a8a;
+        text-decoration: underline;
+    }
+
+    /* Custom Checkbox */
+    .custom-checkbox-modern .form-check-input {
+        width: 1.25em;
+        height: 1.25em;
+        margin-top: 0.25em;
+        border-radius: 0.25rem;
+        border: 1.5px solid #cbd5e1;
+    }
+    .custom-checkbox-modern .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    /* CAPTCHA Adjustments */
+    .modern-captcha {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.6rem;
+    }
+    .modern-captcha input[type="text"] {
+        width: 100% !important;
+        display: block;
+        margin-top: 0.75rem;
         padding: 0.6rem 1rem;
-        font-size: 0.95rem;
-        border-radius: var(--border-radius-sm);
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 0.5rem;
         box-sizing: border-box;
     }
-
-    .form-control:hover {
-        border-color: var(--accent-teal);
+    .modern-captcha img.captcha {
+        border-radius: 0.375rem;
+        display: block;
+        max-width: 100%;
+        height: auto;
     }
 
-    .form-control:focus {
-        border-color: var(--accent-teal);
-        box-shadow: 0 0 0 3px rgba(0, 163, 161, 0.15);
-        background-color: #f8fdfd;
+    /* Primary Auth Button */
+    .btn-primary-modern {
+        background: #0f172a;
+        color: #ffffff;
+        border: none;
+        border-radius: 0.6rem;
+        padding: 0.85rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
     }
 
-    /* Info Panel */
-    .info-panel {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-        border-radius: var(--border-radius-lg);
-        height: 100%;
-        position: relative;
+    .btn-primary-modern:hover {
+        background: #1e293b;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+        color: #ffffff;
+    }
+
+    .btn-primary-modern:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    /* Quick Links Bottom */
+    .quick-links {
+        border-top: 1px solid #e2e8f0;
+    }
+    .quick-links a {
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    .quick-links a:hover {
+        color: #0f172a;
+    }
+
+    /* Right Information Bar (NSIDC-like gradient) */
+    .auth-info-section {
+        background: linear-gradient(135deg, #0f2c59 0%, #005b9f 100%);
         overflow: hidden;
     }
 
-    .info-panel::before {
+    .auth-info-section::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        top: 0; left: 0; right: 0; bottom: 0;
+        /* Subtle topo/ice pattern overlay */
+        background-image: radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.1) 0, rgba(255, 255, 255, 0.1) 3px, transparent 3px),
+                          radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 5px, transparent 5px);
+        background-size: 40px 40px;
+        opacity: 0.4;
         pointer-events: none;
     }
 
-    .info-logo {
-        width: 80px;
-        height: 80px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+    .auth-info-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .npdc-logo-ring {
+        width: 110px;
+        height: 110px;
+        background: rgba(255,255,255,0.12);
+        border: 2px solid rgba(255,255,255,0.25);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 2.5rem;
-        margin-bottom: 1.5rem;
+        overflow: hidden;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     }
 
-    /* Features List */
-    .features-list {
-        position: relative;
-        z-index: 2;
+    .npdc-auth-logo {
+        width: 90px;
+        height: 90px;
+        object-fit: contain;
+        border-radius: 50%;
     }
 
-    .feature-item {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .feature-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: var(--border-radius-sm);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        flex-shrink: 0;
-        font-size: 1rem;
-    }
-
-    /* Support Info */
-    .support-info {
-        position: relative;
-        z-index: 2;
-    }
-
-    .text-accent {
-        color: var(--accent-teal);
-    }
-
-    /* Social Login Buttons */
-    .btn-outline-secondary {
-        border: 1px solid var(--medium-gray);
-        color: var(--text-secondary);
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
+    .btn-outline-light-modern {
+        border: 2px solid rgba(255,255,255,0.8);
+        color: #ffffff;
+        background: transparent;
+        font-weight: 600;
+        padding: 0.85rem 1.8rem;
         transition: all 0.3s ease;
     }
 
-    .btn-outline-secondary:hover {
-        background: var(--light-gray);
-        border-color: var(--medium-gray);
-        color: var(--text-primary);
+    .btn-outline-light-modern:hover {
+        background: #ffffff;
+        color: #005b9f;
+        border-color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
     }
 
-    /* Password Toggle */
-    #togglePassword {
-        background: white;
-        border: 1px solid var(--medium-gray);
-        border-left: none;
+    /* AI Field Bubbles Preserved Exactly */
+    @keyframes aiBubbleIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
-    #togglePassword:hover {
-        background: var(--light-gray);
+    .ai-field-bubble {
+        position: relative; display: flex; align-items: flex-start; gap: 10px;
+        border-radius: 0.5rem; padding: 12px 16px; font-size: 0.85rem; line-height: 1.45;
+        animation: aiBubbleIn 0.3s ease both;
     }
-
-    /* Responsive Design */
-    @media (max-width: 992px) {
-        .login-card {
-            padding: 2rem;
-        }
-
-        .info-panel {
-            display: none;
-        }
-
-        .min-vh-75 {
-            min-height: auto;
-        }
+    .ai-bubble-caret {
+        position: absolute; top: -8px; left: 24px; width: 0; height: 0;
+        border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #ffc10788;
     }
-
-    @media (max-width: 576px) {
-        .login-card {
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-        }
-
-        .login-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
-
-        .btn-lg {
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-        }
+    .ai-bubble-warning {
+        background: #fffbeb; border: 1.5px solid #fcd34d;
     }
-
+    .ai-bubble-warning .ai-bubble-caret { border-bottom-color: #fcd34d; }
+    .ai-bubble-warning strong { color: #92400e; }
+    .ai-bubble-warning span { color: #b45309; }
+    .ai-bubble-info {
+        background: #eff6ff; border: 1.5px solid #93c5fd;
+    }
+    .ai-bubble-info .ai-bubble-caret { border-bottom-color: #93c5fd; }
+    .ai-bubble-info strong { color: #1e40af; }
+    .ai-bubble-info span { color: #1d4ed8; }
+    .ai-bubble-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+    .ai-code {
+        background: rgba(0, 0, 0, .05); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; color: inherit; word-break: break-all;
+    }
+    .ai-link, .ai-link-info { color: inherit; text-decoration: underline; font-weight: 600; }
+    
     /* Validation Styles */
-    .was-validated .form-control:valid {
-        border-color: #198754;
+    .was-validated .form-control:valid, .form-control.is-valid {
+        border-color: #10b981;
         padding-right: calc(1.5em + 0.75rem);
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(0.375em + 0.1875rem) center;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310b981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat; background-position: right calc(0.375em + 0.1875rem) center; background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
     }
-
-    .was-validated .form-control:invalid {
-        border-color: #dc3545;
+    .was-validated .form-control:invalid, .form-control.is-invalid {
+        border-color: #ef4444;
         padding-right: calc(1.5em + 0.75rem);
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(0.375em + 0.1875rem) center;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat; background-position: right calc(0.375em + 0.1875rem) center; background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // CAPTCHA Refresh
+        const captchaRefreshBtns = document.querySelectorAll('.js-captcha-refresh');
+        captchaRefreshBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const wrapper = this.closest('.form-group');
+                const captchaImg = wrapper.querySelector('img.captcha');
+                const captchaInput = wrapper.querySelector('input[name="captcha_0"]');
+                
+                if (captchaImg && captchaInput) {
+                    fetch("{% url 'captcha-refresh' %}", {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        captchaImg.src = data.image_url;
+                        captchaInput.value = data.key;
+                    })
+                    .catch(error => console.error('Error refreshing captcha:', error));
+                }
+            });
+        });
+
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('id_password');

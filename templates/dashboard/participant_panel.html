@@ -1,34 +1,34 @@
 <div class="participant-dashboard">
     <!-- Quick Stats Overview -->
-    <div class="row mb-5">
+    <div class="row mb-5 mt-4">
         <div class="col-12">
-            <h2 class="h4 mb-4">Your Research Dashboard</h2>
+            <h4 class="mb-4 text-dark fw-bold border-bottom pb-2">Your Research Dashboard</h4>
         </div>
 
         <!-- Submitted Datasets -->
-        <div class="col-xl-6 col-lg-6 col-md-6 mb-4">
-            <div class="stat-card submitted">
+        <div class="col-md-6 mb-4">
+            <div class="stat-card modern-card submitted">
                 <div class="stat-icon">
                     <i class="fas fa-upload"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ total_submitted }}</h3>
-                    <p class="stat-label">Submitted</p>
-                    <small class="stat-change">Your datasets</small>
+                    <h3 class="stat-number text-dark fw-bold">{{ total_submitted }}</h3>
+                    <p class="stat-label text-muted text-uppercase small fw-bold mb-1">Submitted</p>
+                    <small class="stat-change text-secondary">Your total datasets</small>
                 </div>
             </div>
         </div>
 
         <!-- Published Datasets -->
-        <div class="col-xl-6 col-lg-6 col-md-6 mb-4">
-            <div class="stat-card approved">
+        <div class="col-md-6 mb-4">
+            <div class="stat-card modern-card approved">
                 <div class="stat-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ published_count }}</h3>
-                    <p class="stat-label">Published</p>
-                    <small class="stat-change">Publicly available</small>
+                    <h3 class="stat-number text-dark fw-bold">{{ published_count }}</h3>
+                    <p class="stat-label text-muted text-uppercase small fw-bold mb-1">Published</p>
+                    <small class="stat-change text-secondary">Publicly available</small>
                 </div>
             </div>
         </div>
@@ -37,22 +37,22 @@
     <!-- Quick Actions -->
     <div class="row mb-5">
         <div class="col-12">
-            <h2 class="h4 mb-4">Quick Actions</h2>
+            <h4 class="mb-4 text-dark fw-bold border-bottom pb-2">Quick Actions</h4>
         </div>
 
         <!-- Submit Dataset -->
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="action-card">
-                <div class="action-icon">
+            <div class="action-card modern-card">
+                <div class="action-icon bg-primary-light text-primary">
                     <i class="fas fa-upload"></i>
                 </div>
                 <div class="action-content">
-                    <h4 class="h5 mb-2">Submit Dataset</h4>
-                    <p class="text-secondary mb-3">
+                    <h5 class="fw-bold text-dark mb-2">Submit Dataset</h5>
+                    <p class="text-muted small mb-4 lh-base">
                         Upload your polar research data with detailed metadata for archiving and sharing.
                     </p>
-                    <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary w-100">
-                        <i class="fas fa-cloud-upload-alt me-2"></i>Submit New Dataset
+                    <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary w-100 fw-bold shadow-sm" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;">
+                        <i class="fas fa-cloud-upload-alt me-2"></i> Submit New
                     </a>
                 </div>
             </div>
@@ -60,17 +60,17 @@
 
         <!-- View Submissions -->
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="action-card">
-                <div class="action-icon">
+            <div class="action-card modern-card">
+                <div class="action-icon bg-success-light text-success">
                     <i class="fas fa-folder-open"></i>
                 </div>
                 <div class="action-content">
-                    <h4 class="h5 mb-2">My Submissions</h4>
-                    <p class="text-secondary mb-3">
+                    <h5 class="fw-bold text-dark mb-2">My Submissions</h5>
+                    <p class="text-muted small mb-4 lh-base">
                         Track the status of your submitted datasets and view detailed submission history.
                     </p>
-                    <a href="{% url 'data_submission:my_submissions' %}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-list-alt me-2"></i>View All Submissions
+                    <a href="{% url 'data_submission:my_submissions' %}" class="btn btn-outline-success w-100 fw-bold border-2">
+                        <i class="fas fa-list-alt me-2"></i> View History
                     </a>
                 </div>
             </div>
@@ -78,59 +78,60 @@
 
         <!-- Manage Profile -->
         <div class="col-lg-4 col-md-6 mb-4">
-            <div class="action-card">
-                <div class="action-icon">
-                    <i class="fas fa-user-circle"></i>
+            <div class="action-card modern-card">
+                <div class="action-icon bg-secondary-light text-secondary">
+                    <i class="fas fa-user-cog"></i>
                 </div>
                 <div class="action-content">
-                    <h4 class="h5 mb-2">Account Settings</h4>
-                    <p class="text-secondary mb-3">
+                    <h5 class="fw-bold text-dark mb-2">Account Settings</h5>
+                    <p class="text-muted small mb-4 lh-base">
                         Update your profile information, contact details, and account preferences.
                     </p>
-                    <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-cog me-2"></i>Manage Profile
+                    <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary w-100 fw-bold border-2">
+                        <i class="fas fa-cog me-2"></i> Manage Profile
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity -->
+    <!-- Recent Activity & Links -->
     <div class="row">
         <div class="col-lg-8 mb-4">
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h4 class="h5 mb-0">Recent Submissions</h4>
-                    <a href="{% url 'data_submission:my_submissions' %}" class="small text-primary">View All</a>
+            <div class="activity-card modern-card">
+                <div class="card-header border-bottom bg-white d-flex justify-content-between align-items-center py-3 px-4">
+                    <h5 class="mb-0 text-dark fw-bold">Recent Submissions</h5>
+                    <a href="{% url 'data_submission:my_submissions' %}" class="small text-primary text-decoration-none fw-bold">View All <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
-                <div class="activity-body">
+                <div class="card-body p-0">
                     <div class="activity-list">
                         {% for activity in recent_activity %}
-                        <div class="activity-item">
-                            <div class="activity-icon">
+                        <div class="activity-item d-flex align-items-center p-4 border-bottom transition-hover">
+                            <div class="activity-icon me-3">
                                 {% if activity.status == 'submitted' or activity.status == 'under_review' %}
-                                <span class="status-badge pending">P</span>
+                                <span class="status-badge pending shadow-sm"><i class="fas fa-clock"></i></span>
                                 {% elif activity.status == 'published' %}
-                                <span class="status-badge approved">A</span>
+                                <span class="status-badge approved shadow-sm"><i class="fas fa-check"></i></span>
                                 {% elif activity.status == 'revision_requested' or activity.status == 'rejected' %}
-                                <span class="status-badge rejected">R</span>
+                                <span class="status-badge rejected shadow-sm"><i class="fas fa-exclamation"></i></span>
                                 {% else %}
-                                <span class="status-badge" style="background-color: #6c757d;">D</span>
+                                <span class="status-badge shadow-sm" style="background: linear-gradient(135deg, #94a3b8, #64748b);"><i class="fas fa-times"></i></span>
                                 {% endif %}
                             </div>
-                            <div class="activity-content">
-                                <p class="mb-1 fw-semibold">{{ activity.title }}</p>
-                                <small class="text-muted">Submitted: {{ activity.submission_date|timesince }} ago •
-                                    Status: {{ activity.get_status_display }}</small>
+                            <div class="activity-content flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark">{{ activity.title }}</h6>
+                                <small class="text-muted"><i class="far fa-calendar-alt me-1"></i> {{ activity.submission_date|timesince }} ago <span class="mx-2">•</span> <span class="badge bg-light text-dark border">{{ activity.get_status_display }}</span></small>
                             </div>
-                            <div class="activity-action">
+                            <div class="activity-action ms-3">
                                 <a href="{% url 'data_submission:view_submission' activity.metadata_id %}"
-                                    class="btn btn-sm btn-outline-primary">View</a>
+                                    class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">View</a>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="p-4 text-center text-muted">
-                            No recent activity to display.
+                        <div class="p-5 text-center">
+                            <i class="fas fa-inbox fa-3x text-muted opacity-50 mb-3"></i>
+                            <h6 class="text-muted fw-bold">No recent activity yet.</h6>
+                            <p class="text-muted small">Your submitted datasets will appear here.</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -140,38 +141,38 @@
 
         <!-- Quick Links -->
         <div class="col-lg-4 mb-4">
-            <div class="links-card">
+            <div class="links-card modern-card dark-links-card">
                 <div class="links-header">
-                    <h4 class="h5 mb-0">Useful Links</h4>
+                    <h4 class="mb-0 text-white">Useful Links</h4>
                 </div>
                 <div class="links-body">
                     <div class="link-item">
                         <a href="#">
-                            <i class="fas fa-book me-2"></i>
+                            <i class="fas fa-book me-3"></i>
                             <span>Submission Guidelines</span>
                         </a>
                     </div>
                     <div class="link-item">
                         <a href="#">
-                            <i class="fas fa-file-alt me-2"></i>
+                            <i class="fas fa-file-alt me-3"></i>
                             <span>Data Format Requirements</span>
                         </a>
                     </div>
                     <div class="link-item">
                         <a href="#">
-                            <i class="fas fa-question-circle me-2"></i>
+                            <i class="fas fa-question-circle me-3"></i>
                             <span>Help & Documentation</span>
                         </a>
                     </div>
                     <div class="link-item">
                         <a href="#">
-                            <i class="fas fa-comments me-2"></i>
+                            <i class="fas fa-comments me-3"></i>
                             <span>Support & Contact</span>
                         </a>
                     </div>
                     <div class="link-item">
                         <a href="#">
-                            <i class="fas fa-download me-2"></i>
+                            <i class="fas fa-download me-3"></i>
                             <span>Download Templates</span>
                         </a>
                     </div>
@@ -183,298 +184,139 @@
 
 <!-- Participant Panel Styles -->
 <style>
-    /* Stat Cards for Participant */
+    .participant-dashboard {
+        animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══ Modern Card Base ═══ */
+    .modern-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    .modern-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        border-color: rgba(203, 213, 225, 0.6);
+    }
+
+    /* ═══ Stat Cards ═══ */
     .stat-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
         display: flex;
         align-items: center;
         gap: 1.5rem;
-        transition: all 0.3s ease;
-        height: 100%;
+        padding: 1.75rem;
     }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
+    .stat-card::after {
+        content: ''; position: absolute; bottom: 0; left: 0; height: 4px; width: 100%;
+        transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
     }
-
-    .stat-card.submitted {
-        border-top: 4px solid #3B82F6;
-    }
-
-    .stat-card.pending {
-        border-top: 4px solid #F59E0B;
-    }
-
-    .stat-card.approved {
-        border-top: 4px solid #10B981;
-    }
-
-    .stat-card.rejected {
-        border-top: 4px solid #EF4444;
-    }
+    .stat-card:hover::after { transform: scaleX(1); }
+    .stat-card.submitted::after { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .stat-card.approved::after { background: linear-gradient(90deg, #10b981, #34d399); }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: var(--border-radius-sm);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: white;
+        width: 65px; height: 65px;
+        border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.75rem; color: white;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
     }
+    .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-5deg); }
+    .stat-card.submitted .stat-icon { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .stat-card.approved .stat-icon { background: linear-gradient(135deg, #10b981, #34d399); }
 
-    .stat-card.submitted .stat-icon {
-        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-    }
+    .stat-content { flex: 1; z-index: 2; }
+    .stat-number { font-size: 2.5rem; line-height: 1; letter-spacing: -1px; }
 
-    .stat-card.pending .stat-icon {
-        background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
-    }
-
-    .stat-card.approved .stat-icon {
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-    }
-
-    .stat-card.rejected .stat-icon {
-        background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
-    }
-
-    .stat-content {
-        flex: 1;
-    }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary);
-    }
-
-    .stat-label {
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary);
-    }
-
-    .stat-change {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-
-    /* Action Cards */
+    /* ═══ Action Cards ═══ */
     .action-card {
-        background: white;
-        border-radius: var(--border-radius-md);
         padding: 2rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        transition: all 0.3s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+        display: flex; flex-direction: column;
     }
-
-    .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--accent-teal);
-    }
-
     .action-icon {
-        width: 70px;
-        height: 70px;
-        background: rgba(0, 51, 102, 0.1);
-        border-radius: var(--border-radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        color: var(--primary-blue);
-        font-size: 1.8rem;
+        width: 55px; height: 55px;
+        border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 1.5rem; font-size: 1.5rem;
+        transition: all 0.3s ease;
     }
-
-    .action-content {
-        flex: 1;
+    .bg-primary-light { background: #eff6ff; }
+    .bg-success-light { background: #ecfdf5; }
+    .bg-secondary-light { background: #f8fafc; }
+    
+    .action-card:hover .action-icon {
+        transform: scale(1.1); color: #fff !important;
     }
+    .action-card:hover .bg-primary-light { background: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+    .action-card:hover .bg-success-light { background: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    .action-card:hover .bg-secondary-light { background: #64748b; box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3); }
+    
+    .action-content { flex: 1; display: flex; flex-direction: column; }
+    .action-content a { margin-top: auto; border-radius: 0.5rem; padding: 0.6rem 1rem; }
+    .action-content a:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
-    .action-content h4 {
-        color: var(--primary-blue);
-    }
-
-    /* Activity Card */
-    .activity-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        overflow: hidden;
-        height: 100%;
-    }
-
-    .activity-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--light-gray);
-    }
-
-    .activity-body {
-        padding: 0;
-    }
-
-    .activity-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .activity-item {
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border-bottom: 1px solid var(--medium-gray);
-        transition: background-color 0.2s ease;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-item:hover {
-        background-color: var(--light-gray);
-    }
-
+    /* ═══ Activity Lists ═══ */
+    .transition-hover:hover { background: #f8fafc; }
     .status-badge {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 0.875rem;
-        color: white;
+        width: 40px; height: 40px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 1rem;
     }
+    .status-badge.pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .status-badge.approved { background: linear-gradient(135deg, #10b981, #059669); }
+    .status-badge.rejected { background: linear-gradient(135deg, #ef4444, #dc2626); }
 
-    .status-badge.pending {
-        background-color: #F59E0B;
+    /* ═══ Link Lists (Dark Theme) ═══ */
+    .dark-links-card {
+        background: #001D36; /* Deep navy matching base.html */
+        border: none;
+        border-radius: 1.2rem;
+        padding-bottom: 0.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
-
-    .status-badge.approved {
-        background-color: #10B981;
+    .dark-links-card .links-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+        padding: 1.5rem 1.8rem 1rem 1.8rem;
     }
-
-    .status-badge.rejected {
-        background-color: #EF4444;
-    }
-
-    .activity-content {
-        flex: 1;
-    }
-
-    .activity-content p {
-        margin-bottom: 0.25rem;
-    }
-
-    .activity-action {
-        flex-shrink: 0;
-    }
-
-    /* Links Card */
-    .links-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        overflow: hidden;
-        height: 100%;
-    }
-
-    .links-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
-        background: var(--light-gray);
-    }
-
-    .links-body {
-        padding: 0;
-    }
-
-    .link-item {
-        border-bottom: 1px solid var(--medium-gray);
-    }
-
-    .link-item:last-child {
-        border-bottom: none;
-    }
-
-    .link-item a {
-        display: flex;
-        align-items: center;
-        padding: 1rem 1.5rem;
-        color: var(--text-primary);
-        text-decoration: none;
+    .dark-links-card .link-item a {
+        display: flex; align-items: center; padding: 1.1rem 1.8rem;
+        color: rgba(255, 255, 255, 0.6); 
+        font-weight: 500; font-size: 0.95rem; text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
         transition: all 0.2s ease;
     }
-
-    .link-item a:hover {
-        background-color: var(--light-gray);
-        color: var(--primary-blue);
+    .dark-links-card .link-item:last-child a { border-bottom: none; }
+    
+    .dark-links-card .link-item a i { 
+        width: 32px; color: rgba(255, 255, 255, 0.4); font-size: 1.1rem; transition: color 0.2s; 
     }
-
-    .link-item a i {
-        width: 24px;
-        color: var(--text-secondary);
+    
+    .dark-links-card .link-item a:hover { 
+        background: #f8f9fa; 
+        color: #2563eb; 
+        padding-left: 2.1rem;
+        border-bottom-color: transparent;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 2;
     }
-
-    .link-item a:hover i {
-        color: var(--primary-blue);
-    }
+    .dark-links-card .link-item a:hover i { color: #2563eb; }
 
     @media (max-width: 768px) {
-        .stat-card {
-            padding: 1.25rem;
-            gap: 1rem;
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.25rem;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-        }
-
-        .action-card {
-            padding: 1.5rem;
-        }
-
-        .action-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
-
-        .activity-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-
-        .activity-action {
-            align-self: flex-end;
-        }
+        .stat-card, .action-card { padding: 1.5rem; }
+        .stat-number { font-size: 2rem; }
     }
 </style>
 

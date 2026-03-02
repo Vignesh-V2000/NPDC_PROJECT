@@ -683,6 +683,8 @@ class DatasetRequest(models.Model):
     request_date = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_data_requests')
+    request_location = models.CharField(max_length=500, blank=True, null=True, help_text="Location from which the request was made (extracted from IP)")
+    request_ip = models.GenericIPAddressField(null=True, blank=True, help_text="IP address from which the request was made")
 
     class Meta:
         ordering = ['-request_date']

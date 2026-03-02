@@ -4,344 +4,577 @@
 {% block title %}Register - NPDC{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="registration-card">
-                <!-- Header -->
-                <div class="registration-header text-center mb-4">
-                    <h1 class="h3 mb-2">NPDC User Registration</h1>
-                    <p class="text-secondary mb-0">Register to submit and access polar research data</p>
-                </div>
-
-                <!-- Messages -->
-                {% if messages %}
-                <div class="messages-container mb-4">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <!-- Registration Form -->
-                <form method="POST" class="needs-validation" novalidate>
-                    {% csrf_token %}
-
-                    <!-- Section: User Details -->
-                    <div class="form-section">
-                        <h5 class="section-title text-danger">User Details</h5>
-                        <table class="form-table">
-                            <tr>
-                                <td class="label-cell">Title<span class="text-danger">*</span></td>
-                                <td>
-                                    <select name="title" class="form-select form-select-sm" style="width: auto;"
-                                        required data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Select your title (Mr, Ms, Dr, Prof)">
-                                        <option value="">-----Select Title----</option>
-                                        <option value="Mr">Mr</option>
-                                        <option value="Ms">Ms</option>
-                                        <option value="Dr">Dr</option>
-                                        <option value="Prof">Prof</option>
-                                    </select>
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">First Name<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="text" name="first_name" class="form-control" required
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Enter your first name">
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Last Name<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="text" name="last_name" class="form-control" required
-                                        data-bs-toggle="tooltip" data-bs-placement="right" title="Enter your last name">
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Preferred Name</td>
-                                <td>
-                                    <input type="text" name="preferred_name" class="form-control"
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Enter your preferred name (optional)">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- Section: Login Details -->
-                    <div class="form-section">
-                        <h5 class="section-title text-danger">Login Details</h5>
-                        <table class="form-table">
-                            <tr>
-                                <td class="label-cell">Valid Email-Id<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="email" name="email" class="form-control"
-                                        placeholder="Username is e-mail Id" required data-bs-toggle="tooltip"
-                                        data-bs-placement="right"
-                                        title="Enter a valid email address. This will be your username.">
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Confirm Email-Id<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="email" name="confirm_email" class="form-control" required
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Re-enter your email address to confirm">
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Password<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="password" name="password1" class="form-control" required
-                                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Password must be at least 8 characters, with 1 uppercase, 1 lowercase, 1 number, and 1 special character">
-                                    <small class="text-muted">Min 8 chars: Upper, Lower, Number, Special
-                                        (@$!%*?&)</small>
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Confirm Password<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="password" name="password2" class="form-control" required
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Re-enter your password to confirm">
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- Section: Organisation/Inst. -->
-                    <div class="form-section">
-                        <h5 class="section-title text-danger">Organisation/Inst.</h5>
-                        <table class="form-table">
-                            <tr>
-                                <td class="label-cell">Designation</td>
-                                <td>
-                                    <input type="text" name="designation" class="form-control" data-bs-toggle="tooltip"
-                                        data-bs-placement="right"
-                                        title="Enter your current designation/role (optional)">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Organisation Name<span class="text-danger">*</span></td>
-                                <td>
-                                    <input type="text" name="organisation" class="form-control" required
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Enter the name of your organization">
-                                    <div class="invalid-feedback">This field is required.</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Organisation website link/URL<span class="text-danger">*</span>
-                                </td>
-                                <td>
-                                    <input type="url" name="organisation_url" class="form-control" required
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Enter valid URL starting with http:// or https://">
-                                    <div class="invalid-feedback">Enter a valid URL (e.g. https://example.com).</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Personal profile link/URL page at Organisation</td>
-                                <td>
-                                    <input type="url" name="profile_url" class="form-control" data-bs-toggle="tooltip"
-                                        data-bs-placement="right"
-                                        title="Enter valid URL starting with http:// or https:// (optional)">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- Section: Contact Details -->
-                    <div class="form-section">
-                        <h5 class="section-title text-danger">Contact Details</h5>
-                        <table class="form-table">
-                            <tr>
-                                <td class="label-cell">Address ( Communication address )</td>
-                                <td>
-                                    <textarea name="address" class="form-control" rows="3" data-bs-toggle="tooltip"
-                                        data-bs-placement="right"
-                                        title="Enter your communication address (optional)"></textarea>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Alternate e-mail</td>
-                                <td>
-                                    <input type="email" name="alternate_email" class="form-control"
-                                        data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Enter an alternate email address (optional)">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Mobile number</td>
-                                <td>
-                                    <input type="text" name="phone" class="form-control" pattern="[0-9]{10}"
-                                        title="10 digit mobile number" data-bs-toggle="tooltip"
-                                        data-bs-placement="right" title="Enter your 10-digit mobile number">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label-cell">Whatsapp number</td>
-                                <td>
-                                    <input type="text" name="whatsapp_number" class="form-control" pattern="[0-9]+"
-                                        title="Digits only" data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Enter your WhatsApp number (optional)">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- Section: Captcha -->
-                    <div class="form-section">
-                        <h5 class="section-title text-danger">Captcha</h5>
-                        <table class="form-table">
-                            <tr>
-                                <td class="label-cell">Verify code</td>
-                                <td>
-                                    <div data-bs-toggle="tooltip" data-bs-placement="right"
-                                        title="Solve the equation to verify you are human">
-                                        {{ form.captcha }}
+<div class="login-page-wrapper py-4 py-md-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-11 col-lg-12">
+                <div class="modern-auth-container shadow-lg overflow-hidden border-0" style="border-radius: 1.25rem;">
+                    <div class="row g-0 flex-lg-row-reverse">
+                        
+                        <!-- Right Side: Registration Form -->
+                        <div class="col-lg-8 auth-form-section bg-white">
+                            <div class="login-content-inner p-4 p-md-5" style="max-width: 100%;">
+                                <!-- Header -->
+                                <div class="login-header mb-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="login-icon-modern me-3">
+                                            <i class="fas fa-user-plus text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h2 class="login-title mb-1">Create an Account</h2>
+                                            <p class="login-subtitle mb-0">Register to submit and access polar research data.</p>
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                                </div>
 
-                    <!-- Terms and Conditions -->
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="terms" required>
-                        <label class="form-check-label small" for="terms">
-                            I agree to the <a href="#" class="text-primary">Terms of Service</a> and
-                            <a href="#" class="text-primary">Privacy Policy</a> of NPDC <span
-                                class="text-danger">*</span>
-                        </label>
-                        <div class="invalid-feedback">You must agree before submitting.</div>
-                    </div>
+                                <!-- Messages -->
+                                {% if messages %}
+                                <div class="messages-container mb-4">
+                                    {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                                        <div class="d-flex align-items-center">
+                                            {% if message.tags == 'success' %}
+                                            <i class="fas fa-check-circle fs-5 me-2 text-success"></i>
+                                            {% elif message.tags == 'error' %}
+                                            <i class="fas fa-exclamation-circle fs-5 me-2 text-danger"></i>
+                                            {% else %}
+                                            <i class="fas fa-info-circle fs-5 me-2 text-info"></i>
+                                            {% endif %}
+                                            <div>{{ message }}</div>
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
 
-                    <!-- Submit Buttons -->
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary px-4 me-2">Submit</button>
-                        <button type="reset" class="btn btn-secondary px-4">Reset</button>
-                    </div>
+                                <!-- Registration Form -->
+                                <form method="POST" class="needs-validation modern-form" novalidate>
+                                    {% csrf_token %}
 
-                    <!-- Login Link -->
-                    <div class="text-center mt-4 pt-4 border-top">
-                        <p class="mb-3">Already have an account?</p>
-                        <a href="{% url 'users:login' %}" class="btn btn-outline-primary px-4">
-                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                        </a>
+                                    <!-- Section: User Details -->
+                                    <div class="form-section mb-4">
+                                        <h5 class="section-title d-flex align-items-center mb-3">
+                                            <span class="section-badge me-2">1</span> User Details
+                                        </h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Title <span class="text-danger">*</span></label>
+                                                <select name="title" class="form-select form-control-modern" required data-bs-toggle="tooltip" title="Select your title">
+                                                    <option value="">--Select--</option>
+                                                    <option value="Mr">Mr</option>
+                                                    <option value="Ms">Ms</option>
+                                                    <option value="Dr">Dr</option>
+                                                    <option value="Prof">Prof</option>
+                                                </select>
+                                                <div class="invalid-feedback">Required.</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-user input-prefix-icon"></i>
+                                                    <input type="text" name="first_name" class="form-control form-control-modern" required>
+                                                </div>
+                                                <div class="invalid-feedback">This field is required.</div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-user input-prefix-icon"></i>
+                                                    <input type="text" name="last_name" class="form-control form-control-modern" required>
+                                                </div>
+                                                <div class="invalid-feedback">This field is required.</div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">Preferred Name <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-id-badge input-prefix-icon"></i>
+                                                    <input type="text" name="preferred_name" class="form-control form-control-modern">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section: Login Details -->
+                                    <div class="form-section mb-4">
+                                        <h5 class="section-title d-flex align-items-center mb-3">
+                                            <span class="section-badge me-2">2</span> Account Details
+                                        </h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email ID (Username) <span class="text-danger">*</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-envelope input-prefix-icon"></i>
+                                                    <input type="email" name="email" class="form-control form-control-modern" required>
+                                                </div>
+                                                <div class="invalid-feedback">A valid email is required.</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Confirm Email ID <span class="text-danger">*</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-envelope-open input-prefix-icon"></i>
+                                                    <input type="email" name="confirm_email" class="form-control form-control-modern" required>
+                                                </div>
+                                                <div class="invalid-feedback">Email confirmation is required.</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Password <span class="text-danger">*</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-lock input-prefix-icon"></i>
+                                                    <input type="password" name="password1" class="form-control form-control-modern" required
+                                                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                        data-bs-toggle="tooltip" 
+                                                        title="At least 8 chars, 1 uppercase, 1 lowercase, 1 number, and 1 special character (@$!%*?&)">
+                                                </div>
+                                                <div class="invalid-feedback">Invalid password format.</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                                <div class="input-icon-wrapper">
+                                                    <i class="fas fa-lock input-prefix-icon"></i>
+                                                    <input type="password" name="password2" class="form-control form-control-modern" required>
+                                                </div>
+                                                <div class="invalid-feedback">This field is required.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Section: Organisation Details -->
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-section h-100 mb-0">
+                                                <h5 class="section-title d-flex align-items-center mb-3">
+                                                    <span class="section-badge me-2">3</span> Professional Info
+                                                </h5>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Organisation Name <span class="text-danger">*</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fas fa-building input-prefix-icon"></i>
+                                                        <input type="text" name="organisation" class="form-control form-control-modern" required>
+                                                    </div>
+                                                    <div class="invalid-feedback">This field is required.</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Designation <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fas fa-briefcase input-prefix-icon"></i>
+                                                        <input type="text" name="designation" class="form-control form-control-modern">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Org. Website URL <span class="text-danger">*</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fas fa-globe input-prefix-icon"></i>
+                                                        <input type="url" name="organisation_url" class="form-control form-control-modern" required 
+                                                            placeholder="https://...">
+                                                    </div>
+                                                    <div class="invalid-feedback">Provide a valid URL.</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Personal Profile URL <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fas fa-link input-prefix-icon"></i>
+                                                        <input type="url" name="profile_url" class="form-control form-control-modern" placeholder="https://...">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Section: Contact Details -->
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-section h-100 mb-0">
+                                                <h5 class="section-title d-flex align-items-center mb-3">
+                                                    <span class="section-badge me-2">4</span> Contact Details
+                                                </h5>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Mobile Number <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fas fa-phone-alt input-prefix-icon"></i>
+                                                        <input type="text" name="phone" class="form-control form-control-modern" pattern="[0-9]{10}">
+                                                    </div>
+                                                    <div class="invalid-feedback">Enter a valid 10-digit number.</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">WhatsApp Number <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fab fa-whatsapp input-prefix-icon text-success"></i>
+                                                        <input type="text" name="whatsapp_number" class="form-control form-control-modern" pattern="[0-9]+">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Alternate Email <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="far fa-envelope input-prefix-icon"></i>
+                                                        <input type="email" name="alternate_email" class="form-control form-control-modern">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Communication Address <span class="text-muted small fw-normal">(Optional)</span></label>
+                                                    <textarea name="address" class="form-control form-control-modern" rows="1"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section: Captcha & Terms -->
+                                    <div class="row align-items-center form-section mt-2 pt-3 border-top">
+                                        <div class="col-md-5 mb-4 mb-md-0 captcha-group">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0 fw-bold text-dark">
+                                                    <i class="fas fa-shield-alt me-1 text-primary"></i> Verification
+                                                </label>
+                                                <button type="button" class="btn btn-sm btn-link auth-text-link p-0 fw-semibold js-captcha-refresh">
+                                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                                </button>
+                                            </div>
+                                            <div class="captcha-wrapper modern-captcha rounded p-2">
+                                                {{ form.captcha }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7 d-flex flex-column justify-content-center">
+                                            <div class="form-check custom-checkbox-modern mb-3 ps-md-4">
+                                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                                <label class="form-check-label pt-1 ms-1 text-secondary small" for="terms">
+                                                    I agree to the <a href="#" class="auth-text-link">Terms of Service</a> and <a href="#" class="auth-text-link">Privacy Policy</a> <span class="text-danger">*</span>
+                                                </label>
+                                                <div class="invalid-feedback">Agreement is required.</div>
+                                            </div>
+                                            <div class="d-flex gap-2 justify-content-md-end align-items-center flex-wrap ps-md-4">
+                                                <button type="reset" class="btn btn-light px-4 fw-semibold border text-nowrap">Reset</button>
+                                                <button type="submit" class="btn btn-primary-modern px-4 px-lg-5 text-nowrap">Submit Registration</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Left Side: Information Banner -->
+                        <div class="col-lg-4 auth-info-section text-white position-relative">
+                            <div class="auth-info-content h-100 p-4 p-md-5 d-flex flex-column">
+                                <div class="nsidc-inspired-ring mb-4 mt-auto mx-auto" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-file-signature display-5"></i>
+                                </div>
+                                <h3 class="fw-bold mb-3 text-center">Join the NPDC Network</h3>
+                                <p class="mb-4 text-white-50 text-center" style="font-size: 0.95rem; line-height: 1.6;">
+                                    Registration provides you with tools to securely submit, manage, and share your polar and ocean research datasets with the global scientific community.
+                                </p>
+                                
+                                <div class="benefits-list my-4 mx-auto" style="max-width: 300px;">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bubble-icon bg-white text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width:32px; height:32px;"><i class="fas fa-upload fs-6"></i></div>
+                                        <span class="text-white fw-medium">Submit Core Datasets</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bubble-icon bg-white text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width:32px; height:32px;"><i class="fas fa-chart-line fs-6"></i></div>
+                                        <span class="text-white fw-medium">Track Data Usage</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bubble-icon bg-white text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width:32px; height:32px;"><i class="fas fa-search fs-6"></i></div>
+                                        <span class="text-white fw-medium">Advanced Search Features</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto pt-5 border-top border-light border-opacity-25 text-center">
+                                    <p class="mb-2 fw-medium text-white-50">Already registered?</p>
+                                    <a href="{% url 'users:login' %}" class="btn btn-outline-light-modern btn-lg px-4 rounded-pill w-100">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Sign In Here
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Registration Page Styles -->
 <style>
-    .registration-card {
-        background: white;
-        border-radius: 8px;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border: 1px solid #ddd;
+    /* NSIDC / Professional Theme Base Variables & Wrapper */
+    .login-page-wrapper {
+        background-color: #f1f5f9; 
+        min-height: calc(100vh - 120px);
+        display: flex;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    .registration-header h1 {
-        color: #003366;
-        font-weight: 700;
+    .modern-auth-container {
+        display: flex;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        border-radius: 1.25rem;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
     }
 
+    .login-icon-modern {
+        width: 50px;
+        height: 50px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), 0 4px 6px rgba(29, 78, 216, 0.05);
+    }
+
+    .login-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 1.6rem;
+        letter-spacing: -0.025em;
+    }
+
+    .login-subtitle {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    /* Registration Form Specifics */
     .form-section {
-        margin-bottom: 1.5rem;
+        background: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
     }
 
     .section-title {
-        font-size: 1rem;
+        color: #0f172a;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .section-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: #0f172a;
+        color: #ffffff;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .form-label {
         font-weight: 600;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #eee;
+        color: #475569;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
-    .form-table {
-        width: 100%;
-        border-collapse: collapse;
+    .input-icon-wrapper {
+        position: relative;
     }
 
-    .form-table tr {
-        border-bottom: 1px solid #f0f0f0;
+    .input-prefix-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.95rem;
+        z-index: 5;
     }
 
-    .form-table tr:last-child {
-        border-bottom: none;
+    .form-control-modern {
+        padding-left: 2.5rem !important;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        color: #0f172a;
+        background-color: #f8fafc;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    textarea.form-control-modern {
+        padding-left: 0.75rem !important;
+    }
+    
+    select.form-control-modern {
+        padding-left: 0.75rem !important;
     }
 
-    .form-table td {
-        padding: 0.75rem 0.5rem;
-        vertical-align: top;
+    .form-control-modern:hover {
+        border-color: #94a3b8;
     }
 
-    .label-cell {
-        width: 35%;
-        font-weight: 500;
-        color: #333;
-        padding-right: 1rem;
+    .form-control-modern:focus {
+        border-color: #3b82f6;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        outline: none;
     }
 
-    .form-control,
-    .form-select {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 0.5rem 0.75rem;
+    .auth-text-link {
+        color: #2563eb;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    .auth-text-link:hover {
+        color: #1e3a8a;
+        text-decoration: underline;
     }
 
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #0066cc;
-        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+    /* Custom Checkbox */
+    .custom-checkbox-modern .form-check-input {
+        width: 1.25em;
+        height: 1.25em;
+        margin-top: 0.15em;
+        border-radius: 0.25rem;
+        border: 1.5px solid #cbd5e1;
+    }
+    .custom-checkbox-modern .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
     }
 
-    .btn-primary {
-        background-color: #0066cc;
-        border-color: #0066cc;
+    /* CAPTCHA Adjustments */
+    .modern-captcha {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.5rem;
+    }
+    .modern-captcha input[type="text"] {
+        width: 100% !important;
+        display: block;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.4rem;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+    .modern-captcha img.captcha {
+        border-radius: 0.3rem;
+        display: block;
+        max-width: 100%;
+        height: auto;
     }
 
-    .btn-primary:hover {
-        background-color: #0052a3;
-        border-color: #0052a3;
+    /* Primary Auth Button */
+    .btn-primary-modern {
+        background: #0f172a;
+        color: #ffffff;
+        border: none;
+        border-radius: 0.6rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
+    }
+    .btn-primary-modern:hover {
+        background: #1e293b;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+        color: #ffffff;
     }
 
-    @media (max-width: 768px) {
-        .label-cell {
-            width: 100%;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
+    /* Right Information Bar (NSIDC-like gradient) */
+    .auth-info-section {
+        background: linear-gradient(135deg, #0f2c59 0%, #005b9f 100%);
+        overflow: hidden;
+    }
 
-        .form-table td {
-            display: block;
-            padding: 0.5rem 0;
-        }
+    .auth-info-section::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0.08) 3px, transparent 3px),
+                          radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 5px, transparent 5px);
+        background-size: 40px 40px;
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    .auth-info-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .nsidc-inspired-ring {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        backdrop-filter: blur(4px);
+    }
+
+    .btn-outline-light-modern {
+        border: 2px solid rgba(255,255,255,0.8);
+        color: #ffffff;
+        background: transparent;
+        font-weight: 600;
+        padding: 0.8rem 1.8rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-light-modern:hover {
+        background: #ffffff;
+        color: #005b9f;
+        border-color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Validation Styles */
+    .was-validated .form-control:valid, .form-control.is-valid {
+        border-color: #10b981;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310b981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat; background-position: right calc(0.375em + 0.1875rem) center; background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    .was-validated .form-control:invalid, .form-control.is-invalid {
+        border-color: #ef4444;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat; background-position: right calc(0.375em + 0.1875rem) center; background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // CAPTCHA Refresh
+        const captchaRefreshBtns = document.querySelectorAll('.js-captcha-refresh');
+        captchaRefreshBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const wrapper = this.closest('.captcha-group') || this.closest('form');
+                const captchaImg = wrapper.querySelector('img.captcha');
+                const captchaInput = wrapper.querySelector('input[name="captcha_0"]');
+                
+                if (captchaImg && captchaInput) {
+                    fetch("{% url 'captcha-refresh' %}", {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        captchaImg.src = data.image_url;
+                        captchaInput.value = data.key;
+                    })
+                    .catch(error => console.error('Error refreshing captcha:', error));
+                }
+            });
+        });
+
         // Initialize Bootstrap Tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

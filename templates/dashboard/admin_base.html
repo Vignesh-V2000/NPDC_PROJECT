@@ -17,7 +17,16 @@
 
 <body>
 
-    <div class="d-flex">
+<style>
+    /* Add left margin to avoid overlap when sidebar is full */
+    @media (min-width: 992px) {
+        .admin-main-wrapper {
+            margin-left: 260px;
+        }
+    }
+</style>
+
+    <div class="d-flex admin-main-wrapper">
 
         <!-- Sidebar -->
         <div class="d-none d-lg-block">

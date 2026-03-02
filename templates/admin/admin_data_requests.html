@@ -2,6 +2,9 @@
 
 {% block title %}Data Requests - NPDC{% endblock %}
 
+{% block container_wrapper %}{% endblock %}
+{% block container_wrapper_end %}{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
     <div class="row">
@@ -12,66 +15,376 @@
 
         <!-- Main Content -->
         <div class="col-xl-10 col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Data Download Requests</h2>
+
+            <!-- ═══ Hero Banner ═══ -->
+            <style>
+                .datareq-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2.2rem 2rem 1.8rem;
+                    border-radius: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                    margin-bottom: 1.5rem;
+                }
+                .datareq-hero-orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(60px);
+                    opacity: 0.15;
+                    pointer-events: none;
+                }
+                .datareq-hero-orb-1 {
+                    width: 300px; height: 300px;
+                    background: #3b82f6;
+                    top: -100px; left: -50px;
+                    animation: drOrbFloat1 8s ease-in-out infinite;
+                }
+                .datareq-hero-orb-2 {
+                    width: 200px; height: 200px;
+                    background: #8b5cf6;
+                    top: -50px; right: 10%;
+                    animation: drOrbFloat2 10s ease-in-out infinite;
+                }
+                .datareq-hero-orb-3 {
+                    width: 250px; height: 250px;
+                    background: #06b6d4;
+                    bottom: -80px; right: 30%;
+                    animation: drOrbFloat1 12s ease-in-out infinite reverse;
+                }
+                @keyframes drOrbFloat1 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(20px, 15px); }
+                }
+                @keyframes drOrbFloat2 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(-15px, 20px); }
+                }
+                .datareq-hero-title {
+                    color: #ffffff;
+                    font-weight: 800;
+                    font-size: 1.6rem;
+                    letter-spacing: -0.02em;
+                    margin-bottom: 0.3rem;
+                    position: relative;
+                    z-index: 2;
+                }
+                .datareq-hero-title-icon { color: #60a5fa; }
+                .datareq-hero-sub {
+                    color: #94a3b8;
+                    font-size: 0.92rem;
+                    position: relative;
+                    z-index: 2;
+                    margin-bottom: 0;
+                }
+                .datareq-count-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    font-size: 0.78rem;
+                    color: #94a3b8;
+                    background: rgba(255,255,255,0.06);
+                    padding: 0.3rem 0.75rem;
+                    border-radius: 2rem;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    position: relative;
+                    z-index: 2;
+                }
+                .datareq-count-dot {
+                    width: 7px; height: 7px;
+                    background: #06b6d4;
+                    border-radius: 50%;
+                    animation: drCountPulse 2s ease-in-out infinite;
+                }
+                @keyframes drCountPulse {
+                    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(6,182,212,0.4); }
+                    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(6,182,212,0); }
+                }
+
+                /* Modern Table */
+                .datareq-table-card {
+                    border-radius: 0.85rem;
+                    border: 1px solid rgba(0,0,0,0.04);
+                    box-shadow: 0 8px 32px rgba(15,23,42,0.07);
+                    overflow: hidden;
+                }
+                .datareq-table-scroll {
+                    max-height: 600px;
+                    overflow-y: auto;
+                }
+                .datareq-table {
+                    margin-bottom: 0;
+                }
+                .datareq-table thead th {
+                    position: sticky;
+                    top: 0;
+                    z-index: 2;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                    color: #e2e8f0;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    letter-spacing: 0.6px;
+                    text-transform: uppercase;
+                    padding: 1rem 1.25rem;
+                    border: none;
+                    white-space: nowrap;
+                }
+                .datareq-table thead th:first-child {
+                    border-radius: 0;
+                }
+                .datareq-table thead th::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0; left: 0; right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+                }
+                .datareq-table tbody tr {
+                    transition: all 0.2s ease;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .datareq-table tbody tr:hover {
+                    background-color: #f8fafc;
+                }
+                .datareq-table tbody tr:last-child {
+                    border-bottom: none;
+                }
+                .datareq-table tbody td {
+                    padding: 1rem 1.25rem;
+                    vertical-align: top;
+                    font-size: 0.9rem;
+                    color: #334155;
+                }
+                .datareq-requester-name {
+                    font-weight: 700;
+                    color: #0f172a;
+                    font-size: 0.95rem;
+                }
+                .datareq-meta {
+                    font-size: 0.78rem;
+                    color: #64748b;
+                }
+                .datareq-meta i {
+                    width: 16px;
+                    text-align: center;
+                    color: #94a3b8;
+                }
+                .datareq-dataset-link {
+                    font-weight: 700;
+                    color: #3b82f6;
+                    text-decoration: none;
+                    transition: color 0.2s ease;
+                }
+                .datareq-dataset-link:hover {
+                    color: #1d4ed8;
+                    text-decoration: underline;
+                }
+                .datareq-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    padding: 0.3rem 0.65rem;
+                    border-radius: 2rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                }
+                .datareq-badge-expedition {
+                    background: #edf2ff;
+                    color: #1d4ed8;
+                    border: 1px solid #dbeafe;
+                }
+                .datareq-badge-year {
+                    background: #ecfdf5;
+                    color: #059669;
+                    border: 1px solid #d1fae5;
+                }
+                .datareq-location-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 28px; height: 28px;
+                    background: #eff6ff;
+                    border-radius: 6px;
+                    flex-shrink: 0;
+                }
+                .datareq-location-icon i {
+                    color: #3b82f6;
+                    font-size: 0.75rem;
+                }
+                .datareq-purpose-text {
+                    max-height: 60px;
+                    overflow-y: auto;
+                    font-size: 0.82rem;
+                    line-height: 1.5;
+                    color: #64748b;
+                }
+                .datareq-focus-tag {
+                    display: inline-block;
+                    background: #fefce8;
+                    color: #a16207;
+                    border: 1px solid #fef08a;
+                    padding: 0.15rem 0.5rem;
+                    border-radius: 0.3rem;
+                    font-size: 0.72rem;
+                    font-weight: 600;
+                }
+
+                /* Pagination */
+                .datareq-pagination .page-link {
+                    border: 1px solid #e2e8f0;
+                    color: #475569;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    padding: 0.5rem 0.85rem;
+                    transition: all 0.2s ease;
+                    border-radius: 0.5rem;
+                    margin: 0 0.15rem;
+                }
+                .datareq-pagination .page-link:hover {
+                    background: #3b82f6;
+                    border-color: #3b82f6;
+                    color: #fff;
+                    transform: translateY(-1px);
+                }
+                .datareq-pagination .page-item.active .page-link {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                    border-color: #2563eb;
+                    color: #fff;
+                    box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+                }
+                .datareq-pagination .page-item.disabled .page-link {
+                    color: #cbd5e1;
+                    background: #f8fafc;
+                }
+            </style>
+
+            <!-- Hero Banner -->
+            <div class="datareq-hero">
+                <div class="datareq-hero-orb datareq-hero-orb-1"></div>
+                <div class="datareq-hero-orb datareq-hero-orb-2"></div>
+                <div class="datareq-hero-orb datareq-hero-orb-3"></div>
+
+                <div class="text-center mb-3">
+                    <h3 class="datareq-hero-title">
+                        <i class="fas fa-download me-2 datareq-hero-title-icon"></i>Data Download Requests
+                    </h3>
+                    <p class="datareq-hero-sub">Track and monitor all dataset download requests from researchers</p>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <div class="datareq-count-pill">
+                        <span class="datareq-count-dot"></span>
+                        {{ requests.paginator.count }} total requests
+                    </div>
+                </div>
             </div>
 
             {% if messages %}
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 shadow-sm" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endfor %}
             {% endif %}
 
-            <div class="card shadow-sm border-0 rounded-3">
+            <!-- Table Card -->
+            <div class="card datareq-table-card border-0 mb-4">
                 <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                    <div class="table-responsive datareq-table-scroll">
+                        <table class="table datareq-table align-middle">
+                            <thead>
                                 <tr>
-                                    <th class="py-3 px-4 rounded-top-start w-25">Requester</th>
-                                    <th class="py-3 w-25">Dataset Requested</th>
-                                    <th class="py-3">Purpose</th>
-                                    <!-- status/actions removed; log-only view -->
+                                    <th><i class="fas fa-user me-2" style="color: #60a5fa;"></i>Requester</th>
+                                    <th><i class="fas fa-database me-2" style="color: #a78bfa;"></i>Dataset</th>
+                                    <th><i class="fas fa-globe-americas me-2" style="color: #34d399;"></i>Expedition</th>
+                                    <th><i class="fas fa-map-marker-alt me-2" style="color: #f472b6;"></i>Location</th>
+                                    <th><i class="fas fa-bullseye me-2" style="color: #fbbf24;"></i>Purpose</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for req in requests %}
                                 <tr>
-                                    <td class="px-4 py-3">
-                                        <div class="fw-bold text-dark">{{ req.first_name }} {{ req.last_name }}</div>
-                                        <div class="text-muted small">
-                                            <i class="fas fa-envelope me-1"></i>{{ req.email }}
+                                    <td>
+                                        <div class="d-flex align-items-start gap-2">
+                                            <div style="background: #e0e7ff; color: #4338ca; width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;" class="d-flex align-items-center justify-content-center fw-bold mt-1">
+                                                <i class="fas fa-user" style="font-size: 0.8rem;"></i>
+                                            </div>
+                                            <div>
+                                                <div class="datareq-requester-name">{{ req.first_name }} {{ req.last_name }}</div>
+                                                <div class="datareq-meta">
+                                                    <i class="fas fa-envelope me-1"></i>{{ req.email }}
+                                                </div>
+                                                <div class="datareq-meta">
+                                                    <i class="fas fa-university me-1"></i>{{ req.institute }}
+                                                </div>
+                                                <div class="datareq-meta">
+                                                    <i class="fas fa-flag me-1"></i>{{ req.country }}
+                                                </div>
+                                                {% if req.requester %}
+                                                <div class="datareq-meta mt-1">
+                                                    <span class="badge bg-light text-secondary border" style="font-size: 0.68rem;">
+                                                        <i class="fas fa-user-circle me-1"></i>{{ req.requester.username }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                        <div class="text-muted" style="font-size: 0.8rem;">
-                                            <i class="fas fa-university me-1"></i>{{ req.institute }} ({{ req.country }})
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'data_submission:view_submission' req.dataset.metadata_id %}" target="_blank" class="datareq-dataset-link">
+                                            {{ req.dataset.metadata_id }}
+                                        </a>
+                                        <div class="datareq-meta text-truncate mt-1" style="max-width: 220px;" title="{{ req.dataset.title }}">
+                                            {{ req.dataset.title }}
                                         </div>
-                                        {% if req.requester %}
-                                        <div class="text-muted small">Account: {{ req.requester.username }}</div>
+                                        <div class="datareq-meta mt-1">
+                                            <i class="far fa-calendar-alt me-1"></i>{{ req.request_date|date:"M d, Y" }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <span class="datareq-badge datareq-badge-expedition">
+                                                <i class="fas fa-globe-americas"></i>
+                                                {{ req.dataset.get_expedition_type_display|default:req.dataset.expedition_type|title }}
+                                            </span>
+                                            <span class="datareq-badge datareq-badge-year">
+                                                <i class="fas fa-calendar"></i>
+                                                {{ req.dataset.expedition_year }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-start gap-2">
+                                            <div class="datareq-location-icon mt-1">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-dark" style="font-size: 0.88rem;">{{ req.request_location|default:"Unknown" }}</div>
+                                                <div class="datareq-meta">
+                                                    <i class="fas fa-network-wired me-1"></i>{{ req.request_ip|default:"N/A" }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if req.research_area %}
+                                        <div class="mb-1">
+                                            <span class="datareq-focus-tag">
+                                                <i class="fas fa-crosshairs me-1"></i>{{ req.research_area }}
+                                            </span>
+                                        </div>
                                         {% endif %}
-                                    </td>
-                                    <td class="py-3">
-                                        <a href="{% url 'data_submission:view_submission' req.dataset.metadata_id %}" target="_blank" class="fw-bold text-primary text-decoration-none hover-underline">{{ req.dataset.metadata_id }}</a>
-                                        <div class="text-muted small text-truncate" style="max-width: 200px;" title="{{ req.dataset.title }}">{{ req.dataset.title }}</div>
-                                        <div class="text-muted small mt-1">
-                                            Requested: {{ req.request_date|date:"M d, Y" }}
-                                        </div>
-                                    </td>
-                                    <td class="py-3">
-                                        <div class="small text-dark mb-1"><span class="fw-bold">Focus:</span> {{ req.research_area }}</div>
-                                        <div class="small text-muted text-wrap" style="max-height: 60px; overflow-y: auto;">
+                                        <div class="datareq-purpose-text">
                                             {{ req.purpose }}
                                         </div>
                                     </td>
-
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="3" class="text-center py-5 text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 text-light"></i>
-                                        <h5>No data requests found.</h5>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block" style="color: #cbd5e1;"></i>
+                                        <h5 class="fw-bold text-secondary">No data requests found</h5>
+                                        <p class="text-muted small mb-0">When researchers request data downloads, they will appear here.</p>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -80,6 +393,54 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Pagination Controls -->
+            {% if requests.has_other_pages %}
+            <nav aria-label="Data requests pagination" class="mt-4">
+                <ul class="pagination datareq-pagination justify-content-center">
+                    {% if requests.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ requests.previous_page_number }}" aria-label="Previous">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in requests.paginator.page_range %}
+                        {% if requests.number == i %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        {% if i >= requests.number|add:"-2" and i <= requests.number|add:"2" %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if requests.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ requests.next_page_number }}" aria-label="Next">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
         </div>
     </div>
 </div>

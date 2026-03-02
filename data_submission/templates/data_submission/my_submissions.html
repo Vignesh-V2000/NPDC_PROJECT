@@ -3,161 +3,194 @@
 {% block title %}My Submissions - NPDC{% endblock %}
 
 {% block content %}
-<style>
-    .container-fluid {
-        color: #333333;
-    }
+<div class="container py-5">
     
-    .container-fluid h2,
-    .container-fluid h3,
-    .container-fluid h4,
-    .container-fluid h5 {
-        color: var(--primary-blue) !important;
-    }
-    
-    .container-fluid p,
-    .container-fluid span,
-    .container-fluid label {
-        color: #333333;
-    }
-</style>
-<div class="container-fluid py-4">
-
     <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">My Submissions</h2>
-        <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>New Submission
+    <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom border-secondary">
+        <div>
+            <h2 class="mb-1 text-white fw-bold">My Submissions</h2>
+            <p class="text-light mb-0 opacity-75">Manage your dataset submissions, drafts, and published data.</p>
+        </div>
+        <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary fw-bold shadow-sm px-4 rounded-pill" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;">
+            <i class="fas fa-plus me-2"></i> New Submission
         </a>
     </div>
 
     <!-- Saved and Incomplete Metadata -->
     <div class="mb-5">
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="5" class="fw-bold">Saved and Incomplete Metadata</th>
-                    </tr>
-                    <tr class="table-light fw-bold">
-                        <th style="width: 5%;" class="text-center">Sl No.</th>
-                        <th style="width: 50%;">Title</th>
-                        <th style="width: 15%;" class="text-center">Submitted On</th>
-                        <th style="width: 15%;" class="text-center">Updated On</th>
-                        <th style="width: 15%;" class="text-center">Dataset</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for submission in incomplete_submissions %}
-                    <tr>
-                        <td class="text-center">{{ forloop.counter }}</td>
-                        <td>{{ submission.title }}</td>
-                        <td class="text-center">
-                            <div>{{ submission.submission_date|date:"d-m-Y" }}</div>
-                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
-                                class="text-decoration-none small">Edit</a>
-                        </td>
-                        <td class="text-center">
-                            {% if submission.last_updated %}
-                            <div>{{ submission.last_updated|date:"d-m-Y" }}</div>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
-                                class="btn btn-light border btn-sm">Upload</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-3">No incomplete submissions found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <h4 class="mb-3 text-white fw-bold d-flex align-items-center">
+            <i class="fas fa-edit text-warning me-2"></i> Saved & Incomplete Drafts
+        </h4>
+        <div class="modern-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 custom-table">
+                    <thead class="bg-light text-uppercase small text-muted">
+                        <tr>
+                            <th style="width: 5%;" class="text-center py-3">#</th>
+                            <th style="width: 50%;" class="py-3">Title</th>
+                            <th style="width: 15%;" class="text-center py-3">Last Saved</th>
+                            <th style="width: 15%;" class="text-center py-3">Updated On</th>
+                            <th style="width: 15%;" class="text-center py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in incomplete_submissions %}
+                        <tr class="transition-hover">
+                            <td class="text-center text-muted fw-bold">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="d-block fw-bold text-dark mb-1">{{ submission.title|default:"Untitled Draft" }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border"><i class="far fa-calendar-alt me-1"></i> {{ submission.submission_date|date:"d M Y" }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if submission.last_updated %}
+                                <span class="text-muted small">{{ submission.last_updated|date:"d M Y" }}</span>
+                                {% else %}
+                                <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group gap-2">
+                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
+                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">Edit Draft</a>
+                                    <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
+                                        class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary">Upload</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-folder-open fa-3x text-muted opacity-25 mb-3"></i>
+                                <h6 class="text-muted fw-bold mb-1">No drafts found.</h6>
+                                <p class="text-muted small mb-0">You don't have any incomplete submissions.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- Recently Submitted and Published Metadata -->
     <div class="mb-5">
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="5" class="fw-bold">Recently Submitted and Published Metadata</th>
-                    </tr>
-                    <tr class="table-light fw-bold">
-                        <th style="width: 5%;" class="text-center">Sl No.</th>
-                        <th style="width: 50%;">Title</th>
-                        <th style="width: 15%;" class="text-center">Submitted On</th>
-                        <th style="width: 15%;" class="text-center">Updated On</th>
-                        <th style="width: 15%;" class="text-center">Dataset</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for submission in submitted_published_submissions %}
-                    <tr>
-                        <td class="text-center">{{ forloop.counter }}</td>
-                        <td>{{ submission.title }}</td>
-                        <td class="text-center">
-                            <div>{{ submission.submission_date|date:"d-m-Y" }}</div>
-                            <a href="{% url 'data_submission:view_submission' submission.metadata_id %}"
-                                class="text-decoration-none small">View</a>
-                        </td>
-                        <td class="text-center">
-                            {% if submission.can_be_updated %}
-                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
-                                class="text-decoration-none small">Update</a>
-                            {% endif %}
-
-                            {% if submission.was_updated %}
-                            <div class="text-muted small">{{ submission.last_updated|date:"d-m-Y" }}</div>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
-                                class="btn btn-light border btn-sm">Upload</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-3">No submitted or published metadata found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <h4 class="mb-3 text-white fw-bold d-flex align-items-center">
+            <i class="fas fa-check-circle text-success me-2"></i> Submitted & Published
+        </h4>
+        <div class="modern-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 custom-table">
+                    <thead class="bg-light text-uppercase small text-muted">
+                        <tr>
+                            <th style="width: 5%;" class="text-center py-3">#</th>
+                            <th style="width: 50%;" class="py-3">Title</th>
+                            <th style="width: 15%;" class="text-center py-3">Status</th>
+                            <th style="width: 15%;" class="text-center py-3">Updated On</th>
+                            <th style="width: 15%;" class="text-center py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submitted_published_submissions %}
+                        <tr class="transition-hover">
+                            <td class="text-center text-muted fw-bold">{{ forloop.counter }}</td>
+                            <td>
+                                <span class="d-block fw-bold text-dark mb-1">{{ submission.title }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border px-2 py-1"><i class="far fa-calendar-check me-1"></i> {{ submission.submission_date|date:"d M Y" }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if submission.was_updated %}
+                                <span class="text-muted small">{{ submission.last_updated|date:"d M Y" }}</span>
+                                {% else %}
+                                <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group gap-2">
+                                    <a href="{% url 'data_submission:view_submission' submission.metadata_id %}"
+                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">View</a>
+                                    
+                                    {% if submission.can_be_updated %}
+                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
+                                        class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold">Update</a>
+                                    {% endif %}
+                                    
+                                    <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
+                                        class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary">Files</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-archive fa-3x text-muted opacity-25 mb-3"></i>
+                                <h6 class="text-muted fw-bold mb-1">No completed submissions.</h6>
+                                <p class="text-muted small mb-0">Your submitted datasets will appear here.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
 </div>
 
 <style>
-    .table-secondary {
-        background-color: #d1d5db !important;
-        /* Matches the gray header in screenshot */
+    /* Modern Card Container */
+    .modern-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        overflow: hidden;
     }
 
-    .table th,
-    .table td {
+    /* Custom Table Styling */
+    .custom-table th {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .custom-table td {
+        border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
+        padding: 1.25rem 0.5rem;
     }
 
-    /* Ensure the Upload button looks cleaner */
+    .custom-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .transition-hover {
+        transition: background-color 0.2s ease;
+    }
+    .transition-hover:hover {
+        background-color: #f8fafc !important;
+    }
+
+    /* Buttons inside the table */
     .btn-light.border {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-        color: #212529;
+        background-color: #f8fafc;
+        border-color: #cbd5e1 !important;
+        color: #475569;
+        transition: all 0.2s;
     }
-
     .btn-light.border:hover {
-        background-color: #e2e6ea;
-        border-color: #dae0e5;
+        background-color: #e2e8f0;
+        color: #0f172a;
     }
 
-    a.small {
-        font-size: 0.85rem;
-        display: block;
-        /* ensure it sits on its own line */
-        margin-top: 2px;
+    .badge.bg-light.text-dark {
+        background-color: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+        color: #334155 !important;
+        font-weight: 600;
     }
 </style>
 {% endblock %}

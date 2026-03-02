@@ -1,59 +1,69 @@
 <!-- Admin Sidebar Navigation -->
-<div class="card border-0 shadow-sm rounded-3 admin-sidebar {% if is_full_sidebar %}sidebar-full{% endif %}">
-    <div class="card-body p-4 d-flex flex-column h-100">
-        <div class="sidebar-header mb-4 pb-3 border-bottom">
-            <h5 class="mb-0 text-dark fw-bold">
-                <i class="fas fa-user-shield me-2 text-primary"></i>Admin Panel
+<div class="admin-sidebar h-100">
+    <div class="sidebar-inner h-100 d-flex flex-column">
+        <div class="sidebar-header mb-4 pb-3">
+            <h5 class="mb-0 text-white fw-bold d-flex align-items-center">
+                <div class="header-icon-box me-3">
+                    <i class="fas fa-layer-group text-white"></i>
+                </div>
+                Admin Panel
             </h5>
         </div>
         
         <nav class="sidebar-nav flex-grow-1">
             <ul class="nav flex-column gap-2">
                 <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'admin_dashboard' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                    <a class="nav-link color-blue fw-semibold {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
                         href="{% url 'data_submission:admin_dashboard' %}">
-                        <i class="fas fa-tachometer-alt me-2 {% if request.resolver_match.url_name != 'admin_dashboard' %}text-muted{% endif %}" style="width:20px;"></i>Dashboard
+                        <i class="fas fa-fw fa-tachometer-alt me-3 icon-fixed"></i>Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'all_submissions' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                    <a class="nav-link color-purple fw-semibold {% if request.resolver_match.url_name == 'all_submissions' %}active{% endif %}"
                         href="{% url 'data_submission:all_submissions' %}">
-                        <i class="fas fa-database me-2 {% if request.resolver_match.url_name != 'all_submissions' %}text-muted{% endif %}" style="width:20px;"></i>All Datasets
+                        <i class="fas fa-fw fa-database me-3 icon-fixed"></i>All Datasets
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'review_submissions' or request.resolver_match.url_name == 'review_submission_detail' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                    <a class="nav-link color-orange fw-semibold {% if request.resolver_match.url_name == 'review_submissions' or request.resolver_match.url_name == 'review_submission_detail' %}active{% endif %}"
                         href="{% url 'data_submission:review_submissions' %}">
-                        <i class="fas fa-clipboard-check me-2 {% if request.resolver_match.url_name != 'review_submissions' and request.resolver_match.url_name != 'review_submission_detail' %}text-muted{% endif %}" style="width:20px;"></i>Review Queue
+                        <i class="fas fa-fw fa-clipboard-check me-3 icon-fixed"></i>Review Queue
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'admin_data_requests' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                    <a class="nav-link color-teal fw-semibold {% if request.resolver_match.url_name == 'admin_data_requests' %}active{% endif %}"
                         href="{% url 'data_submission:admin_data_requests' %}">
-                        <i class="fas fa-file-download me-2 {% if request.resolver_match.url_name != 'admin_data_requests' %}text-muted{% endif %}" style="width:20px;"></i>Data Requests
+                        <i class="fas fa-fw fa-file-download me-3 icon-fixed"></i>Data Requests
                     </a>
                 </li>
+
                 {% if request.user.is_superuser %}
-                <div class="text-uppercase text-muted fw-bold small mt-3 mb-2 px-2" style="font-size: 0.70rem; letter-spacing: 1px;">Access Management</div>
+                <div class="nav-heading mt-4 mb-2">Access Management</div>
                 <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                    <a class="nav-link color-indigo fw-semibold {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active{% endif %}"
                         href="{% url 'users:user_approval_dashboard' %}">
-                        <i class="fas fa-users-cog me-2 {% if request.resolver_match.url_name != 'user_approval_dashboard' %}text-muted{% endif %}" style="width:20px;"></i>User Approvals
+                        <i class="fas fa-fw fa-users-cog me-3 icon-fixed"></i>User Approvals
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 fw-semibold transition-all {% if request.resolver_match.url_name == 'admin_create_user' %}active bg-primary text-white shadow-sm{% else %}text-secondary hover-bg-light{% endif %}"
+                    <a class="nav-link color-pink fw-semibold {% if request.resolver_match.url_name == 'admin_create_user' %}active{% endif %}"
                         href="{% url 'users:admin_create_user' %}">
-                        <i class="fas fa-user-plus me-2 {% if request.resolver_match.url_name != 'admin_create_user' %}text-muted{% endif %}" style="width:20px;"></i>Create Admin
+                        <i class="fas fa-fw fa-user-shield me-3 icon-fixed"></i>Create Admin
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-slate fw-semibold {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}"
+                        href="{% url 'activity_logs:system_logs' %}">
+                        <i class="fas fa-fw fa-server me-3 icon-fixed"></i>System Log
                     </a>
                 </li>
                 {% endif %}
             </ul>
         </nav>
         
-        <div class="sidebar-footer mt-4 pt-4 border-top">
-            <a href="{% url 'users:home' %}" class="btn btn-light w-100 fw-semibold text-muted border transition-all hover-bg-light">
-                <i class="fas fa-arrow-left me-2"></i>Exit to Main Site
+        <div class="sidebar-footer mt-4 pt-4">
+            <a href="{% url 'users:home' %}" class="btn btn-exit w-100 fw-semibold transition-all d-flex align-items-center justify-content-center">
+                <i class="fas fa-sign-out-alt me-2"></i>Exit to Main Site
             </a>
         </div>
     </div>
@@ -62,48 +72,162 @@
 <style>
     /* Admin Sidebar Layout Options */
     .admin-sidebar {
+        background: linear-gradient(145deg, #0f172a 0%, #020617 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08); /* Faint white border for contrast */
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); /* Deeper shadow */
         position: sticky;
-        top: 100px;
+        top: 1.5rem;
     }
 
-    /* Full Sidebar Variant */
-    .admin-sidebar.sidebar-full {
-        min-height: 100vh;
-        border-radius: 0 !important;
-        position: fixed;
+    /* Custom Scrollbar for Sidebar */
+    .admin-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .admin-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .admin-sidebar::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    .sidebar-inner {
+        padding: 1.5rem 1rem;
+    }
+
+    /* Header styling */
+    .sidebar-header {
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        position: sticky;
         top: 0;
-        left: 0;
-        width: 260px;
-        z-index: 1000;
-        margin: 0;
-        border-right: 1px solid #dee2e6 !important;
-        box-shadow: none !important;
+        background: inherit;
+        z-index: 10;
+        padding-top: 0.5rem;
     }
 
-    /* Transition classes */
-    .transition-all {
-        transition: all 0.2s ease-in-out;
+    .header-icon-box {
+        width: 38px;
+        height: 38px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     }
 
-    .hover-bg-light:hover {
-        background-color: #f8f9fa !important;
-        color: #000 !important;
+    /* Nav Headings */
+    .nav-heading {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #64748b; /* Slightly muted slate */
+        padding-left: 0.5rem;
+    }
+
+    /* Modern Multi-Color Nav Links */
+    .sidebar-nav .nav-link {
+        color: #94a3b8; /* Lighter slate for text */
+        border-radius: 12px;
+        padding: 0.85rem 0.85rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid transparent;
+        background: transparent;
+        white-space: nowrap;
+    }
+
+    .icon-fixed {
+        font-size: 1.15rem;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        width: 32px !important;
+        height: 32px;
+        margin-right: 10px !important;
+        background: rgba(255, 255, 255, 0.05); /* very faint white background */
+        flex-shrink: 0;
+    }
+
+    /* Color definitions (tweaked for dark mode visibility) */
+    .color-blue { --theme-color: #60a5fa; --theme-bg: rgba(59, 130, 246, 0.15); --theme-glass: rgba(59, 130, 246, 0.1); }
+    .color-purple { --theme-color: #a78bfa; --theme-bg: rgba(139, 92, 246, 0.15); --theme-glass: rgba(139, 92, 246, 0.1); }
+    .color-orange { --theme-color: #fb923c; --theme-bg: rgba(249, 115, 22, 0.15); --theme-glass: rgba(249, 115, 22, 0.1); }
+    .color-teal { --theme-color: #2dd4bf; --theme-bg: rgba(20, 184, 166, 0.15); --theme-glass: rgba(20, 184, 166, 0.1); }
+    .color-indigo { --theme-color: #818cf8; --theme-bg: rgba(99, 102, 241, 0.15); --theme-glass: rgba(99, 102, 241, 0.1); }
+    .color-pink { --theme-color: #f472b6; --theme-bg: rgba(236, 72, 153, 0.15); --theme-glass: rgba(236, 72, 153, 0.1); }
+    .color-slate { --theme-color: #cbd5e1; --theme-bg: rgba(148, 163, 184, 0.15); --theme-glass: rgba(148, 163, 184, 0.1); }
+
+    /* Hover State */
+    .sidebar-nav .nav-link:hover {
+        background: var(--theme-glass);
+        color: var(--theme-color);
+        transform: translateX(4px);
     }
     
-    .nav-link.hover-bg-light:hover i.text-muted {
-        color: #495057 !important;
+    .sidebar-nav .nav-link:hover .icon-fixed {
+        color: var(--theme-color);
+        background: var(--theme-bg);
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    /* Active State */
+    .sidebar-nav .nav-link.active {
+        background: var(--theme-bg);
+        color: var(--theme-color);
+        border: 1px solid var(--theme-glass);
+        box-shadow: 0 4px 15px var(--theme-glass);
+    }
+
+    .sidebar-nav .nav-link.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 15%;
+        height: 70%;
+        width: 4px;
+        background: var(--theme-color);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar-nav .nav-link.active .icon-fixed {
+        background: var(--theme-color);
+        color: #0f172a; /* Dark text on bright active icon */
+        box-shadow: 0 4px 10px var(--theme-glass);
+    }
+
+    /* Footer Exit Button */
+    .sidebar-footer {
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-exit {
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 0.8rem;
+    }
+
+    .btn-exit:hover {
+        background: rgba(239, 68, 68, 0.15); /* Red tint */
+        color: #ef4444; /* bright red */
+        border-color: rgba(239, 68, 68, 0.3);
     }
 
     /* Responsive adjustments */
     @media (max-width: 991px) {
         .admin-sidebar {
-            position: static;
             margin-bottom: 2rem;
-        }
-        .admin-sidebar.sidebar-full {
-            position: relative;
-            width: 100%;
-            min-height: auto;
         }
     }
 </style>

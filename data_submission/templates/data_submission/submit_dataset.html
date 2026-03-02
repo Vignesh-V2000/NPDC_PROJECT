@@ -54,11 +54,375 @@
     .alert {
         color: #333333;
     }
+
+    /* ═══ Modern Hero Banner ═══ */
+    .dsf-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        padding: 2rem 2rem 1.5rem;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .dsf-hero-orb {
+        position: absolute; border-radius: 50%;
+        filter: blur(60px); opacity: 0.25; pointer-events: none;
+    }
+    .dsf-hero-orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; left: -50px; animation: dsfOrb1 8s ease-in-out infinite; }
+    .dsf-hero-orb-2 { width: 200px; height: 200px; background: #8b5cf6; top: -50px; right: 10%; animation: dsfOrb2 10s ease-in-out infinite; }
+    .dsf-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: dsfOrb1 12s ease-in-out infinite reverse; }
+    @keyframes dsfOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
+    @keyframes dsfOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
+    .dsf-hero-title { color:#fff; font-weight:800; font-size:1.55rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
+    .dsf-hero-title i { color:#60a5fa; }
+    .dsf-hero-sub { color:#e2e8f0 !important; font-size:0.95rem; position:relative; z-index:2; margin-bottom:0; }
+    .dsf-step-pill { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.82rem; font-weight:600; color:#e2e8f0 !important; background:rgba(255,255,255,0.1); padding:0.35rem 0.85rem; border-radius:2rem; border:1px solid rgba(255,255,255,0.15); position:relative; z-index:2; }
+    .dsf-step-dot { width:7px; height:7px; background:#3b82f6; border-radius:50%; animation: dsfPulse 2s ease-in-out infinite; }
+    @keyframes dsfPulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(59,130,246,0.4)} 50%{opacity:0.8;box-shadow:0 0 0 4px rgba(59,130,246,0)} }
+
+    /* ═══ Modern Form Card ═══ */
+    .submission-container .card.shadow-sm {
+        border-radius: 0.85rem !important;
+        border: 1px solid rgba(0,0,0,0.04) !important;
+        box-shadow: 0 6px 24px rgba(15,23,42,0.06) !important;
+    }
+
+    /* ═══ Modern Fieldset Styling ═══ */
+    .submission-container fieldset {
+        border: none !important;
+        background: #fff;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+        padding: 1.5rem !important;
+        margin-bottom: 1.25rem !important;
+        border-left: 4px solid #3b82f6 !important;
+    }
+    .submission-container fieldset legend {
+        font-weight: 700 !important;
+        font-size: 0.92rem !important;
+        color: #1e293b !important;
+        background: transparent !important;
+        padding: 0 0.5rem 0 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .submission-container fieldset:nth-child(even) {
+        border-left-color: #8b5cf6 !important;
+    }
+    .submission-container fieldset:nth-child(3n) {
+        border-left-color: #06b6d4 !important;
+    }
+    .submission-container fieldset:nth-child(4n) {
+        border-left-color: #f59e0b !important;
+    }
+    .submission-container fieldset:nth-child(5n) {
+        border-left-color: #10b981 !important;
+    }
+
+    /* ═══ Modern Form Inputs ═══ */
+    .submission-container .form-control,
+    .submission-container .form-select {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.88rem;
+        transition: all 0.2s ease;
+    }
+    .submission-container .form-control:focus,
+    .submission-container .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+
+    /* ═══ Modern Submit Buttons ═══ */
+    .submission-container .btn-primary.btn-lg {
+        background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+        border: none !important;
+        font-weight: 700;
+        border-radius: 0.6rem;
+        box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+        transition: all 0.25s ease;
+    }
+    .submission-container .btn-primary.btn-lg:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+    }
+    .submission-container .btn-outline-info.btn-lg {
+        border: 2px solid #06b6d4 !important;
+        color: #06b6d4 !important;
+        font-weight: 700;
+        border-radius: 0.6rem;
+        transition: all 0.2s ease;
+    }
+    .submission-container .btn-outline-info.btn-lg:hover {
+        background: #06b6d4 !important;
+        color: #fff !important;
+    }
+    .submission-container .btn-outline-secondary.btn-lg {
+        border: 2px solid #e2e8f0 !important;
+        color: #64748b !important;
+        font-weight: 700;
+        border-radius: 0.6rem;
+        transition: all 0.2s ease;
+    }
+    .submission-container .btn-outline-secondary.btn-lg:hover {
+        background: #f1f5f9 !important;
+        color: #334155 !important;
+    }
+
+    /* ═══ AI Quick Start Panel Modernized ═══ */
+    .submission-container #ai-quickstart-panel {
+        border: none !important;
+        border-radius: 0.75rem !important;
+        background: linear-gradient(135deg, #eff6ff, #f0fdf4) !important;
+        box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+    }
+    .submission-container #ai-quickstart-panel .card-header {
+        background: transparent !important;
+        border-bottom: 2px solid #bfdbfe !important;
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+    }
+
+    /* ═══ Scientist Cards ═══ */
+    .submission-container .card.bg-light {
+        border-radius: 0.65rem !important;
+        border-left: 3px solid #8b5cf6 !important;
+        background: #fafbfd !important;
+    }
+    .submission-container .card.bg-light h6.text-muted {
+        color: #4338ca !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* ═══ Expedition Type Radio Cards ═══ */
+    .submission-container .form-check {
+        position: relative;
+    }
+    .submission-container .mb-4.row .d-flex.flex-wrap {
+        display: flex !important;
+        gap: 0.75rem !important;
+    }
+    .submission-container .mb-4.row .form-check {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.6rem;
+        padding: 0.65rem 1.25rem;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        flex: 1 1 0;
+        text-align: center;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .submission-container .mb-4.row .form-check:hover {
+        border-color: #93c5fd;
+        background: #eff6ff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59,130,246,0.1);
+    }
+    .submission-container .mb-4.row .form-check-input:checked ~ .form-check-label {
+        color: #1d4ed8 !important;
+        font-weight: 700 !important;
+    }
+    .submission-container .mb-4.row .form-check:has(.form-check-input:checked) {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+    }
+    .submission-container .form-check-label {
+        cursor: pointer;
+        font-weight: 600 !important;
+        font-size: 0.88rem;
+        color: #475569;
+    }
+
+    /* ═══ Enhanced Fieldset Hover ═══ */
+    .submission-container fieldset {
+        transition: all 0.25s ease;
+    }
+    .submission-container fieldset:hover {
+        box-shadow: 0 4px 20px rgba(15,23,42,0.08);
+        transform: translateY(-1px);
+    }
+
+    /* ═══ GPS Coordinate Labels ═══ */
+    .submission-container .col-md-2 > .col-form-label,
+    .submission-container .col-md-2 > label.col-form-label {
+        font-size: 0.82rem !important;
+        color: #475569 !important;
+        font-weight: 600 !important;
+    }
+    .submission-container .col-md-1.text-end {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        background: #f1f5f9;
+        border-radius: 0.3rem;
+        padding: 0.35rem 0.25rem;
+        align-self: center;
+        text-align: center !important;
+    }
+
+    /* ═══ Sub-section Headers (h6) ═══ */
+    .submission-container h6.text-muted {
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #475569 !important;
+        letter-spacing: 0.3px;
+    }
+    .submission-container h6.fw-bold.fs-6 {
+        font-size: 0.88rem !important;
+        color: #1e293b !important;
+        font-weight: 800 !important;
+        padding: 0.5rem 0.85rem;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        border-radius: 0.4rem;
+        display: inline-block;
+        margin-bottom: 1rem !important;
+    }
+
+    /* ═══ AI Buttons (small inline) ═══ */
+    .submission-container .btn-outline-info.btn-sm {
+        border-radius: 2rem !important;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        padding: 0.3rem 0.85rem !important;
+        border: 1.5px solid #06b6d4 !important;
+        color: #0891b2 !important;
+        transition: all 0.2s ease;
+    }
+    .submission-container .btn-outline-info.btn-sm:hover {
+        background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+        color: #fff !important;
+        border-color: #0891b2 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(6,182,212,0.25);
+    }
+
+    /* ═══ Add Scientist / Instrument Buttons ═══ */
+    .submission-container .btn-outline-primary.btn-sm,
+    .submission-container .btn-outline-primary.mt-2 {
+        border-radius: 0.5rem !important;
+        font-weight: 700 !important;
+        border: 2px solid #3b82f6 !important;
+        color: #2563eb !important;
+        transition: all 0.2s ease;
+    }
+    .submission-container .btn-outline-primary.btn-sm:hover,
+    .submission-container .btn-outline-primary.mt-2:hover {
+        background: #3b82f6 !important;
+        color: #fff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(59,130,246,0.2);
+    }
+
+    /* ═══ Form Footer Buttons ═══ */
+    .submission-container .d-flex.justify-content-end {
+        background: linear-gradient(180deg, transparent, #f8fafc);
+        padding: 1.5rem 0 0;
+        margin-top: 1rem;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    /* ═══ Alert Modernization ═══ */
+    .submission-container .alert-danger {
+        border: none !important;
+        border-left: 4px solid #ef4444 !important;
+        border-radius: 0.65rem !important;
+        background: #fef2f2 !important;
+        color: #991b1b !important;
+    }
+    .submission-container .alert-danger h5 {
+        color: #dc2626 !important;
+    }
+    .submission-container .alert-info {
+        border: none !important;
+        border-left: 4px solid #3b82f6 !important;
+        border-radius: 0.65rem !important;
+        background: #eff6ff !important;
+    }
+
+    /* ═══ Delete Scientist Button ═══ */
+    .submission-container .btn-outline-danger.position-absolute {
+        border-radius: 0.4rem !important;
+        font-weight: 700 !important;
+        border: 1.5px solid #fca5a5 !important;
+        color: #dc2626 !important;
+        background: #fef2f2 !important;
+        transition: all 0.2s ease;
+    }
+    .submission-container .btn-outline-danger.position-absolute:hover {
+        background: #ef4444 !important;
+        color: #fff !important;
+        border-color: #ef4444 !important;
+    }
+
+    /* ═══ Crispy Field Label Enhancement ═══ */
+    .submission-container .asteriskField {
+        color: #ef4444 !important;
+        font-size: 0.9rem;
+    }
+
+    /* ═══ Section Divider Lines ═══ */
+    .submission-container fieldset + fieldset::before {
+        content: '';
+        display: block;
+        height: 0;
+    }
+
+    /* ═══ Form Control Sizes ═══ */
+    .submission-container textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* ═══ Radio/Checkbox Modernization ═══ */
+    .submission-container .form-check-input {
+        border: 2px solid #cbd5e1;
+        width: 1.1rem;
+        height: 1.1rem;
+        transition: all 0.2s ease;
+    }
+    .submission-container .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    .submission-container .form-check-input:focus {
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    /* ═══ Select2/Dropdown Enhancement ═══ */
+    .submission-container select.form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    }
+
+    /* ═══ Progress Circle Dark Mode Fix ═══ */
+    .floating-progress-panel .progress-circle::before {
+        background: rgba(0,82,204,0.95) !important;
+    }
 </style>
 <div class="container submission-container py-4">
+    <!-- ═══ Hero Banner ═══ -->
+    <div class="dsf-hero text-center mb-4">
+        <div class="dsf-hero-orb dsf-hero-orb-1"></div>
+        <div class="dsf-hero-orb dsf-hero-orb-2"></div>
+        <div class="dsf-hero-orb dsf-hero-orb-3"></div>
+        <h2 class="dsf-hero-title" style="color:#fff !important;"><i class="fas fa-database me-2"></i>Submit New Dataset</h2>
+        <p class="dsf-hero-sub">Fill in the metadata details for your polar research dataset</p>
+        <div class="dsf-step-pill mt-2">
+            <span class="dsf-step-dot"></span>
+            Step 1 of 2 — Metadata Entry
+        </div>
+    </div>
+
     <div class="card shadow-sm border-0">
-        <div class="card-body p-5">
-            <h2 class="mb-4 text-secondary fw-bold">Submit New Dataset</h2>
+        <div class="card-body p-4 p-lg-5">
 
             <!-- Main Form -->
             <form method="post" enctype="multipart/form-data" id="datasetForm" class="needs-validation" novalidate>

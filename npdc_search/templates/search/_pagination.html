@@ -1,12 +1,49 @@
 {% if page_obj.paginator.num_pages > 1 %}
 <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link pagination-link" href="#"
-                                data-page="{{ page_obj.previous_page_number }}">Prev</a></li>{% endif %}
-                <li class="page-item disabled"><span class="page-link">{{ page_obj.number }}/{{
-                                page_obj.paginator.num_pages }}</span></li>
-                {% if page_obj.has_next %}<li class="page-item"><a class="page-link pagination-link" href="#"
-                                data-page="{{ page_obj.next_page_number }}">Next</a></li>{% endif %}
-        </ul>
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link pagination-link" href="#" data-page="{{ page_obj.previous_page_number }}">
+                <i class="fas fa-chevron-left me-1"></i>Prev
+            </a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link pagination-link" href="#" data-page="{{ page_obj.next_page_number }}">
+                Next<i class="fas fa-chevron-right ms-1"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
 </nav>
+
+<style>
+    .pagination .page-link {
+        border: 1.5px solid #e2e8f0;
+        color: #334155;
+        font-weight: 600;
+        font-size: 0.88rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem !important;
+        margin: 0 0.2rem;
+        transition: all 0.2s ease;
+    }
+
+    .pagination .page-item:not(.disabled) .page-link:hover {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #1d4ed8;
+        transform: translateY(-1px);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 700;
+    }
+</style>
 {% endif %}

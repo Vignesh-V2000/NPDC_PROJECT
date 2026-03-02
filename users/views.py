@@ -200,10 +200,20 @@ def profile(request):
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
+    # Get dataset count for the user
+    user_submissions = DatasetSubmission.objects.filter(submitter=request.user)
+    published_datasets_count = user_submissions.filter(status='published').count()
+    verified_datasets_count = user_submissions.filter(status__in=['published', 'approved']).count()
+
     return render(
         request,
         'users/profile.html',
-        {'u_form': u_form, 'p_form': p_form}
+        {
+            'u_form': u_form, 
+            'p_form': p_form,
+            'published_datasets_count': published_datasets_count,
+            'verified_datasets_count': verified_datasets_count
+        }
     )
 
 
@@ -284,16 +294,23 @@ def admin_create_user(request):
                     "existing_admins": existing_admins
                 })
             
-            # Create user
-            user = User.objects.create_user(
+            # Create user (or get existing)
+            user, created = User.objects.get_or_create(
                 username=email,
-                email=email,
-                password=password1,
-                first_name="Admin",  # Default for admin
-                last_name="User",    # Default for admin
-                is_active=True
+                defaults={
+                    'email': email,
+                    'password': password1,
+                    'first_name': "Admin",
+                    'last_name': "User",
+                    'is_active': True
+                }
             )
-
+            
+            # If user was just created, set the password properly
+            if created:
+                user.set_password(password1)
+                user.save()
+            
             # Set staff status if made an admin
             if expedition_admin_type:
                 user.is_staff = True
@@ -862,12 +879,14 @@ def reset_password_confirm(request):
 
             if legacy:
                 name_parts = (legacy.user_name or 'NPDC User').split()
-                user = User.objects.create_user(
+                user, created = User.objects.get_or_create(
                     username=email,
-                    email=email,
-                    first_name=name_parts[0],
-                    last_name=' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
-                    is_active=True,
+                    defaults={
+                        'email': email,
+                        'first_name': name_parts[0],
+                        'last_name': ' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
+                        'is_active': True,
+                    }
                 )
                 profile_title = {'mr': 'Mr', 'ms': 'Ms', 'dr': 'Dr', 'prof': 'Prof'}.get(
                     (legacy.title or '').strip().lower().rstrip('.'), 'Mr'
@@ -1254,37 +1273,37 @@ def station_detail(request, station_name):
     # Static lookup for station mock details
     station_details = {
         'maitri': {
-            'name': 'Maitri',
-            'location': 'Schirmacher Oasis, Antarctica',
-            'description': 'Maitri is India\'s second permanent research station in Antarctica. Replace this text with accurate mock data later.',
-            'facilities': 'Scientific laboratories, earth station, living quarters.',
+            'name': 'Maitri (Friendship Research Centre)',
+            'location': 'Schirmacher Oasis, Queen Maud Land, East Antarctica',
+            'description': 'Established in 1989, Maitri is India\'s second permanent research station in Antarctica. Situated on an ice-free rocky plateau, it serves as a self-sustaining base capable of year-round operations. Water is supplied by the nearby Lake Priyadarshini. The station facilitates research in geology, glaciology, atmospheric sciences, and microbiology.',
+            'facilities': 'Living quarters for 25-70 personnel, scientific laboratories, satellite communication center, medical facilities, snow vehicles, and a water filtration system.',
             'image': 'images/stations/Maitri.jpg'
         },
         'bharati': {
             'name': 'Bharati',
-            'location': 'Larsemann Hills, Antarctica',
-            'description': 'Bharati is India\'s third Antarctic research facility. Replace this text with accurate mock data later.',
-            'facilities': 'Oceanography and continental physics labs.',
+            'location': 'Larsemann Hills, East Antarctica',
+            'description': 'Commissioned in 2012, Bharati is India\'s third Antarctic research facility. It is a state-of-the-art station constructed using 134 recycled shipping containers designed to withstand extreme coastal Antarctic conditions. It focuses on oceanographic studies and understanding the geological history of the Indian subcontinent\'s continental breakup.',
+            'facilities': 'Accommodates 47-72 personnel, oceanography and continental physics labs, automated heating/AC, satellite communication modules, and the Antarctica Ground Station for Earth Observation Satellites (AGEOS).',
             'image': 'images/stations/Bharati.jpg'
         },
         'svalbard': {
-            'name': 'Himadri (Svalbard)',
-            'location': 'Ny-Ålesund, Svalbard',
-            'description': 'Himadri is India\'s first permanent Arctic research station. Replace this text with accurate mock data later.',
-            'facilities': 'Laboratories for glaciology and atmospheric research.',
+            'name': 'Himadri',
+            'location': 'Ny-Ålesund, Spitsbergen, Svalbard, Norway',
+            'description': 'Inaugurated in 2008, Himadri is India\'s first permanent Arctic research station. Located near the North Pole, it shifted to year-round operations in 2023-2024 to study phenomena during the polar nights. Research focuses on aerosol radiation, space weather, fjord dynamics, microbial communities, and glaciology.',
+            'facilities': 'Accommodates up to eight scientists, offering living space, workspaces, computer rooms, and access to the nearby Gruvebadet Observatory for atmospheric data collection.',
             'image': 'images/stations/Svalbard.jpg'
         },
         'himansh': {
             'name': 'Himansh',
-            'location': 'Spiti, Himachal Pradesh',
-            'description': 'Himansh is India\'s high-altitude remote research station in the Himalayas. Replace this text with accurate mock data later.',
-            'facilities': 'Glaciological research equipment and automatic weather station.',
+            'location': 'Sutri Dhaka, Chandra Basin, Spiti Valley, Himachal Pradesh (Altitude: 4,080m)',
+            'description': 'Unveiled in 2016, Himansh is India\'s high-altitude remote research station in the Himalayas ("Water Tower of Asia"). Its primary objective is to monitor and study the dynamics and mass balance of Himalayan glaciers, which impact the hydrology and sustainable water supply for major river systems.',
+            'facilities': 'Accommodation for eight people, laboratory unit, automatic weather stations, water level recorders, ground-penetrating radars, geodetic GPS, and satellite phone terminals.',
             'image': 'images/stations/Himansh.jpg'
         },
         'sagar-nidhi': {
             'name': 'Sagar Nidhi',
             'location': 'Southern Ocean',
-            'description': 'Sagar Nidhi is an oceanographic research vessel. Replace this text with accurate mock data later.',
+            'description': 'Sagar Nidhi is an oceanographic research vessel playing a critical role in India\'s polar and marine science programs.',
             'facilities': 'Ocean monitoring, remote sensing, and underwater robotics.',
             'image': 'images/stations/Sagar_Nidhi.jpg'
         },

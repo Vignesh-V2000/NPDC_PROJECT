@@ -1,90 +1,78 @@
 {% extends "base.html" %}
 
-{% block content %}
-<style>
-    .submission-container {
-        color: #333333;
-    }
-    
-    .submission-container h2,
-    .submission-container h3,
-    .submission-container h4,
-    .submission-container h5,
-    .submission-container h6 {
-        color: var(--primary-blue) !important;
-    }
-    
-    .submission-container p,
-    .submission-container span,
-    .submission-container label {
-        color: #333333;
-    }
-</style>
-
 {% block title %}Preview Dataset - NPDC{% endblock %}
 
-<div class="container submission-container py-5">
+{% block content %}
+<div class="container py-5">
     <div class="row justify-content-center">
         <!-- Main Content -->
         <div class="col-lg-10">
             <!-- Header -->
-            <div class="mb-4 text-center">
-                <span class="badge bg-info text-dark mb-2">PREVIEW MODE</span>
-                <h1 class="display-6 fw-bold">Preview Your Submission</h1>
-                <p class="text-muted">Review your metadata before proceeding to file upload.</p>
+            <div class="mb-5 text-center">
+                <span class="badge bg-info text-dark mb-3 px-3 py-2 rounded-pill shadow-sm fw-bold border" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd) !important; border-color: #7dd3fc !important;">PREVIEW MODE</span>
+                <h1 class="display-6 fw-bold text-dark mb-2">Preview Your Submission</h1>
+                <p class="text-muted fs-5">Review your metadata carefully before proceeding to file upload.</p>
             </div>
 
-            <div class="card shadow-sm mb-5">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ dataset.title }}</h5>
+            <div class="modern-card mb-5">
+                <div class="card-header bg-white border-bottom py-4 px-4 px-md-5 d-flex align-items-center">
+                    <div class="icon-box bg-primary-light text-primary me-3 rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: #eff6ff; color: #2563eb;">
+                        <i class="fas fa-database fs-4"></i>
+                    </div>
+                    <h4 class="mb-0 fw-bold text-dark">{{ dataset.title }}</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4 p-md-5">
 
                     <!-- Quick Meta -->
-                    <div class="row mb-4">
+                    <div class="row g-4 mb-5 pb-4 border-bottom">
                         <div class="col-md-4">
-                            <strong><i class="fas fa-tag me-1"></i> Category:</strong><br>
-                            {{ dataset.get_category_display }}
+                            <div class="p-3 bg-light rounded-3 h-100 border">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="fas fa-tag me-2 text-primary"></i>Category</h6>
+                                <p class="mb-0 fw-bold text-dark">{{ dataset.get_category_display }}</p>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <strong><i class="fas fa-calendar me-1"></i> Dates:</strong><br>
-                            {{ dataset.temporal_start_date }} to {{ dataset.temporal_end_date }}
+                            <div class="p-3 bg-light rounded-3 h-100 border">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="fas fa-calendar me-2 text-warning"></i>Dates</h6>
+                                <p class="mb-0 fw-bold text-dark">{{ dataset.temporal_start_date }} to {{ dataset.temporal_end_date }}</p>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <strong><i class="fas fa-map-marker-alt me-1"></i> Location:</strong><br>
-                            {{ dataset.location.get_location_category_display }}
+                            <div class="p-3 bg-light rounded-3 h-100 border">
+                                <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="fas fa-map-marker-alt me-2 text-success"></i>Location</h6>
+                                <p class="mb-0 fw-bold text-dark">{{ dataset.location.get_location_category_display }}</p>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Abstract -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold text-secondary">Abstract</h6>
-                        <div class="p-3 bg-light rounded border">
+                    <div class="mb-5">
+                        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center"><i class="fas fa-align-left text-muted me-2"></i> Abstract</h5>
+                        <div class="p-4 bg-light rounded-3 border text-dark lh-lg" style="font-size: 1.05rem;">
                             {{ dataset.abstract|linebreaks }}
                         </div>
                     </div>
 
-                    <div class="row g-4">
+                    <div class="row g-5">
                         <!-- Left Col -->
                         <div class="col-md-6">
                             <!-- Topic & ISO -->
-                            <div class="mb-3">
-                                <h6 class="fw-bold text-secondary">Topic Info</h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>Topic:</strong> {{ dataset.topic }}</li>
-                                    <li><strong>ISO Topic:</strong> {{ dataset.get_iso_topic_display }}</li>
-                                    <li><strong>Keywords:</strong> {{ dataset.keywords }}</li>
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Topic Info</h5>
+                                <ul class="list-unstyled custom-list text-dark">
+                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Topic:</span> <span class="fw-medium">{{ dataset.topic }}</span></li>
+                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">ISO Topic:</span> <span class="fw-medium">{{ dataset.get_iso_topic_display }}</span></li>
+                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Keywords:</span> <span class="fw-medium">{{ dataset.keywords }}</span></li>
                                 </ul>
                             </div>
 
                             <!-- Project -->
-                            <div class="mb-3">
-                                <h6 class="fw-bold text-secondary">Project Details</h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>Project Name:</strong> {{ dataset.project_name }}</li>
-                                    <li><strong>Project Number:</strong> {{ dataset.project_number }}</li>
-                                    <li><strong>Expedition:</strong> {{ dataset.get_expedition_type_display }} ({{
-                                        dataset.expedition_year }})</li>
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Project Details</h5>
+                                <ul class="list-unstyled custom-list text-dark">
+                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Project Name:</span> <span class="fw-medium">{{ dataset.project_name }}</span></li>
+                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Project Number:</span> <span class="fw-medium">{{ dataset.project_number }}</span></li>
+                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Expedition:</span> <span class="fw-medium">{{ dataset.get_expedition_type_display }} ({{ dataset.expedition_year }})</span></li>
                                 </ul>
                             </div>
                         </div>
@@ -92,64 +80,92 @@
                         <!-- Right Col -->
                         <div class="col-md-6">
                             <!-- Spatial -->
-                            <div class="mb-3">
-                                <h6 class="fw-bold text-secondary">Spatial Coverage</h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>North:</strong> {{ dataset.north_latitude }}°</li>
-                                    <li><strong>South:</strong> {{ dataset.south_latitude }}°</li>
-                                    <li><strong>East:</strong> {{ dataset.east_longitude }}°</li>
-                                    <li><strong>West:</strong> {{ dataset.west_longitude }}°</li>
-                                </ul>
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Spatial Coverage</h5>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
+                                            <span class="d-block text-muted small fw-bold mb-1">NORTH</span>
+                                            <strong class="fs-5 text-dark">{{ dataset.north_latitude }}°</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
+                                            <span class="d-block text-muted small fw-bold mb-1">SOUTH</span>
+                                            <strong class="fs-5 text-dark">{{ dataset.south_latitude }}°</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
+                                            <span class="d-block text-muted small fw-bold mb-1">EAST</span>
+                                            <strong class="fs-5 text-dark">{{ dataset.east_longitude }}°</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
+                                            <span class="d-block text-muted small fw-bold mb-1">WEST</span>
+                                            <strong class="fs-5 text-dark">{{ dataset.west_longitude }}°</strong>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Contact -->
-                            <div class="mb-3">
-                                <h6 class="fw-bold text-secondary">Contact Info</h6>
-                                <ul class="list-unstyled">
-                                    <li><strong>Person:</strong> {{ dataset.contact_person }}</li>
-                                    <li><strong>Email:</strong> {{ dataset.contact_email }}</li>
-                                    <li><strong>Phone:</strong> {{ dataset.contact_phone }}</li>
-                                </ul>
+                            <div class="mb-4 mt-5">
+                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Contact Info</h5>
+                                <div class="bg-light p-4 rounded-3 border">
+                                    <p class="mb-2 text-dark"><i class="fas fa-user-circle text-muted me-2"></i> <strong class="fw-bold">{{ dataset.contact_person }}</strong></p>
+                                    <p class="mb-2 text-dark"><i class="fas fa-envelope text-muted me-2"></i> {{ dataset.contact_email }}</p>
+                                    <p class="mb-0 text-dark"><i class="fas fa-phone text-muted me-2"></i> {{ dataset.contact_phone }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Sub-models (GPS, Platform, etc.) -->
-                    <div class="mt-4 pt-3 border-top">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <strong>Platform:</strong> {{ dataset.platform.short_name|default:"-" }}
+                    <div class="mt-5 pt-4 border-top bg-light p-4 rounded-3 border">
+                        <div class="row g-4 text-center">
+                            <div class="col-md-4 border-end border-secondary border-opacity-25">
+                                <span class="d-block text-muted text-uppercase small fw-bold mb-1">Platform</span>
+                                <strong class="fs-6 text-dark">{{ dataset.platform.short_name|default:"None Specified" }}</strong>
                             </div>
-                            <div class="col-md-4">
-                                <strong>Instrument:</strong>
+                            <div class="col-md-4 border-end border-secondary border-opacity-25">
+                                <span class="d-block text-muted text-uppercase small fw-bold mb-2">Instruments</span>
                                 {% for inst in dataset.instruments.all %}
-                                <span class="badge bg-secondary">{{ inst.short_name }}</span>
+                                <span class="badge bg-secondary rounded-pill px-3">{{ inst.short_name }}</span>
                                 {% empty %}
-                                -
+                                <span class="text-muted border rounded-pill px-3 py-1 bg-white small">None</span>
                                 {% endfor %}
                             </div>
                             <div class="col-md-4">
-                                <strong>GPS Used:</strong> {{ dataset.gps.gps_used|yesno:"Yes,No" }}
+                                <span class="d-block text-muted text-uppercase small fw-bold mb-1">GPS Used</span>
+                                {% if dataset.gps.gps_used %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 fs-6"><i class="fas fa-check-circle me-1"></i> Yes</span>
+                                {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-1 fs-6"><i class="fas fa-times-circle me-1"></i> No</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
-
+            
+            <!-- Actions -->
+            <div class="d-flex justify-content-center gap-3 mt-4">
                 {% if is_admin_preview %}
                 <a href="{% url 'data_submission:admin_edit_submission' dataset.metadata_id %}"
-                    class="btn btn-primary btn-lg px-5">
+                    class="btn btn-outline-primary btn-lg px-5 rounded-pill fw-bold bg-white border-2">
                     <i class="fas fa-arrow-left me-2"></i> Return to Edit & Save
                 </a>
                 {% else %}
                 <a href="{% url 'data_submission:submit_dataset' %}?submission_id={{ dataset.metadata_id }}"
-                    class="btn btn-outline-secondary btn-lg">
-                    <i class="fas fa-edit me-2"></i>Edit Metadata
+                    class="btn btn-outline-secondary btn-lg px-4 rounded-pill fw-bold bg-white border-2">
+                    <i class="fas fa-edit me-2"></i> Edit Metadata
                 </a>
 
                 <a href="{% url 'data_submission:upload_dataset_files' dataset.metadata_id %}"
-                    class="btn btn-primary btn-lg px-5">
+                    class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow-sm" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;">
                     Proceed to Upload <i class="fas fa-arrow-right ms-2"></i>
                 </a>
                 {% endif %}
@@ -157,4 +173,29 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Modern Card Base (matching dashboard) */
+    .modern-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 25px rgba(15, 23, 42, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .modern-card:hover {
+        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+    }
+
+    /* specific utilities */
+    .w-35 { width: 35% !important; min-width: 140px; }
+    
+    .custom-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+    .custom-list li:last-child {
+        border-bottom: none;
+    }
+</style>
 {% endblock %}
