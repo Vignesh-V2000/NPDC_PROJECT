@@ -565,11 +565,10 @@ def ai_search_answer(query, filters=None, top_k=5):
         total_published_count = None
 
     for i, d in enumerate(results, 1):
-        if not d.metadata_id and not d.id:
+        if not d.metadata_id:
             continue
         ds = {
-            'id': d.metadata_id or d.id,
-            'metadata_id': d.metadata_id,
+            'id': d.metadata_id,
             'title': d.title,
             'abstract': d.abstract[:150],
             'keywords': d.keywords[:100] if d.keywords else '',
@@ -582,7 +581,7 @@ def ai_search_answer(query, filters=None, top_k=5):
 
         # Compact context for LLM (fewer tokens)
         context_lines.append(
-            f"{i}. [ID: {d.metadata_id or d.id}] {d.title}\n"
+            f"{i}. [ID: {d.metadata_id}] {d.title}\n"
             f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
             f"   {ds['abstract']}\n"
         )
@@ -666,11 +665,10 @@ def ai_search_answer(query, filters=None, top_k=5):
 
         # Re-serialize datasets from corrected search results
         for i, d in enumerate(results, 1):
-            if not d.metadata_id and not d.id:
+            if not d.metadata_id:
                 continue
             ds = {
-                'id': d.metadata_id or d.id,
-                'metadata_id': d.metadata_id,
+                'id': d.metadata_id,
                 'title': d.title,
                 'abstract': d.abstract[:150],
                 'keywords': d.keywords[:100] if d.keywords else '',
@@ -681,7 +679,7 @@ def ai_search_answer(query, filters=None, top_k=5):
             }
             datasets_list.append(ds)
             context_lines.append(
-                f"{i}. [ID: {d.metadata_id or d.id}] {d.title}\n"
+                f"{i}. [ID: {d.metadata_id}] {d.title}\n"
                 f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
                 f"   {ds['abstract']}\n"
             )
