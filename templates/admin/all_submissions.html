@@ -276,7 +276,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                {% if request.user.is_superuser %}
+                                {% if request.user.is_staff %}
                                 <!-- Expedition -->
                                 <div class="col-lg-3 col-md-6">
                                     <label class="form-label">Expedition</label>
@@ -473,7 +473,7 @@
                                     class="btn btn-light px-3 fw-semibold shadow-sm transition-all border" style="border-radius: 8px;">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                {% if request.user.is_superuser %}
+                                {% if request.user.is_staff and not request.user.profile.expedition_admin_type %}
                                 <form method="post" action="{% url 'data_submission:admin_delete_dataset' submission.metadata_id %}" class="d-inline">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-light px-3 fw-semibold shadow-sm transition-all border text-danger" style="border-radius: 8px;"

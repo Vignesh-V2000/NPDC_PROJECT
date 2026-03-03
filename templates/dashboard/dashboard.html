@@ -2,6 +2,7 @@
 
 {% block content %}
 <!-- Modern Hero Dashboard Header -->
+{% if is_admin %}
 <div class="dsf-hero">
     <!-- Animated Orbs -->
     <div class="dsf-hero-orb orb-1"></div>
@@ -13,8 +14,8 @@
             <div class="col-lg-8 mb-4 mb-lg-0">
                 <div class="d-flex align-items-center mb-3">
                     <span class="dsf-step-pill">
-                        <i class="fas {% if is_admin %}fa-shield-alt{% else %}fa-user-astronaut{% endif %} me-2"></i>
-                        {% if is_admin %}Administrator Space{% else %}Researcher Space{% endif %}
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Administrator Space
                     </span>
                 </div>
                 
@@ -31,20 +32,12 @@
             <div class="col-lg-4 text-lg-end">
                 <div class="hero-user-badge">
                     <div class="badge-icon">
-                        {% if is_admin %}
-                            <i class="fas fa-user-shield"></i>
-                        {% else %}
-                            <i class="fas fa-user-circle"></i>
-                        {% endif %}
+                        <i class="fas fa-user-shield"></i>
                     </div>
                     <div class="badge-text" style="text-align: left;">
                         <small class="text-white-50 d-block mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase;">Account Type</small>
                         <div class="fw-bold text-white" style="font-size: 1.1rem;">
-                            {% if is_admin %}
-                                Administrator
-                            {% else %}
-                                Researcher
-                            {% endif %}
+                            Administrator
                         </div>
                     </div>
                 </div>
@@ -52,6 +45,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <div class="container dashboard-content-wrapper">
     <!-- Content Panels -->

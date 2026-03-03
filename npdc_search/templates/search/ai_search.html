@@ -44,7 +44,7 @@
     </aside>
 
     <!-- Main Chat Area -->
-    <main class="chat-main">
+    <main class="chat-main initial-center" id="chat-main">
         <!-- Toggle sidebar (mobile) -->
         <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebarMobile()">
             <i class="fas fa-bars"></i>
@@ -71,13 +71,13 @@
             <!-- Welcome state -->
             <div class="welcome-state" id="welcome-state">
 
-                <h2>🐧 Penguin Search <small class="text-warning">alpha</small></h2>
+                <h2>🐧 Penguin Search <small class="text-warning">Alpha</small></h2>
                 <p>Ask questions about India's polar and cryospheric research datasets</p>
             </div>
         </div>
 
         <!-- Bottom Input Bar -->
-        <div class="chat-input-area">
+        <div class="chat-input-area" id="input-area-container">
             <div class="chat-input-wrapper">
                 <div class="input-row">
                     <div class="input-icon">
@@ -92,7 +92,7 @@
                 </div>
             </div>
             <p class="disclaimer">
-                The Penguin search service <strong>(alpha)</strong> provides answers based on indexed datasets. Results may not be exhaustive.
+                Results may not be exhaustive.
             </p>
         </div>
     </main>
@@ -430,6 +430,10 @@
         position: relative;
     }
 
+    .chat-main.initial-center {
+        justify-content: center;
+    }
+
     .sidebar-toggle {
         position: absolute;
         top: 12px;
@@ -451,6 +455,12 @@
         padding: 2rem 0;
         display: flex;
         flex-direction: column;
+    }
+
+    .chat-main.initial-center .chat-messages {
+        flex: none;
+        padding-bottom: 0;
+        margin-bottom: -1rem;
     }
 
     /* Welcome State */
@@ -1232,9 +1242,11 @@
         currentQuery = query;
         document.getElementById('send-btn').disabled = true;
 
-        // Hide welcome
+        // Hide welcome and move input down
         const ws = document.getElementById('welcome-state');
         if (ws) ws.style.display = 'none';
+        const chatMain = document.getElementById('chat-main');
+        if (chatMain) chatMain.classList.remove('initial-center');
 
         // If no active session yet, create one now (first message in a new chat)
         if (!currentSessionId) {
@@ -1778,6 +1790,10 @@
         currentQuery = session.title;
         isProcessing = false;
         document.getElementById('send-btn').disabled = false;
+        
+        // Remove initial center if loading history
+        const chatMain = document.getElementById('chat-main');
+        if (chatMain) chatMain.classList.remove('initial-center');
 
         // Restore the saved HTML
         chatMessages.innerHTML = session.html || '';
@@ -1819,6 +1835,11 @@
                 <h2>🐧 Penguin Search <small class="text-warning">alpha</small></h2>
                 <p>Ask questions about India's polar and cryospheric research datasets</p>
             </div>`;
+        
+        // Center the input area again
+        const chatMain = document.getElementById('chat-main');
+        if (chatMain) chatMain.classList.add('initial-center');
+            
         renderHistory(); // clear active highlight
         chatInput.focus();
     }

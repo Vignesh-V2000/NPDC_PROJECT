@@ -91,7 +91,7 @@
                     </div>
 
                     <!-- Active Users (Super Admin Only) -->
-                    {% if request.user.is_superuser %}
+                    {% if request.user.is_staff %}
                     <div class="col-xl-3 col-lg-6">
                         <a href="{% url 'users:user_approval_dashboard' %}" class="stat-link d-block h-100">
                             <div class="stat-card users">
@@ -113,11 +113,11 @@
             <!-- Dashboard Body -->
             <div class="row g-4 mb-5">
                 <!-- Left Column: Quick Actions -->
-                <div class="{% if request.user.is_superuser %}col-lg-9{% else %}col-12{% endif %} pe-lg-5 d-flex flex-column">
+                <div class="{% if request.user.is_staff %}col-lg-9{% else %}col-12{% endif %} pe-lg-5 d-flex flex-column">
                     <h4 class="h5 mb-4 px-2">Quick Actions</h4>
                     <div class="row gx-4 gy-4 flex-grow-1">
                     <!-- Review Submissions -->
-                    <div class="{% if request.user.is_superuser %}col-xl-4 col-lg-6{% else %}col-md-6{% endif %}">
+                    <div class="{% if request.user.is_staff %}col-xl-4 col-lg-6{% else %}col-md-6{% endif %}">
                         <div class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-clipboard-check"></i>
@@ -138,7 +138,7 @@
                         </div>
                     </div>
 
-                    {% if request.user.is_superuser %}
+                    {% if request.user.is_staff %}
                     <!-- Manage Users -->
                     <div class="col-xl-4 col-lg-6">
                         <div class="action-card">
@@ -185,7 +185,7 @@
                 </div>
 
                 <!-- Right Column: System Metrics (Super Admin Only) -->
-                {% if request.user.is_superuser %}
+                {% if request.user.is_staff %}
                 <div class="col-lg-3 d-flex flex-column">
                     <h4 class="h5 mb-4 px-2">System Metrics</h4>
                     <div class="metrics-card flex-grow-1">
@@ -286,7 +286,7 @@
 
 
             <!-- Advanced Management (Super Admin Only) -->
-            {% if request.user.is_superuser %}
+            {% if request.user.is_staff %}
             <div class="advanced-management mt-5">
                 <div class="row g-4">
                     <div class="col-md-6">

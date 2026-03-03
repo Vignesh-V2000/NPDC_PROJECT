@@ -647,11 +647,13 @@ def my_submissions(request):
 def admin_dashboard(request):
     submissions = DatasetSubmission.objects.all()
     
-    # Filter for Child Admins
-    if not request.user.is_superuser:
-        profile = getattr(request.user, 'profile', None)
-        if profile and profile.expedition_admin_type:
-            submissions = submissions.filter(expedition_type=profile.expedition_admin_type)
+    # Check if user is an expedition admin (child admin)
+    profile = getattr(request.user, 'profile', None)
+    is_expedition = profile and profile.expedition_admin_type
+    
+    # Filter submissions for Expedition Admins only
+    if is_expedition:
+        submissions = submissions.filter(expedition_type=profile.expedition_admin_type)
             
     context = {
         'total_submissions': submissions.count(),
@@ -663,10 +665,11 @@ def admin_dashboard(request):
         'recent_submissions': submissions.order_by('-submission_date')[:10],
     }
 
-    # Render separate dashboard for Child Admins (Non-Superusers)
-    if not request.user.is_superuser:
+    # Expedition Admins get their own filtered dashboard
+    if is_expedition:
         return render(request, 'admin/child_admin_dashboard.html', context)
 
+    # Super Admins and Normal Admins get the main dashboard
     return render(request, 'admin/dashboard.html', context)
 
 def is_expedition_admin(user):
@@ -954,12 +957,18 @@ def delete_dataset(request, submission_id):
     return redirect("data_submission:my_submissions")
 
 
+def is_non_expedition_admin(user):
+    """Super Admin or Normal Admin (staff without expedition_admin_type)."""
+    if not user.is_staff:
+        return False
+    profile = getattr(user, 'profile', None)
+    return user.is_superuser or not (profile and profile.expedition_admin_type)
+
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_non_expedition_admin)
 @require_http_methods(["POST"])
 def admin_delete_dataset(request, metadata_id):
-    """Only super admin (is_superuser) can delete datasets after publish.
-    Child admins (ARC, ANT, etc.) are blocked by the is_superuser check."""
+    """Only Super Admin and Normal Admin can delete. Expedition admins cannot."""
     dataset = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
     title = dataset.title
     dataset.delete()

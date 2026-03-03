@@ -273,6 +273,19 @@
                 .um-table-scroll {
                     max-height: 450px;
                     overflow-y: auto;
+                    overflow-x: hidden;
+                }
+                .um-table-scroll .um-table td,
+                .um-table-scroll .um-table th {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 200px;
+                }
+                .um-table-scroll .um-table td:last-child,
+                .um-table-scroll .um-table th:last-child {
+                    overflow: visible;
+                    max-width: none;
                 }
             </style>
 
@@ -504,7 +517,7 @@
                                             </span>
                                             {% else %}
                                             <span class="um-role-badge um-role-staff">
-                                                <i class="fas fa-user-tie"></i> Staff
+                                                <i class="fas fa-user-tie"></i> Admin
                                             </span>
                                             {% endif %}
                                         </td>

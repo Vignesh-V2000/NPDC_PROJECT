@@ -4,6 +4,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
 
+# Restrict Django admin to superusers only (blocks Normal Admins like 'admin')
+admin.site.has_permission = lambda request: request.user.is_active and request.user.is_superuser
+
 def test_view(request):
     raise Exception("TEST EXCEPTION")
     return HttpResponse("TEST VIEW CALLED")

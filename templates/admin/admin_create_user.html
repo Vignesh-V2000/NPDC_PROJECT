@@ -169,9 +169,9 @@
                                             </div>
                                         </td>
                                         <td>
-                                            {% if admin.is_superuser %}<span class="ca-rb ca-rb-super"><i class="fas fa-crown me-1"></i>Super</span>
+                                            {% if admin.is_superuser %}<span class="ca-rb ca-rb-super"><i class="fas fa-crown me-1"></i>Super Admin</span>
                                             {% elif admin.profile.expedition_admin_type %}<span class="ca-rb ca-rb-exp"><i class="fas fa-globe-americas me-1"></i>{{ admin.profile.get_expedition_admin_type_display }}</span>
-                                            {% else %}<span class="ca-rb ca-rb-staff"><i class="fas fa-user-tie me-1"></i>Staff</span>{% endif %}
+                                            {% else %}<span class="ca-rb ca-rb-staff"><i class="fas fa-user-tie me-1"></i>Admin</span>{% endif %}
                                         </td>
                                         <td>
                                             {% if admin.is_active %}<span class="fw-bold" style="color:#16a34a;font-size:0.82rem;"><i class="fas fa-check-circle me-1"></i>Active</span>

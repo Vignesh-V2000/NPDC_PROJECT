@@ -288,7 +288,7 @@
                     <div class="collapse" id="reviewAdvPanel">
                         <div class="review-adv-panel mt-2">
                             <div class="row g-3 align-items-end">
-                                {% if request.user.is_superuser %}
+                                {% if request.user.is_staff %}
                                 <!-- Expedition -->
                                 <div class="col-lg-4 col-md-6">
                                     <label class="form-label">Expedition</label>
@@ -487,7 +487,7 @@
                                     class="btn btn-primary px-3 fw-semibold shadow-sm text-white border-0" style="background: #3b82f6; border-radius: 8px;">
                                     View Details <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
-                                {% if request.user.is_superuser %}
+                                {% if request.user.is_staff %}
                                 <a href="{% url 'data_submission:admin_edit_submission' submission.metadata_id %}"
                                     class="btn btn-light px-3 fw-semibold shadow-sm border" style="border-radius: 8px;">
                                     <i class="fas fa-edit"></i>

@@ -6,9 +6,6 @@
 
         <!-- Page Header -->
         <div class="loc-hero text-center mb-5">
-            <div class="loc-hero-icon mx-auto mb-3">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
             <h2 class="loc-hero-title">Browse by Location</h2>
             <p class="loc-hero-sub mx-auto">
                 Explore datasets utilizing our location registry
@@ -56,7 +53,7 @@
                         <tr class="loc-row" style="--row-delay: {{ forloop.counter0 }}">
                             <td class="td-sl">{{ loc.sl_no }}</td>
                             <td class="td-name">
-                                <i class="fas fa-map-pin me-2 text-primary opacity-50"></i>{{ loc.name }}
+                                {{ loc.name }}
                             </td>
                             <td class="td-count">
                                 <span class="count-badge">{{ loc.count }}</span>
@@ -220,16 +217,17 @@
         color: #64748b;
         font-weight: 700;
         padding: 0.75rem 1.25rem;
-        text-align: left;
+        text-align: center;
         border-bottom: 2px solid #e2e8f0;
         font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    .th-sl { text-align: center; width: 70px; }
-    .th-count { text-align: center; width: 120px; }
-    .th-action { text-align: center; width: 140px; }
+    .th-sl { width: 10%; }
+    .th-name { text-align: center !important; width: 30%; }
+    .th-count { text-align: center !important; width: 30%; }
+    .th-action { text-align: center !important; width: 30%; }
 
     /* Rows */
     .loc-row {
@@ -237,6 +235,11 @@
         border-bottom: 1px solid #f1f5f9;
         animation: rowSlideIn 0.4s ease both;
         animation-delay: calc(var(--row-delay) * 0.03s);
+        background-color: #ffffff;
+    }
+
+    .loc-row:nth-child(even) {
+        background-color: #f1f5f9;
     }
 
     @keyframes rowSlideIn {
@@ -267,6 +270,7 @@
     .td-name {
         font-weight: 600;
         color: #0f172a;
+        text-align: center;
     }
 
     .td-count {

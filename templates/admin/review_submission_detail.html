@@ -632,7 +632,7 @@
                                         <i class="fas fa-arrow-left me-2"></i>Back to List
                                     </a>
                                     </nav>
-                                    {% if request.user.is_superuser %}
+                                    {% if request.user.is_staff and not request.user.profile.expedition_admin_type %}
                                     <form method="post" action="{% url 'data_submission:admin_delete_dataset' submission.metadata_id %}" class="mt-2">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-outline-danger rounded-3 py-2 fw-semibold w-100"

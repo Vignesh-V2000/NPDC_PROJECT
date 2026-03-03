@@ -746,7 +746,7 @@
                             <a class="dropdown-item" href="{% url 'data_submission:review_submissions' %}">
                                 <i class="fas fa-clipboard-check me-2"></i>Review Submissions
                             </a>
-                            {% if user.is_superuser %}
+                            {% if user.is_staff %}
                             <a class="dropdown-item" href="{% url 'users:user_approval_dashboard' %}">
                                 <i class="fas fa-users-cog me-2"></i>User & Admin Management
                             </a>
@@ -767,7 +767,19 @@
                 <!-- User Menu -->
                 <div class="d-flex align-items-center gap-2">
                     {% if user.is_authenticated %}
-                    <div class="dropdown">
+                    {% if 'dashboard' not in request.path %}
+                    <a class="btn btn-primary" href="{% if user.is_staff %}{% url 'data_submission:admin_dashboard' %}{% else %}{% url 'users:dashboard' %}{% endif %}">
+                        <i class="fas fa-columns me-2"></i>Dashboard
+                    </a>
+                    {% endif %}
+                    <a class="btn btn-outline-secondary ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
+                        target="_blank">
+                        <i class="fas fa-file-pdf me-2"></i>User Manual
+                    </a>
+                    <a class="btn btn-outline-secondary ms-2" href="{% url 'users:contact_us' %}">
+                        <i class="fas fa-envelope me-2"></i>Contact Us
+                    </a>
+                    <div class="dropdown ms-2">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
                             data-bs-toggle="dropdown">
                             <div class="user-avatar">
@@ -1017,6 +1029,22 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         });
+    </script>
+
+    <!-- Scroll Position Persistence -->
+    <script>
+        (function() {
+            const key = 'scrollPos_' + window.location.pathname;
+            window.addEventListener('beforeunload', function() {
+                sessionStorage.setItem(key, window.scrollY);
+            });
+            window.addEventListener('DOMContentLoaded', function() {
+                const saved = sessionStorage.getItem(key);
+                if (saved) {
+                    window.scrollTo(0, parseInt(saved));
+                }
+            });
+        })();
     </script>
     {% block extra_js %}{% endblock %}
     <!-- Global Security Script -->
