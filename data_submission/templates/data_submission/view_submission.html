@@ -494,7 +494,7 @@
                         <!-- Actions -->
                         <div class="kpdc-actions">
                             {% if submission.status != 'published' %}
-                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
+                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.pk }}"
                                 class="kpdc-action-btn btn-primary-filled">
                                 <i class="fas fa-edit"></i> Edit Submission
                             </a>
@@ -938,7 +938,12 @@
         /* Marker at centre point */
         var marker = L.marker([centerLat, centerLng]).addTo(map);
         marker.bindPopup('<strong>{{ submission.title|truncatechars:80 }}</strong>');
-        map.setView([centerLat, centerLng], 5);
+        map.setView([centerLat, centerLng], 5, { animate: false });
+        
+        // Force scroll to top to prevent jumping to map
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 10);
     });
 </script>
 {% endblock %}

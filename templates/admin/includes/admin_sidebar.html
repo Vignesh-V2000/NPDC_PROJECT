@@ -37,7 +37,7 @@
                     </a>
                 </li>
 
-                {% if request.user.is_staff %}
+                {% if request.user.is_superuser or request.user.is_staff and not request.user.profile.expedition_admin_type %}
                 <div class="nav-heading mt-4 mb-2">Access Management</div>
                 <li class="nav-item">
                     <a class="nav-link color-indigo fw-semibold {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active{% endif %}"

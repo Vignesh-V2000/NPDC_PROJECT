@@ -16,55 +16,88 @@
         </a>
     </div>
 
+    <style>
+        /* Page title colors */
+        .container h2, .container h4 { color: #fff !important; }
+    </style>
+
     <!-- Saved and Incomplete Metadata -->
     <div class="mb-5">
-        <h4 class="mb-3 text-white fw-bold d-flex align-items-center">
-            <i class="fas fa-edit text-warning me-2"></i> Saved & Incomplete Drafts
+        <h4 class="mb-4 text-white fw-bold d-flex align-items-center">
+            <i class="fas fa-pencil-alt text-warning me-3 opacity-75"></i> Saved & Incomplete Drafts
         </h4>
-        <div class="modern-card">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 custom-table">
-                    <thead class="bg-light text-uppercase small text-muted">
+        
+        <div class="rq-table-wrap">
+            <div class="rq-scroll" style="max-height: 400px; overflow-y: auto;">
+                <table class="rq-table">
+                    <thead>
                         <tr>
-                            <th style="width: 5%;" class="text-center py-3">#</th>
-                            <th style="width: 50%;" class="py-3">Title</th>
-                            <th style="width: 15%;" class="text-center py-3">Last Saved</th>
-                            <th style="width: 15%;" class="text-center py-3">Updated On</th>
-                            <th style="width: 15%;" class="text-center py-3">Actions</th>
+                            <th style="width: 52px; text-align: center;">#</th>
+                            <th style="width: 45%;">Dataset Title</th>
+                            <th>Created</th>
+                            <th>Last Updated</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for submission in incomplete_submissions %}
-                        <tr class="transition-hover">
-                            <td class="text-center text-muted fw-bold">{{ forloop.counter }}</td>
+                        <tr>
+                            <td style="text-align: center;">
+                                <span class="rq-num">{{ forloop.counter }}</span>
+                            </td>
                             <td>
-                                <span class="d-block fw-bold text-dark mb-1">{{ submission.title|default:"Untitled Draft" }}</span>
+                                <span class="rq-title-link" style="cursor:default;">
+                                    {{ submission.title|default:"Untitled Draft"|truncatechars:90 }}
+                                </span>
+                                <div style="margin-top: 3px;">
+                                    <span class="rq-meta-id">{{ submission.metadata_id }}</span>
+                                </div>
                             </td>
-                            <td class="text-center">
-                                <span class="badge bg-light text-dark border"><i class="far fa-calendar-alt me-1"></i> {{ submission.submission_date|date:"d M Y" }}</span>
+                            <td>
+                                <div class="rq-date">
+                                    <i class="far fa-calendar-alt"></i>
+                                    {{ submission.submission_date|date:"M d, Y" }}
+                                </div>
                             </td>
-                            <td class="text-center">
-                                {% if submission.last_updated %}
-                                <span class="text-muted small">{{ submission.last_updated|date:"d M Y" }}</span>
-                                {% else %}
-                                <span class="text-muted small">-</span>
-                                {% endif %}
+                            <td>
+                                <div class="rq-date">
+                                    {% if submission.last_updated %}
+                                    <i class="far fa-clock"></i>
+                                    {{ submission.last_updated|date:"M d, Y" }}
+                                    {% else %}
+                                    <span style="color: #cbd5e1;">—</span>
+                                    {% endif %}
+                                </div>
                             </td>
-                            <td class="text-center">
-                                <div class="btn-group gap-2">
-                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
-                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">Edit Draft</a>
+                            <td>
+                                <span class="rq-status" style="background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569;">
+                                    <i class="fas fa-file-alt"></i> Draft
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.pk }}"
+                                        class="rq-action-btn rq-action-view" title="Continue Editing">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </a>
                                     <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
-                                        class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary">Upload</a>
+                                        class="rq-action-btn rq-action-edit" title="Upload Files">
+                                        <i class="fas fa-upload me-1"></i> Upload
+                                    </a>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <i class="fas fa-folder-open fa-3x text-muted opacity-25 mb-3"></i>
-                                <h6 class="text-muted fw-bold mb-1">No drafts found.</h6>
-                                <p class="text-muted small mb-0">You don't have any incomplete submissions.</p>
+                            <td colspan="6" style="border-bottom: none;">
+                                <div class="rq-empty-state">
+                                    <div class="rq-empty-icon">
+                                        <i class="fas fa-folder-open"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">No drafts found.</h5>
+                                    <p class="text-muted small mb-0">You don't have any incomplete submissions sitting in your drafts.</p>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -76,59 +109,94 @@
 
     <!-- Recently Submitted and Published Metadata -->
     <div class="mb-5">
-        <h4 class="mb-3 text-white fw-bold d-flex align-items-center">
-            <i class="fas fa-check-circle text-success me-2"></i> Submitted & Published
+        <h4 class="mb-4 text-white fw-bold d-flex align-items-center">
+            <i class="fas fa-check-circle text-success me-3 opacity-75"></i> Submitted & Published
         </h4>
-        <div class="modern-card">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 custom-table">
-                    <thead class="bg-light text-uppercase small text-muted">
+        
+        <div class="rq-table-wrap">
+            <div class="rq-scroll" style="max-height: 600px; overflow-y: auto;">
+                <table class="rq-table">
+                    <thead>
                         <tr>
-                            <th style="width: 5%;" class="text-center py-3">#</th>
-                            <th style="width: 50%;" class="py-3">Title</th>
-                            <th style="width: 15%;" class="text-center py-3">Status</th>
-                            <th style="width: 15%;" class="text-center py-3">Updated On</th>
-                            <th style="width: 15%;" class="text-center py-3">Actions</th>
+                            <th style="width: 52px; text-align: center;">#</th>
+                            <th style="width: 45%;">Dataset Title</th>
+                            <th>Expedition</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for submission in submitted_published_submissions %}
-                        <tr class="transition-hover">
-                            <td class="text-center text-muted fw-bold">{{ forloop.counter }}</td>
+                        <tr>
+                            <td style="text-align: center;">
+                                <span class="rq-num">{{ forloop.counter }}</span>
+                            </td>
                             <td>
-                                <span class="d-block fw-bold text-dark mb-1">{{ submission.title }}</span>
+                                <a href="{% url 'data_submission:view_submission' submission.metadata_id %}" class="rq-title-link">
+                                    {{ submission.title|truncatechars:90 }}
+                                </a>
+                                <div style="margin-top: 3px;">
+                                    <span class="rq-meta-id">{{ submission.metadata_id }}</span>
+                                </div>
                             </td>
-                            <td class="text-center">
-                                <span class="badge bg-light text-dark border px-2 py-1"><i class="far fa-calendar-check me-1"></i> {{ submission.submission_date|date:"d M Y" }}</span>
-                            </td>
-                            <td class="text-center">
-                                {% if submission.was_updated %}
-                                <span class="text-muted small">{{ submission.last_updated|date:"d M Y" }}</span>
+                            <td>
+                                {% if submission.expedition_type %}
+                                <span class="rq-exp-badge 
+                                    {% if submission.expedition_type == 'antarctic' %}rq-exp-ant
+                                    {% elif submission.expedition_type == 'arctic' %}rq-exp-arc
+                                    {% elif submission.expedition_type == 'himalayan' %}rq-exp-him
+                                    {% elif submission.expedition_type == 'southern_ocean' %}rq-exp-soe
+                                    {% else %}rq-exp-default{% endif %}">
+                                    <i class="fas fa-globe-americas" style="font-size: 0.65rem;"></i>
+                                    {{ submission.get_expedition_type_display }}
+                                </span>
                                 {% else %}
-                                <span class="text-muted small">-</span>
+                                <span style="color: #cbd5e1;">—</span>
                                 {% endif %}
                             </td>
-                            <td class="text-center">
-                                <div class="btn-group gap-2">
+
+                            <td>
+                                <div class="rq-date">
+                                    <i class="far fa-calendar-alt"></i>
+                                    {{ submission.submission_date|date:"M d, Y" }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if submission.status == 'published' %}
+                                <span class="rq-status rq-status-published"><i class="fas fa-check-double"></i> Published</span>
+                                {% elif submission.status == 'revision_requested' %}
+                                <span class="rq-status rq-status-submitted"><i class="fas fa-exclamation-circle"></i> Revise</span>
+                                {% else %}
+                                <span class="rq-status rq-status-draft"><i class="fas fa-paper-plane"></i> Submitted</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="d-flex justify-content-center gap-2">
                                     <a href="{% url 'data_submission:view_submission' submission.metadata_id %}"
-                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">View</a>
+                                        class="rq-action-btn rq-action-view" title="View Submission">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
                                     
                                     {% if submission.can_be_updated %}
-                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.metadata_id }}"
-                                        class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold">Update</a>
+                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.pk }}"
+                                        class="rq-action-btn rq-action-edit" title="Update Submission">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </a>
                                     {% endif %}
-                                    
-                                    <a href="{% url 'data_submission:upload_dataset_files' submission.metadata_id %}"
-                                        class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary">Files</a>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <i class="fas fa-archive fa-3x text-muted opacity-25 mb-3"></i>
-                                <h6 class="text-muted fw-bold mb-1">No completed submissions.</h6>
-                                <p class="text-muted small mb-0">Your submitted datasets will appear here.</p>
+                            <td colspan="6" style="border-bottom: none;">
+                                <div class="rq-empty-state">
+                                    <div class="rq-empty-icon">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">No active submissions.</h5>
+                                    <p class="text-muted small mb-0">Datasets you submit will appear here along with their review status.</p>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -141,56 +209,224 @@
 </div>
 
 <style>
-    /* Modern Card Container */
-    .modern-card {
+    /* Admin Review Queue Table Styling */
+    .rq-table-wrap {
         background: #ffffff;
-        border-radius: 1.2rem;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        border-radius: 1rem;
         overflow: hidden;
+        box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+        border: 1px solid #e8edf3;
     }
-
-    /* Custom Table Styling */
-    .custom-table th {
+    .rq-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.88rem;
+    }
+    .rq-table thead th {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #94a3b8;
+        font-size: 0.68rem;
         font-weight: 700;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #e2e8f0;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        padding: 1rem 1.1rem;
+        border: none;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+    .rq-table thead th:first-child { border-radius: 0; }
+    .rq-table thead th:last-child { border-radius: 0; }
+    .rq-table tbody tr {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-bottom: 1px solid #f1f5f9;
+        background: #ffffff;
+    }
+    .rq-table tbody tr:last-child { border-bottom: none; }
+    .rq-table tbody tr:hover {
+        background: linear-gradient(90deg, #f0f9ff 0%, #faf5ff 100%) !important;
+        transform: scale(1.002);
+    }
+    .rq-table tbody tr:nth-child(even) { background: #edf2f7; }
+    .rq-table tbody td {
+        padding: 0.9rem 1.1rem;
+        vertical-align: middle;
+        border: none;
+        color: #334155;
     }
     
-    .custom-table td {
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
-        padding: 1.25rem 0.5rem;
+    .rq-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #94a3b8;
+        font-weight: 700;
+        font-size: 0.75rem;
     }
 
-    .custom-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .transition-hover {
-        transition: background-color 0.2s ease;
-    }
-    .transition-hover:hover {
-        background-color: #f8fafc !important;
-    }
-
-    /* Buttons inside the table */
-    .btn-light.border {
-        background-color: #f8fafc;
-        border-color: #cbd5e1 !important;
-        color: #475569;
-        transition: all 0.2s;
-    }
-    .btn-light.border:hover {
-        background-color: #e2e8f0;
+    /* Title cell */
+    .rq-title-link {
         color: #0f172a;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        transition: color 0.15s;
+        display: block;
+    }
+    .rq-title-link:hover { color: #2563eb; }
+    .rq-meta-id {
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.68rem;
+        color: #94a3b8;
+        background: #f8fafc;
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+        display: inline-block;
+        margin-top: 3px;
     }
 
-    .badge.bg-light.text-dark {
-        background-color: #f1f5f9 !important;
-        border-color: #cbd5e1 !important;
-        color: #334155 !important;
+    /* Expedition badge */
+    .rq-exp-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0.3rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .rq-exp-ant { background: #e0f2fe; color: #0369a1; }
+    .rq-exp-arc { background: #dbeafe; color: #1d4ed8; }
+    .rq-exp-him { background: #fef3c7; color: #92400e; }
+    .rq-exp-soe { background: #ecfdf5; color: #047857; }
+    .rq-exp-default { background: #f1f5f9; color: #475569; }
+
+    /* Submitter avatar */
+    .rq-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+    }
+    .rq-submitter-name {
+        font-size: 0.82rem;
+        color: #334155;
+        font-weight: 500;
+    }
+
+    /* Date */
+    .rq-date {
+        font-size: 0.85rem;
+        color: #64748b;
+        white-space: nowrap;
         font-weight: 600;
     }
+    .rq-date i { color: #94a3b8; margin-right: 4px; }
+
+    /* Status Badges */
+    .rq-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.35rem 0.85rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+    .rq-status-published {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #15803d;
+        box-shadow: 0 1px 4px rgba(21, 128, 61, 0.1);
+    }
+    .rq-status-submitted {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+        box-shadow: 0 1px 4px rgba(146, 64, 14, 0.1);
+    }
+    .rq-status-draft {
+        background: linear-gradient(135deg, #ebf8ff, #bae6fd);
+        color: #0369a1;
+        box-shadow: 0 1px 4px rgba(14, 165, 233, 0.1);
+    }
+
+    /* Action Buttons */
+    .rq-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 0.85rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+    }
+    .rq-action-view {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+    }
+    .rq-action-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        color: #fff !important;
+    }
+    .rq-action-edit {
+        background: #f8fafc;
+        color: #475569 !important;
+        border: 1px solid #e2e8f0;
+    }
+    .rq-action-edit:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        color: #1e293b !important;
+    }
+
+    /* Table Empty State */
+    .rq-empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    .rq-empty-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #64748b;
+        margin: 0 auto 1rem auto;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    /* Scrollbar */
+    .rq-scroll::-webkit-scrollbar { width: 6px; }
+    .rq-scroll::-webkit-scrollbar-track { background: #f8fafc; }
+    .rq-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .rq-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 {% endblock %}

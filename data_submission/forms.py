@@ -69,7 +69,6 @@ class DatasetSubmissionForm(forms.ModelForm):
             'expedition_type',
             'title',
             'category',
-            'keywords',
             'topic',
             'iso_topic',
             'expedition_year',
@@ -78,8 +77,6 @@ class DatasetSubmissionForm(forms.ModelForm):
             'project_name',
             'abstract',
             'purpose',
-            'version',
-            # 'data_center', # Removed - uses model default
 
             # Temporal
             'temporal_start_date',
@@ -108,7 +105,6 @@ class DatasetSubmissionForm(forms.ModelForm):
         labels = {
             'title': 'Metadata Title',
             'category': 'Category',
-            'keywords': 'Biological Classification',
             'topic': 'Topic',
             'iso_topic': 'ISO Topic',
             'expedition_number': 'Expedition No',
@@ -116,7 +112,6 @@ class DatasetSubmissionForm(forms.ModelForm):
             'project_name': 'Project Name',
             'abstract': 'Abstract',
             'purpose': 'Purpose',
-            'version': 'Version',
             'data_set_progress': 'Data Set Progress',
             
             # Others mapped
@@ -141,7 +136,6 @@ class DatasetSubmissionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['keywords'].required = False
         
         # Set default for data_center if not bound
         if 'data_center' in self.fields:
@@ -266,6 +260,16 @@ class DatasetCitationForm(forms.ModelForm):
 
 
 class ScientistDetailForm(forms.ModelForm):
+    TITLE_CHOICES = [
+        ('', 'Select'),
+        ('Dr.', 'Dr.'),
+        ('Prof.', 'Prof.'),
+        ('Mr.', 'Mr.'),
+        ('Mrs.', 'Mrs.'),
+        ('Ms.', 'Ms.'),
+    ]
+    title = forms.ChoiceField(choices=TITLE_CHOICES, required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['country'].widget.attrs.update({'id': 'id_country', 'class': 'country-select form-select'})
@@ -295,9 +299,13 @@ class ScientistDetailForm(forms.ModelForm):
             'postal_code': 'Postal Code',
         }
         widgets = {
+            'institute': forms.TextInput(),
+            'address': forms.TextInput(),
             'country': forms.Select(attrs={'id': 'id_country', 'class': 'country-select form-select'}),
             'state': forms.Select(attrs={'id': 'id_state', 'class': 'state-select form-select'}),
-            # City reverted to default text input
+            'phone': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9+\-\s\(\)]+$', 'title': 'Enter valid phone number'}),
+            'mobile': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9]+$', 'title': 'Enter valid mobile number (digits only)'}),
+            'postal_code': forms.TextInput(attrs={'pattern': r'^\d{4,10}$', 'title': 'Enter valid postal code (4-10 digits)'}),
         }
 
 
@@ -364,29 +372,52 @@ class GPSMetadataForm(forms.ModelForm):
 
 
 class LocationMetadataForm(forms.ModelForm):
+    LOCATION_SUBREGION_CHOICES = [
+        ('', 'Select Subregion'),
+        ('Bharati', 'Bharati'),
+        ('Central Dronning Maud Land', 'Central Dronning Maud Land'),
+        ('Dakshin Gangotri', 'Dakshin Gangotri'),
+        ('India Bay - Prydz bay', 'India Bay - Prydz bay'),
+        ('Indian Ocean', 'Indian Ocean'),
+        ('Larsemann Hill', 'Larsemann Hill'),
+        ('Maitri', 'Maitri'),
+        ('Maitri and Bharati', 'Maitri and Bharati'),
+        ('Princess Astrid Coast', 'Princess Astrid Coast'),
+        ('Queen Maud Land', 'Queen Maud Land'),
+        ('Schirmacher and Larsemann Hills', 'Schirmacher and Larsemann Hills'),
+        ('Schirmacher Oasis', 'Schirmacher Oasis'),
+        ('Southern Ocean', 'Southern Ocean'),
+        ('Voyage and Maitri', 'Voyage and Maitri'),
+        ('Others', 'Others'),
+    ]
+
+    location_subregion = forms.ChoiceField(choices=LOCATION_SUBREGION_CHOICES, required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['location_category'].choices = [('', 'Select Category')] + LocationMetadata.LOCATION_CATEGORY_CHOICES
+        self.fields['location_type'].widget.attrs['readonly'] = True
+        self.fields['location_subregion'].widget.attrs['id'] = 'id_location_subregion'
+        self.fields['other_subregion'].widget.attrs['id'] = 'id_other_subregion'
 
     class Meta:
         model = LocationMetadata
-        exclude = ('dataset',)
+        exclude = ('dataset', 'location_category') # Exclude location_category since it's handled via hidden input in template
         labels = {
-            'location_category': 'Category',
-            'location_type': 'Type', # User list has "Region" then "Type", Mapping best effort
-            'location_subregion': 'Subregion',
+            'location_type': 'Location Type',
+            'location_subregion': 'Location Subregion',
+            'other_subregion': 'Enter Subregion (If Others)',
         }
 
 
 class DataResolutionMetadataForm(forms.ModelForm):
     # Add split fields for Resolution - Labels removed for manual layout
-    lat_res_deg = forms.CharField(label="", required=False)
-    lat_res_min = forms.CharField(label="", required=False)
-    lat_res_sec = forms.CharField(label="", required=False)
+    lat_res_deg = forms.CharField(label="", required=False, widget=forms.NumberInput(attrs={'min': 0, 'max': 90, 'placeholder': 'Deg'}))
+    lat_res_min = forms.CharField(label="", required=False, widget=forms.NumberInput(attrs={'min': 0, 'max': 59, 'placeholder': 'Min'}))
+    lat_res_sec = forms.CharField(label="", required=False, widget=forms.NumberInput(attrs={'min': 0, 'max': 59.99, 'step': '0.01', 'placeholder': 'Sec'}))
     
-    lon_res_deg = forms.CharField(label="", required=False)
-    lon_res_min = forms.CharField(label="", required=False)
-    lon_res_sec = forms.CharField(label="", required=False)
+    lon_res_deg = forms.CharField(label="", required=False, widget=forms.NumberInput(attrs={'min': 0, 'max': 180, 'placeholder': 'Deg'}))
+    lon_res_min = forms.CharField(label="", required=False, widget=forms.NumberInput(attrs={'min': 0, 'max': 59, 'placeholder': 'Min'}))
+    lon_res_sec = forms.CharField(label="", required=False, widget=forms.NumberInput(attrs={'min': 0, 'max': 59.99, 'step': '0.01', 'placeholder': 'Sec'}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -441,6 +472,10 @@ class PaleoTemporalCoverageForm(forms.ModelForm):
     class Meta:
         model = PaleoTemporalCoverage
         exclude = ('dataset',)
+        widgets = {
+            'paleo_start_date': forms.DateInput(attrs={'type': 'date'}),
+            'paleo_stop_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 
 class DatasetFilesForm(forms.ModelForm):

@@ -197,6 +197,151 @@ def submit_dataset(request):
             scientist_formset = ScientistFormSet(request.POST)
             instrument_formset = InstrumentFormSet(request.POST)
 
+        # Determine the action early
+        action = request.POST.get("save")
+
+        # ═══ SAVE AS DRAFT — Relaxed Validation ═══
+        if action == "DRAFT":
+            # For drafts, only require a title. Save whatever the user has filled so far.
+            title_value = request.POST.get("title", "").strip()
+            if not title_value:
+                title_value = f"Untitled Draft ({timezone.now().strftime('%Y-%m-%d %H:%M')})"
+
+            with transaction.atomic():
+                if dataset:
+                    # Update existing dataset
+                    for field in dataset_form.fields:
+                        if field in request.POST:
+                            val = request.POST.get(field, "").strip()
+                            if val == "" and field in ['temporal_start_date', 'temporal_end_date', 'dif_creation_date', 'last_dif_revision_date', 'future_dif_review_date']:
+                                val = None
+                            try:
+                                setattr(dataset, field, val)
+                            except Exception:
+                                pass
+                    dataset.title = title_value
+                    dataset.status = "draft"
+                else:
+                    # Create new draft dataset
+                    dataset = DatasetSubmission()
+                    dataset.submitter = request.user
+                    dataset.title = title_value
+                    dataset.status = "draft"
+                    
+                    # Save simple text fields from POST data
+                    simple_fields = [
+                        'expedition_type', 'abstract', 'purpose', 'version',
+                        'category', 'topic', 'iso_topic', 'keywords',
+                        'expedition_year', 'expedition_number',
+                        'project_number', 'project_name',
+                        'temporal_start_date', 'temporal_end_date',
+                        'data_type', 'collection_progress',
+                    ]
+                    for field in simple_fields:
+                        val = request.POST.get(field, "").strip()
+                        if val:
+                            try:
+                                setattr(dataset, field, val)
+                            except Exception:
+                                pass
+                        elif field in ['temporal_start_date', 'temporal_end_date']:
+                            try:
+                                setattr(dataset, field, None)
+                            except Exception:
+                                pass
+
+                # Auto-populate contact details
+                if not dataset.contact_person:
+                    dataset.contact_person = request.user.get_full_name() or request.user.username
+                if not dataset.contact_email:
+                    dataset.contact_email = request.user.email
+                if not dataset.contact_phone:
+                    dataset.contact_phone = ""
+
+                dataset.save()
+
+                # Try to save related forms even if not fully valid (draft mode)
+                # Citation
+                try:
+                    if citation_form.is_valid():
+                        citation = citation_form.save(commit=False)
+                        citation.dataset = dataset
+                        citation.save()
+                except Exception as e:
+                    print(f"Draft: Citation save skipped: {e}")
+                # Platform
+                try:
+                    if platform_form.is_valid():
+                        platform = platform_form.save(commit=False)
+                        platform.dataset = dataset
+                        platform.save()
+                except Exception as e:
+                    print(f"Draft: Platform save skipped: {e}")
+                # GPS
+                try:
+                    if gps_form.is_valid():
+                        gps = gps_form.save(commit=False)
+                        gps.dataset = dataset
+                        gps.save()
+                except Exception as e:
+                    print(f"Draft: GPS save skipped: {e}")
+                # Location
+                try:
+                    location = location_form.save(commit=False)
+                    # Auto-set category from expedition type
+                    expedition_map = {
+                        "antarctic": ("region", "Antarctica"),
+                        "arctic": ("region", "Arctic"),
+                        "southern_ocean": ("ocean", "Southern Ocean"),
+                        "himalaya": ("region", "Himalaya"),
+                    }
+                    exp_type = request.POST.get('expedition_type', '')
+                    if exp_type in expedition_map:
+                        cat, loc_type = expedition_map[exp_type]
+                        location.location_category = cat
+                        location.location_type = loc_type
+                    else:
+                        location.location_category = request.POST.get('location_category', 'region')
+                        location.location_type = request.POST.get('location-location_type', '')
+                    location.dataset = dataset
+                    location.save()
+                except Exception as e:
+                    print(f"Draft: Location save skipped: {e}")
+                # Resolution
+                try:
+                    if resolution_form.is_valid():
+                        resolution = resolution_form.save(commit=False)
+                        resolution.dataset = dataset
+                        resolution.save()
+                except Exception as e:
+                    print(f"Draft: Resolution save skipped: {e}")
+                # Paleo
+                try:
+                    if paleo_form.is_valid() and any(paleo_form.cleaned_data.values()):
+                        paleo = paleo_form.save(commit=False)
+                        paleo.dataset = dataset
+                        paleo.save()
+                except Exception as e:
+                    print(f"Draft: Paleo save skipped: {e}")
+                # Scientists
+                try:
+                    if scientist_formset.is_valid():
+                        scientist_formset.instance = dataset
+                        scientist_formset.save()
+                except Exception as e:
+                    print(f"Draft: Scientist save skipped: {e}")
+                # Instruments
+                try:
+                    if instrument_formset.is_valid():
+                        instrument_formset.instance = dataset
+                        instrument_formset.save()
+                except Exception as e:
+                    print(f"Draft: Instrument save skipped: {e}")
+
+            messages.success(request, f"Draft saved successfully! You can continue editing it from your submissions.")
+            return redirect("data_submission:my_submissions")
+
+        # ═══ STANDARD VALIDATION (NEXT / PREVIEW / SUBMIT) ═══
         # Validate forms
         dataset_valid = dataset_form.is_valid()
         citation_valid = citation_form.is_valid()
@@ -253,7 +398,6 @@ def submit_dataset(request):
                      dataset.contact_phone = ""
 
                 previous_status = dataset.status
-                action = request.POST.get("save")
 
                 if action == "SAVE":
                     dataset.status = "draft"
@@ -332,7 +476,6 @@ def submit_dataset(request):
             if action == "PREVIEW":
                 return render(request, 'data_submission/preview_dataset.html', {'dataset': dataset})
 
-            # 📧 EMAIL NOTIFICATION SYSTEM
             # 📧 EMAIL NOTIFICATION SYSTEM moved to upload_dataset_files view to verify file upload completion before notifying.
             # Only trigger here if we decide metadata-only submission triggers email (currently file upload is required for 'submitted' status in Step 2)
             pass
@@ -665,11 +808,7 @@ def admin_dashboard(request):
         'recent_submissions': submissions.order_by('-submission_date')[:10],
     }
 
-    # Expedition Admins get their own filtered dashboard
-    if is_expedition:
-        return render(request, 'admin/child_admin_dashboard.html', context)
-
-    # Super Admins and Normal Admins get the main dashboard
+    # Render the main premium dashboard for all admin types (data is already filtered above)
     return render(request, 'admin/dashboard.html', context)
 
 def is_expedition_admin(user):

@@ -730,7 +730,7 @@
                         </a>
                     </li> -->
 
-                    {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+                    {% if user.is_superuser or user.is_staff and not user.profile.expedition_admin_type %}
                     <li class="nav-item dropdown nav-admin">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="fas fa-user-shield me-1"></i>Admin Panel
@@ -1055,10 +1055,16 @@
                 e.preventDefault();
             });
 
-            // Disable Copy, Cut, Paste
-            document.addEventListener('copy', function (e) { e.preventDefault(); });
-            document.addEventListener('cut', function (e) { e.preventDefault(); });
-            document.addEventListener('paste', function (e) { e.preventDefault(); });
+            // Disable Copy, Cut, Paste (except for data submission pages)
+            const isDataSubmission = window.location.pathname.includes('/submit/') || 
+                                     window.location.pathname.includes('/data_submission/') ||
+                                     window.location.pathname.includes('/metadata/') ||
+                                     window.location.pathname.includes('/submission/');
+            if (!isDataSubmission) {
+                document.addEventListener('copy', function (e) { e.preventDefault(); });
+                document.addEventListener('cut', function (e) { e.preventDefault(); });
+                document.addEventListener('paste', function (e) { e.preventDefault(); });
+            }
 
             // Aggressive Autofill Disabling
             const inputs = document.querySelectorAll('input:not([type="hidden"]), textarea, select');

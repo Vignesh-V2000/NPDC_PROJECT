@@ -212,7 +212,6 @@
                                 <div class="ca-field">
                                     <label>Admin Role</label>
                                     <select name="expedition_admin_type" class="form-select">
-                                        <option value="">-- No Admin Role (Standard User) --</option>
                                         {% for value, label in expedition_types %}
                                         <option value="{{ value }}">{{ label }} Admin</option>
                                         {% endfor %}

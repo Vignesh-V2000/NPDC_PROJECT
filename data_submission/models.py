@@ -74,26 +74,32 @@ class DatasetSubmission(models.Model):
         ('audio_signals', 'Audio Signals'),
     ]
 
-    # JSP ISO Topic Categories
+    # JSP ISO Topic Categories (Updated to match legacy system screenshot perfectly)
     ISO_TOPIC_CHOICES = [
-        ('climatologyMeteorologyAtmosphere', 'Climatology/Meteorology/Atmosphere'),
-        ('oceans', 'Oceans'),
-        ('environment', 'Environment'),
-        ('geoscientificInformation', 'Geoscientific Information'),
-        ('imageryBaseMapsEarthCover', 'Imagery/Base Maps/Earth Cover'),
-        ('inlandWaters', 'Inland Waters'),
-        ('location', 'Location'),
-        ('boundaries', 'Boundaries'),
-        ('biota', 'Biota'),
-        ('economy', 'Economy'),
-        ('elevation', 'Elevation'),
-        ('farming', 'Farming'),
-        ('health', 'Health'),
-        ('intelligenceMilitary', 'Intelligence/Military'),
-        ('society', 'Society'),
-        ('structure', 'Structure'),
-        ('transportation', 'Transportation'),
-        ('utilitiesCommunication', 'Utilities/Communication'),
+        ('Atmosphere', 'Atmosphere'),
+        ('Biodiversity and Biotechnological Potential', 'Biodiversity and Biotechnological Potential'),
+        ('Biogeochemistry', 'Biogeochemistry'),
+        ('Biota', 'Biota'),
+        ('Boundaries', 'Boundaries'),
+        ('Climatology/Meteorology/Atmosphere', 'Climatology/Meteorology/Atmosphere'),
+        ('Cryosphere', 'Cryosphere'),
+        ('Economy', 'Economy'),
+        ('Environment', 'Environment'),
+        ('Farming', 'Farming'),
+        ('Geodesy', 'Geodesy'),
+        ('Geoscience - GPS', 'Geoscience - GPS'),
+        ('geoscientific Information', 'geoscientific Information'),
+        ('Ionosphere', 'Ionosphere'),
+        ('Major ions', 'Major ions'),
+        ('Meteorology', 'Meteorology'),
+        ('Nutrients', 'Nutrients'),
+        ('Oceanography', 'Oceanography'),
+        ('Oceans', 'Oceans'),
+        ('Seismology', 'Seismology'),
+        ('Stable Isotope', 'Stable Isotope'),
+        ('Topography', 'Topography'),
+        ('Trace metals', 'Trace metals'),
+        ('Water Chemistry', 'Water Chemistry'),
     ]
 
     DATA_PROGRESS_CHOICES = [
@@ -126,12 +132,12 @@ class DatasetSubmission(models.Model):
         verbose_name="Metadata ID"
     )
 
-    title = models.CharField(max_length=220)  # JSP: maxSize[220]
-    abstract = models.TextField(max_length=1000)  # JSP: maxSize[1000]
-    purpose = models.TextField(max_length=1000)  # JSP: maxSize[1000]
+    title = models.CharField(max_length=500)  # Increased to support ~100 words
+    abstract = models.TextField(max_length=1000, blank=True)  # JSP: maxSize[1000]
+    purpose = models.TextField(max_length=1000, blank=True)  # JSP: maxSize[1000]
     version = models.CharField(max_length=50, default="1.0")
 
-    metadata_name = models.CharField(max_length=500, blank=True)
+    metadata_name = models.CharField(max_length=1000, blank=True)
     quality = models.TextField(blank=True)
     access_constraints = models.TextField(blank=True)
     use_constraints = models.TextField(blank=True)
@@ -156,10 +162,11 @@ class DatasetSubmission(models.Model):
 
     keywords = models.TextField(
         max_length=1000,
+        blank=True,
         help_text="Comma separated keywords (GCMD recommended)"
     )
 
-    topic = models.CharField(max_length=200)
+    topic = models.CharField(max_length=200, blank=True)
 
     data_center = models.CharField(
         max_length=200,
@@ -170,44 +177,49 @@ class DatasetSubmission(models.Model):
     # PROJECT INFO
     # ===============================
 
-    expedition_type = models.CharField(max_length=30, choices=EXPEDITION_TYPES)
-    expedition_year = models.CharField(max_length=9)  # Will set choices dynamically
+    expedition_type = models.CharField(max_length=30, choices=EXPEDITION_TYPES, blank=True)
+    expedition_year = models.CharField(max_length=9, blank=True)  # Will set choices dynamically
     expedition_number = models.CharField(max_length=100, blank=True)
 
-    project_number = models.CharField(max_length=100)
-    project_name = models.CharField(max_length=300)
+    project_number = models.CharField(max_length=100, blank=True)
+    project_name = models.CharField(max_length=500, blank=True)
 
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    iso_topic = models.CharField(max_length=100, choices=ISO_TOPIC_CHOICES, verbose_name="ISO Topic")
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True)
+    iso_topic = models.CharField(max_length=100, choices=ISO_TOPIC_CHOICES, verbose_name="ISO Topic", blank=True)
 
     data_set_progress = models.CharField(
         max_length=20,
         choices=DATA_PROGRESS_CHOICES,
-        verbose_name="Dataset Progress"
+        verbose_name="Dataset Progress",
+        blank=True
     )
 
     # ===============================
     # TEMPORAL COVERAGE
     # ===============================
 
-    temporal_start_date = models.DateField()
-    temporal_end_date = models.DateField()
+    temporal_start_date = models.DateField(blank=True, null=True)
+    temporal_end_date = models.DateField(blank=True, null=True)
 
     # ===============================
     # SPATIAL COVERAGE (Bounding Box)
     # ===============================
 
     west_longitude = models.FloatField(
-        validators=[MinValueValidator(-180), MaxValueValidator(180)]
+        validators=[MinValueValidator(-180), MaxValueValidator(180)],
+        blank=True, null=True
     )
     east_longitude = models.FloatField(
-        validators=[MinValueValidator(-180), MaxValueValidator(180)]
+        validators=[MinValueValidator(-180), MaxValueValidator(180)],
+        blank=True, null=True
     )
     south_latitude = models.FloatField(
-        validators=[MinValueValidator(-90), MaxValueValidator(90)]
+        validators=[MinValueValidator(-90), MaxValueValidator(90)],
+        blank=True, null=True
     )
     north_latitude = models.FloatField(
-        validators=[MinValueValidator(-90), MaxValueValidator(90)]
+        validators=[MinValueValidator(-90), MaxValueValidator(90)],
+        blank=True, null=True
     )
 
     # ===============================
@@ -226,9 +238,9 @@ class DatasetSubmission(models.Model):
     # CONTACT
     # ===============================
 
-    contact_person = models.CharField(max_length=200, validators=[letter_validator])
+    contact_person = models.CharField(max_length=200, blank=True, validators=[letter_validator])
 
-    contact_email = models.EmailField()
+    contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(
         max_length=20,
         blank=True,
@@ -373,15 +385,15 @@ class DatasetCitation(models.Model):
         related_name='citation'
     )
 
-    creator = models.CharField(max_length=100, validators=[letter_validator])
-    editor = models.CharField(max_length=100, validators=[letter_validator])
-    title = models.CharField(max_length=200)
-    series_name = models.CharField(max_length=200)
+    creator = models.CharField(max_length=500, validators=[letter_validator])
+    editor = models.CharField(max_length=500, validators=[letter_validator])
+    title = models.CharField(max_length=500)
+    series_name = models.CharField(max_length=500)
     release_date = models.DateField()
-    release_place = models.CharField(max_length=100)
+    release_place = models.CharField(max_length=500)
     version = models.CharField(max_length=50, blank=True)
-    online_resource = models.URLField(blank=True)
-    presentation_form = models.CharField(max_length=200, blank=True)
+    online_resource = models.URLField(blank=True, max_length=500)
+    presentation_form = models.CharField(max_length=500, blank=True)
 
     class Meta:
         verbose_name = "Dataset Citation"
@@ -395,12 +407,12 @@ class ScientistDetail(models.Model):
         related_name='scientists'
     )
 
-    role = models.CharField(max_length=100, validators=[letter_validator])
-    title = models.CharField(max_length=10, validators=[letter_validator])
+    role = models.CharField(max_length=500, validators=[letter_validator])
+    title = models.CharField(max_length=100, validators=[letter_validator])
 
-    first_name = models.CharField(max_length=50, validators=[letter_validator])
-    middle_name = models.CharField(max_length=50, blank=True, validators=[letter_validator])
-    last_name = models.CharField(max_length=50, validators=[letter_validator])
+    first_name = models.CharField(max_length=100, validators=[letter_validator])
+    middle_name = models.CharField(max_length=100, blank=True, validators=[letter_validator])
+    last_name = models.CharField(max_length=100, validators=[letter_validator])
 
     email = models.EmailField()  # JSP: auto-filled from logged user, read-only
 
@@ -410,14 +422,14 @@ class ScientistDetail(models.Model):
     )
 
     mobile = models.CharField(
-        max_length=15,
+        max_length=20,
         validators=[RegexValidator(r'^[0-9]+$', 'Enter valid mobile number')]
     )
 
-    institute = models.TextField(max_length=200)
-    address = models.TextField(max_length=200)
-    address2 = models.TextField(max_length=200, blank=True)
-    city = models.CharField(max_length=50)
+    institute = models.CharField(max_length=500)
+    address = models.CharField(max_length=500)
+    address2 = models.CharField(max_length=500, blank=True)
+    city = models.CharField(max_length=100)
 
     country = CountryField(blank_label='Select Country', blank=True, null=True)
     country_raw = models.CharField(max_length=100, blank=True, help_text="Legacy raw country string")
@@ -537,11 +549,12 @@ class LocationMetadata(models.Model):
 
     location_category = models.CharField(
         max_length=20,
-        choices=LOCATION_CATEGORY_CHOICES
+        choices=LOCATION_CATEGORY_CHOICES,
+        blank=True
     )
 
-    location_type = models.CharField(max_length=50)
-    location_subregion = models.CharField(max_length=100)
+    location_type = models.CharField(max_length=50, blank=True)
+    location_subregion = models.CharField(max_length=100, blank=True)
     other_subregion = models.CharField(max_length=100, blank=True)
 
     def clean(self):
@@ -549,7 +562,7 @@ class LocationMetadata(models.Model):
         errors = {}
         
         # JSP rule: If subregion == 'others' → other_subregion required
-        if self.location_subregion == 'others' and not self.other_subregion:
+        if self.location_subregion and self.location_subregion.lower() == 'others' and not self.other_subregion:
             errors['other_subregion'] = 'Specify other subregion'
         
         # Auto-set category based on expedition type (if dataset exists)

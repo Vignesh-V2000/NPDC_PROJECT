@@ -1,876 +1,332 @@
 {% extends 'base.html' %}
 
-{% block title %}Submission Successful - NPDC{% endblock %}
+{% block title %}Submission Successful – NPDC{% endblock %}
 
 {% block content %}
 <style>
-    .container {
-        color: #333333;
-    }
-    
-    .container h2,
-    .container h3,
-    .container h4 {
-        color: var(--primary-blue) !important;
-    }
-    
-    .container p {
-        color: #333333;
-    }
+/* ═══════════════════  Success Page – KPDC Design  ═══════════════════ */
+.sp-page{
+    min-height:80vh;
+    background:linear-gradient(165deg,#f0f6fc 0%,#e8f0f8 40%,#f8fafc 100%);
+    padding:3rem 0 4rem;
+    color:#333;
+}
+
+/* ── hero ── */
+.sp-hero{
+    text-align:center;
+    margin-bottom:2.5rem;
+}
+
+.sp-circle{
+    width:110px;height:110px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#10B981 0%,#34D399 100%);
+    display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 30px rgba(16,185,129,.30);
+    animation:sp-pulse 2.4s ease-in-out infinite;
+    margin-bottom:1.5rem;
+}
+.sp-circle i{font-size:3rem;color:#fff;}
+@keyframes sp-pulse{
+    0%,100%{transform:scale(1);box-shadow:0 8px 30px rgba(16,185,129,.30)}
+    50%{transform:scale(1.06);box-shadow:0 12px 40px rgba(16,185,129,.45)}
+}
+.sp-hero h1{
+    font-size:2.2rem;font-weight:800;
+    background:linear-gradient(135deg,#004F87,#10B981);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    margin-bottom:.6rem;
+}
+.sp-hero p.lead{color:#555;font-size:1.05rem;max-width:520px;margin:0 auto;}
+
+/* ── ID badge ── */
+.sp-id-badge{
+    display:inline-flex;align-items:center;gap:.5rem;
+    background:#fff;border:1px solid #e0e7ef;border-radius:30px;
+    padding:.45rem 1.2rem;font-size:.88rem;color:#004F87;
+    font-weight:600;margin-top:1rem;
+    box-shadow:0 2px 8px rgba(0,79,135,.08);
+}
+.sp-id-badge i{opacity:.55;}
+
+/* ── timeline stepper ── */
+.sp-card{
+    background:#fff;
+    border:1px solid #e0e7ef;
+    border-radius:14px;
+    box-shadow:0 2px 12px rgba(0,40,80,.06);
+    margin-bottom:1.5rem;
+    overflow:hidden;
+}
+.sp-card-head{
+    padding:1rem 1.5rem;
+    background:linear-gradient(135deg,#004F87 0%,#002C4B 100%);
+    color:#fff;font-weight:700;font-size:1rem;
+    display:flex;align-items:center;gap:.6rem;
+}
+.sp-card-body{padding:1.5rem 1.75rem;}
+
+.sp-timeline{display:flex;justify-content:space-between;position:relative;padding:0 .5rem;}
+.sp-timeline::before{content:'';position:absolute;top:22px;left:40px;right:40px;height:3px;background:#e0e7ef;z-index:0;}
+.sp-step{flex:1;text-align:center;position:relative;z-index:1;}
+.sp-dot{
+    width:46px;height:46px;border-radius:50%;
+    background:#fff;border:3px solid #d0d9e3;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto .65rem;font-size:1rem;color:#999;
+    transition:.3s ease;
+}
+.sp-step.done  .sp-dot{background:#10B981;border-color:#10B981;color:#fff;}
+.sp-step.now   .sp-dot{background:#004F87;border-color:#004F87;color:#fff;box-shadow:0 0 0 4px rgba(0,79,135,.18);}
+.sp-step h6{font-size:.82rem;font-weight:700;margin:0;color:#333;}
+.sp-step.done  h6{color:#10B981;}
+.sp-step.now   h6{color:#004F87;}
+.sp-step small{font-size:.72rem;color:#888;}
+
+/* ── summary table ── */
+.sp-summary-table{width:100%;border-collapse:collapse;}
+.sp-summary-table td{padding:.65rem .5rem;font-size:.9rem;border-bottom:1px solid #f0f2f5;vertical-align:top;}
+.sp-summary-table td:first-child{font-weight:600;color:#555;width:170px;white-space:nowrap;}
+.sp-summary-table td:last-child{color:#222;}
+.sp-summary-table tr:last-child td{border-bottom:none;}
+
+/* ── next steps grid ── */
+.sp-steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+@media(max-width:992px){.sp-steps-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:576px){.sp-steps-grid{grid-template-columns:1fr;}}
+.sp-scard{
+    text-align:center;padding:1.4rem 1rem;
+    border:1px solid #e8edf2;border-radius:12px;
+    transition:.25s ease;background:#fafcfd;
+}
+.sp-scard:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,40,80,.08);border-color:#c5d4e4;}
+.sp-scard .sp-sicon{
+    width:52px;height:52px;border-radius:50%;
+    background:rgba(0,79,135,.08);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto .8rem;font-size:1.3rem;color:#004F87;
+}
+.sp-scard h5{font-size:.85rem;font-weight:700;color:#333;margin-bottom:.35rem;}
+.sp-scard p{font-size:.78rem;color:#777;margin:0;line-height:1.45;}
+
+/* ── action buttons ── */
+.sp-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+@media(max-width:768px){.sp-actions{grid-template-columns:1fr;}}
+.sp-action{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:1.5rem 1rem;border-radius:12px;
+    text-decoration:none!important;color:#fff;font-weight:600;
+    transition:.3s ease;
+}
+.sp-action:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.15);color:#fff;}
+.sp-action i{font-size:1.8rem;margin-bottom:.6rem;}
+.sp-action span{font-size:.92rem;}
+.sp-action small{opacity:.75;font-size:.78rem;margin-top:.25rem;font-weight:400;}
+.sp-action.primary{background:linear-gradient(135deg,#004F87,#002C4B);}
+.sp-action.success{background:linear-gradient(135deg,#10B981,#059669);}
+.sp-action.outline{background:#fff;border:2px solid #004F87;color:#004F87;}
+.sp-action.outline:hover{background:#004F87;color:#fff;}
+.sp-action.outline i,.sp-action.outline span{color:inherit;}
+
+/* ── support strip ── */
+.sp-support{
+    display:flex;align-items:center;gap:1.25rem;
+    padding:1.2rem 1.5rem;background:#fff;
+    border:1px solid #e0e7ef;border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,40,80,.04);
+}
+.sp-support i.icon{font-size:1.6rem;color:#004F87;flex-shrink:0;}
+.sp-support .info{flex:1;}
+.sp-support .info strong{font-size:.9rem;color:#333;}
+.sp-support .info span{display:block;font-size:.8rem;color:#777;}
+
+/* ── confetti ── */
+.sp-confetti{
+    position:fixed;width:8px;height:8px;border-radius:50%;
+    pointer-events:none;z-index:9999;opacity:.85;
+}
+
+/* ── responsive timeline ── */
+@media(max-width:576px){
+    .sp-timeline{flex-direction:column;align-items:flex-start;gap:1.2rem;padding:0;}
+    .sp-timeline::before{display:none;}
+    .sp-step{display:flex;align-items:center;gap:.75rem;text-align:left;width:100%;}
+    .sp-dot{margin:0;flex-shrink:0;}
+    .sp-hero h1{font-size:1.7rem;}
+}
 </style>
-<div class="container py-5">
-    <!-- Success Confirmation -->
-    <div class="success-container text-center">
-        <!-- Success Animation -->
-        <div class="success-animation mb-4">
-            <div class="success-circle">
-                <div class="success-checkmark">
-                    <div class="check-icon">
-                        <span class="icon-line line-tip"></span>
-                        <span class="icon-line line-long"></span>
-                        <div class="icon-circle"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Success Message -->
-        <div class="success-message mb-5">
-            <h1 class="display-4 fw-bold mb-3 text-success">Submission Successful!</h1>
-            <p class="lead text-secondary mb-4">
-                Your dataset has been successfully submitted to the National Polar Data Center
-            </p>
-            <div class="confirmation-badge">
-                <span class="badge bg-light text-primary">
-                    <i class="fas fa-clock me-2"></i>Submission ID: {{ submission.metadata_id }}
-                </span>
-                <span class="badge bg-light text-success ms-2">
-                    <i class="fas fa-calendar-check me-2"></i>{{ submission_date|date:"F d, Y H:i"|default:"Now" }}
-                </span>
-            </div>
-        </div>
+<div class="sp-page">
+<div class="container" style="max-width:880px;">
 
-        <!-- Progress Indicator -->
-        <div class="progress-indicator mb-5">
-            <h4 class="h5 mb-4">Submission Status</h4>
-            <div class="timeline">
-                <div class="timeline-step active completed">
-                    <div class="timeline-marker">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <h6 class="mb-1">Submitted</h6>
-                        <p class="small text-muted mb-0">Dataset received</p>
-                    </div>
-                </div>
-                <div class="timeline-step active">
-                    <div class="timeline-marker">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <h6 class="mb-1">Under Verification</h6>
-                        <p class="small text-muted mb-0">Quality assessment</p>
-                    </div>
-                </div>
-                <div class="timeline-step">
-                    <div class="timeline-marker">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <h6 class="mb-1">Metadata Check</h6>
-                        <p class="small text-muted mb-0">Metadata validation</p>
-                    </div>
-                </div>
-                <div class="timeline-step">
-                    <div class="timeline-marker">
-                        <i class="fas fa-check-double"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <h6 class="mb-1">Approved</h6>
-                        <p class="small text-muted mb-0">Dataset published</p>
-                    </div>
-                </div>
-            </div>
+    <!-- ── Hero ── -->
+    <div class="sp-hero">
+        <div class="sp-circle">
+            <i class="fas fa-check"></i>
         </div>
-
-        <!-- Next Steps Card -->
-        <div class="next-steps-card mb-5">
-            <div class="card-header">
-                <h4 class="mb-0"><i class="fas fa-road me-2"></i>What Happens Next?</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-icon">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
-                            <h5 class="h6 mb-2">Review Process</h5>
-                            <p class="small text-muted mb-0">
-                                Our team will review your submission within 3-5 business days
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <h5 class="h6 mb-2">Email Notification</h5>
-                            <p class="small text-muted mb-0">
-                                You'll receive an email once your dataset is reviewed
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-icon">
-                                <i class="fas fa-tasks"></i>
-                            </div>
-                            <h5 class="h6 mb-2">Status Updates</h5>
-                            <p class="small text-muted mb-0">
-                                Track your submission status in "My Submissions"
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-icon">
-                                <i class="fas fa-database"></i>
-                            </div>
-                            <h5 class="h6 mb-2">Data Publication</h5>
-                            <p class="small text-muted mb-0">
-                                Approved datasets are published to NPDC repository
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <h1>Submission Successful!</h1>
+        <p class="lead">
+            Your dataset has been successfully submitted to the National Polar Data Center.
+        </p>
+        <div class="sp-id-badge">
+            <i class="fas fa-fingerprint"></i>
+            {{ submission.metadata_id }}
         </div>
+    </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons mb-5">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <a href="{% url 'data_submission:my_submissions' %}"
-                        class="btn btn-primary btn-lg w-100 h-100 py-4">
-                        <div class="d-flex flex-column align-items-center">
-                            <i class="fas fa-list-alt fa-2x mb-3"></i>
-                            <span>View My Submissions</span>
-                            <small class="text-light opacity-75 mt-1">Track all your submissions</small>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-4">
-                    <a href="{% url 'data_submission:instructions' %}" class="btn btn-success btn-lg w-100 h-100 py-4">
-                        <div class="d-flex flex-column align-items-center">
-                            <i class="fas fa-plus-circle fa-2x mb-3"></i>
-                            <span>Submit Another Dataset</span>
-                            <small class="text-light opacity-75 mt-1">Continue contributing</small>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-lg-4">
-                    <a href="{% url 'users:home' %}" class="btn btn-outline-primary btn-lg w-100 h-100 py-4">
-                        <div class="d-flex flex-column align-items-center">
-                            <i class="fas fa-home fa-2x mb-3"></i>
-                            <span>Return to Home</span>
-                            <small class="text-primary opacity-75 mt-1">Back to dashboard</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
+    <!-- ── Status Timeline ── -->
+    <div class="sp-card">
+        <div class="sp-card-head">
+            <i class="fas fa-route"></i> Submission Progress
         </div>
-
-        <!-- Submission Summary -->
-        <div class="submission-summary mb-5">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Submission Summary</h5>
+        <div class="sp-card-body">
+            <div class="sp-timeline">
+                <div class="sp-step done">
+                    <div class="sp-dot"><i class="fas fa-check"></i></div>
+                    <div><h6>Submitted</h6><small>Dataset received</small></div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="summary-item">
-                                <span class="summary-label">Dataset Title:</span>
-                                <span class="summary-value">{{ submission.title|default:"Not specified" }}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">Submission Date:</span>
-                                <span class="summary-value">{{ submission.submission_date|date:"F d, Y H:i" }}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">Data Type:</span>
-                                <span class="summary-value">{{ submission.data_type|default:"Not specified" }}</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="summary-item">
-                                <span class="summary-label">Region:</span>
-                                <span class="summary-value">{{ submission.region|default:"Not specified" }}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">Files Uploaded:</span>
-                                <span class="summary-value">{{ submission.number_of_files|default:"0" }} files</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">Current Status:</span>
-                                <span class="summary-value">
-                                    <span class="badge bg-warning">Pending Review</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="sp-step now">
+                    <div class="sp-dot"><i class="fas fa-hourglass-half"></i></div>
+                    <div><h6>Under Review</h6><small>Quality check</small></div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Support Information -->
-        <div class="support-section">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="support-card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>Need Assistance?</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="support-contact mb-4">
-                                        <h6 class="h7 mb-3">Contact NPDC Support</h6>
-                                        <div class="contact-item mb-2">
-                                            <i class="fas fa-envelope text-primary me-2"></i>
-                                            <span>npdc@ncpor.res.in</span>
-                                        </div>
-                                        <div class="contact-item mb-2">
-                                            <i class="fas fa-phone text-primary me-2"></i>
-                                            <span>0091-832-2525515</span>
-                                        </div>
-                                        <div class="contact-item">
-                                            <i class="fas fa-clock text-primary me-2"></i>
-                                            <span>Mon-Fri, 9:00 AM - 5:30 PM IST</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="support-resources">
-                                        <h6 class="h7 mb-3">Helpful Resources</h6>
-                                        <div class="resource-item mb-2">
-                                            <a href="#" class="text-decoration-none">
-                                                <i class="fas fa-file-alt me-2"></i>
-                                                <span>Submission Guidelines</span>
-                                            </a>
-                                        </div>
-                                        <div class="resource-item mb-2">
-                                            <a href="#" class="text-decoration-none">
-                                                <i class="fas fa-question-circle me-2"></i>
-                                                <span>FAQ</span>
-                                            </a>
-                                        </div>
-                                        <div class="resource-item">
-                                            <a href="#" class="text-decoration-none">
-                                                <i class="fas fa-book me-2"></i>
-                                                <span>User Manual</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="sp-step">
+                    <div class="sp-dot"><i class="fas fa-search"></i></div>
+                    <div><h6>Metadata Check</h6><small>Validation</small></div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="thank-you-card">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-hands-helping fa-3x text-primary mb-3"></i>
-                            <h5 class="h6 mb-2">Thank You!</h5>
-                            <p class="small text-muted mb-0">
-                                Your contribution helps advance polar research and global data sharing
-                            </p>
-                        </div>
-                    </div>
+                <div class="sp-step">
+                    <div class="sp-dot"><i class="fas fa-check-double"></i></div>
+                    <div><h6>Published</h6><small>Live on NPDC</small></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Success Page Styles -->
-<style>
-    /* Success Animation */
-    .success-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .success-animation {
-        position: relative;
-    }
-
-    .success-circle {
-        width: 150px;
-        height: 150px;
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-        border-radius: 50%;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-        animation: pulse-success 2s infinite;
-    }
-
-    @keyframes pulse-success {
-        0% {
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-            transform: scale(1);
-        }
-
-        50% {
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.5);
-            transform: scale(1.05);
-        }
-
-        100% {
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-            transform: scale(1);
-        }
-    }
-
-    .check-icon {
-        width: 80px;
-        height: 80px;
-        position: relative;
-        border-radius: 50%;
-        box-sizing: content-box;
-    }
-
-    .icon-line {
-        height: 5px;
-        background-color: white;
-        display: block;
-        border-radius: 2px;
-        position: absolute;
-        z-index: 10;
-    }
-
-    .icon-line.line-tip {
-        top: 46px;
-        left: 14px;
-        width: 25px;
-        transform: rotate(45deg);
-        animation: icon-line-tip 0.75s;
-    }
-
-    .icon-line.line-long {
-        top: 38px;
-        right: 8px;
-        width: 47px;
-        transform: rotate(-45deg);
-        animation: icon-line-long 0.75s;
-    }
-
-    @keyframes icon-line-tip {
-        0% {
-            width: 0;
-            left: 1px;
-            top: 19px;
-        }
-
-        54% {
-            width: 0;
-            left: 1px;
-            top: 19px;
-        }
-
-        70% {
-            width: 50px;
-            left: -8px;
-            top: 37px;
-        }
-
-        84% {
-            width: 17px;
-            left: 21px;
-            top: 48px;
-        }
-
-        100% {
-            width: 25px;
-            left: 14px;
-            top: 46px;
-        }
-    }
-
-    @keyframes icon-line-long {
-        0% {
-            width: 0;
-            right: 46px;
-            top: 54px;
-        }
-
-        65% {
-            width: 0;
-            right: 46px;
-            top: 54px;
-        }
-
-        84% {
-            width: 55px;
-            right: 0px;
-            top: 35px;
-        }
-
-        100% {
-            width: 47px;
-            right: 8px;
-            top: 38px;
-        }
-    }
-
-    .confirmation-badge {
-        margin-bottom: 2rem;
-    }
-
-    .confirmation-badge .badge {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.9rem;
-        border-radius: 25px;
-    }
-
-    /* Progress Indicator */
-    .progress-indicator {
-        padding: 2rem;
-        background: white;
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-    }
-
-    .timeline {
-        display: flex;
-        justify-content: space-between;
-        position: relative;
-    }
-
-    .timeline::before {
-        content: '';
-        position: absolute;
-        top: 30px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--medium-gray);
-        z-index: 1;
-    }
-
-    .timeline-step {
-        flex: 1;
-        text-align: center;
-        position: relative;
-        z-index: 2;
-    }
-
-    .timeline-marker {
-        width: 60px;
-        height: 60px;
-        background: white;
-        border: 3px solid var(--medium-gray);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 1.2rem;
-        color: var(--text-secondary);
-        transition: all 0.3s ease;
-    }
-
-    .timeline-step.active .timeline-marker {
-        background: var(--primary-blue);
-        border-color: var(--primary-blue);
-        color: white;
-    }
-
-    .timeline-step.completed .timeline-marker {
-        background: var(--accent-teal);
-        border-color: var(--accent-teal);
-        color: white;
-    }
-
-    .timeline-content h6 {
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-
-    .timeline-step.active .timeline-content h6 {
-        color: var(--primary-blue);
-    }
-
-    .timeline-step.completed .timeline-content h6 {
-        color: var(--accent-teal);
-    }
-
-    /* Next Steps Card */
-    .next-steps-card {
-        background: white;
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--medium-gray);
-        overflow: hidden;
-    }
-
-    .next-steps-card .card-header {
-        background: var(--light-gray);
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
-    }
-
-    .next-steps-card .card-body {
-        padding: 2rem;
-    }
-
-    .step-card {
-        text-align: center;
-        padding: 1.5rem 1rem;
-        height: 100%;
-    }
-
-    .step-icon {
-        width: 60px;
-        height: 60px;
-        background: rgba(0, 51, 102, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        color: var(--primary-blue);
-        font-size: 1.5rem;
-    }
-
-    /* Action Buttons */
-    .action-buttons .btn {
-        border-radius: var(--border-radius-md);
-        transition: all 0.3s ease;
-        border: none;
-    }
-
-    .action-buttons .btn:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .action-buttons .btn-primary {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-    }
-
-    .action-buttons .btn-success {
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-    }
-
-    /* Submission Summary */
-    .submission-summary .card {
-        border: 1px solid var(--medium-gray);
-        border-radius: var(--border-radius-md);
-    }
-
-    .submission-summary .card-header {
-        background: var(--light-gray);
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
-    }
-
-    .summary-item {
-        display: flex;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--medium-gray);
-    }
-
-    .summary-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-    }
-
-    .summary-label {
-        font-weight: 600;
-        color: var(--text-secondary);
-        width: 150px;
-        flex-shrink: 0;
-    }
-
-    .summary-value {
-        flex: 1;
-        color: var(--text-primary);
-        font-weight: 500;
-    }
-
-    /* Support Section */
-    .support-card {
-        background: white;
-        border-radius: var(--border-radius-md);
-        border: 1px solid var(--medium-gray);
-        overflow: hidden;
-        height: 100%;
-    }
-
-    .support-card .card-header {
-        background: var(--light-gray);
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--medium-gray);
-    }
-
-    .support-card .card-body {
-        padding: 1.5rem;
-    }
-
-    .contact-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .contact-item i {
-        width: 20px;
-        color: var(--primary-blue);
-    }
-
-    .resource-item a {
-        color: var(--text-primary);
-        transition: color 0.2s ease;
-    }
-
-    .resource-item a:hover {
-        color: var(--primary-blue);
-    }
-
-    .resource-item i {
-        width: 20px;
-        color: var(--text-secondary);
-    }
-
-    .thank-you-card {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-        border-radius: var(--border-radius-md);
-        height: 100%;
-    }
-
-    .thank-you-card .card-body {
-        color: white;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 992px) {
-        .success-circle {
-            width: 120px;
-            height: 120px;
-        }
-
-        .check-icon {
-            width: 60px;
-            height: 60px;
-        }
-
-        .timeline-marker {
-            width: 50px;
-            height: 50px;
-            font-size: 1rem;
-        }
-
-        .timeline::before {
-            top: 25px;
-        }
-
-        .step-card {
-            padding: 1rem;
-        }
-
-        .step-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.2rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .success-circle {
-            width: 100px;
-            height: 100px;
-        }
-
-        .check-icon {
-            width: 50px;
-            height: 50px;
-        }
-
-        .timeline {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 2rem;
-        }
-
-        .timeline::before {
-            display: none;
-        }
-
-        .timeline-step {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            text-align: left;
-            width: 100%;
-        }
-
-        .timeline-marker {
-            margin: 0;
-            flex-shrink: 0;
-        }
-
-        .action-buttons .btn-lg {
-            padding: 1.5rem 1rem;
-        }
-
-        .summary-item {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .summary-label {
-            width: 100%;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .success-message h1 {
-            font-size: 2rem;
-        }
-
-        .confirmation-badge .badge {
-            display: block;
-            margin-bottom: 0.5rem;
-            width: 100%;
-        }
-
-        .confirmation-badge .badge:last-child {
-            margin-bottom: 0;
-        }
-
-        .action-buttons .row>div {
-            margin-bottom: 1rem;
-        }
-
-        .action-buttons .row>div:last-child {
-            margin-bottom: 0;
-        }
-    }
-</style>
-
-<!-- JavaScript for Success Page -->
+    <!-- ── Submission Summary ── -->
+    <div class="sp-card">
+        <div class="sp-card-head">
+            <i class="fas fa-clipboard-list"></i> Submission Summary
+        </div>
+        <div class="sp-card-body">
+            <table class="sp-summary-table">
+                <tr>
+                    <td><i class="fas fa-heading me-1" style="opacity:.4"></i> Title</td>
+                    <td>{{ submission.title|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-globe-americas me-1" style="opacity:.4"></i> Expedition</td>
+                    <td>{{ submission.get_expedition_type_display|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-calendar me-1" style="opacity:.4"></i> Submitted</td>
+                    <td>{{ submission.submission_date|date:"F d, Y" }}</td>
+                </tr>
+                {% if submission.data_type %}
+                <tr>
+                    <td><i class="fas fa-database me-1" style="opacity:.4"></i> Data Type</td>
+                    <td>{{ submission.get_data_type_display }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td><i class="fas fa-info-circle me-1" style="opacity:.4"></i> Status</td>
+                    <td><span style="display:inline-block;padding:3px 14px;background:#FFF3CD;color:#856404;border-radius:20px;font-size:.82rem;font-weight:600;">Pending Review</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Action Buttons ── -->
+    <div class="sp-actions">
+        <a href="{% url 'data_submission:my_submissions' %}" class="sp-action primary">
+            <i class="fas fa-list-alt"></i>
+            <span>My Submissions</span>
+            <small>Track all datasets</small>
+        </a>
+        <a href="{% url 'data_submission:instructions' %}" class="sp-action success">
+            <i class="fas fa-plus-circle"></i>
+            <span>Submit Another</span>
+            <small>Continue contributing</small>
+        </a>
+        <a href="{% url 'users:home' %}" class="sp-action outline">
+            <i class="fas fa-home"></i>
+            <span>Return Home</span>
+            <small>Back to dashboard</small>
+        </a>
+    </div>
+
+    <!-- ── What Happens Next ── -->
+    <div class="sp-card">
+        <div class="sp-card-head">
+            <i class="fas fa-road"></i> What Happens Next?
+        </div>
+        <div class="sp-card-body">
+            <div class="sp-steps-grid">
+                <div class="sp-scard">
+                    <div class="sp-sicon"><i class="fas fa-clipboard-check"></i></div>
+                    <h5>Review Process</h5>
+                    <p>Our team will review your submission within 3-5 business days</p>
+                </div>
+                <div class="sp-scard">
+                    <div class="sp-sicon"><i class="fas fa-envelope-open-text"></i></div>
+                    <h5>Email Notification</h5>
+                    <p>You'll receive an email once your dataset is reviewed</p>
+                </div>
+                <div class="sp-scard">
+                    <div class="sp-sicon"><i class="fas fa-tasks"></i></div>
+                    <h5>Status Updates</h5>
+                    <p>Track your submission status in "My Submissions"</p>
+                </div>
+                <div class="sp-scard">
+                    <div class="sp-sicon"><i class="fas fa-database"></i></div>
+                    <h5>Data Publication</h5>
+                    <p>Approved datasets are published to NPDC repository</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Support Strip ── -->
+    <div class="sp-support">
+        <i class="fas fa-life-ring icon"></i>
+        <div class="info">
+            <strong>Need help?</strong>
+            <span>Email <a href="mailto:npdc@ncpor.res.in" style="color:#004F87;font-weight:600;">npdc@ncpor.res.in</a> or call 0091-832-2525515 &nbsp;(Mon–Fri, 9 AM – 5:30 PM IST)</span>
+        </div>
+    </div>
+
+</div><!-- /.container -->
+</div><!-- /.sp-page -->
+
+<!-- Confetti Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Animate timeline markers
-        const timelineMarkers = document.querySelectorAll('.timeline-marker');
-        timelineMarkers.forEach((marker, index) => {
-            setTimeout(() => {
-                marker.style.transform = 'scale(1.2)';
-                setTimeout(() => {
-                    marker.style.transform = 'scale(1)';
-                }, 300);
-            }, index * 300);
-        });
-
-        // Animate checkmark
-        const checkmark = document.querySelector('.check-icon');
-        if (checkmark) {
-            checkmark.style.opacity = '0';
-            setTimeout(() => {
-                checkmark.style.transition = 'opacity 0.5s ease';
-                checkmark.style.opacity = '1';
-            }, 500);
-        }
-
-        // Add confetti effect (optional)
-        function createConfetti() {
-            const colors = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444'];
-            const confettiCount = 100;
-
-            for (let i = 0; i < confettiCount; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'fixed';
-                confetti.style.width = '10px';
-                confetti.style.height = '10px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.borderRadius = '50%';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-10px';
-                confetti.style.opacity = '0.8';
-                confetti.style.zIndex = '9999';
-                confetti.style.pointerEvents = 'none';
-
-                document.body.appendChild(confetti);
-
-                // Animation
-                const animation = confetti.animate([
-                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
-                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
-                ], {
-                    duration: Math.random() * 3000 + 2000,
-                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
-                });
-
-                animation.onfinish = () => confetti.remove();
-            }
-        }
-
-        // Trigger confetti on page load
-        setTimeout(createConfetti, 1000);
-
-        // Download submission summary (optional)
-        const downloadBtn = document.getElementById('downloadSummary');
-        if (downloadBtn) {
-            downloadBtn.addEventListener('click', function () {
-                // Generate and download PDF summary
-                alert('Submission summary download feature would be implemented here');
-            });
-        }
-
-        // Share success (optional)
-        const shareBtn = document.getElementById('shareSuccess');
-        if (shareBtn) {
-            shareBtn.addEventListener('click', function () {
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'Dataset Submitted Successfully!',
-                        text: 'I just submitted a dataset to the National Polar Data Center',
-                        url: window.location.href
-                    });
-                } else {
-                    alert('Share functionality is not available in your browser');
-                }
-            });
-        }
-
-        // Auto-redirect after 30 seconds (optional)
-        // setTimeout(() => {
-        //     window.location.href = "{% url 'data_submission:my_submissions' %}";
-        // }, 30000);
-
-        // Initialize tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-
-        // Print submission (optional)
-        const printBtn = document.getElementById('printSubmission');
-        if (printBtn) {
-            printBtn.addEventListener('click', function () {
-                window.print();
-            });
-        }
+document.addEventListener('DOMContentLoaded',function(){
+    // Staggered dot animation
+    document.querySelectorAll('.sp-dot').forEach(function(d,i){
+        setTimeout(function(){
+            d.style.transform='scale(1.2)';
+            setTimeout(function(){d.style.transform='scale(1)';},280);
+        },i*250);
     });
+
+    // Confetti burst
+    var cols=['#10B981','#3B82F6','#8B5CF6','#F59E0B','#EF4444','#004F87'];
+    setTimeout(function(){
+        for(var i=0;i<80;i++){
+            var c=document.createElement('div');
+            c.className='sp-confetti';
+            c.style.left=Math.random()*100+'vw';
+            c.style.top='-10px';
+            c.style.background=cols[Math.floor(Math.random()*cols.length)];
+            c.style.width=(Math.random()*6+5)+'px';
+            c.style.height=c.style.width;
+            document.body.appendChild(c);
+            var a=c.animate([
+                {transform:'translateY(0) rotate(0deg)',opacity:1},
+                {transform:'translateY('+window.innerHeight+'px) rotate('+(Math.random()*360)+'deg)',opacity:0}
+            ],{duration:Math.random()*2800+1800,easing:'cubic-bezier(.215,.61,.355,1)'});
+            a.onfinish=function(){this.effect.target.remove();}.bind({effect:{target:c}});
+        }
+    },800);
+});
 </script>
 {% endblock %}

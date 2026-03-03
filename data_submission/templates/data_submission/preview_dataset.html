@@ -1,201 +1,914 @@
-{% extends "base.html" %}
-
-{% block title %}Preview Dataset - NPDC{% endblock %}
-
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ dataset.title }} - NPDC{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <!-- Main Content -->
-        <div class="col-lg-10">
-            <!-- Header -->
-            <div class="mb-5 text-center">
-                <span class="badge bg-info text-dark mb-3 px-3 py-2 rounded-pill shadow-sm fw-bold border" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd) !important; border-color: #7dd3fc !important;">PREVIEW MODE</span>
-                <h1 class="display-6 fw-bold text-dark mb-2">Preview Your Submission</h1>
-                <p class="text-muted fs-5">Review your metadata carefully before proceeding to file upload.</p>
-            </div>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 
-            <div class="modern-card mb-5">
-                <div class="card-header bg-white border-bottom py-4 px-4 px-md-5 d-flex align-items-center">
-                    <div class="icon-box bg-primary-light text-primary me-3 rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: #eff6ff; color: #2563eb;">
-                        <i class="fas fa-database fs-4"></i>
+    .kpdc-page {
+        background: white;
+        min-height: 100vh;
+        padding-bottom: 3rem;
+        font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Breadcrumb bar */
+    .kpdc-breadcrumb-bar {
+        background: #fff;
+        border-bottom: 1px solid #ccd6e0;
+        padding: 0.6rem 0;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb {
+        margin: 0;
+        font-size: 0.85rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb a {
+        color: #004f87;
+        text-decoration: none;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .kpdc-breadcrumb-bar .breadcrumb-item.active {
+        color: #666;
+    }
+
+    /* Title Section */
+    .kpdc-title-section {
+        background: #fff;
+        padding: 1.75rem 0 1.5rem;
+        border-bottom: none;
+    }
+
+    .kpdc-title-section h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a !important;
+        line-height: 1.35;
+        margin-bottom: 1.25rem;
+        font-family: 'Open Sans', sans-serif;
+        border-bottom: black 2px solid;
+    }
+
+    /* Abstract / Description box */
+    .kpdc-desc-box {
+        background: white;
+        border: 1px solid #d0dbe6;
+        border-radius: 0;
+        padding: 1.25rem 1.5rem;
+        font-size: 0.92rem;
+        line-height: 1.75;
+        color: #2f2e2e;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-desc-box .desc-label {
+        font-weight: 700;
+        color: black;
+        display: block;
+        margin-bottom: 0.2rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kpdc-desc-box p {
+        color: #444;
+        margin-bottom: 0.75rem;
+        text-align: justify;
+    }
+
+    .kpdc-desc-box p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Right sidebar actions */
+    .kpdc-actions {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kpdc-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 1rem;
+        border-radius: 4px;
+        border: 1px solid #ccd6e0;
+        background: #fff;
+        color: #333;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        font-family: 'Open Sans', sans-serif;
+        transition: all 0.2s;
+        margin-bottom: 0.6rem;
+    }
+
+    .kpdc-action-btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .kpdc-action-btn:hover {
+        background: #004f87;
+        color: #fff;
+        border-color: #004f87;
+    }
+
+    .kpdc-action-btn i {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .kpdc-action-btn.btn-primary-filled {
+        background: #00a3eb;
+        color: #fff;
+        border-color: #00a3eb;
+    }
+
+    .kpdc-action-btn.btn-primary-filled:hover {
+        background: #0088cc;
+    }
+
+    .kpdc-action-btn.btn-success-filled {
+        background: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+
+    /* Status badge */
+    .kpdc-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 3px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-status-badge.published {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .kpdc-status-badge.submitted {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .kpdc-status-badge.draft {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .kpdc-status-badge.under_review {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .kpdc-status-badge.revision_requested {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Content card */
+    .kpdc-content-card {
+        margin-top: 1.5rem;
+        overflow: hidden;
+        border: 1px solid #d0dbe6;
+    }
+
+    /* Metadata table */
+    .kpdc-metadata-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #f9f9f9;
+    }
+
+    .kpdc-metadata-table tr {
+        border-bottom: 1px solid #d0dbe6;
+    }
+
+    .kpdc-metadata-table tr:last-child {
+        border-bottom: none;
+    }
+
+    .kpdc-metadata-table td {
+        padding: 1rem 1.5rem;
+        font-size: 0.95rem;
+        color: #000000;
+        vertical-align: top;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-metadata-table td:first-child {
+        width: 240px;
+        font-weight: 700;
+        color: #0f2844;
+        white-space: nowrap;
+        position: relative;
+        padding-left: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .kpdc-metadata-table td:first-child::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #132d48;
+        font-size: 1.2rem;
+        line-height: 1;
+        top: 1rem;
+    }
+
+    .kpdc-metadata-table td:last-child {
+        color: #222121;
+    }
+
+    /* Section label */
+    .kpdc-section-label {
+        padding: 0.85rem 1.5rem 0.85rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3a5c;
+        position: relative;
+        border-bottom: 1px solid #d0dbe6;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-section-label::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #1a3a5c;
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+
+    .kpdc-section-label .file-size-info {
+        font-weight: 400;
+        font-size: 0.88rem;
+        color: #666;
+    }
+
+    .kpdc-section-label .file-size-value {
+        font-weight: 700;
+        color: #333;
+        font-size: 0.92rem;
+    }
+
+    /* Keywords */
+    .kpdc-keyword-tag {
+        display: inline-block;
+        padding: 0.2rem 0.55rem;
+        margin: 0.15rem;
+        background: #dce6f0;
+        color: #1a3a5c;
+        border-radius: 2px;
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+
+    /* Map container */
+    .kpdc-map-container {
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        position: relative;
+        border: 2px solid #5ba3d9;
+    }
+
+    .kpdc-map-container #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .kpdc-spatial-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.7rem;
+        background: #004f87;
+        color: #fff;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+
+    .kpdc-coords {
+        font-size: 0.88rem;
+        color: #444;
+    }
+
+    /* Files table */
+    .kpdc-files-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .kpdc-files-table thead th {
+        background: #2a3f5f;
+        padding: 0.7rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        border-bottom: none;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-files-table tbody td {
+        padding: 0.75rem 1rem;
+        font-size: 0.88rem;
+        color: #444;
+        border-bottom: 1px solid #d0dbe6;
+        vertical-align: middle;
+        text-align: center;
+        background: #fff;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-files-table tbody tr:hover td {
+        background: #f5f8fc;
+    }
+
+    .kpdc-file-icon {
+        color: #004f87;
+        margin-right: 0.5rem;
+    }
+
+    .kpdc-download-link {
+        color: #004f87;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.88rem;
+    }
+
+    .kpdc-download-link:hover {
+        text-decoration: underline;
+        color: #00a3eb;
+    }
+
+    /* Personnel */
+    .kpdc-personnel-email {
+        color: #004f87;
+    }
+
+    /* Version History */
+    .kpdc-version-section {
+        margin-top: 2rem;
+    }
+
+    .kpdc-version-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-version-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .kpdc-version-table thead th {
+        background: #fff;
+        padding: 0.7rem 1rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #333;
+        border-top: 2px solid #2a3f5f;
+        border-bottom: 2px solid #2a3f5f;
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-version-table tbody td {
+        padding: 0.65rem 1rem;
+        font-size: 0.88rem;
+        color: #444;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-version-table tbody tr:hover {
+        background: #f5f8fc;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .kpdc-metadata-table td:first-child {
+            width: 180px;
+        }
+
+        .kpdc-title-section h1 {
+            font-size: 1.4rem;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .kpdc-metadata-table td:first-child {
+            width: auto;
+            display: block;
+            padding-bottom: 0;
+        }
+
+        .kpdc-metadata-table td:last-child {
+            display: block;
+            padding-top: 0.25rem;
+            padding-left: 2rem;
+        }
+    }
+</style>
+
+<div class="kpdc-page">
+
+    <!-- Breadcrumb -->
+    <div class="kpdc-breadcrumb-bar">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active">Dataset #{{ dataset.id }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Title Section -->
+    <div class="kpdc-title-section">
+        <div class="container">
+            <h1>{{ dataset.title }}</h1>
+
+            <div class="row">
+                <!-- Left: Abstract -->
+                <div class="col-lg-9">
+                    <div class="kpdc-desc-box">
+                        <p class="desc-label">Abstract:</p>
+                        <p>{{ dataset.abstract }}</p>
+                        {% if dataset.purpose %}
+                        <p class="desc-label">Purpose:</p>
+                        <p style="margin-top: 0.75rem;">{{ dataset.purpose }}</p>
+                        {% endif %}
                     </div>
-                    <h4 class="mb-0 fw-bold text-dark">{{ dataset.title }}</h4>
                 </div>
-                <div class="card-body p-4 p-md-5">
 
-                    <!-- Quick Meta -->
-                    <div class="row g-4 mb-5 pb-4 border-bottom">
-                        <div class="col-md-4">
-                            <div class="p-3 bg-light rounded-3 h-100 border">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="fas fa-tag me-2 text-primary"></i>Category</h6>
-                                <p class="mb-0 fw-bold text-dark">{{ dataset.get_category_display }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 bg-light rounded-3 h-100 border">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="fas fa-calendar me-2 text-warning"></i>Dates</h6>
-                                <p class="mb-0 fw-bold text-dark">{{ dataset.temporal_start_date }} to {{ dataset.temporal_end_date }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 bg-light rounded-3 h-100 border">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="fas fa-map-marker-alt me-2 text-success"></i>Location</h6>
-                                <p class="mb-0 fw-bold text-dark">{{ dataset.location.get_location_category_display }}</p>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Right sidebar -->
+                <div class="col-lg-3 mt-3 mt-lg-0">
+                    <div class="d-flex flex-column">
 
-                    <!-- Abstract -->
-                    <div class="mb-5">
-                        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center"><i class="fas fa-align-left text-muted me-2"></i> Abstract</h5>
-                        <div class="p-4 bg-light rounded-3 border text-dark lh-lg" style="font-size: 1.05rem;">
-                            {{ dataset.abstract|linebreaks }}
-                        </div>
-                    </div>
-
-                    <div class="row g-5">
-                        <!-- Left Col -->
-                        <div class="col-md-6">
-                            <!-- Topic & ISO -->
-                            <div class="mb-4">
-                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Topic Info</h5>
-                                <ul class="list-unstyled custom-list text-dark">
-                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Topic:</span> <span class="fw-medium">{{ dataset.topic }}</span></li>
-                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">ISO Topic:</span> <span class="fw-medium">{{ dataset.get_iso_topic_display }}</span></li>
-                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Keywords:</span> <span class="fw-medium">{{ dataset.keywords }}</span></li>
-                                </ul>
-                            </div>
-
-                            <!-- Project -->
-                            <div class="mb-4">
-                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Project Details</h5>
-                                <ul class="list-unstyled custom-list text-dark">
-                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Project Name:</span> <span class="fw-medium">{{ dataset.project_name }}</span></li>
-                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Project Number:</span> <span class="fw-medium">{{ dataset.project_number }}</span></li>
-                                    <li class="mb-3 d-flex"><span class="text-muted fw-bold me-2 w-35">Expedition:</span> <span class="fw-medium">{{ dataset.get_expedition_type_display }} ({{ dataset.expedition_year }})</span></li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Right Col -->
-                        <div class="col-md-6">
-                            <!-- Spatial -->
-                            <div class="mb-4">
-                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Spatial Coverage</h5>
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
-                                            <span class="d-block text-muted small fw-bold mb-1">NORTH</span>
-                                            <strong class="fs-5 text-dark">{{ dataset.north_latitude }}°</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
-                                            <span class="d-block text-muted small fw-bold mb-1">SOUTH</span>
-                                            <strong class="fs-5 text-dark">{{ dataset.south_latitude }}°</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
-                                            <span class="d-block text-muted small fw-bold mb-1">EAST</span>
-                                            <strong class="fs-5 text-dark">{{ dataset.east_longitude }}°</strong>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-3 border rounded text-center bg-white shadow-sm">
-                                            <span class="d-block text-muted small fw-bold mb-1">WEST</span>
-                                            <strong class="fs-5 text-dark">{{ dataset.west_longitude }}°</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Contact -->
-                            <div class="mb-4 mt-5">
-                                <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Contact Info</h5>
-                                <div class="bg-light p-4 rounded-3 border">
-                                    <p class="mb-2 text-dark"><i class="fas fa-user-circle text-muted me-2"></i> <strong class="fw-bold">{{ dataset.contact_person }}</strong></p>
-                                    <p class="mb-2 text-dark"><i class="fas fa-envelope text-muted me-2"></i> {{ dataset.contact_email }}</p>
-                                    <p class="mb-0 text-dark"><i class="fas fa-phone text-muted me-2"></i> {{ dataset.contact_phone }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sub-models (GPS, Platform, etc.) -->
-                    <div class="mt-5 pt-4 border-top bg-light p-4 rounded-3 border">
-                        <div class="row g-4 text-center">
-                            <div class="col-md-4 border-end border-secondary border-opacity-25">
-                                <span class="d-block text-muted text-uppercase small fw-bold mb-1">Platform</span>
-                                <strong class="fs-6 text-dark">{{ dataset.platform.short_name|default:"None Specified" }}</strong>
-                            </div>
-                            <div class="col-md-4 border-end border-secondary border-opacity-25">
-                                <span class="d-block text-muted text-uppercase small fw-bold mb-2">Instruments</span>
-                                {% for inst in dataset.instruments.all %}
-                                <span class="badge bg-secondary rounded-pill px-3">{{ inst.short_name }}</span>
-                                {% empty %}
-                                <span class="text-muted border rounded-pill px-3 py-1 bg-white small">None</span>
-                                {% endfor %}
-                            </div>
-                            <div class="col-md-4">
-                                <span class="d-block text-muted text-uppercase small fw-bold mb-1">GPS Used</span>
-                                {% if dataset.gps.gps_used %}
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 fs-6"><i class="fas fa-check-circle me-1"></i> Yes</span>
+                        <!-- Status Badge -->
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="kpdc-status-badge {{ dataset.status }}">
+                                {% if dataset.status == 'published' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif dataset.status == 'submitted' %}
+                                    <i class="fas fa-clock"></i>
+                                {% elif dataset.status == 'under_review' %}
+                                    <i class="fas fa-search"></i>
+                                {% elif dataset.status == 'revision_requested' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
                                 {% else %}
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-1 fs-6"><i class="fas fa-times-circle me-1"></i> No</span>
+                                    <i class="fas fa-file-alt"></i>
                                 {% endif %}
-                            </div>
+                                {{ dataset.get_status_display }}
+                            </span>
                         </div>
-                    </div>
 
+                        <!-- Actions -->
+                        <div class="kpdc-actions mt-2 mb-4">
+                            <div class="alert alert-warning p-2 text-center mb-3 shadow-sm" style="font-size: 0.9rem; font-weight: bold; border-left: 4px solid #ffc107;">
+                                <i class="fas fa-eye me-1"></i> PREVIEW MODE
+                            </div>
+
+                            {% if is_admin_preview %}
+                            <a href="{% url 'data_submission:admin_edit_submission' dataset.metadata_id %}"
+                                class="kpdc-action-btn" style="justify-content:center;">
+                                <i class="fas fa-arrow-left"></i> Return to Edit
+                            </a>
+                            {% else %}
+                            <a href="{% url 'data_submission:submit_dataset' %}?edit={{ dataset.pk }}"
+                                class="kpdc-action-btn" style="justify-content:center;">
+                                <i class="fas fa-edit"></i> Edit Metadata
+                            </a>
+                            <a href="{% url 'data_submission:upload_dataset_files' dataset.metadata_id %}"
+                                class="kpdc-action-btn btn-primary-filled" style="justify-content:center; background: #004f87; border-color: #004f87; color: white;">
+                                Proceed <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+</div>
                 </div>
-            </div>
-            
-            <!-- Actions -->
-            <div class="d-flex justify-content-center gap-3 mt-4">
-                {% if is_admin_preview %}
-                <a href="{% url 'data_submission:admin_edit_submission' dataset.metadata_id %}"
-                    class="btn btn-outline-primary btn-lg px-5 rounded-pill fw-bold bg-white border-2">
-                    <i class="fas fa-arrow-left me-2"></i> Return to Edit & Save
-                </a>
-                {% else %}
-                <a href="{% url 'data_submission:submit_dataset' %}?submission_id={{ dataset.metadata_id }}"
-                    class="btn btn-outline-secondary btn-lg px-4 rounded-pill fw-bold bg-white border-2">
-                    <i class="fas fa-edit me-2"></i> Edit Metadata
-                </a>
-
-                <a href="{% url 'data_submission:upload_dataset_files' dataset.metadata_id %}"
-                    class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow-sm" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;">
-                    Proceed to Upload <i class="fas fa-arrow-right ms-2"></i>
-                </a>
-                {% endif %}
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    /* Modern Card Base (matching dashboard) */
-    .modern-card {
-        background: #ffffff;
-        border-radius: 1.2rem;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 4px 25px rgba(15, 23, 42, 0.05);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .modern-card:hover {
-        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
-    }
+    <div class="container">
 
-    /* specific utilities */
-    .w-35 { width: 35% !important; min-width: 140px; }
-    
-    .custom-list li {
-        padding: 0.5rem 0;
-        border-bottom: 1px dashed #e2e8f0;
-    }
-    .custom-list li:last-child {
-        border-bottom: none;
-    }
-</style>
+        <!-- Core Metadata -->
+        <div class="kpdc-content-card">
+            <table class="kpdc-metadata-table">
+                <tr>
+                    <td>Entry ID</td>
+                    <td>{{ dataset.metadata_id }}</td>
+                </tr>
+                {% if dataset.doi %}
+                <tr>
+                    <td>DOI</td>
+                    <td><a href="{{ dataset.doi }}" target="_blank" style="color: #004f87;">{{ dataset.doi }}</a></td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>Science Keyword</td>
+                    <td>
+                        {% for kw in dataset.keyword_list %}
+                            {{ kw }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>ISO Topic</td>
+                    <td>{{ dataset.get_iso_topic_display }}</td>
+                </tr>
+                <tr>
+                    <td>Personnel</td>
+                    <td>
+                        {% for scientist in dataset.scientists.all %}
+                            {% if not forloop.first %}<br>{% endif %}
+                            {{ scientist.first_name }} {{ scientist.last_name }}
+                            {% if scientist.email %} (<span class="kpdc-personnel-email">{{ scientist.email }}</span>){% endif %}
+                            {% if scientist.institute %}, {{ scientist.institute }}{% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Project</td>
+                    <td>
+                        {% if dataset.project_number %}<strong>{{ dataset.project_number }}</strong>, {% endif %}
+                        {{ dataset.project_name }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Research Period</td>
+                    <td>{{ dataset.temporal_start_date|date:"Y-m-d" }} ~ {{ dataset.temporal_end_date|date:"Y-m-d" }}</td>
+                </tr>
+                <tr>
+                    <td>Create/Update Date</td>
+                    <td>{{ dataset.submission_date|date:"Y-m-d" }} / {{ dataset.last_updated|date:"Y-m-d" }}</td>
+                </tr>
+                {% if dataset.location %}
+                <tr>
+                    <td>Location</td>
+                    <td>
+                        {% if dataset.location.location_category %}{{ dataset.location.location_category }}{% endif %}
+                        {% if dataset.location.location_type %} &gt; {{ dataset.location.location_type }}{% endif %}
+                        {% if dataset.location.location_subregion %} &gt; {{ dataset.location.location_subregion }}{% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if dataset.citation %}
+                <tr>
+                    <td>Citation</td>
+                    <td>
+                        {% if dataset.citation.creator %}{{ dataset.citation.creator }}{% endif %}
+                        {% if dataset.citation.title %} - <em>{{ dataset.citation.title }}</em>{% endif %}
+                        {% if dataset.citation.release_date %} ({{ dataset.citation.release_date }}){% endif %}
+                        {% if dataset.citation.series_name %}, {{ dataset.citation.series_name }}{% endif %}
+                        {% if dataset.citation.version %}, v{{ dataset.citation.version }}{% endif %}
+                        {% if dataset.citation.online_resource %}
+                        <br><a href="{{ dataset.citation.online_resource }}" target="_blank" style="color: #004f87;">{{ dataset.citation.online_resource }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>Spatial Coverage</td>
+                    <td>
+                        <span class="kpdc-coords">
+                            lat: {{ dataset.south_latitude }}&deg;, lon: {{ dataset.west_longitude }}&deg;
+                            &nbsp;&ndash;&nbsp;
+                            lat: {{ dataset.north_latitude }}&deg;, lon: {{ dataset.east_longitude }}&deg;
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Map -->
+        <div class="kpdc-content-card" style="margin-top: 0; border-top: none;">
+            <div class="kpdc-map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- Raw Data / Files -->
+        {% if dataset.data_file or dataset.metadata_file or dataset.readme_file %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">
+                <span>Raw Data</span>
+                {% if dataset.data_file and dataset.file_size_mb %}
+                <span class="file-size-info">File Size</span>
+                <span class="file-size-value">{{ dataset.file_size_mb }} MB</span>
+                {% endif %}
+            </div>
+            <table class="kpdc-files-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>File Name</th>
+                        <th>Description</th>
+                        <th>Size</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if dataset.data_file %}
+                    <tr>
+                        <td>Rawdata</td>
+                        <td>{{ dataset.data_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <td>{% if dataset.file_size_mb %}{{ dataset.file_size_mb }} MB{% else %}&mdash;{% endif %}</td>
+                        <td><a href="{{ dataset.data_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                    </tr>
+                    {% endif %}
+                    {% if dataset.metadata_file %}
+                    <tr>
+                        <td>Metadata</td>
+                        <td>{{ dataset.metadata_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td><a href="{{ dataset.metadata_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                    </tr>
+                    {% endif %}
+                    {% if dataset.readme_file %}
+                    <tr>
+                        <td>Readme</td>
+                        <td>{{ dataset.readme_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td><a href="{{ dataset.readme_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Instruments -->
+        {% if dataset.instruments.all %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">Instruments</div>
+            <table class="kpdc-metadata-table">
+                {% for instrument in dataset.instruments.all %}
+                <tr>
+                    <td>{{ instrument.short_name }}</td>
+                    <td>{{ instrument.long_name }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- GPS & Paleo-Temporal -->
+        {% if dataset.gps and dataset.gps.gps_used or dataset.paleo_temporal %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">GPS &amp; Paleo-Temporal</div>
+            <table class="kpdc-metadata-table">
+                {% if dataset.gps and dataset.gps.gps_used %}
+                <tr>
+                    <td>GPS Used</td>
+                    <td>{{ dataset.gps.gps_used|yesno:"Yes,No" }}</td>
+                </tr>
+                {% if dataset.gps.minimum_altitude or dataset.gps.maximum_altitude %}
+                <tr>
+                    <td>Altitude (Min / Max)</td>
+                    <td>{{ dataset.gps.minimum_altitude }} / {{ dataset.gps.maximum_altitude }}</td>
+                </tr>
+                {% endif %}
+                {% if dataset.gps.minimum_depth or dataset.gps.maximum_depth %}
+                <tr>
+                    <td>Depth (Min / Max)</td>
+                    <td>{{ dataset.gps.minimum_depth }} / {{ dataset.gps.maximum_depth }}</td>
+                </tr>
+                {% endif %}
+                {% endif %}
+                {% if dataset.paleo_temporal %}
+                {% if dataset.paleo_temporal.paleo_start_date %}
+                <tr>
+                    <td>Paleo Start Date</td>
+                    <td>{{ dataset.paleo_temporal.paleo_start_date }}</td>
+                </tr>
+                {% endif %}
+                {% if dataset.paleo_temporal.paleo_stop_date %}
+                <tr>
+                    <td>Paleo Stop Date</td>
+                    <td>{{ dataset.paleo_temporal.paleo_stop_date }}</td>
+                </tr>
+                {% endif %}
+                {% if dataset.paleo_temporal.chronostratigraphic_unit %}
+                <tr>
+                    <td>Chronostratigraphic Unit</td>
+                    <td>{{ dataset.paleo_temporal.chronostratigraphic_unit }}</td>
+                </tr>
+                {% endif %}
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Data Resolution -->
+        {% if dataset.resolution %}
+        {% with r=dataset.resolution %}
+        {% if r.latitude_resolution or r.longitude_resolution or r.horizontal_resolution_range or r.vertical_resolution or r.vertical_resolution_range or r.temporal_resolution or r.temporal_resolution_range %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label">Data Resolution</div>
+            <table class="kpdc-metadata-table">
+                {% if r.latitude_resolution %}
+                <tr>
+                    <td>Latitude Resolution</td>
+                    <td>{{ r.latitude_resolution }}</td>
+                </tr>
+                {% endif %}
+                {% if r.longitude_resolution %}
+                <tr>
+                    <td>Longitude Resolution</td>
+                    <td>{{ r.longitude_resolution }}</td>
+                </tr>
+                {% endif %}
+                {% if r.horizontal_resolution_range %}
+                <tr>
+                    <td>Horizontal Range</td>
+                    <td>{{ r.horizontal_resolution_range }}</td>
+                </tr>
+                {% endif %}
+                {% if r.vertical_resolution or r.vertical_resolution_range %}
+                <tr>
+                    <td>Vertical Resolution</td>
+                    <td>
+                        {% if r.vertical_resolution %}{{ r.vertical_resolution }}{% endif %}
+                        {% if r.vertical_resolution and r.vertical_resolution_range %} ({{ r.vertical_resolution_range }}){% elif r.vertical_resolution_range %}{{ r.vertical_resolution_range }}{% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if r.temporal_resolution or r.temporal_resolution_range %}
+                <tr>
+                    <td>Temporal Resolution</td>
+                    <td>
+                        {% if r.temporal_resolution %}{{ r.temporal_resolution }}{% endif %}
+                        {% if r.temporal_resolution and r.temporal_resolution_range %} ({{ r.temporal_resolution_range }}){% elif r.temporal_resolution_range %}{{ r.temporal_resolution_range }}{% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endif %}
+
+        <!-- Full Citation Details (collapsible) -->
+        {% if dataset.citation %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label" style="cursor:pointer;"
+                data-bs-toggle="collapse" data-bs-target="#citationDetails">
+                <span>Full Citation Details</span>
+                <i class="fas fa-chevron-down ms-auto" style="font-size:0.75rem; opacity:0.6;"></i>
+            </div>
+            <div class="collapse" id="citationDetails">
+                <table class="kpdc-metadata-table">
+                    <tr>
+                        <td>Creator</td>
+                        <td>{{ dataset.citation.creator }}</td>
+                    </tr>
+                    <tr>
+                        <td>Editor</td>
+                        <td>{{ dataset.citation.editor }}</td>
+                    </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>{{ dataset.citation.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Series Name</td>
+                        <td>{{ dataset.citation.series_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Release Date</td>
+                        <td>{{ dataset.citation.release_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Release Place</td>
+                        <td>{{ dataset.citation.release_place }}</td>
+                    </tr>
+                    <tr>
+                        <td>Version</td>
+                        <td>{{ dataset.citation.version }}</td>
+                    </tr>
+                    <tr>
+                        <td>Online Resource</td>
+                        <td>
+                            {% if dataset.citation.online_resource %}
+                            <a href="{{ dataset.citation.online_resource }}" target="_blank" style="color: #004f87;">{{ dataset.citation.online_resource }}</a>
+                            {% else %}&mdash;{% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Version History -->
+        <div class="kpdc-version-section">
+            <h2 class="kpdc-version-title">Version History</h2>
+            <table class="kpdc-version-table">
+                <thead>
+                    <tr>
+                        <th>Version</th>
+                        <th>Registration Date</th>
+                        <th>Submitter</th>
+                        <th>Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if dataset.versions.all %}
+                        {% for v in dataset.versions.all %}
+                        <tr>
+                            <td>{{ v.version }}</td>
+                            <td>{{ v.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ v.submitter.get_full_name|default:v.submitter.username }}</td>
+                            <td>{{ v.summary|default:v.get_status_display }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td>{{ dataset.version }}</td>
+                        <td>{{ dataset.submission_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ dataset.submitter.get_full_name|default:dataset.submitter.username }}</td>
+                        <td>{{ dataset.get_status_display }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+</div><!-- /.container -->
+</div><!-- /.kpdc-page -->
+
+<!-- Leaflet Map (using cdnjs instead of unpkg for reliability) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var north = {{ dataset.north_latitude|default:"0" }};
+        var south = {{ dataset.south_latitude|default:"0" }};
+        var east  = {{ dataset.east_longitude|default:"0" }};
+        var west  = {{ dataset.west_longitude|default:"0" }};
+
+        var centerLat = (north + south) / 2;
+        var centerLng = (east + west) / 2;
+
+        var mapEl = document.getElementById('map');
+        if (mapEl) { mapEl.setAttribute('tabindex', '-1'); }
+
+        var map = L.map('map', {
+            center: [centerLat, centerLng],
+            zoom: 5,
+            scrollWheelZoom: true,
+            attributionControl: false,
+            keyboard: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '',
+            maxZoom: 18
+        }).addTo(map);
+
+        var marker = L.marker([centerLat, centerLng]).addTo(map);
+        marker.bindPopup('<strong>{{ dataset.title|truncatechars:80 }}</strong>');
+
+        // Prevent map from stealing page focus
+        if (mapEl) { mapEl.setAttribute('tabindex', '-1'); }
+        map.getContainer().setAttribute('tabindex', '-1');
+
+        // Force scroll to top
+        window.scrollTo(0, 0);
+        setTimeout(function() { window.scrollTo(0, 0); }, 50);
+        setTimeout(function() { window.scrollTo(0, 0); }, 200);
+    });
+</script>
 {% endblock %}

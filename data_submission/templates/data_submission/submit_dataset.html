@@ -128,19 +128,27 @@
         border-left-color: #10b981 !important;
     }
 
-    /* ═══ Modern Form Inputs ═══ */
+    /* ═══ Modern Form Inputs (High Visibility) ═══ */
     .submission-container .form-control,
     .submission-container .form-select {
-        border: 1.5px solid #e2e8f0;
+        border: 2px solid #94a3b8;
         border-radius: 0.5rem;
-        padding: 0.5rem 0.75rem;
+        padding: 0.55rem 0.75rem;
         font-size: 0.88rem;
+        background-color: #f8fafc;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
         transition: all 0.2s ease;
+        color: #1e293b;
+    }
+    .submission-container .form-control::placeholder {
+        color: #94a3b8;
     }
     .submission-container .form-control:focus,
     .submission-container .form-select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        border-color: #2563eb;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.04);
+        outline: none;
     }
 
     /* ═══ Modern Submit Buttons ═══ */
@@ -455,11 +463,45 @@
                     {% endif %}
 
                     {% if dataset_form.errors %}
-                    {% for field, errors in dataset_form.errors.items %}
-                    {% if errors %}
-                    <p class="mb-0 small">• Main Form: {{ field|title }} - {{ errors|join:", " }}</p>
+                        {% for field, errors in dataset_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• Main Form: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
                     {% endif %}
-                    {% endfor %}
+
+                    {% if citation_form.errors %}
+                        {% for field, errors in citation_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• Citation: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if platform_form.errors %}
+                        {% for field, errors in platform_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• Platform: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if location_form.errors %}
+                        {% for field, errors in location_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• Location: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if resolution_form.errors %}
+                        {% for field, errors in resolution_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• Resolution: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if gps_form.errors %}
+                        {% for field, errors in gps_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• GPS: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if paleo_form.errors %}
+                        {% for field, errors in paleo_form.errors.items %}
+                            {% if errors %}<p class="mb-0 small">• Paleo: {{ field|title }} - {{ errors|join:", " }}</p>{% endif %}
+                        {% endfor %}
                     {% endif %}
 
                     {% if scientist_formset.errors %}
@@ -613,9 +655,6 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            {{ dataset_form.version|as_crispy_field }}
-                        </div>
                     </div>
                 </fieldset>
 
@@ -665,8 +704,8 @@
                                 <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
                                 <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
                                 <div class="col-md-6">{{ form.mobile|as_crispy_field }}</div>
-                                <div class="col-12">{{ form.institute|as_crispy_field }}</div>
-                                <div class="col-12">{{ form.address|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.institute|as_crispy_field }}</div>
+                                <div class="col-md-6">{{ form.address|as_crispy_field }}</div>
                                 <div class="col-md-6">{{ form.city|as_crispy_field }}</div>
                                 <div class="col-md-6">{{ form.country|as_crispy_field }}</div>
                                 <div class="col-md-6">{{ form.postal_code|as_crispy_field }}</div>
@@ -725,14 +764,14 @@
                     <div class="d-none">{{ gps_form.gps_used }}</div>
 
                     <!-- Temporal Coverage -->
-                    <h6 class="text-muted mt-3 mb-2">Temporal Coverage</h6>
+                    <h6 class="text-muted mb-2">Temporal Coverage</h6>
                     <div class="row g-3">
                         <div class="col-md-6">{{ dataset_form.temporal_start_date|as_crispy_field }}</div>
                         <div class="col-md-6">{{ dataset_form.temporal_end_date|as_crispy_field }}</div>
                     </div>
 
                     <!-- WRAPPER FOR GPS-DEPENDENT SECTIONS -->
-                    <div class="gps-dependent-section" style="display: none;">
+                    <div class="gps-dependent-section" style="display: block;">
 
                         <!-- Paleo-Temporal Coverage -->
                         <h6 class="text-muted mt-3 mb-2">Paleo-Temporal Coverage</h6>
@@ -805,10 +844,10 @@
                                 </div>
 
                                 <!-- GPS Specific Fields (Altitude/Depth) -->
-                                <div class="mb-3">
+                                <div class="mb-3 d-none">
                                     {{ gps_form.gps_used|as_crispy_field }}
                                 </div>
-                                <div class="gps-dependent-section mt-3" style="display: none;">
+                                <div class="gps-dependent-section mt-3" style="display: block;">
                                     <div class="row g-3">
                                         <div class="col-md-6">{{ gps_form.minimum_altitude|as_crispy_field }}</div>
                                         <div class="col-md-6">{{ gps_form.maximum_altitude|as_crispy_field }}</div>
@@ -952,37 +991,23 @@
                     </div>
                 </fieldset>
 
-                <!-- 11. Keywords (with AI Suggest) -->
-                <fieldset class="border p-4 mb-4 rounded">
-                    <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
-                        Keywords
-                        <button type="button" class="btn btn-sm btn-outline-info ms-2" onclick="aiSuggestKeywords()"
-                            id="ai-keywords-btn" title="AI Suggest Keywords">
-                            🐧 Suggest Keywords
-                        </button>
-                    </legend>
-                    <div class="row g-3">
-                        <div class="col-12">
-                            {{ dataset_form.keywords|as_crispy_field }}
-                            <div id="ai-keyword-tags" class="mt-2" style="display:none;"></div>
-                        </div>
-                    </div>
-                </fieldset>
-
 
 
                 <!-- 12. Location -->
                 <fieldset class="border p-4 mb-4 rounded">
                     <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">Location</legend>
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Location Category</label>
                             <input type="text" id="location_category_display" class="form-control" value="Region"
                                 disabled readonly>
                             <input type="hidden" name="location_category" id="location_category_hidden" value="region">
                         </div>
-                        <div class="col-md-4">{{ location_form.location_type|as_crispy_field }}</div>
-                        <div class="col-md-4">{{ location_form.location_subregion|as_crispy_field }}</div>
+                        <div class="col-md-3">{{ location_form.location_type|as_crispy_field }}</div>
+                        <div class="col-md-3">{{ location_form.location_subregion|as_crispy_field }}</div>
+                        <div class="col-md-3" id="other_subregion_container" style="display: none;">
+                            {{ location_form.other_subregion|as_crispy_field }}
+                        </div>
                     </div>
                     <small class="text-muted mt-1 d-block">🐧 Location Category and Type auto-detect from Expedition
                         Type.</small>
@@ -1052,14 +1077,22 @@
 
                 <!-- Files Section Removed - Moved to Step 2 -->
 
-                <div class="d-flex justify-content-end gap-3 mt-4">
-                    <button type="button" class="btn btn-outline-secondary btn-lg"
-                        onclick="location.reload()">Reset</button>
-                    <button type="submit" name="save" value="PREVIEW" class="btn btn-outline-info btn-lg">
-                        <i class="fas fa-eye me-2"></i>Preview
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <!-- Left: Save as Draft -->
+                    <button type="submit" name="save" value="DRAFT" class="btn btn-lg" id="saveDraftBtn"
+                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; font-weight: 700; border-radius: 0.6rem; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); padding: 0.5rem 1.5rem;">
+                        <i class="fas fa-save me-2"></i>Save as Draft
                     </button>
-                    <button type="submit" name="save" value="NEXT" class="btn btn-primary btn-lg px-5">Save & Next <i
-                            class="fas fa-arrow-right ms-2"></i></button>
+                    <!-- Right: Reset, Preview, Save & Next -->
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn btn-outline-secondary btn-lg"
+                            onclick="location.reload()">Reset</button>
+                        <button type="submit" name="save" value="PREVIEW" class="btn btn-outline-info btn-lg">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </button>
+                        <button type="submit" name="save" value="NEXT" class="btn btn-primary btn-lg px-5">Save & Next <i
+                                class="fas fa-arrow-right ms-2"></i></button>
+                    </div>
                 </div>
 
             </form>
@@ -2585,11 +2618,49 @@
             setTimeout(() => catDisplay.classList.remove('ai-filled-field'), 5000);
         }
 
-        // Update Location Type
+        // Update Location Type (overwrite strictly as requested)
         const typeField = document.getElementById('id_location_type');
-        if (typeField && !typeField.value.trim()) {
+        if (typeField) {
             typeField.value = mapping.type;
             markAiFilled('id_location_type');
+        }
+    }
+
+    // Toggle 'Other Subregion' field
+    function toggleOtherSubregion() {
+        const subregionSelect = document.getElementById('id_location_subregion');
+        const otherContainer = document.getElementById('other_subregion_container');
+        const otherInput = document.getElementById('id_other_subregion');
+        
+        if (subregionSelect && otherContainer) {
+            if (subregionSelect.value === 'Others') {
+                otherContainer.style.display = 'block';
+                if (otherInput) {
+                    otherInput.setAttribute('required', 'required');
+                    // Add required asterisk visually if missing
+                    const label = document.querySelector('label[for="' + otherInput.id + '"]');
+                    if (label && !label.querySelector('.asteriskField')) {
+                        const asterisk = document.createElement('span');
+                        asterisk.className = 'asteriskField';
+                        asterisk.textContent = '*';
+                        label.appendChild(asterisk);
+                        label.classList.add('requiredField');
+                    }
+                }
+            } else {
+                otherContainer.style.display = 'none';
+                if (otherInput) {
+                    otherInput.removeAttribute('required');
+                    otherInput.value = '';
+                    // Remove required asterisk visually
+                    const label = document.querySelector('label[for="' + otherInput.id + '"]');
+                    if (label) {
+                        const asterisk = label.querySelector('.asteriskField');
+                        if (asterisk) asterisk.remove();
+                        label.classList.remove('requiredField');
+                    }
+                }
+            }
         }
     }
 
@@ -2606,6 +2677,13 @@
         const checked = document.querySelector('input[name="expedition_type"]:checked');
         if (checked) {
             autoDetectLocation(checked.value);
+        }
+
+        // Setup subregion listener
+        const subregionSelect = document.getElementById('id_location_subregion');
+        if (subregionSelect) {
+            subregionSelect.addEventListener('change', toggleOtherSubregion);
+            toggleOtherSubregion(); // run immediately on load
         }
     });
 
@@ -3534,6 +3612,105 @@
 
         // Update progress periodically (in case of dynamic content)
         setInterval(updateProgressDisplay, 2000);
+    });
+
+    // =========================================
+    // AUTO-SAVE FORM DATA ON REFRESH
+    // =========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('datasetForm');
+        if (!form) return;
+
+        const STORAGE_KEY = 'npdc_dataset_autosave';
+
+        // 1. Restore data on load
+        function restoreFormData() {
+            const savedDataBytes = sessionStorage.getItem(STORAGE_KEY);
+            if (savedDataBytes) {
+                try {
+                    const savedData = JSON.parse(savedDataBytes);
+                    let hasRestored = false;
+
+                    for (const [name, value] of Object.entries(savedData)) {
+                        const inputs = form.querySelectorAll(`[name="${name}"]`);
+                        if (inputs.length === 0) continue;
+
+                        const firstInput = inputs[0];
+
+                        // Skip files and hidden tokens
+                        if (firstInput.type === 'file' || name === 'csrfmiddlewaretoken') continue;
+
+                        if (firstInput.type === 'radio' || firstInput.type === 'checkbox') {
+                            inputs.forEach(input => {
+                                if (input.value === value || (Array.isArray(value) && value.includes(input.value))) {
+                                    input.checked = true;
+                                    hasRestored = true;
+                                }
+                            });
+                        } else {
+                            firstInput.value = value;
+                            hasRestored = true;
+                        }
+                    }
+
+                    if (hasRestored) {
+                        console.log("Form data restored from session storage.");
+                        // Trigger change events to update dependent UK (like the progress bar or subregion toggle)
+                        setTimeout(() => {
+                            if (typeof updateProgressDisplay === 'function') updateProgressDisplay();
+                            if (typeof toggleOtherSubregion === 'function') toggleOtherSubregion();
+                        }, 500);
+                    }
+                } catch (e) {
+                    console.error("Error restoring form data:", e);
+                }
+            }
+        }
+
+        // 2. Save data whenever fields change
+        function saveFormData() {
+            const formData = new FormData(form);
+            let dataObj = {};
+            for (let [key, value] of formData.entries()) {
+                // Determine if it is a list or single value
+                if (dataObj.hasOwnProperty(key)) {
+                    if (!Array.isArray(dataObj[key])) {
+                        dataObj[key] = [dataObj[key]];
+                    }
+                    dataObj[key].push(value);
+                } else {
+                    dataObj[key] = value;
+                }
+            }
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(dataObj));
+        }
+
+        // Apply restore logic
+        restoreFormData();
+
+        // Disable browser's built-in scroll restoration and force scroll to top
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+        setTimeout(function() { window.scrollTo(0, 0); }, 100);
+
+        // Attach listeners to save on change/input
+        form.addEventListener('input', saveFormData);
+        form.addEventListener('change', saveFormData);
+
+        // 3. Clear data on form submit so it doesn't linger for the next new dataset
+        form.addEventListener('submit', function() {
+            sessionStorage.removeItem(STORAGE_KEY);
+        });
+        
+        // 4. If there are form errors, scroll to the error banner
+        const errorBanner = document.querySelector('.alert-danger');
+        if (errorBanner) {
+            setTimeout(function() {
+                errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
     });
 
 </script>

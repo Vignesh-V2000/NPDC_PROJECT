@@ -50,8 +50,8 @@
                                     <i class="fas fa-database"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number counter-value" data-target="{{ total_submissions }}">0</h3>
-                                    <p class="stat-label">Total Submissions</p>
+                                    <h3 class="stat-number">{{ total_submissions|default:'0' }}</h3>
+                                    <p class="stat-label">Total</p>
                                     <small class="stat-change">All datasets submitted</small>
                                 </div>
                             </div>
@@ -66,8 +66,8 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number counter-value" data-target="{{ pending_submissions }}">0</h3>
-                                    <p class="stat-label">Pending Review</p>
+                                    <h3 class="stat-number">{{ pending_submissions|default:'0' }}</h3>
+                                    <p class="stat-label">Pending</p>
                                     <small class="stat-change">Require attention</small>
                                 </div>
                             </div>
@@ -82,7 +82,7 @@
                                     <i class="fas fa-check-circle"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number counter-value" data-target="{{ published|default:'0' }}">0</h3>
+                                    <h3 class="stat-number">{{ published|default:'0' }}</h3>
                                     <p class="stat-label">Published</p>
                                     <small class="stat-change">Published datasets</small>
                                 </div>
@@ -90,8 +90,8 @@
                         </a>
                     </div>
 
-                    <!-- Active Users (Super Admin Only) -->
-                    {% if request.user.is_staff %}
+                    <!-- Active Users (Super Admin) OR Submitted (Expedition Admin) -->
+                    {% if request.user.is_superuser %}
                     <div class="col-xl-3 col-lg-6">
                         <a href="{% url 'users:user_approval_dashboard' %}" class="stat-link d-block h-100">
                             <div class="stat-card users">
@@ -99,9 +99,25 @@
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number counter-value" data-target="{{ user_count }}">0</h3>
+                                    <h3 class="stat-number">{{ user_count|default:'0' }}</h3>
                                     <p class="stat-label">Registered Users</p>
                                     <small class="stat-change">Active researchers</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% else %}
+                    <!-- Submitted (for Expedition Admin) -->
+                    <div class="col-xl-3 col-lg-6">
+                        <a href="{% url 'data_submission:all_submissions' %}" class="stat-link d-block h-100">
+                            <div class="stat-card users" style="border-top-color: #8b5cf6;">
+                                <div class="stat-icon" style="color: #8b5cf6; background: rgba(139, 92, 246, 0.1);">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 class="stat-number">{{ submitted|default:'0' }}</h3>
+                                    <p class="stat-label">Submitted</p>
+                                    <small class="stat-change">Total submitted</small>
                                 </div>
                             </div>
                         </a>
@@ -160,6 +176,7 @@
                         </div>
                     </div>
 
+                    {% if request.user.is_superuser %}
                     <!-- System Administration -->
                     <div class="col-xl-4 col-lg-6">
                         <div class="action-card">
@@ -180,6 +197,28 @@
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <!-- All Submissions (for non-superuser admins) -->
+                    <div class="col-xl-4 col-lg-6">
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="action-content">
+                                <h5 class="mb-2">All Submissions</h5>
+                                <p class="text-secondary small mb-3">
+                                    Browse and manage all published and pending datasets
+                                </p>
+                                <div class="action-stats">
+                                    <span class="badge bg-success text-white rounded-pill shadow-sm px-3 py-2">{{ published|default:"0" }} published</span>
+                                </div>
+                                <a href="{% url 'data_submission:all_submissions' %}" class="btn w-100 mt-3 d-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important; color: #ffffff !important; border: none !important; font-weight: 600; padding: 0.7rem 1rem; border-radius: 0.85rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.85rem;">
+                                    <i class="fas fa-list"></i>View All
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     {% endif %}
                     </div>
                 </div>
@@ -212,7 +251,7 @@
             <div class="recent-submissions-section mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4 px-2">
                     <h4 class="h5 mb-0">Recent Submissions</h4>
-                    <a href="{% url 'data_submission:all_submissions' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">View All</a>
+                    <a href="{% url 'data_submission:all_submissions' %}" class="btn btn-sm rounded-pill px-4 fw-semibold" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">View All</a>
                 </div>
                 <div class="activity-card">
                     <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
@@ -284,55 +323,6 @@
             </div>
 
 
-
-            <!-- Advanced Management (Super Admin Only) -->
-            {% if request.user.is_staff %}
-            <div class="advanced-management mt-5">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="management-card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Data Management</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="management-actions">
-                                    <a href="{% url 'admin:data_submission_datasetsubmission_changelist' %}"
-                                        class="btn btn-outline-primary w-100 mb-3">
-                                        <i class="fas fa-database me-2"></i>Manage All Submissions
-                                    </a>
-                                    <a href="#" class="btn btn-outline-secondary w-100 mb-3">
-                                        <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
-                                    </a>
-                                    <a href="#" class="btn btn-outline-secondary w-100">
-                                        <i class="fas fa-file-export me-2"></i>Export Data
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="management-card">
-                            <div class="card-header">
-                                <h5 class="mb-0">System Tools</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="management-actions">
-                                    <a href="#" class="btn btn-outline-dark w-100 mb-3">
-                                        <i class="fas fa-tools me-2"></i>System Configuration
-                                    </a>
-                                    <a href="#" class="btn btn-outline-dark w-100 mb-3">
-                                        <i class="fas fa-shield-alt me-2"></i>Security Settings
-                                    </a>
-                                    <a href="#" class="btn btn-outline-dark w-100">
-                                        <i class="fas fa-file-alt me-2"></i>Generate Reports
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div><!-- Close col-lg-9 -->
 </div><!-- Close row -->
@@ -1021,17 +1011,15 @@
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Approved', 'Pending', 'Rejected'],
+                    labels: ['Approved', 'Pending'],
                     datasets: [{
                         data: [
                             parseInt('{{ published|default:"0" }}'),
-                            parseInt('{{ pending_submissions }}'),
-                            parseInt('{{ rejected_submissions }}')
+                            parseInt('{{ pending_submissions }}')
                         ],
                         backgroundColor: [
                             '#10B981', // green for approved
-                            '#F59E0B', // amber for pending
-                            '#EF4444'  // red for rejected
+                            '#F59E0B'  // amber for pending
                         ],
                         borderWidth: 0,
                         hoverOffset: 12

@@ -31,18 +31,18 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-bordered mb-0">
-                            <tbody>
-                                <tr>
-                                    <th class="bg-light" style="width: 30%;">Metadata Title:</th>
-                                    <td>{{ dataset.title }}</td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-light">Expedition:</th>
-                                    <td>{{ dataset.get_expedition_type_display }}</td>
-                                </tr>
-                                <form method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <table class="table table-bordered mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th class="bg-light" style="width: 30%;">Metadata Title:</th>
+                                        <td>{{ dataset.title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Expedition:</th>
+                                        <td>{{ dataset.get_expedition_type_display }}</td>
+                                    </tr>
                                     <tr>
                                         <th class="bg-light align-middle">Add Actual\Processed Dataset:</th>
                                         <td>
@@ -73,13 +73,12 @@
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="text-end p-3 bg-white border-top-0">
-                                            <button type="submit" class="btn btn-light border">Upload and
-                                                Submit</button>
+                                            <button type="submit" class="btn btn-light border">Upload and Submit</button>
                                         </td>
                                     </tr>
-                                </form>
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
             </div>
