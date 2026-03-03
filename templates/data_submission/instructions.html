@@ -7,30 +7,30 @@
     /* Hero Banner */
     .dsi-hero {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-        padding: 3rem 2rem 2.5rem;
+        padding: 1.5rem 2rem 1.3rem;
         border-radius: 1rem;
         position: relative;
         overflow: hidden;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
     .dsi-hero-orb {
         position: absolute; border-radius: 50%;
         filter: blur(60px); opacity: 0.15; pointer-events: none;
     }
-    .dsi-hero-orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; left: -50px; animation: dsiOrb1 8s ease-in-out infinite; }
-    .dsi-hero-orb-2 { width: 200px; height: 200px; background: #8b5cf6; top: -50px; right: 10%; animation: dsiOrb2 10s ease-in-out infinite; }
-    .dsi-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: dsiOrb1 12s ease-in-out infinite reverse; }
+    .dsi-hero-orb-1 { width: 200px; height: 200px; background: #3b82f6; top: -80px; left: -40px; animation: dsiOrb1 8s ease-in-out infinite; }
+    .dsi-hero-orb-2 { width: 140px; height: 140px; background: #8b5cf6; top: -40px; right: 10%; animation: dsiOrb2 10s ease-in-out infinite; }
+    .dsi-hero-orb-3 { width: 160px; height: 160px; background: #06b6d4; bottom: -60px; right: 30%; animation: dsiOrb1 12s ease-in-out infinite reverse; }
     @keyframes dsiOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
     @keyframes dsiOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
-    .dsi-hero-title { color:#fff; font-weight:800; font-size:1.8rem; letter-spacing:-0.02em; margin-bottom:0.4rem; position:relative; z-index:2; }
+    .dsi-hero-title { color:#fff; font-weight:800; font-size:1.4rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
     .dsi-hero-title i { color: #60a5fa; }
-    .dsi-hero-sub { color:#ffffff; font-size:0.95rem; position:relative; z-index:2; margin-bottom:1.5rem; max-width:600px; }
+    .dsi-hero-sub { color:#ffffff; font-size:0.88rem; position:relative; z-index:2; margin-bottom:1rem; max-width:550px; line-height:1.5; }
     .dsi-hero-cta {
         position: relative; z-index: 2;
         display: inline-flex; align-items: center; gap: 0.5rem;
         background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: #fff; border: none; padding: 0.7rem 1.75rem;
-        border-radius: 0.6rem; font-weight: 700; font-size: 0.95rem;
+        color: #fff; border: none; padding: 0.55rem 1.5rem;
+        border-radius: 0.5rem; font-weight: 700; font-size: 0.88rem;
         text-decoration: none; transition: all 0.25s ease;
         box-shadow: 0 4px 16px rgba(37,99,235,0.35);
     }

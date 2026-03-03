@@ -19,12 +19,6 @@
             <div class="dashboard-header mb-5">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <div class="header-badge mb-3">
-                            <span class="badge bg-info text-dark">
-                                <i class="fas fa-snowflake me-2"></i>
-                                {{ user.profile.get_expedition_admin_type_display }} Admin
-                            </span>
-                        </div>
                         <h1 class="display-6 fw-bold mb-3">Dashboard</h1>
                         <p class="text-secondary mb-0">
                             Overview of your expedition's dataset submissions
@@ -99,7 +93,7 @@
                             <i class="fas fa-clipboard-check fa-2x"></i>
                         </div>
                         <div>
-                            <h5 class="mb-1">Review Submissions</h5>
+                            <h5 class="mb-1" style="color: #E8734A;">Review Submissions</h5>
                             <p class="text-secondary mb-0 small">You have {{ pending_submissions }} pending submissions
                                 to review.</p>
                         </div>
@@ -113,7 +107,7 @@
             <!-- Recent Activity -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="mb-0">Recent Activity</h5>
+                    <h5 class="mb-0" style="color: #E8734A;">Recent Activity</h5>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">

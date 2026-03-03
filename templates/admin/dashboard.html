@@ -19,11 +19,7 @@
             <div class="dashboard-header mb-5">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <div class="header-badge mb-3">
-                            <span class="badge bg-danger">
-                                <i class="fas fa-user-shield me-2"></i>Administrator Panel
-                            </span>
-                        </div>
+
                         <h1 class="display-6 fw-bold mb-3 text-dark" style="color: var(--text-dark) !important;">Administration Dashboard</h1>
                         <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">
                             Monitor system activity and manage data submissions
@@ -130,7 +126,7 @@
             <div class="row g-4 mb-5">
                 <!-- Left Column: Quick Actions -->
                 <div class="{% if request.user.is_staff %}col-lg-9{% else %}col-12{% endif %} pe-lg-5 d-flex flex-column">
-                    <h4 class="h5 mb-4 px-2">Quick Actions</h4>
+                    <h4 class="h5 mb-4 px-2" style="color: #E8734A;">Ease Access</h4>
                     <div class="row gx-4 gy-4 flex-grow-1">
                     <!-- Review Submissions -->
                     <div class="{% if request.user.is_staff %}col-xl-4 col-lg-6{% else %}col-md-6{% endif %}">
@@ -226,7 +222,7 @@
                 <!-- Right Column: System Metrics (Super Admin Only) -->
                 {% if request.user.is_staff %}
                 <div class="col-lg-3 d-flex flex-column">
-                    <h4 class="h5 mb-4 px-2">System Metrics</h4>
+                    <h4 class="h5 mb-4 px-2" style="color: #E8734A;">System Metrics</h4>
                     <div class="metrics-card flex-grow-1">
                         <div class="card-header">
                             <h5 class="mb-0">System Metrics</h5>
@@ -250,7 +246,7 @@
             <!-- Recent Submissions Table -->
             <div class="recent-submissions-section mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                    <h4 class="h5 mb-0">Recent Submissions</h4>
+                    <h4 class="h5 mb-0" style="color: #E8734A;">Recent Submissions</h4>
                     <a href="{% url 'data_submission:all_submissions' %}" class="btn btn-sm rounded-pill px-4 fw-semibold" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">View All</a>
                 </div>
                 <div class="activity-card">
