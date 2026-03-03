@@ -124,18 +124,42 @@ class EmailBackend(ModelBackend):
             django_user.save()
             # Fall through to Profile sync below
         except User.DoesNotExist:
-            # No Django user exists yet. Create one with the entered password.
-            # Legacy passwords are encrypted and can't be verified directly.
+            # No Django user exists yet. We'll try to create one, but there may
+            # already be an account with the same username (case‑insensitive).
+            # If that happens we should reuse/update the existing record instead
+            # of crashing with IntegrityError.
             logger.info("Creating new Django user from legacy for user=%s", email)
-            django_user = User.objects.create(
-                username=email.lower(),
-                email=email.lower(),
-                first_name=first_name,
-                last_name=last_name,
-                is_active=True,
-            )
-            django_user.set_password(password)
-            django_user.save()
+            existing = User.objects.filter(username__iexact=email.lower()).first()
+            if existing:
+                # Reuse and ensure email field is correct & lowercase
+                django_user = existing
+                django_user.email = email.lower()
+                django_user.first_name = first_name
+                django_user.last_name = last_name
+                django_user.is_active = True
+                django_user.set_password(password)
+                django_user.save()
+            else:
+                try:
+                    django_user = User.objects.create(
+                        username=email.lower(),
+                        email=email.lower(),
+                        first_name=first_name,
+                        last_name=last_name,
+                        is_active=True,
+                    )
+                    django_user.set_password(password)
+                    django_user.save()
+                except Exception as e:
+                    logger.exception("Failed to create Django user for legacy %s: %s", email, e)
+                    # As a fallback, try again by fetching any matching username
+                    django_user = User.objects.filter(username__iexact=email.lower()).first()
+                    if django_user:
+                        django_user.set_password(password)
+                        django_user.save()
+                    else:
+                        # If we still don't have a user, bail out to avoid None later
+                        return None
 
         # Set staff status for Administrator role
         if legacy_user.user_role and 'administrator' in legacy_user.user_role.lower():
