@@ -44,6 +44,7 @@ urlpatterns = [
         name='admin_edit_submission'
     ),
     path('admin/data-requests/', views.admin_data_requests_view, name='admin_data_requests'),
+    path('admin/delete/<str:metadata_id>/', views.admin_delete_dataset, name='admin_delete_dataset'),
     # approval/rejection endpoints removed; requests are logged only
 
 ]

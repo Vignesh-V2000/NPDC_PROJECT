@@ -141,10 +141,9 @@ def step_4b_setup_superuser():
             django_user.is_superuser = True
             django_user.save()
         
-        # Set password if not set
-        if not django_user.has_usable_password():
-            django_user.set_password('admin123')
-            django_user.save()
+        # Do NOT set any default password
+        django_user.set_unusable_password()
+        django_user.save()
         
         # Update email
         if django_user.email != 'info@ncaor.org':
@@ -165,7 +164,6 @@ def step_4b_setup_superuser():
         
         status = "Created" if created else "Updated"
         print(f"   ✓ {status} superuser: superuser@gmail.com / info@ncaor.org")
-        print(f"   ✓ Password: admin123")
         return True
         
     except Exception as e:
@@ -184,7 +182,6 @@ def step_4c_setup_child_admins():
         
         expedition_map = {'ant': 'antarctic', 'arc': 'arctic', 'soe': 'southern_ocean', 'him': 'himalaya'}
         # Default passwords for child admins (can be changed after login)
-        child_admin_password = 'admin123'
         
         for username, expedition in expedition_map.items():
             try:
@@ -206,11 +203,12 @@ def step_4c_setup_child_admins():
                 if not django_user.is_staff:
                     django_user.is_staff = True
                     django_user.save()
-                
-                # Set password if not set or for new creation
-                if created or not django_user.has_usable_password():
-                    django_user.set_password(child_admin_password)
+
+                    # ✅ FORCE first-login behavior
+                    django_user.set_unusable_password()
                     django_user.save()
+                                # Don't set a password here — legacy passwords are encrypted.
+                # The first login will accept and save the real password via the backend.
                 
                 # Create/update profile with expedition type
                 Profile.objects.update_or_create(
@@ -250,47 +248,6 @@ def step_4d_create_test_metadata():
         
     except Exception as e:
         print(f"⚠️  Test metadata creation had issues: {e}")
-        return True
-
-
-def step_4e_reassign_vssamy():
-    """Reassign all datasets to vssamy@ncpor.res.in."""
-    print_section("STEP 4E: Reassign Datasets to vssamy@ncpor.res.in")
-    
-    try:
-        from django.contrib.auth.models import User
-        from data_submission.models import DatasetSubmission
-        from users.models import UserLogin
-        
-        # Get or create vssamy user
-        try:
-            vssamy_user = User.objects.get(username='vssamy@ncpor.res.in')
-        except User.DoesNotExist:
-            legacy = UserLogin.objects.filter(e_mail='vssamy@ncpor.res.in').first()
-            if legacy:
-                vssamy_user = User.objects.create_user(
-                    username='vssamy@ncpor.res.in',
-                    email='vssamy@ncpor.res.in',
-                    first_name='V Sakthivel',
-                    last_name='Samy',
-                    is_active=True,
-                )
-            else:
-                vssamy_user = User.objects.create_user(
-                    username='vssamy@ncpor.res.in',
-                    email='vssamy@ncpor.res.in',
-                    first_name='Sakthivel',
-                    last_name='Samy',
-                    is_active=True,
-                )
-        
-        # Reassign all datasets
-        count = DatasetSubmission.objects.all().update(submitter=vssamy_user)
-        print(f"   ✓ Reassigned {count} datasets to: {vssamy_user.username}")
-        return True
-        
-    except Exception as e:
-        print(f"⚠️  Dataset reassignment had issues: {e}")
         return True
 
 
@@ -369,33 +326,10 @@ def step_8_final_summary():
     """Print final summary and next steps."""
     print_section("STEP 8: Setup Complete 🎉")
     
-    print("✅ NPDC is ready to use!\n")
-    print("AUTOMATIC SETUP COMPLETED:")
-    print("  ✓ Superuser: superuser@gmail.com / admin123")
-    print("  ✓ Child Admins (with expedition types):")
-    print("    - ant (Antarctic) / ant / admin123")
-    print("    - arc (Arctic) / arc / admin123")
-    print("    - soe (Southern Ocean) / soe / admin123")
-    print("    - him (Himalaya) / him / admin123")
-    print("  ✓ Sample test metadata created (28 Feb 2026)")
-    print("  ✓ All datasets assigned to: vssamy@ncpor.res.in")
-    print("\nNEXT STEPS:")
-    print("  1. Start the dev server:")
-    print("     python manage.py runserver")
-    print("\n  2. Visit the website:")
-    print("     http://localhost:8000")
-    print("\n  3. Admin panel:")
-    print("     http://localhost:8000/admin")
-    print("     Username: superuser@gmail.com or admin")
-    print("     Password: admin123")
-    print("\n  4. Child Admin Dashboards:")
-    print("     Username: ant, arc, soe, or him")
-    print("     Password: admin123")
-    print("\nTo reset and reimport from scratch later:")
-    print("  python manage.py flush --noinput")
-    print("  python setup_complete.py")
-    print()
-
+    print("  ✓ Superuser: superuser@gmail.com / info@ncaor.org")
+    print("    Password: Set on first login")
+    print("  ✓ Child Admins (ant, arc, soe, him)")
+    print("    Password: Set on first login")
 
 def main():
     """Run all setup steps in order."""
@@ -413,7 +347,6 @@ def main():
         ("Setup Superuser", step_4b_setup_superuser),
         ("Setup Child Admins", step_4c_setup_child_admins),
         ("Create Test Metadata", step_4d_create_test_metadata),
-        ("Reassign Datasets", step_4e_reassign_vssamy),
         ("Import Metadata", step_5_import_legacy_data),
         ("Link Submitters", step_6_link_submitters),
         ("Verify Data", step_7_verify_data),

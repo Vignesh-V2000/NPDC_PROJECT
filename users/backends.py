@@ -83,35 +83,24 @@ class EmailBackend(ModelBackend):
                     return django_user
                 # password didn't match, do not override existing usable password
                 return None
-            # No usable password yet (likely imported); accept whatever they typed,
-            # store it, and return the user.  Next login will be based on this value.
-            django_user.set_password(password)
-            django_user.save()
-            return django_user
-        except User.DoesNotExist:
-            pass
 
-        # Create the Django user (or get existing)
-        django_user, created = User.objects.get_or_create(
-            username=email.lower(),
-            defaults={
-                'email': email.lower(),
-                'first_name': first_name,
-                'last_name': last_name,
-                'is_active': True,
-            }
-        )
-        
-        # If user was just created, set the password
-        if created:
+            # At this point the Django user exists but has no usable password yet.
+            # Legacy passwords are encrypted (Base64-encoded hash) and cannot be
+            # compared directly. Accept the entered password on first login and
+            # save it as the Django password.
             django_user.set_password(password)
             django_user.save()
-        elif django_user.has_usable_password():
-            # User exists with usable password, verify it
-            if not django_user.check_password(password):
-                return None
-        else:
-            # User exists but no usable password, set it
+            # Don't return here — fall through to update Profile below
+        except User.DoesNotExist:
+            # No Django user exists yet. Create one with the entered password.
+            # Legacy passwords are encrypted and can't be verified directly.
+            django_user = User.objects.create(
+                username=email.lower(),
+                email=email.lower(),
+                first_name=first_name,
+                last_name=last_name,
+                is_active=True,
+            )
             django_user.set_password(password)
             django_user.save()
 

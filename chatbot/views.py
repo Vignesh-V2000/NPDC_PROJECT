@@ -284,7 +284,7 @@ class NPDCChatbot:
             if any(phrase in message_lower for phrase in ['become user', 'become a user', 'register', 'sign up', 'create account', 'new account']):
                 return self.generate_response(user_message)
             
-            if any(phrase in message_lower for phrase in ['reset password', 'forgot password', 'change password', 'recover password', 'otp', 'reset my password']):
+            if any(phrase in message_lower for phrase in ['reset password', 'forgot password', 'change password', 'recover password', 'reset my password']):
                 return self.generate_response(user_message)
             
             if any(phrase in message_lower for phrase in ['edit profile', 'update profile', 'change profile', 'how to edit profile', 'update my profile']):
@@ -390,8 +390,7 @@ NPDC manages scientific datasets from polar and Himalayan research. We provide d
 Statuses: draft → submitted → under_review → revision (Needs Revision) or published (final approved state). There is NO 'approved' or 'rejected' status.
 
 REGISTRATION: Fill form at /register/ (title, name, email, password, organisation, org URL, designation). After submit, account is INACTIVE - pending NPDC staff approval. No email activation link. User CANNOT log in until admin approves. Confirmation email sent on approval.
-PASSWORD RESET: Go to /forgot-password/ → enter email → receive 6-digit OTP by email (valid 10 minutes, max 10 requests/hour per network) → go to /reset-password/ → enter OTP + new password. Password must be min 8 chars with uppercase, lowercase, number, and special char (@$!%*?&). Do NOT say "click the link in the email" - it is an OTP code, not a link.
-PROFILE EDIT: Go to /profile/ → edit name/organisation/designation/contact details → Save Changes. Two forms are shown at once (personal info + profile details).
+PASSWORD RESET: Go to /forgot-password/ → enter email → receive an email containing a secure reset link (max 10 requests/hour per network) → click the link to open the reset page and choose a new password. Password must be min 8 chars with uppercase, lowercase, number, and special char (@$!%*?&).PROFILE EDIT: Go to /profile/ → edit name/organisation/designation/contact details → Save Changes. Two forms are shown at once (personal info + profile details).
 SUBMISSION STEPS: 1) Log in (account must be staff-approved first), 2) Read instructions at /data/submit/instructions/, 3) Fill metadata form (title, abstract max 1000, purpose max 1000, keywords, expedition type/year, project, category, ISO topic, temporal dates, spatial bounding box in DMS), 4) Upload files on next page (data file + metadata file + README, all required), 5) Submit for review.
 
 Data access requests for restricted datasets: /data/get-data/<id>/
@@ -696,20 +695,19 @@ RULES:
             return "<strong>🏠 Home Page</strong><br><br>Return to the main portal:<br><a href='/' style='color: #00A3A1; font-weight: bold;'>→ Go to Home Page</a>"
         
         # Password reset
-        if self.fuzzy_match(message_lower, ['reset password', 'forgot password', 'change password', 'recover password', 'lost password', 'password reset', 'otp']):
+        if self.fuzzy_match(message_lower, ['reset password', 'forgot password', 'change password', 'recover password', 'lost password', 'password reset']):
             return (
                 "<strong>🔑 Password Reset</strong><br><br>"
                 "<strong>Steps:</strong><br>"
                 "1. Go to <a href='/forgot-password/' style='color: #00A3A1; font-weight: bold;'>Forgot Password</a> and enter your registered email<br>"
-                "2. You will receive a <strong>6-digit OTP</strong> by email (valid for 10 minutes)<br>"
-                "3. Go to <a href='/reset-password/' style='color: #00A3A1; font-weight: bold;'>Reset Password</a>, enter the OTP and your new password<br>"
-                "4. Confirm your new password and click <strong>Reset Password</strong><br><br>"
+                "2. You will receive an email containing a secure reset link (check spam) — the link expires after a short time<br>"
+                "3. Click the link to open the reset page and choose a new password<br><br>"
                 "<strong>Password requirements:</strong><br>"
                 "• Minimum 8 characters<br>"
                 "• At least one uppercase and one lowercase letter<br>"
                 "• At least one number<br>"
                 "• At least one special character: @$!%*?&<br><br>"
-                "<em>Didn't receive the OTP? Check your spam folder. Max 10 requests per hour.</em>"
+                "<em>Max 10 reset requests per hour per network.</em>"
             )
 
         if self.fuzzy_match(message_lower, ['profile', 'my account', 'account settings', 'edit profile', 'update profile']):
@@ -766,7 +764,7 @@ RULES:
                 "Go to the <a href='/login/' style='color: #00A3A1; font-weight: bold;'>Login Page</a> and enter your registered email and password.<br><br>"
                 "<strong>⚠️ Note:</strong> Your account must be <strong>approved by NPDC staff</strong> before you can log in. "
                 "New registrations are reviewed before access is granted.<br><br>"
-                "<strong>Forgot your password?</strong> Use <a href='/forgot-password/' style='color: #00A3A1;'>Forgot Password</a> to receive a 6-digit OTP by email.<br><br>"
+                "<strong>Forgot your password?</strong> Use <a href='/forgot-password/' style='color: #00A3A1;'>Forgot Password</a> to receive a reset link by email.<br><br>"
                 "Don't have an account? <a href='/register/' style='color: #00A3A1;'>Register here</a>"
             )
         

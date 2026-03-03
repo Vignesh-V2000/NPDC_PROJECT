@@ -4,6 +4,7 @@ import string
 from datetime import timedelta
 
 from django.conf import settings
+import logging
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -734,16 +735,25 @@ class UserLoginView(LoginView):
 
 
 # --------------------
-# Password Reset (OTP-based)
+# Password Reset (token/link-based)
 # --------------------
+
+# tooling for token generation
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.urls import reverse
+
 
 def forgot_password(request):
     """
     Step 1: User enters their email.
-    - Checks both Django users and legacy user_login table.
-    - Generates a 6-digit OTP saved to PasswordResetOTP.
-    - Sends OTP via email.
-    - Rate-limits by IP: max 10 requests per hour.
+
+    - Rate‑limits by IP (max 10 requests per hour).
+    - If the address exists (including legacy lookup), ensure a corresponding
+      Django `User` object and then generate a signed token/uid pair.
+    - Email a reset link containing `uidb64`/`token` to the user.  We do **not**
+      reveal whether the address was valid.
     """
     if request.method == 'POST':
         email = request.POST.get('email', '').strip().lower()
@@ -756,13 +766,11 @@ def forgot_password(request):
             timestamp__gte=one_hour_ago,
             was_blocked=True
         ).count()
-        # Also count OTP requests from this IP
         otp_requests_this_hour = PasswordResetOTP.objects.filter(
-            email__icontains='',  # all
+            email__icontains='',
         ).filter(created_at__gte=one_hour_ago).count()
 
         if otp_requests_this_hour >= 10:
-            # Log blocked attempt
             LoginAttempt.objects.create(email=email, ip_address=ip, was_blocked=True)
             messages.error(
                 request,
@@ -770,75 +778,281 @@ def forgot_password(request):
             )
             return render(request, 'registration/forgot_password.html', {'blocked': True})
 
-        # --- Send OTP (regardless of whether email is found — security best practice) ---
+        # --- If the email really exists, prepare a reset link ---
         if email and _check_email_exists(email):
-            # Invalidate any old unused OTPs for this email
-            PasswordResetOTP.objects.filter(email=email, used=False).update(used=True)
-
-            # Generate a fresh 6-digit OTP
-            otp_code = ''.join(random.choices(string.digits, k=6))
-            otp_obj = PasswordResetOTP.objects.create(email=email, otp=otp_code)
-
-            # Send email
-            subject = '[NPDC] Your Password Reset OTP'
-            text_body = f"""Hello,
-
-You requested a password reset for your NPDC account.
-
-Your One-Time Password (OTP): {otp_code}
-
-This OTP is valid for 10 minutes.
-Do NOT share this code with anyone.
-
-If you did not request this, please ignore this email.
-
-Best Regards,
-NPDC Security Team
-"""
-            html_body = render_to_string('emails/password_reset_otp_email.html', {
-                'otp_code': otp_code,
-                'email': email,
-            })
+            # find or create associated Django user (legacy compatibility)
             try:
-                mail = EmailMultiAlternatives(
-                    subject=subject,
-                    body=text_body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[email],
+                user = User.objects.get(email__iexact=email)
+            except User.DoesNotExist:
+                # replicate the legacy creation logic from the old confirm view
+                from .models import UserLogin
+                legacy = None
+                try:
+                    legacy = UserLogin.objects.filter(
+                        user_id__iexact=email
+                    ).first() or UserLogin.objects.filter(e_mail__iexact=email).first()
+                except Exception:
+                    legacy = None
+
+                if legacy:
+                    name_parts = (legacy.user_name or 'NPDC User').split()
+                    user, created = User.objects.get_or_create(
+                        username=email,
+                        defaults={
+                            'email': email,
+                            'first_name': name_parts[0],
+                            'last_name': ' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
+                            'is_active': True,
+                        }
+                    )
+                    profile_title = {'mr': 'Mr', 'ms': 'Ms', 'dr': 'Dr', 'prof': 'Prof'}.get(
+                        (legacy.title or '').strip().lower().rstrip('.'), 'Mr'
+                    )
+                    Profile.objects.update_or_create(
+                        user=user,
+                        defaults={
+                            'title': profile_title,
+                            'organisation': (legacy.organisation or '').strip(),
+                            'organisation_url': (legacy.url or '').strip() if legacy.url else '',
+                            'designation': (legacy.designation or '').strip(),
+                            'is_approved': True,
+                            'approved_at': timezone.now(),
+                        }
+                    )
+                else:
+                    # should not happen because _check_email_exists returned True
+                    user = None
+
+            if user:
+                # generate signed token/uid and email the reset link
+                token = default_token_generator.make_token(user)
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                # to avoid any '=' padding characters in the URL, encode the
+                # raw token with urlsafe base64.  the result will contain only
+                # alphanumerics, '-' and '_' which are never wrapped by mail
+                # clients; we still quote for completeness.
+                import base64
+                token_b64 = base64.urlsafe_b64encode(token.encode('utf-8')).decode('ascii').rstrip('=')
+                from urllib.parse import quote
+                token_quoted = quote(token_b64, safe='')
+                reset_link = request.build_absolute_uri(
+                    reverse('users:reset_password_confirm', kwargs={
+                        'uidb64': uidb64,
+                        'token': token_quoted,
+                    })
                 )
-                mail.attach_alternative(html_body, 'text/html')
-                mail.send()
-            except Exception as e:
-                print(f"[NPDC] Password reset OTP email failed: {e}")
+                # diagnostic logging to help debug issues with link transport
+                logger = logging.getLogger(__name__)
+                # use WARNING so the message appears with default config
+                logger.warning(
+                    "Password reset link generated: email=%s uidb64=%s token=%r b64=%r quoted=%r link=%s",
+                    email, uidb64, token, token_b64, token_quoted, reset_link
+                )
 
-            # Store email in session for the confirm step
-            request.session['otp_email'] = email
+                # log the request for rate-limiting purposes. we also
+                # save the base64 token so that we can correct broken links
+                token_b64_value = token_b64 if 'token_b64' in locals() else None
+                try:
+                    PasswordResetOTP.objects.create(
+                        email=email,
+                        otp='link',
+                        token_b64=token_b64_value,
+                    )
+                except Exception:
+                    # silently ignore if something goes wrong with logging
+                    pass
 
-        # Always show the same success message (don't reveal if email exists)
+                subject = '[NPDC] Password Reset Request'
+                # render both HTML and text templates explicitly
+                html_body = render_to_string('emails/password_reset_link_email.html', {
+                    'email': email,
+                    'reset_link': reset_link,
+                })
+                text_body = render_to_string('emails/password_reset_link_email.txt', {
+                    'email': email,
+                    'reset_link': reset_link,
+                })
+
+                try:
+                    # if we're using the console backend for development, avoid
+                    # attaching the HTML part so that only plain text is printed.
+                    # also echo the link explicitly so the admin doesn't have to
+                    # copy it out of quoted-printable output.
+                    if settings.EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
+                        from django.core.mail import EmailMessage
+                        mail = EmailMessage(
+                            subject=subject,
+                            body=text_body,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            to=[email],
+                        )
+                        mail.encoding = 'utf-8'
+                        mail.send()
+                        # print link on its own line for easy copy/paste
+                        print(f"[DEV] Password reset link: {reset_link}")
+                    else:
+                        mail = EmailMultiAlternatives(
+                            subject=subject,
+                            body=text_body,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            to=[email],
+                        )
+                        mail.attach_alternative(html_body, 'text/html')
+                        mail.encoding = 'utf-8'
+                        mail.send()
+                except Exception as e:
+                    print(f"[NPDC] Password reset email failed: {e}")
+
+        # Always respond the same way for security
         return render(request, 'registration/forgot_password.html', {
-            'otp_sent': True,
+            'link_sent': True,
             'submitted_email': email,
         })
 
     return render(request, 'registration/forgot_password.html')
 
 
-def reset_password_confirm(request):
+def reset_password_confirm(request, uidb64=None, token=None):
     """
-    Step 2: User enters the OTP and their new password.
-    - Validates the OTP against PasswordResetOTP (not used, within 10 min).
-    - Sets the new password on the Django User (creates one from legacy if needed).
-    - Marks OTP as used and clears session.
-    """
-    # Recover the email from session
-    email = request.session.get('otp_email', '').strip().lower()
+    View that handles the reset link from the email.  The URL is of the form
+    `/reset-password/<uidb64>/<token>/` and is generated with
+    `default_token_generator`.
 
-    if not email:
-        messages.error(request, "Session expired. Please request a new OTP.")
-        return redirect('users:forgot_password')
+    Once the link is confirmed, the user picks a new password.
+    """
+    # verify parameters and get user
+    if not uidb64 or not token:
+        # show a helpful page rather than an immediate redirect so users
+        # understand what happened and can request a fresh link
+        return render(request, 'registration/reset_password_confirm.html', {
+            'token_invalid': True,
+            'reason': 'missing',
+            'email': None,
+        })
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    # If the UID didn't decode to a user, render a friendly invalid page
+    if user is None:
+        logging.getLogger(__name__).warning("Password reset failed: invalid UID (%s)", uidb64)
+        return render(request, 'registration/reset_password_confirm.html', {
+            'token_invalid': True,
+            'reason': 'invalid_uid',
+            'email': None,
+        })
+
+    # Normalize token: URL-decode and rebuild original token from its
+    # base64‑encoded form.  When we generated the link we encoded the
+    # original Django token as urlsafe_base64 with padding stripped so that the
+    # path segment contains no '=' characters.  Here we reverse that process.
+    import base64
+    from urllib.parse import unquote
+    raw_token = token
+
+    # undo percent-encoding first (handles %3D etc)
+    try:
+        token = unquote(token)
+    except Exception:
+        token = raw_token
+
+    # strip whitespace and slashes that might sneak in via wrapping/copy‑paste
+    if token is not None:
+        token = ''.join(token.split())
+    token = token.strip().rstrip('/')
+    # remove any stray '=' characters that may be inserted by quoted-printable
+    # wrapping.  The canonical b64 string contains no '=' (we stripped them at
+    # generation time).  Note: this cannot recover characters that were lost
+    # because the link itself was truncated; those cases are handled below.
+    if token is not None:
+        token = token.replace('=', '')
+
+    # At this point `token` should be the base64-safe string we generated earlier
+    # (possibly truncated).  If the user clicked a wrapped link which got split,
+    # there's a good chance `token` now equals only the first part.  We search
+    # our log table to see if any recent entry has a matching prefix.  If we
+    # find one, redirect the browser to the full, correct URL so the second hit
+    # will succeed immediately.
+    if token:
+        prefix = token
+        candidate = PasswordResetOTP.objects.filter(token_b64__startswith=prefix).order_by('-created_at').first()
+        if candidate and candidate.token_b64 and candidate.token_b64 != prefix:
+            # build redirect URL and send user there
+            correct_link = request.build_absolute_uri(
+                reverse('users:reset_password_confirm', kwargs={
+                    'uidb64': uidb64,
+                    'token': candidate.token_b64,
+                })
+            )
+            return redirect(correct_link)
+
+    # now decode back to the original token string; pad for base64
+    try:
+        padding = '=' * (-len(token) % 4)
+        token = base64.urlsafe_b64decode(token + padding).decode('utf-8')
+    except Exception:
+        # if decoding fails we'll treat it as the raw value and let
+        # standard check_token handle the mismatch
+        pass
+
+    # Log raw and normalized token for debugging (development only)
+    logger = logging.getLogger(__name__)
+    # log at INFO so it appears even if DEBUG level isn't enabled
+    logger.info(
+        "Password reset invoked: uidb64=%s raw_token=%r normalized_token=%r token_len=%s",
+        uidb64, raw_token, token, len(token) if token is not None else 'None'
+    )
+
+    # Check token and allow tolerant variants when email/transport has stripped
+    # padding. Some mail/console transports may wrap or drop '=' padding
+    # characters; try adding up to 3 '=' characters as fallbacks before
+    # giving up to improve robustness for real users.
+    token_ok = False
+    tried_variant = None
+    tried_candidates = []
+    # First try the token as received
+    if default_token_generator.check_token(user, token):
+        token_ok = True
+        tried_variant = token
+    else:
+        # Try adding 1..3 '=' padding characters (common base64 padding lengths)
+        for pad in range(1, 4):
+            candidate = token + ('=' * pad)
+            tried_candidates.append(candidate)
+            if default_token_generator.check_token(user, candidate):
+                token_ok = True
+                tried_variant = candidate
+                # update token variable so subsequent logic uses the working one
+                token = candidate
+                break
+
+    # Log what candidates were tried (debug)
+    if not token_ok:
+        logger.debug("Password reset: tried candidates=%r", tried_candidates)
+
+    if not token_ok:
+        logger = logging.getLogger(__name__)
+        try:
+            last_login = getattr(user, 'last_login', None)
+        except Exception:
+            last_login = None
+        logger.warning(
+            "Password reset token invalid for user=%s uidb64=%s uid=%s last_login=%s PASSWORD_RESET_TIMEOUT=%s tried_variant=%s",
+            getattr(user, 'email', '<no-email>'), uidb64, getattr(user, 'pk', None), last_login,
+            getattr(settings, 'PASSWORD_RESET_TIMEOUT', '<unset>'), tried_variant
+        )
+        return render(request, 'registration/reset_password_confirm.html', {
+            'token_invalid': True,
+            'reason': 'expired',
+            'email': user.email,
+        })
+
+    email = user.email
 
     if request.method == 'POST':
-        entered_otp = request.POST.get('otp', '').strip()
         new_password = request.POST.get('new_password', '')
         confirm_password = request.POST.get('confirm_password', '')
 
@@ -863,73 +1077,9 @@ def reset_password_confirm(request):
                 messages.error(request, error)
             return render(request, 'registration/reset_password_confirm.html', {'email': email})
 
-        # --- Validate OTP ---
-        try:
-            otp_obj = PasswordResetOTP.objects.filter(
-                email=email,
-                otp=entered_otp,
-                used=False
-            ).latest('created_at')
-        except PasswordResetOTP.DoesNotExist:
-            messages.error(request, "Invalid OTP. Please check the code and try again.")
-            return render(request, 'registration/reset_password_confirm.html', {'email': email})
-
-        if not otp_obj.is_valid():
-            messages.error(request, "This OTP has expired. Please request a new one.")
-            return redirect('users:forgot_password')
-
-        # --- Apply new password ---
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            # Try legacy — create Django user on the fly
-            from .models import UserLogin
-            try:
-                legacy = UserLogin.objects.filter(
-                    user_id__iexact=email
-                ).first() or UserLogin.objects.filter(e_mail__iexact=email).first()
-            except Exception:
-                legacy = None
-
-            if legacy:
-                name_parts = (legacy.user_name or 'NPDC User').split()
-                user, created = User.objects.get_or_create(
-                    username=email,
-                    defaults={
-                        'email': email,
-                        'first_name': name_parts[0],
-                        'last_name': ' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
-                        'is_active': True,
-                    }
-                )
-                profile_title = {'mr': 'Mr', 'ms': 'Ms', 'dr': 'Dr', 'prof': 'Prof'}.get(
-                    (legacy.title or '').strip().lower().rstrip('.'), 'Mr'
-                )
-                Profile.objects.update_or_create(
-                    user=user,
-                    defaults={
-                        'title': profile_title,
-                        'organisation': (legacy.organisation or '').strip(),
-                        'organisation_url': (legacy.url or '').strip() if legacy.url else '',
-                        'designation': (legacy.designation or '').strip(),
-                        'is_approved': True,
-                        'approved_at': timezone.now(),
-                    }
-                )
-            else:
-                messages.error(request, "We could not find your account. Please contact support.")
-                return redirect('users:forgot_password')
-
+        # all good; set new password
         user.set_password(new_password)
         user.save()
-
-        # Mark OTP as used
-        otp_obj.used = True
-        otp_obj.save()
-
-        # Clear session
-        request.session.pop('otp_email', None)
-        request.session.pop('login_attempts', None)
 
         messages.success(
             request,
