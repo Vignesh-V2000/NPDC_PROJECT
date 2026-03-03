@@ -1,6 +1,9 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EmailBackend(ModelBackend):
@@ -12,9 +15,18 @@ class EmailBackend(ModelBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        # NOTE: do NOT log passwords. We only log which branch is attempted
+        ip = None
+        try:
+            ip = request.META.get('REMOTE_ADDR') if request is not None else None
+        except Exception:
+            ip = None
+        logger.info("Authentication attempt for user=%s from=%s", username, ip)
+
         # 1. Try Django auth_user first
         user = self._authenticate_django(username, password)
         if user:
+            logger.info("Authentication succeeded via Django auth for user=%s", username)
             return user
 
         # 2. Try legacy user_login table
@@ -32,14 +44,30 @@ class EmailBackend(ModelBackend):
             try:
                 user = User.objects.get(username__iexact=username)
             except User.DoesNotExist:
+                logger.info("No Django user found for %s", username)
                 return None
         except User.MultipleObjectsReturned:
             try:
                 user = User.objects.get(username__iexact=username)
             except User.DoesNotExist:
+                logger.info("Multiple Django users matched but none by username for %s", username)
                 return None
 
-        if user.check_password(password) and self.user_can_authenticate(user):
+        # Report whether the user has a usable password (no secrets logged)
+        try:
+            logger.debug("Found Django user=%s has_usable_password=%s", username, user.has_usable_password())
+        except Exception:
+            pass
+
+        try:
+            pw_ok = user.check_password(password)
+        except Exception as e:
+            logger.exception("Error checking password for user=%s: %s", username, e)
+            pw_ok = False
+
+        logger.info("Password check for user=%s returned %s", username, pw_ok)
+
+        if pw_ok and self.user_can_authenticate(user):
             return user
         return None
 
@@ -65,6 +93,8 @@ class EmailBackend(ModelBackend):
         if legacy_user.account_status and legacy_user.account_status.strip().lower() != 'active':
             return None
 
+        logger.info("Legacy user found for %s with status=%s", legacy_user.user_id, legacy_user.account_status)
+
         # Auto-create Django user from legacy data
         # Parse name into first/last
         full_name = (legacy_user.user_name or '').strip()
@@ -81,19 +111,22 @@ class EmailBackend(ModelBackend):
             if django_user.has_usable_password():
                 if django_user.check_password(password) and self.user_can_authenticate(django_user):
                     return django_user
-                # password didn't match, do not override existing usable password
+                # password didn't match. Since the Django password was already set in a previous
+                # login, we must NOT override it. Authentication should fail.
+                logger.info("Django password mismatch for user=%s; rejecting (password already set)", email)
                 return None
 
             # At this point the Django user exists but has no usable password yet.
-            # Legacy passwords are encrypted (Base64-encoded hash) and cannot be
-            # compared directly. Accept the entered password on first login and
-            # save it as the Django password.
+            # This is the first login. Legacy passwords are encrypted (Base64-encoded hash)
+            # and cannot be compared directly. Accept the entered password and save it.
+            logger.info("Django user has no usable password for user=%s; setting password from legacy path", email)
             django_user.set_password(password)
             django_user.save()
-            # Don't return here — fall through to update Profile below
+            # Fall through to Profile sync below
         except User.DoesNotExist:
             # No Django user exists yet. Create one with the entered password.
             # Legacy passwords are encrypted and can't be verified directly.
+            logger.info("Creating new Django user from legacy for user=%s", email)
             django_user = User.objects.create(
                 username=email.lower(),
                 email=email.lower(),
@@ -123,22 +156,26 @@ class EmailBackend(ModelBackend):
         }
         expedition_admin_type = expedition_admin_mapping.get(legacy_user.user_id.lower(), None)
 
-        Profile.objects.update_or_create(
-            user=django_user,
-            defaults={
-                'title': mapped_title,
-                'preferred_name': (legacy_user.known_as or '').strip(),
-                'organisation': (legacy_user.organisation or '').strip(),
-                'organisation_url': (legacy_user.url or '').strip() if legacy_user.url else '',
-                'designation': (legacy_user.designation or '').strip(),
-                'phone': (legacy_user.phone_number or '').strip()[:10],
-                'address': (legacy_user.address or '').strip(),
-                'alternate_email': (legacy_user.e_mail or '').strip() if legacy_user.e_mail != email else '',
-                'is_approved': True,
-                'approved_at': timezone.now(),
-                'expedition_admin_type': expedition_admin_type,
-            }
-        )
+        try:
+            Profile.objects.update_or_create(
+                user=django_user,
+                defaults={
+                    'title': mapped_title,
+                    'preferred_name': (legacy_user.known_as or '').strip(),
+                    'organisation': (legacy_user.organisation or '').strip(),
+                    'organisation_url': (legacy_user.url or '').strip() if legacy_user.url else '',
+                    'designation': (legacy_user.designation or '').strip(),
+                    'phone': (legacy_user.phone_number or '').strip()[:10],
+                    'address': (legacy_user.address or '').strip(),
+                    'alternate_email': (legacy_user.e_mail or '').strip() if legacy_user.e_mail != email else '',
+                    'is_approved': True,
+                    'approved_at': timezone.now(),
+                    'expedition_admin_type': expedition_admin_type,
+                }
+            )
+        except Exception as e:
+            # Profile update should not prevent authentication. Log and continue.
+            logger.exception("Failed to update/create Profile for user %s: %s", getattr(django_user, 'email', '<unknown>'), e)
 
         # Return the newly created user (already authenticated since we set the password)
         return django_user
