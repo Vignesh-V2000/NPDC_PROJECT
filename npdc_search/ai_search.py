@@ -10,6 +10,8 @@ import re
 import hashlib
 import logging
 import requests
+from collections import defaultdict
+from datetime import datetime
 from django.conf import settings
 from django.core.cache import cache
 
@@ -39,14 +41,8 @@ VALID_ISO_TOPICS = [
 AI_CACHE_TIMEOUT = 900  # 15 minutes
 
 
-def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
-    """
-    Call AI API with a prompt. Tries Groq first, then OpenRouter as fallback.
-    Low temperature for structured/deterministic output.
-    """
-    timeout = getattr(settings, 'OPENROUTER_TIMEOUT', 60)
-
-    # Build providers list: Groq first, OpenRouter second
+def _build_providers():
+    """Return ordered list of AI provider configs (Groq → OpenRouter → Ollama)."""
     providers = []
 
     groq_key = getattr(settings, 'GROQ_API_KEY', '')
@@ -72,7 +68,6 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
             },
         })
 
-    # Last fallback: Ollama (local on-system, no API key required)
     if getattr(settings, 'OLLAMA_ENABLED', False):
         providers.append({
             'name': 'Ollama',
@@ -81,6 +76,17 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
             'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
             'headers_extra': {},
         })
+
+    return providers
+
+
+def _call_ai_api(messages, max_tokens=400, temperature=0.3):
+    """
+    Unified AI API caller.  messages is a list of {role, content} dicts.
+    Tries providers in order: Groq → OpenRouter → Ollama.
+    """
+    timeout = getattr(settings, 'OPENROUTER_TIMEOUT', 60)
+    providers = _build_providers()
 
     if not providers:
         logger.warning("No AI API keys configured")
@@ -96,7 +102,7 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
 
             payload = {
                 'model': provider['model'],
-                'messages': [{'role': 'user', 'content': prompt}],
+                'messages': messages,
                 'temperature': temperature,
                 'max_tokens': max_tokens,
             }
@@ -106,6 +112,7 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
                 result = response.json()
                 text = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
                 if text:
+                    logger.info(f"AI response via {provider['name']}")
                     return text
                 logger.warning(f"{provider['name']} returned empty response, trying next...")
                 continue
@@ -124,6 +131,11 @@ def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
 
     logger.error("All AI providers failed")
     return None
+
+
+def _call_openrouter(prompt, max_tokens=400, temperature=0.3):
+    """Thin wrapper: single user-message call."""
+    return _call_ai_api([{'role': 'user', 'content': prompt}], max_tokens, temperature)
 
 
 # =====================================================================
@@ -366,98 +378,38 @@ def get_available_keywords():
         return []
 
 
+# Cache key/TTL for the total published dataset count
+_TOTAL_COUNT_CACHE_KEY = 'npdc_total_published_count'
+_TOTAL_COUNT_CACHE_TTL = 300  # 5 minutes
+
+
+def _get_total_published_count():
+    """Return total published dataset count, cached for 5 minutes."""
+    count = cache.get(_TOTAL_COUNT_CACHE_KEY)
+    if count is None:
+        from data_submission.models import DatasetSubmission
+        try:
+            count = DatasetSubmission.objects.filter(status='published').count()
+            cache.set(_TOTAL_COUNT_CACHE_KEY, count, _TOTAL_COUNT_CACHE_TTL)
+        except Exception:
+            return None
+    return count
+
+
 # =====================================================================
 # FEATURE 4: AI Search Answer (FTS + LLM — KPDC-style)
 # =====================================================================
 
 def _call_llm_chat(system_prompt, user_message, max_tokens=800, temperature=0.3):
-    """
-    Call AI API with system + user messages (chat format).
-    Tries Groq first, then OpenRouter as fallback.
-    """
-    timeout = getattr(settings, 'OPENROUTER_TIMEOUT', 60)
-
-    providers = []
-
-    groq_key = getattr(settings, 'GROQ_API_KEY', '')
-    if groq_key:
-        providers.append({
-            'name': 'Groq',
-            'api_url': getattr(settings, 'GROQ_API_ENDPOINT', 'https://api.groq.com/openai/v1/chat/completions'),
-            'api_key': groq_key,
-            'model': getattr(settings, 'GROQ_MODEL', 'llama-3.1-8b-instant'),
-            'headers_extra': {},
-        })
-
-    openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '')
-    if openrouter_key:
-        providers.append({
-            'name': 'OpenRouter',
-            'api_url': getattr(settings, 'OPENROUTER_API_ENDPOINT', 'https://openrouter.ai/api/v1/chat/completions'),
-            'api_key': openrouter_key,
-            'model': getattr(settings, 'OPENROUTER_MODEL', 'google/gemma-3-4b-it:free'),
-            'headers_extra': {
-                'HTTP-Referer': 'https://npdc.ncpor.gov.in',
-                'X-Title': 'NPDC AI Search',
-            },
-        })
-
-    # Last fallback: Ollama (local on-system, no API key required)
-    if getattr(settings, 'OLLAMA_ENABLED', False):
-        providers.append({
-            'name': 'Ollama',
-            'api_url': getattr(settings, 'OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions'),
-            'api_key': 'ollama',
-            'model': getattr(settings, 'OLLAMA_MODEL', 'llama3.2'),
-            'headers_extra': {},
-        })
-
-    if not providers:
-        logger.warning("No AI API keys configured for chat")
-        return None
-
-    for provider in providers:
-        try:
-            headers = {
-                'Authorization': f'Bearer {provider["api_key"]}',
-                'Content-Type': 'application/json',
-            }
-            headers.update(provider.get('headers_extra', {}))
-
-            payload = {
-                'model': provider['model'],
-                'messages': [
-                    {'role': 'system', 'content': system_prompt},
-                    {'role': 'user', 'content': user_message},
-                ],
-                'temperature': temperature,
-                'max_tokens': max_tokens,
-            }
-
-            response = requests.post(provider['api_url'], headers=headers, json=payload, timeout=timeout)
-            if response.status_code == 200:
-                result = response.json()
-                text = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
-                if text:
-                    logger.info(f"AI Search answer generated via {provider['name']}")
-                    return text
-                logger.warning(f"{provider['name']} returned empty chat response, trying next...")
-                continue
-            elif response.status_code == 429:
-                logger.warning(f"{provider['name']} rate limited (429), trying next provider...")
-                continue
-            else:
-                logger.error(f"{provider['name']} chat API error: HTTP {response.status_code}")
-                continue
-        except requests.exceptions.Timeout:
-            logger.error(f"{provider['name']} chat API timeout, trying next...")
-            continue
-        except Exception as e:
-            logger.error(f"{provider['name']} chat API error: {e}, trying next...")
-            continue
-
-    logger.error("All AI providers failed for chat")
-    return None
+    """Thin wrapper: system + user message call."""
+    return _call_ai_api(
+        [
+            {'role': 'system', 'content': system_prompt},
+            {'role': 'user', 'content': user_message},
+        ],
+        max_tokens,
+        temperature,
+    )
 
 
 def ai_search_answer(query, filters=None, top_k=5):
@@ -471,17 +423,33 @@ def ai_search_answer(query, filters=None, top_k=5):
     5. Return {answer, datasets[]}.
     """
     from django.db.models import Q
-    from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, TrigramSimilarity
+    from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
     from data_submission.models import DatasetSubmission
 
     if not query or len(query.strip()) < 3:
         return None
 
-    # Check cache
-    cache_key = f"ai_answer:{hashlib.md5((query + str(filters)).encode()).hexdigest()}"
+    # Check cache  (top_k is part of the key since result set size affects the answer)
+    cache_key = f"ai_answer:{hashlib.md5((query + str(filters) + str(top_k)).encode()).hexdigest()}"
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
+
+    # ----- 0. NL Query Understanding — refine query and auto-detect filters -----
+    nl_parsed = parse_natural_language_query(query)
+    effective_query = query
+    if nl_parsed:
+        # Use AI-extracted keywords as better search terms
+        effective_query = nl_parsed.get('keywords') or query
+        # Merge NL-detected filters with explicit ones (explicit filters win)
+        merged_filters = {}
+        if nl_parsed.get('expedition'):
+            merged_filters['expedition'] = nl_parsed['expedition']
+        if nl_parsed.get('category'):
+            merged_filters['category'] = nl_parsed['category']
+        if filters:
+            merged_filters.update(filters)  # explicit filters override NL ones
+        filters = merged_filters or filters
 
     # ----- 1. Build base queryset -----
     qs = DatasetSubmission.objects.filter(status='published')
@@ -496,21 +464,33 @@ def ai_search_answer(query, filters=None, top_k=5):
             qs = qs.filter(category__in=cat_list)
         if filters.get('start_date') and filters.get('end_date'):
             try:
-                from datetime import datetime as dt
-                start = dt.strptime(filters['start_date'], '%Y-%m-%d').date()
-                end = dt.strptime(filters['end_date'], '%Y-%m-%d').date()
+                start = datetime.strptime(filters['start_date'], '%Y-%m-%d').date()
+                end = datetime.strptime(filters['end_date'], '%Y-%m-%d').date()
                 qs = qs.filter(temporal_start_date__lte=end, temporal_end_date__gte=start)
             except (ValueError, TypeError):
                 pass
 
+    # ----- Count / metadata queries: short-circuit before FTS -----
+    COUNT_KEYWORDS = ['how many', 'how much', 'total number', 'number of dataset', 'count of dataset']
+    is_count_query = any(kw in query.lower() for kw in COUNT_KEYWORDS)
+
+    total_published_count = _get_total_published_count()
+
+    if is_count_query and total_published_count is not None:
+        return {
+            'answer': f"The NPDC repository currently has {total_published_count} published dataset{'s' if total_published_count != 1 else ''}.",
+            'datasets': [],
+        }
+
     # ----- 3. FTS search -----
-    # Parse query into search terms
-    phrases = re.findall(r'"([^"]+)"', query)
-    remaining = re.sub(r'"[^"]+', '', query).strip()
+    # Parse query into search terms (use NL-refined keywords when available)
+    phrases = re.findall(r'"([^"]+)"', effective_query)
+    remaining = re.sub(r'"[^"]+', '', effective_query).strip()
     words = remaining.split() if remaining else []
     search_terms = phrases + words
 
     results = []
+    total_matching_count = 0   # total results matching the query (before top_k slice)
 
     if search_terms:
         # Strategy A: PostgreSQL Full-Text Search
@@ -524,18 +504,21 @@ def ai_search_answer(query, filters=None, top_k=5):
                 SearchVector('project_name', weight='C')
             )
 
-            fts_results = (
-                qs.annotate(search_rank=SearchRank(search_vector, search_query))
-                .filter(
-                    Q(search_rank__gte=0.001) |
-                    Q(title__icontains=search_terms[0]) |
-                    Q(abstract__icontains=search_terms[0]) |
-                    Q(keywords__icontains=search_terms[0])
+            _ic_q = Q()
+            for _t in search_terms[:3]:
+                _ic_q |= (
+                    Q(title__icontains=_t) |
+                    Q(abstract__icontains=_t) |
+                    Q(keywords__icontains=_t)
                 )
+            fts_qs = (
+                qs.annotate(search_rank=SearchRank(search_vector, search_query))
+                .filter(Q(search_rank__gte=0.001) | _ic_q)
                 .distinct()
-                .order_by('-search_rank')[:top_k]
+                .order_by('-search_rank')
             )
-            results = list(fts_results)
+            total_matching_count = fts_qs.count()
+            results = list(fts_qs[:top_k])
         except Exception as e:
             logger.error(f"FTS search failed: {e}")
 
@@ -550,19 +533,14 @@ def ai_search_answer(query, filters=None, top_k=5):
                     Q(keywords__icontains=term) |
                     Q(project_name__icontains=term)
                 )
-            results = list(qs.filter(q_filter).distinct()[:top_k])
+            fallback_qs = qs.filter(q_filter).distinct()
+            total_matching_count = fallback_qs.count()
+            results = list(fallback_qs[:top_k])
         except Exception as e:
             logger.error(f"Fallback search failed: {e}")
 
     # ----- 4. Serialize datasets -----
     datasets_list = []
-    context_lines = []
-
-    # Get the real total number of published datasets for count questions
-    try:
-        total_published_count = DatasetSubmission.objects.filter(status='published').count()
-    except Exception:
-        total_published_count = None
 
     for i, d in enumerate(results, 1):
         if not d.metadata_id:
@@ -570,7 +548,7 @@ def ai_search_answer(query, filters=None, top_k=5):
         ds = {
             'id': d.metadata_id,
             'title': d.title,
-            'abstract': d.abstract[:150],
+            'abstract': (d.abstract or '')[:300],
             'keywords': d.keywords[:100] if d.keywords else '',
             'category': d.get_category_display(),
             'expedition_type': d.get_expedition_type_display(),
@@ -578,23 +556,6 @@ def ai_search_answer(query, filters=None, top_k=5):
             'temporal_end': str(d.temporal_end_date),
         }
         datasets_list.append(ds)
-
-        # Compact context for LLM (fewer tokens)
-        context_lines.append(
-            f"{i}. [ID: {d.metadata_id}] {d.title}\n"
-            f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
-            f"   {ds['abstract']}\n"
-        )
-
-    # ----- Count / metadata queries: answer directly, no dataset cards -----
-    COUNT_KEYWORDS = ['how many', 'how much', 'total number', 'number of dataset', 'count of dataset']
-    is_count_query = any(kw in query.lower() for kw in COUNT_KEYWORDS)
-
-    if is_count_query and total_published_count is not None:
-        return {
-            'answer': f"The NPDC repository currently has {total_published_count} published dataset{'s' if total_published_count != 1 else ''}.",
-            'datasets': [],
-        }
 
     # Track if a typo correction was applied
     corrected_query_used = None
@@ -627,19 +588,23 @@ def ai_search_answer(query, filters=None, top_k=5):
                                 SearchVector('keywords', weight='A') +
                                 SearchVector('project_name', weight='C')
                             )
-                            corrected_results = list(
-                                qs.annotate(search_rank=SearchRank(corrected_sv, corrected_sq))
-                                .filter(
-                                    Q(search_rank__gte=0.001) |
-                                    Q(title__icontains=corrected_terms[0]) |
-                                    Q(abstract__icontains=corrected_terms[0]) |
-                                    Q(keywords__icontains=corrected_terms[0])
+                            _cic_q = Q()
+                            for _ct in corrected_terms[:3]:
+                                _cic_q |= (
+                                    Q(title__icontains=_ct) |
+                                    Q(abstract__icontains=_ct) |
+                                    Q(keywords__icontains=_ct)
                                 )
+                            corrected_qs = (
+                                qs.annotate(search_rank=SearchRank(corrected_sv, corrected_sq))
+                                .filter(Q(search_rank__gte=0.001) | _cic_q)
                                 .distinct()
-                                .order_by('-search_rank')[:top_k]
+                                .order_by('-search_rank')
                             )
+                            corrected_results = list(corrected_qs[:top_k])
                             if corrected_results:
                                 results = corrected_results
+                                total_matching_count = corrected_qs.count()
                                 corrected_query_used = corrected_query
                         except Exception as e:
                             logger.error(f"Corrected query search failed: {e}")
@@ -670,7 +635,7 @@ def ai_search_answer(query, filters=None, top_k=5):
             ds = {
                 'id': d.metadata_id,
                 'title': d.title,
-                'abstract': d.abstract[:150],
+                'abstract': (d.abstract or '')[:300],
                 'keywords': d.keywords[:100] if d.keywords else '',
                 'category': d.get_category_display(),
                 'expedition_type': d.get_expedition_type_display(),
@@ -678,18 +643,33 @@ def ai_search_answer(query, filters=None, top_k=5):
                 'temporal_end': str(d.temporal_end_date),
             }
             datasets_list.append(ds)
-            context_lines.append(
-                f"{i}. [ID: {d.metadata_id}] {d.title}\n"
-                f"   {ds['category']} | {ds['expedition_type']} | {ds['temporal_start']} to {ds['temporal_end']}\n"
-                f"   {ds['abstract']}\n"
-            )
 
     # ----- 5. Build prompt & call LLM -----
-    context_str = "\n".join(context_lines)
+    # Group datasets by expedition type for structured context
+    _exp_groups = defaultdict(list)
+    for _ds in datasets_list:
+        _exp_groups[_ds['expedition_type']].append(_ds)
+
+    context_parts = []
+    _global_idx = 1
+    for _exp_type, _exp_ds_list in _exp_groups.items():
+        context_parts.append(f"--- {_exp_type} ---")
+        for _ds in _exp_ds_list:
+            context_parts.append(
+                f"  {_global_idx}. [ID: {_ds['id']}] {_ds['title']}\n"
+                f"     {_ds['category']} | {_ds['temporal_start']} to {_ds['temporal_end']}\n"
+                f"     {_ds['abstract']}"
+            )
+            _global_idx += 1
+    context_str = "\n".join(context_parts)
     total_note = (
         f"\nNOTE: The NPDC repository contains {total_published_count} published datasets in total. "
-        f"The context below shows the top {len(datasets_list)} most relevant matches for this query.\n"
-    ) if total_published_count is not None else ""
+        f"{total_matching_count} datasets matched this query. "
+        f"The context below shows the top {len(datasets_list)} most relevant matches.\n"
+    ) if total_published_count is not None else (
+        f"\nNOTE: {total_matching_count} datasets matched this query. "
+        f"The context below shows the top {len(datasets_list)} most relevant matches.\n"
+    )
 
     system_prompt = (
         "You are Penguin, NPDC's search assistant. "
@@ -700,26 +680,33 @@ def ai_search_answer(query, filters=None, top_k=5):
         "3. If the query is unrelated to polar/cryosphere science, start with 'UNRELATED:'.\n"
         "4. If results don't match the question, say you couldn't find matching datasets.\n"
         "5. For total count questions, use the count from the NOTE.\n"
-        "6. Format each result as a SINGLE bullet in this exact structure:\n"
-        "   • Title [ID: X] - Category, Region, StartDate to EndDate\n"
+        "6. Group results by expedition type exactly as shown in the context (--- Expedition Type ---).\n"
+        "   Format each group as:\n"
+        "   Expedition Type: <type name>\n"
+        "   • <N>. Title [ID: X] - Category, StartDate to EndDate\n"
         "     Brief 1-2 sentence summary of what the dataset contains.\n"
-        "   Do NOT add extra sub-bullets or split metadata across multiple lines.\n"
-        "7. Start with one short sentence like 'I found X datasets related to ...'\n"
+        "   List each expedition type group on a new line, separated by a blank line.\n"
+        "   Do NOT mix datasets from different expedition types within the same group.\n"
+        "7. ALWAYS start with exactly this pattern (fill in the numbers from the NOTE):\n"
+        "   'I found <total_matching_count> datasets related to <topic>. Here are the top <shown_count> most relevant results:'\n"
+        "   Use the matching count from the NOTE, not the number of datasets shown.\n"
         "8. Speak naturally — say 'I found' not 'based on the provided datasets'."
     )
 
     user_msg = (
         f"{total_note}"
         f"Q: {query}\n\n"
-        f"SEARCH RESULTS ({len(datasets_list)} matches):\n"
+        f"TOP {len(datasets_list)} RESULTS (out of {total_matching_count} total matches):\n"
         f"{context_str}\n"
-        f"Answer naturally, citing dataset titles and IDs."
+        f"Answer naturally citing dataset titles and IDs. "
+        f"Start your reply by stating there are {total_matching_count} matching datasets and these are the top {len(datasets_list)}."
     )
 
     answer = _call_llm_chat(system_prompt, user_msg, max_tokens=700, temperature=0.3)
 
     if not answer:
-        answer = (
+        # Feature 3: fall back to the rule-based summary generator
+        answer = generate_search_summary(query, datasets_list, total_matching_count) or (
             "I'm having trouble generating an AI answer right now. "
             "However, I found the datasets listed below that may be relevant to your query."
         )
