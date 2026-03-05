@@ -81,9 +81,8 @@
     .dsf-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: dsfOrb1 12s ease-in-out infinite reverse; }
     @keyframes dsfOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
     @keyframes dsfOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
-    .dsf-hero-title { color:#fff; font-weight:800; font-size:1.55rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
-    .dsf-hero-title i { color:#60a5fa; }
     .dsf-hero-title { color:#E8734A; font-weight:800; font-size:3rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
+    .dsf-hero-title i { color:#ffffff; }
     .dsf-hero-sub { color:#e2e8f0 !important; font-size:0.95rem; position:relative; z-index:2; margin-bottom:0; }
     .dsf-step-pill { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.82rem; font-weight:600; color:#e2e8f0 !important; background:rgba(255,255,255,0.1); padding:0.35rem 0.85rem; border-radius:2rem; border:1px solid rgba(255,255,255,0.15); position:relative; z-index:2; }
     .dsf-step-dot { width:7px; height:7px; background:#3b82f6; border-radius:50%; animation: dsfPulse 2s ease-in-out infinite; }
@@ -1078,15 +1077,19 @@
 
                 <!-- Files Section Removed - Moved to Step 2 -->
 
-                <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
                     <!-- Left: Save as Draft -->
-                    <button type="submit" name="save" value="DRAFT" class="btn btn-lg" id="saveDraftBtn"
-                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; font-weight: 700; border-radius: 0.6rem; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25); padding: 0.5rem 1.5rem;">
+                    <button type="submit" name="save" value="DRAFT" class="btn btn-warning btn-lg fw-bold text-white px-4" id="saveDraftBtn" style="min-width: 160px;">
                         <i class="fas fa-save me-2"></i>Save as Draft
                     </button>
                     <!-- Right: Reset, Preview, Save & Next -->
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button type="button" class="btn btn-outline-secondary btn-lg fw-bold px-4"
+                            onclick="location.reload()" style="min-width: 160px;">Reset</button>
+                        <button type="submit" name="save" value="PREVIEW" class="btn btn-outline-info btn-lg fw-bold px-4" style="min-width: 160px;">
                             <i class="fas fa-eye me-2"></i>Preview
                         </button>
+                        <button type="submit" name="save" value="NEXT" class="btn btn-primary btn-lg fw-bold px-4" style="min-width: 160px;">Save & Next <i
                                 class="fas fa-arrow-right ms-2"></i></button>
                     </div>
                 </div>
