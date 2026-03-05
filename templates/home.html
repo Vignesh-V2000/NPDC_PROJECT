@@ -10,53 +10,64 @@
             data-bs-interval="5000" data-bs-pause="false">
             <div class="carousel-inner h-100">
                 <div class="carousel-item active h-100">
-                    <img src="{% static 'images/slider_images/1.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
-                        alt="Polar Landscape 1">
-                    <div class="hero-slide-caption">
-                        <span class="slide-step">Step 1</span>
-                        <h3>Collect Polar Data</h3>
-                        <p>Field observations and instrument measurements from expeditions.</p>
-                    </div>
+                    <img src="{% static 'images/slider_images/1.jpg' %}" class="d-block w-100 h-100 hero-slide-img" alt="Polar Landscape 1">
                 </div>
                 <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/2.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
-                        alt="Polar Landscape 2">
-                    <div class="hero-slide-caption">
-                        <span class="slide-step">Step 2</span>
-                        <h3>Submit to NPDC</h3>
-                        <p>Upload datasets with rich metadata for long-term archival and DOI assignment.</p>
-                    </div>
+                    <img src="{% static 'images/slider_images/2.jpg' %}" class="d-block w-100 h-100 hero-slide-img" alt="Polar Landscape 2">
                 </div>
                 <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/3.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
-                        alt="Polar Landscape 3">
-                    <div class="hero-slide-caption">
-                        <span class="slide-step">Step 3</span>
-                        <h3>Discover & Analyze</h3>
-                        <p>Use NPDC search tools to explore, visualize, and reuse polar research data.</p>
-                    </div>
-                </div>
-                <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/4.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
-                        alt="Polar Landscape 4">
-                    <div class="hero-slide-caption">
-                        <span class="slide-step">Our Promise</span>
-                        <h3>Unique Data Integrity</h3>
-                        <p>Ensuring authenticity and sustainability of polar datasets for the global community.</p>
-                    </div>
-                </div>
-                <div class="carousel-item h-100">
-                    <img src="{% static 'images/slider_images/5.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
-                        alt="Polar Landscape 5">
-                    <div class="hero-slide-caption">
-                        <span class="slide-step">Get Involved</span>
-                        <h3>Join the Polar Community</h3>
-                        <p>Collaborate with scientists worldwide and contribute to open polar research.</p>
-                    </div>
+                    <img src="{% static 'images/slider_images/3.jpg' %}" class="d-block w-100 h-100 hero-slide-img" alt="Polar Landscape 3">
                 </div>
             </div>
         </div>
         <div class="hero-overlay"></div>
+
+        <!-- Beautiful Steps Overlay -->
+        <div class="hero-steps-container">
+            <div class="row g-4 justify-content-center align-items-center">
+                <!-- Step 1 -->
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <div class="step-number">Step 1</div>
+                        <h4>Collect Data</h4>
+                        <p>Gather observational or experimental datasets from polar expeditions.</p>
+                    </div>
+                </div>
+                
+                <!-- Arrow -->
+                <div class="col-md-1 d-none d-md-flex justify-content-center">
+                    <div class="step-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <div class="step-number">Step 2</div>
+                        <h4>Submit to NPDC</h4>
+                        <p>Upload datasets with standardized metadata for proper cataloguing.</p>
+                    </div>
+                </div>
+                
+                <!-- Arrow -->
+                <div class="col-md-1 d-none d-md-flex justify-content-center">
+                    <div class="step-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <div class="step-number">Step 3</div>
+                        <h4>Discover & Analyze</h4>
+                        <p>Search, explore, and visualize datasets for scientific decision-making.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
 {% endblock %}
@@ -132,17 +143,15 @@
                         <div class="home-search-sidebar-body">
 
                             <!-- Text Search -->
-                            <div class="mb-3">
-                                <label class="home-filter-label"><i class="fas fa-search me-1"></i>Keyword
-                                    Search</label>
+                            <div class="mb-3 filter-group">
+                                <h6><i class="fas fa-search"></i> Keyword Search</h6>
                                 <input type="text" name="query" class="form-control form-control-sm"
                                     placeholder="Search datasets...">
                             </div>
 
                             <!-- Expedition Type Filter (Checkboxes with Show More/Less) -->
-                            <div class="mb-3">
-                                <label class="home-filter-label"><i class="fas fa-globe-americas me-1"></i>Expedition Type</label>
-                                <div class="filter-group">
+                            <div class="mb-3 filter-group">
+                                <h6><i class="fas fa-globe-americas"></i> Expedition Type</h6>
                                     {% for opt in expedition_options %}
                                     {% if forloop.counter <= 5 %} <div class="form-check">
                                         <input class="form-check-input home-filter-checkbox" type="checkbox"
@@ -176,12 +185,10 @@
                                 </a>
                                 {% endif %}
                             </div>
-                        </div>
 
                         <!-- Category Filter (Checkboxes with Show More/Less) -->
-                        <div class="mb-3">
-                            <label class="home-filter-label"><i class="fas fa-folder me-1"></i>Category</label>
-                            <div class="filter-group">
+                        <div class="mb-3 filter-group">
+                            <h6><i class="fas fa-folder"></i> Category</h6>
                                 {% for opt in category_options %}
                                 {% if forloop.counter <= 5 %} <div class="form-check">
                                     <input class="form-check-input home-filter-checkbox" type="checkbox" name="category"
@@ -215,12 +222,10 @@
                             </a>
                             {% endif %}
                         </div>
-                    </div>
 
                     <!-- ISO Topic Filter (Checkboxes with Show More/Less) -->
-                    <div class="mb-3">
-                        <label class="home-filter-label"><i class="fas fa-tags me-1"></i>ISO Topic</label>
-                        <div class="filter-group">
+                    <div class="mb-3 filter-group">
+                        <h6><i class="fas fa-tags"></i> ISO Topic</h6>
                             {% for opt in iso_options %}
                             {% if forloop.counter <= 5 %} <div class="form-check">
                                 <input class="form-check-input home-filter-checkbox" type="checkbox" name="iso"
@@ -253,12 +258,10 @@
                         </a>
                         {% endif %}
                     </div>
-                </div>
 
                 <!-- Keywords Filter (Checkboxes with Show More/Less) -->
-                <div class="mb-3">
-                    <label class="home-filter-label"><i class="fas fa-tag me-1"></i>Keywords</label>
-                    <div class="filter-group">
+                <div class="mb-3 filter-group">
+                    <h6><i class="fas fa-tags"></i> Keywords</h6>
                         {% for opt in keyword_options %}
                         {% if forloop.counter <= 5 %} <div class="form-check">
                             <input class="form-check-input home-filter-checkbox" type="checkbox" name="keyword"
@@ -291,11 +294,10 @@
                     </a>
                     {% endif %}
                 </div>
-            </div>
 
             <!-- Year Filter (Dropdown - same as search page) -->
-            <div class="mb-3">
-                <label class="home-filter-label"><i class="fas fa-calendar me-1"></i>Expedition Year</label>
+            <div class="mb-3 filter-group">
+                <h6><i class="fas fa-calendar"></i> Expedition Year</h6>
                 <select name="year" class="form-select form-select-sm">
                     <option value="">All Years</option>
                     {% for opt in year_options %}
@@ -304,18 +306,18 @@
                 </select>
             </div>
 
-            <hr class="my-2">
-
             <!-- Temporal Range -->
-            <label class="home-filter-label"><i class="fas fa-clock me-1"></i>Temporal Range</label>
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <label class="form-label small mb-1">From</label>
-                    <input type="date" name="start" class="form-control form-control-sm">
-                </div>
-                <div class="col-6">
-                    <label class="form-label small mb-1">To</label>
-                    <input type="date" name="end" class="form-control form-control-sm">
+            <div class="mb-3 filter-group">
+                <h6><i class="fas fa-clock"></i> Temporal Range</h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label small mb-1">From</label>
+                        <input type="date" name="start" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small mb-1">To</label>
+                        <input type="date" name="end" class="form-control form-control-sm">
+                    </div>
                 </div>
             </div>
 
@@ -1470,7 +1472,7 @@
     /* Hero Section */
     .hero-section {
         background: transparent;
-        min-height: 70vh;
+        min-height: 55vh;
         display: flex;
         align-items: center;
         padding: 0;
@@ -1499,33 +1501,94 @@
         z-index: 2;
     }
 
-    /* Slide caption overlay with workflow steps */
-    .hero-slide-caption {
+    /* Beautiful Steps Container */
+    .hero-steps-container {
         position: absolute;
-        bottom: 20%;
-        left: 10%;
+        bottom: 5%;
+        left: 50%;
+        transform: translateX(-50%);
         z-index: 3;
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 2rem;
+    }
+    .step-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 0.85rem;
+        padding: 1.25rem 1rem;
+        text-align: center;
         color: #ffffff;
-        background: rgba(0,0,0,0.4);
-        padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
-        max-width: 400px;
-        backdrop-filter: blur(6px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+        height: 100%;
     }
-    .hero-slide-caption .slide-step {
-        font-size: 0.9rem;
-        font-weight: 600;
+    .step-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(96, 165, 250, 0.5);
+    }
+    .step-icon-wrapper {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.15rem;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        border: 2px solid rgba(255,255,255,0.2);
+    }
+    .step-number {
+        font-size: 0.75rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #FBBF24;
+        color: #93c5fd;
+        margin-bottom: 0.35rem;
+        letter-spacing: 1.5px;
     }
-    .hero-slide-caption h3 {
-        font-size: 2rem;
-        margin: 0.25rem 0;
+    .step-card h4 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
     }
-    .hero-slide-caption p {
-        font-size: 0.95rem;
+    .step-card p {
+        font-size: 0.8rem;
+        color: #cbd5e1;
         margin: 0;
+        line-height: 1.4;
+    }
+    .step-arrow {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        animation: pulseArrow 2s infinite;
+    }
+    
+    @keyframes pulseArrow {
+        0% { transform: translateX(0); opacity: 0.5; }
+        50% { transform: translateX(5px); opacity: 1; color: #60a5fa; }
+        100% { transform: translateX(0); opacity: 0.5; }
+    }
+
+    @media (max-width: 767px) {
+        .hero-steps-container {
+            position: relative;
+            bottom: 0;
+            padding: 2rem 1rem;
+            background: #0f172a;
+        }
+        .step-card {
+            background: #1e293b;
+        }
     }
 
     /* Feature Cards - Modernized */
@@ -1644,10 +1707,56 @@
     .home-search-sidebar-body::-webkit-scrollbar-track { background: transparent; }
     .home-search-sidebar-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-    .home-filter-label {
-        display: block; font-size: 0.8rem; font-weight: 700;
-        text-transform: uppercase; color: #334155; margin-bottom: 0.75rem;
-        letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;
+    .filter-group h6 {
+        color: #334155 !important;
+        font-size: 0.72rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.6px;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0.5rem;
+    }
+
+    .filter-group h6 i {
+        width: 22px;
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        font-size: 0.65rem;
+    }
+
+    .filter-group h6 .fa-search {
+        background: #f3e8ff;
+        color: #9333ea;
+    }
+
+    .filter-group h6 .fa-globe-americas {
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .filter-group h6 .fa-folder {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .filter-group h6 .fa-tags {
+        background: #fce7f3;
+        color: #db2777;
+    }
+
+    .filter-group {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.65rem;
     }
 
     .filter-group .form-check-label {

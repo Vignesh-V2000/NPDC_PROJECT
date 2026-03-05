@@ -96,7 +96,7 @@
     }
 
     .filter-panel-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1d4ed8 100%);
         color: #ffffff;
         padding: 1rem 1.15rem;
         font-size: 0.82rem;
@@ -118,14 +118,15 @@
     }
 
     .filter-group {
-        border-radius: 6px;
-        padding: 0.75rem 0;
-        margin-bottom: 0;
-        border-bottom: 1px solid #f1f5f9;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.65rem;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
     }
 
     .filter-group:last-child {
-        border-bottom: none;
+        margin-bottom: 0;
     }
 
     /* Section Header */
@@ -508,7 +509,7 @@
     }
 
     .search-hero-sub {
-        color: #94a3b8;
+        color: #e2e8f0;
         font-size: 0.92rem;
         position: relative;
         z-index: 2;
@@ -666,7 +667,7 @@
             <div class="col-xl-9 col-lg-10">
                 <div class="text-center mb-3">
                     <h3 class="search-hero-title">
-                        <i class="fas fa-database me-2 search-hero-title-icon"></i>Search Datasets
+                        Search Datasets
                     </h3>
                     <p class="search-hero-sub">Explore polar scientific data across all expeditions and research areas</p>
                 </div>
@@ -924,30 +925,6 @@
             value="{{ end|default:'' }}">
     </div>
 
-    <!-- Bounding Box Filter -->
-    <div class="mb-3 filter-group">
-        <h6 class="small fw-bold text-uppercase text-secondary mb-2">
-            <i class="fas fa-map-marked-alt me-1"></i>Bounding Box
-        </h6>
-        <div class="row g-1">
-            <div class="col-6">
-                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="West"
-                    id="filterBboxWest" name="bbox_west" value="{{ bbox_west|default:'' }}">
-            </div>
-            <div class="col-6">
-                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="East"
-                    id="filterBboxEast" name="bbox_east" value="{{ bbox_east|default:'' }}">
-            </div>
-            <div class="col-6">
-                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="South"
-                    id="filterBboxSouth" name="bbox_south" value="{{ bbox_south|default:'' }}">
-            </div>
-            <div class="col-6">
-                <input type="number" step="any" class="form-control form-control-sm filter-control" placeholder="North"
-                    id="filterBboxNorth" name="bbox_north" value="{{ bbox_north|default:'' }}">
-            </div>
-        </div>
-    </div>
 
     <!-- Sort -->
     <div class="mb-3 filter-group">
@@ -962,7 +939,7 @@
     </div>
 
     <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-clear-filters w-100" id="clearFilters">
-            Clear All Filters</a>
+            Reset</a>
 </div>
 </div>
 </div>

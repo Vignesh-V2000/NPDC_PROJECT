@@ -186,6 +186,18 @@
         background: #f1f5f9 !important;
         color: #334155 !important;
     }
+    .submission-container .btn-custom-reset {
+        border: 2px solid #334155 !important;
+        color: #334155 !important;
+        font-weight: 700;
+        border-radius: 0.6rem;
+        transition: all 0.2s ease;
+        background: transparent;
+    }
+    .submission-container .btn-custom-reset:hover {
+        background: #334155 !important;
+        color: #ffffff !important;
+    }
 
     /* ═══ AI Quick Start Panel Modernized ═══ */
     .submission-container #ai-quickstart-panel {
@@ -429,7 +441,7 @@
         <div class="dsf-hero-orb dsf-hero-orb-1"></div>
         <div class="dsf-hero-orb dsf-hero-orb-2"></div>
         <div class="dsf-hero-orb dsf-hero-orb-3"></div>
-        <h2 class="dsf-hero-title" style="color:#fff !important;"><i class="fas fa-database me-2"></i>Submit New Dataset</h2>
+        <h2 class="dsf-hero-title" style="color:#fff !important;">Submit New Dataset</h2>
         <p class="dsf-hero-sub">Fill in the metadata details for your polar research dataset</p>
         <div class="dsf-step-pill mt-2">
             <span class="dsf-step-dot"></span>
@@ -1079,12 +1091,12 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
                     <!-- Left: Save as Draft -->
-                    <button type="submit" name="save" value="DRAFT" class="btn btn-warning btn-lg fw-bold text-white px-4" id="saveDraftBtn" style="min-width: 160px;">
+                    <button type="submit" name="save" value="DRAFT" class="btn btn-primary btn-lg fw-bold text-white px-4" id="saveDraftBtn" style="min-width: 160px; background-color: #0f172a !important; border-color: #0f172a !important;">
                         <i class="fas fa-save me-2"></i>Save as Draft
                     </button>
                     <!-- Right: Reset, Preview, Save & Next -->
                     <div class="d-flex gap-3 flex-wrap">
-                        <button type="button" class="btn btn-outline-secondary btn-lg fw-bold px-4"
+                        <button type="button" class="btn btn-custom-reset btn-lg px-4"
                             onclick="location.reload()" style="min-width: 160px;">Reset</button>
                         <button type="submit" name="save" value="PREVIEW" class="btn btn-outline-info btn-lg fw-bold px-4" style="min-width: 160px;">
                             <i class="fas fa-eye me-2"></i>Preview
