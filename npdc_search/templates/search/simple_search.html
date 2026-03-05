@@ -11,119 +11,133 @@
         <div class="row justify-content-center">
             <div class="col-lg-8 col-xl-7">
                 <!-- Page Header -->
-                <div class="text-center mb-4">
+                <div class="text-center mb-0">
                     <h2 class="search-hero-title">Simple Search</h2>
                     <p class="search-hero-sub mx-auto">
                         Search across all fields or refine by specific criteria
                     </p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- White Background Section for Card -->
+<div style="background: #ffffff; padding: 2rem 0 3rem;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
 
                 <!-- Search Card -->
                 <div class="ss-card">
                     <form action="{% url 'search:search' %}" method="get">
 
                         <!-- Free Text Section -->
-                        <div class="ss-section">
-                            <label for="query" class="ss-label">
-                                <i class="fas fa-search me-1"></i> Free Text
+                        <div class="ss-section p-4 rounded mb-4" style="background-color: #f8fafc; border: 1px solid #94a3b8;">
+                            <label for="query" class="ss-label" style="font-size: 0.95rem; margin-bottom: 0.75rem;">
+                                <i class="fas fa-search me-2"></i> Free Text Search
                             </label>
                             <div class="ss-input-wrapper">
                                 <i class="fas fa-search ss-input-icon"></i>
-                                <input type="text" class="form-control ss-input ss-input-hero" id="query" name="query"
+                                <input type="text" class="form-control ss-input ss-input-hero bg-white" id="query" name="query"
                                     placeholder="Search across all fields..." value="{{ request.GET.query }}">
                             </div>
-                            <div class="ss-hint">
+                            <div class="ss-hint mt-2">
                                 <i class="fas fa-info-circle me-1"></i>Search for any term across title, abstract, keywords, and more.
                             </div>
                         </div>
 
-                        <!-- Divider -->
-                        <div class="ss-divider">
-                            <span><i class="fas fa-sliders-h me-1"></i>Specific Fields</span>
-                        </div>
-
-                        <!-- Fields Grid -->
-                        <div class="row g-3 mt-1">
-                            <!-- Title -->
-                            <div class="col-md-6">
-                                <label for="adv_val_title" class="ss-label">
-                                    <i class="fas fa-book me-1 opacity-50"></i> Title
-                                </label>
-                                <input type="hidden" name="adv_op" value="and">
-                                <input type="hidden" name="adv_field" value="title">
-                                <input type="text" class="form-control ss-input" id="adv_val_title" name="adv_val"
-                                    placeholder="Dataset title...">
+                        <!-- Specific Fields Grid -->
+                        <div class="ss-section p-4 rounded mb-2" style="background-color: #ffffff; border: 1px dashed #64748b;">
+                            <div class="mb-3 pb-2 border-bottom">
+                                <span class="fw-bold" style="color: #1d4ed8; font-size: 0.95rem;">
+                                    <i class="fas fa-sliders-h me-2"></i>Specific Fields
+                                </span>
+                                <div class="ss-hint mt-1 ms-4 text-muted">Refine your search with specific metadata fields.</div>
                             </div>
-
-                            <!-- Person -->
-                            <div class="col-md-6">
-                                <label for="adv_val_person" class="ss-label">
-                                    <i class="fas fa-user me-1 opacity-50"></i> Person
-                                </label>
-                                <input type="hidden" name="adv_op" value="and">
-                                <input type="hidden" name="adv_field" value="person">
-                                <input type="text" class="form-control ss-input" id="adv_val_person" name="adv_val"
-                                    placeholder="Scientist or Author name...">
-                            </div>
-
-                            <!-- Keywords -->
-                            <div class="col-md-6">
-                                <label for="adv_val_keywords" class="ss-label">
-                                    <i class="fas fa-tags me-1 opacity-50"></i> Keywords
-                                </label>
-                                <input type="hidden" name="adv_op" value="and">
-                                <input type="hidden" name="adv_field" value="keywords">
-                                <input type="text" class="form-control ss-input" id="adv_val_keywords" name="adv_val"
-                                    placeholder="e.g., climate, ice, geology...">
-                            </div>
-
-                            <!-- Project Name -->
-                            <div class="col-md-6">
-                                <label for="adv_val_project" class="ss-label">
-                                    <i class="fas fa-clipboard-list me-1 opacity-50"></i> Project Name
-                                </label>
-                                <input type="hidden" name="adv_op" value="and">
-                                <input type="hidden" name="adv_field" value="project">
-                                <input type="text" class="form-control ss-input" id="adv_val_project" name="adv_val"
-                                    placeholder="Project name...">
-                            </div>
-
-                            <!-- Expedition Year -->
-                            <div class="col-md-12">
-                                <label for="year" class="ss-label">
-                                    <i class="fas fa-calendar-alt me-1 opacity-50"></i> Expedition Year
-                                </label>
-                                <select class="form-select ss-input" id="year" name="year">
-                                    <option value="" selected>All Years</option>
-                                    {% for v, d in year_choices %}
-                                    <option value="{{ v }}">{{ d }}</option>
-                                    {% endfor %}
-                                </select>
+                            
+                            <div class="row g-3 mt-1">
+                                <!-- Title -->
+                                <div class="col-md-6">
+                                    <label for="adv_val_title" class="ss-label">
+                                        <i class="fas fa-book me-1 opacity-50"></i> Title
+                                    </label>
+                                    <input type="hidden" name="adv_op" value="and">
+                                    <input type="hidden" name="adv_field" value="title">
+                                    <input type="text" class="form-control ss-input" id="adv_val_title" name="adv_val"
+                                        placeholder="Dataset title...">
+                                </div>
+    
+                                <!-- Person -->
+                                <div class="col-md-6">
+                                    <label for="adv_val_person" class="ss-label">
+                                        <i class="fas fa-user me-1 opacity-50"></i> Person
+                                    </label>
+                                    <input type="hidden" name="adv_op" value="and">
+                                    <input type="hidden" name="adv_field" value="person">
+                                    <input type="text" class="form-control ss-input" id="adv_val_person" name="adv_val"
+                                        placeholder="Scientist or Author name...">
+                                </div>
+    
+                                <!-- Keywords -->
+                                <div class="col-md-6">
+                                    <label for="adv_val_keywords" class="ss-label">
+                                        <i class="fas fa-tags me-1 opacity-50"></i> Keywords
+                                    </label>
+                                    <input type="hidden" name="adv_op" value="and">
+                                    <input type="hidden" name="adv_field" value="keywords">
+                                    <input type="text" class="form-control ss-input" id="adv_val_keywords" name="adv_val"
+                                        placeholder="e.g., climate, ice, geology...">
+                                </div>
+    
+                                <!-- Project Name -->
+                                <div class="col-md-6">
+                                    <label for="adv_val_project" class="ss-label">
+                                        <i class="fas fa-clipboard-list me-1 opacity-50"></i> Project Name
+                                    </label>
+                                    <input type="hidden" name="adv_op" value="and">
+                                    <input type="hidden" name="adv_field" value="project">
+                                    <input type="text" class="form-control ss-input" id="adv_val_project" name="adv_val"
+                                        placeholder="Project name...">
+                                </div>
+    
+                                <!-- Expedition Year -->
+                                <div class="col-md-12">
+                                    <label for="year" class="ss-label">
+                                        <i class="fas fa-calendar-alt me-1 opacity-50"></i> Expedition Year
+                                    </label>
+                                    <select class="form-select ss-input bg-white" id="year" name="year">
+                                        <option value="" selected>All Years</option>
+                                        {% for v, d in year_choices %}
+                                        <option value="{{ v }}">{{ d }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Buttons -->
                         <div class="ss-actions mt-4 pt-3">
-                            <a href="{% url 'search:search' %}" class="btn ss-btn-cancel">
-                                <i class="fas fa-times me-1"></i>Cancel
-                            </a>
                             <button type="submit" class="btn ss-btn-search">
-                                <i class="fas fa-search me-2"></i>Search Database
+                                <i class="fas fa-search me-2"></i>Search
                             </button>
+                            <a href="{% url 'search:search' %}" class="btn ss-btn-cancel">
+                                <i class="fas fa-undo me-1"></i>Reset
+                            </a>
                         </div>
                     </form>
                 </div>
 
                 <!-- Quick Links -->
                 <div class="ss-quick-links mt-4 text-center">
-                    <span class="ss-quick-label me-2">Or browse by:</span>
-                    <a href="{% url 'search:browse_by_keyword' %}" class="ss-quick-pill">
+                    <span class="ss-quick-label me-2" style="color: #64748b;">Or browse by:</span>
+                    <a href="{% url 'search:browse_by_keyword' %}" class="ss-quick-pill" style="color: #334155; border-color: #94a3b8;">
                         <i class="fas fa-tags me-1"></i>Keyword
                     </a>
-                    <a href="{% url 'search:browse_by_location' %}" class="ss-quick-pill">
+                    <a href="{% url 'search:browse_by_location' %}" class="ss-quick-pill" style="color: #334155; border-color: #94a3b8;">
                         <i class="fas fa-map-marker-alt me-1"></i>Location
                     </a>
-                    <a href="{% url 'search:ai_search' %}" class="ss-quick-pill ss-quick-pill-ai">
+                    <a href="{% url 'search:ai_search' %}" class="ss-quick-pill ss-quick-pill-ai" style="color: #4338ca; border-color: #c7d2fe;">
                         🐧 Penguin Search
                     </a>
                 </div>
@@ -131,7 +145,6 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <style>
@@ -143,18 +156,14 @@
 
     /* ====== Hero Header ====== */
     .search-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-        padding: 3.5rem 0 4rem;
+        background: #ffffff;
+        padding: 2.5rem 0 2rem;
         position: relative;
         overflow: hidden;
     }
 
     .search-hero-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(60px);
-        opacity: 0.15;
-        pointer-events: none;
+        display: none;
     }
 
     .search-hero-orb-1 {
@@ -209,7 +218,7 @@
     }
 
     .search-hero-sub {
-        color: #e2e8f0;
+        color: #64748b;
         font-size: 1.05rem;
         position: relative;
         z-index: 2;
@@ -220,11 +229,11 @@
     .ss-card {
         position: relative;
         z-index: 2;
-        background: rgba(255, 255, 255, 0.98);
+        background: #ffffff;
         border-radius: 1rem;
         padding: 2rem 2.25rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         animation: cardSlideUp 0.5s ease both;
         margin-top: 1rem;
     }
@@ -240,14 +249,14 @@
 
     .ss-label {
         font-weight: 600;
-        color: #0f2c59;
+        color: #1d4ed8;
         font-size: 0.85rem;
         margin-bottom: 0.4rem;
         display: block;
     }
 
     .ss-label i {
-        color: #0f2c59;
+        color: #1d4ed8;
         opacity: 0.8 !important;
     }
 
@@ -333,7 +342,7 @@
     }
 
     .ss-btn-search {
-        background: linear-gradient(135deg, #0f172a, #1e293b);
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
         border: none;
         color: #ffffff;
         font-weight: 700;
@@ -341,12 +350,12 @@
         border-radius: 0.6rem;
         font-size: 0.95rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
     .ss-btn-search:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
         color: #ffffff;
     }
 
@@ -355,9 +364,9 @@
     }
 
     .ss-btn-cancel {
-        background: transparent;
-        border: 1.5px solid #e2e8f0;
-        color: #64748b;
+        background: #fef2f2;
+        border: 1.5px solid #fca5a5;
+        color: #dc2626;
         font-weight: 600;
         padding: 0.7rem 1.5rem;
         border-radius: 0.6rem;
@@ -366,9 +375,9 @@
     }
 
     .ss-btn-cancel:hover {
-        border-color: #94a3b8;
-        color: #334155;
-        background: #f8fafc;
+        border-color: #f87171;
+        color: #b91c1c;
+        background: #fee2e2;
     }
 
     /* Quick Links */

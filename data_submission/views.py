@@ -202,10 +202,28 @@ def submit_dataset(request):
 
         # ═══ SAVE AS DRAFT — Relaxed Validation ═══
         if action == "DRAFT":
-            # For drafts, only require a title. Save whatever the user has filled so far.
+            # For drafts, require at least a title
             title_value = request.POST.get("title", "").strip()
             if not title_value:
-                title_value = f"Untitled Draft ({timezone.now().strftime('%Y-%m-%d %H:%M')})"
+                messages.error(request, "Please enter at least a Title before saving as draft.")
+                # Re-render the form with the error
+                return render(
+                    request,
+                    "data_submission/submit_dataset.html",
+                    {
+                        "dataset_form": dataset_form,
+                        "citation_form": citation_form,
+                        "platform_form": platform_form,
+                        "gps_form": gps_form,
+                        "location_form": location_form,
+                        "resolution_form": resolution_form,
+                        "scientist_formset": scientist_formset,
+                        "instrument_formset": instrument_formset,
+                        "paleo_form": paleo_form,
+                        "is_edit_mode": is_edit_mode,
+                        "dataset_id": dataset.metadata_id if dataset else None,
+                    },
+                )
 
             with transaction.atomic():
                 if dataset:

@@ -164,6 +164,15 @@
         transform: translateY(-1px);
         box-shadow: 0 6px 20px rgba(37,99,235,0.35);
     }
+    .submission-container #saveDraftBtn {
+        background: #16a34a !important;
+        border-color: #16a34a !important;
+        box-shadow: 0 4px 12px rgba(22,163,74,0.25);
+    }
+    .submission-container #saveDraftBtn:hover {
+        background: #15803d !important;
+        box-shadow: 0 6px 20px rgba(22,163,74,0.35);
+    }
     .submission-container .btn-outline-info.btn-lg {
         border: 2px solid #06b6d4 !important;
         color: #06b6d4 !important;
@@ -187,16 +196,17 @@
         color: #334155 !important;
     }
     .submission-container .btn-custom-reset {
-        border: 2px solid #334155 !important;
-        color: #334155 !important;
+        border: 2px solid #fca5a5 !important;
+        color: #dc2626 !important;
         font-weight: 700;
         border-radius: 0.6rem;
         transition: all 0.2s ease;
-        background: transparent;
+        background: #fef2f2;
     }
     .submission-container .btn-custom-reset:hover {
-        background: #334155 !important;
-        color: #ffffff !important;
+        background: #fee2e2 !important;
+        color: #b91c1c !important;
+        border-color: #f87171 !important;
     }
 
     /* ═══ AI Quick Start Panel Modernized ═══ */
@@ -1091,7 +1101,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
                     <!-- Left: Save as Draft -->
-                    <button type="submit" name="save" value="DRAFT" class="btn btn-primary btn-lg fw-bold text-white px-4" id="saveDraftBtn" style="min-width: 160px; background-color: #0f172a !important; border-color: #0f172a !important;">
+                    <button type="submit" name="save" value="DRAFT" class="btn btn-primary btn-lg fw-bold text-white px-4" id="saveDraftBtn" style="min-width: 160px; background-color: #16a34a !important; border-color: #16a34a !important;">
                         <i class="fas fa-save me-2"></i>Save as Draft
                     </button>
                     <!-- Right: Reset, Preview, Save & Next -->
