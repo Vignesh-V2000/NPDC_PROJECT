@@ -3,6 +3,8 @@
 
 {% block title %}Penguin Search <small class="text-warning">alpha</small> — National Polar Data Center{% endblock %}
 
+{% block container_wrapper %}{% endblock container_wrapper %}
+
 {% block content %}
 <div class="chat-app">
     <!-- Left Sidebar -->
@@ -102,8 +104,15 @@
 {% block extra_js %}
 <style>
     /* Override base layout for full-screen chat */
+    body {
+        background: linear-gradient(135deg, #edf2f7 0%, #f4f7fb 50%, #eef3f9 100%) !important;
+    }
+
     main.fade-in {
         padding: 0 !important;
+        padding-bottom: 0 !important;
+        background: transparent !important;
+        background-color: transparent !important;
     }
 
     main.fade-in>.container {
@@ -111,20 +120,30 @@
         padding: 0 !important;
     }
 
+    /* Force inner <main> elements inside .chat-app to be transparent */
+    main#chat-main,
+    .chat-app main,
+    .chat-app>main,
+    .chat-app>.chat-main,
+    main.chat-main {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
     /* ===== CHAT APP LAYOUT ===== */
     .chat-app {
         display: flex;
         height: calc(100vh - 70px);
         overflow: hidden;
-        background: #0b1726;
+        background: linear-gradient(135deg, #edf2f7 0%, #f4f7fb 50%, #eef3f9 100%);
     }
 
     /* ===== LEFT SIDEBAR ===== */
     .chat-sidebar {
         width: 260px;
         min-width: 260px;
-        background: #0a1220;
-        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        background: #123456;
+        border-right: 1px solid rgba(0, 0, 0, 0.08);
         display: flex;
         flex-direction: column;
         transition: transform 0.3s ease;
@@ -241,22 +260,24 @@
     .scroll-nav-btn {
         width: 42px;
         height: 42px;
-        background: rgba(20, 40, 65, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         border-radius: 50%;
-        color: rgba(255, 255, 255, 0.7);
+        color: #0088CC;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
         backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .scroll-nav-btn:hover {
-        background: rgba(0, 136, 204, 0.3);
-        border-color: rgba(0, 136, 204, 0.5);
+        background: #0088CC;
+        border-color: #0088CC;
         color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
     }
 
     .new-chat-btn {
@@ -324,7 +345,7 @@
     .history-empty {
         text-align: center;
         padding: 2rem 1rem;
-        color: rgba(255, 255, 255, 0.25);
+        color: rgba(255, 255, 255, 0.35);
     }
 
     .history-empty i {
@@ -417,7 +438,7 @@
     .response-time-label {
         padding-left: 42px;
         margin-top: 4px;
-        color: rgba(255, 255, 255, 0.25);
+        color: rgba(0, 0, 0, 0.35);
         font-size: 0.72rem;
     }
 
@@ -428,6 +449,7 @@
         flex-direction: column;
         min-width: 0;
         position: relative;
+        background: transparent !important;
     }
 
     .chat-main.initial-center {
@@ -438,14 +460,15 @@
         position: absolute;
         top: 12px;
         left: 12px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         border-radius: 8px;
-        color: rgba(255, 255, 255, 0.6);
+        color: #0088CC;
         padding: 8px 10px;
         cursor: pointer;
         z-index: 10;
         display: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
     /* ===== CHAT MESSAGES ===== */
@@ -491,13 +514,13 @@
     }
 
     .welcome-state h2 {
-        color: #FFFFFF;
+        color: #1a2d42;
         font-size: 1.5rem;
         margin-bottom: 0.5rem;
     }
 
     .welcome-state p {
-        color: rgba(255, 255, 255, 0.45);
+        color: rgba(0, 0, 0, 0.50);
         font-size: 0.95rem;
         margin-bottom: 2rem;
     }
@@ -510,22 +533,26 @@
     }
 
     .welcome-chip {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.06);
         border-radius: 12px;
         padding: 14px 16px;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.65);
         font-size: 0.85rem;
         text-align: left;
         cursor: pointer;
         transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border-left: 3px solid #0088CC;
     }
 
     .welcome-chip:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: #ffffff;
         border-color: rgba(0, 136, 204, 0.4);
-        color: #fff;
-        transform: translateY(-1px);
+        border-left-color: #0088CC;
+        color: #1a2d42;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 136, 204, 0.15);
     }
 
     .welcome-chip i {
@@ -549,17 +576,24 @@
     }
 
     .message-user .bubble {
-        background: #1a3a5c;
-        color: #FFFFFF;
-        padding: 12px 18px;
-        border-radius: 18px 18px 4px 18px;
+        background: #edf0f4;
+        color: #2d3748;
+        padding: 10px 16px;
+        border-radius: 20px;
         font-size: 0.95rem;
         max-width: 75%;
         line-height: 1.5;
+        border: none;
+        box-shadow: none;
     }
 
     .message-ai {
         margin-bottom: 1.5rem;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: 16px;
+        padding: 20px 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     }
 
     .ai-avatar-row {
@@ -586,7 +620,7 @@
     }
 
     .ai-label {
-        color: rgba(255, 255, 255, 0.4);
+        color: rgba(0, 0, 0, 0.45);
         font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -594,7 +628,7 @@
     }
 
     .ai-answer-text {
-        color: rgba(255, 255, 255, 0.88);
+        color: rgba(0, 0, 0, 0.82);
         font-size: 0.95rem;
         line-height: 1.8;
         padding-left: 42px;
@@ -616,7 +650,7 @@
         content: '›';
         position: absolute;
         left: 0;
-        color: #0088CC;
+        color: #0077b6;
         font-weight: 700;
         font-size: 1rem;
         line-height: 1.6;
@@ -646,7 +680,7 @@
     /* Metadata line  e.g.  Category | Region | Date */
     .ai-answer-text .meta-line {
         font-size: 0.78rem;
-        color: rgba(255, 255, 255, 0.45);
+        color: rgba(0, 0, 0, 0.45);
         letter-spacing: 0.2px;
         margin: 2px 0 3px 0;
         display: block;
@@ -662,33 +696,33 @@
         display: block;
         margin: 3px 0 8px 14px;
         font-size: 0.875rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(0, 0, 0, 0.55);
         line-height: 1.55;
     }
 
     /* First intro sentence */
     .ai-answer-text .intro-line {
         margin-bottom: 14px;
-        color: rgba(255, 255, 255, 0.78);
+        color: rgba(0, 0, 0, 0.72);
         font-size: 0.95rem;
     }
 
     .ai-answer-text .dataset-id-badge {
         display: inline-block;
-        background: rgba(0, 136, 204, 0.18);
-        color: #4db8f0;
+        background: rgba(0, 136, 204, 0.12);
+        color: #0077b6;
         font-size: 0.7rem;
         font-weight: 700;
         padding: 1px 7px;
         border-radius: 4px;
-        border: 1px solid rgba(0, 136, 204, 0.3);
+        border: 1px solid rgba(0, 136, 204, 0.25);
         margin: 0 3px;
         letter-spacing: 0.3px;
         vertical-align: middle;
     }
 
     .ai-answer-text .dataset-result-link {
-        color: rgba(255, 255, 255, 0.9);
+        color: #0077b6;
         text-decoration: none;
         border-bottom: 1px solid rgba(0, 136, 204, 0.35);
         transition: color 0.2s, border-color 0.2s;
@@ -696,8 +730,8 @@
     }
 
     .ai-answer-text .dataset-result-link:hover {
-        color: #4db8f0;
-        border-bottom-color: #4db8f0;
+        color: #005f8a;
+        border-bottom-color: #005f8a;
         text-decoration: none;
     }
 
@@ -711,12 +745,19 @@
         border-radius: 1px;
         animation: cursor-blink 1s ease-in-out infinite;
         vertical-align: text-bottom;
-        box-shadow: 0 0 4px rgba(0,136,204,0.6);
+        box-shadow: 0 0 4px rgba(0, 136, 204, 0.6);
     }
 
     @keyframes cursor-blink {
-        0%, 100% { opacity: 1; }
-        50%       { opacity: 0; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
     }
 
     /* ===== RELATED RESEARCH SECTION ===== */
@@ -733,7 +774,7 @@
     }
 
     .related-research-title {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(0, 0, 0, 0.50);
         font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
@@ -745,7 +786,7 @@
 
     .related-research-title i {
         font-size: 0.72rem;
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(0, 0, 0, 0.35);
     }
 
     .view-more-results-btn {
@@ -782,7 +823,7 @@
         align-items: center;
         gap: 10px;
         padding: 9px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         text-decoration: none;
         transition: background 0.15s;
         border-radius: 0;
@@ -793,7 +834,7 @@
     }
 
     .research-item:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 136, 204, 0.06);
         border-radius: 6px;
         padding-left: 6px;
         text-decoration: none;
@@ -818,7 +859,7 @@
     }
 
     .research-item-title {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(0, 0, 0, 0.75);
         font-size: 0.83rem;
         font-weight: 500;
         white-space: nowrap;
@@ -827,13 +868,13 @@
     }
 
     .research-item-meta {
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(0, 0, 0, 0.40);
         font-size: 0.72rem;
         margin-top: 1px;
     }
 
     .research-item-arrow {
-        color: rgba(255, 255, 255, 0.2);
+        color: rgba(0, 0, 0, 0.25);
         font-size: 0.7rem;
         flex-shrink: 0;
     }
@@ -923,7 +964,7 @@
         gap: 4px;
         padding-left: 42px;
         margin-top: 14px;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
         padding-top: 10px;
     }
 
@@ -933,7 +974,7 @@
         gap: 5px;
         background: none;
         border: none;
-        color: rgba(255, 255, 255, 0.35);
+        color: rgba(0, 0, 0, 0.40);
         font-size: 0.79rem;
         cursor: pointer;
         padding: 5px 8px;
@@ -942,8 +983,8 @@
     }
 
     .ai-action-btn:hover {
-        color: rgba(255, 255, 255, 0.8);
-        background: rgba(255, 255, 255, 0.05);
+        color: rgba(0, 0, 0, 0.75);
+        background: rgba(0, 0, 0, 0.05);
     }
 
     .ai-action-btn i {
@@ -957,7 +998,7 @@
     .ai-action-divider {
         width: 1px;
         height: 16px;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.10);
         margin: 0 4px;
     }
 
@@ -971,7 +1012,7 @@
 
     .message-divider hr {
         border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
     }
 
     /* Loading dots */
@@ -986,7 +1027,7 @@
     .typing-dot {
         width: 7px;
         height: 7px;
-        background: rgba(0, 136, 204, 0.6);
+        background: rgba(0, 136, 204, 0.7);
         border-radius: 50%;
         animation: typing-bounce 1.4s infinite ease-in-out;
     }
@@ -1075,17 +1116,19 @@
     }
 
     .chat-input-wrapper {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(0, 136, 204, 0.3);
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(0, 0, 0, 0.09);
         border-radius: 28px;
         padding: 4px;
         transition: all 0.3s;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(6px);
     }
 
     .chat-input-wrapper:focus-within {
-        border-color: rgba(0, 136, 204, 0.6);
-        box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
-        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(0, 136, 204, 0.5);
+        box-shadow: 0 2px 16px rgba(0, 136, 204, 0.12);
+        background: #ffffff;
     }
 
     .input-row {
@@ -1096,7 +1139,7 @@
 
     .input-icon {
         padding-left: 16px;
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(0, 0, 0, 0.30);
         font-size: 0.9rem;
         flex-shrink: 0;
     }
@@ -1106,23 +1149,23 @@
         background: transparent !important;
         border: none;
         outline: none;
-        color: #FFFFFF !important;
+        color: #1a2d42 !important;
         font-size: 0.95rem;
         padding: 12px 0;
         font-family: inherit;
         caret-color: #0088CC;
-        -webkit-text-fill-color: #FFFFFF;
+        -webkit-text-fill-color: #1a2d42;
     }
 
     .chat-input::placeholder {
-        color: rgba(255, 255, 255, 0.35) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.35);
+        color: rgba(0, 0, 0, 0.35) !important;
+        -webkit-text-fill-color: rgba(0, 0, 0, 0.35);
     }
 
     .send-btn {
         width: 42px;
         height: 42px;
-        background: #0088CC;
+        background: linear-gradient(135deg, #2a6496, #3d8fc4);
         border: none;
         border-radius: 50%;
         color: white;
@@ -1133,11 +1176,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 80, 140, 0.2);
     }
 
     .send-btn:hover {
-        background: #006fa3;
+        background: linear-gradient(135deg, #1e5278, #2a6496);
         transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 80, 140, 0.3);
     }
 
     .send-btn:disabled {
@@ -1148,7 +1193,7 @@
 
     .disclaimer {
         text-align: center;
-        color: rgba(255, 255, 255, 0.2);
+        color: rgba(0, 0, 0, 0.30);
         font-size: 0.72rem;
         margin-top: 8px;
         line-height: 1.4;
@@ -1167,7 +1212,7 @@
 
     .chat-messages::-webkit-scrollbar-thumb,
     .sidebar-history::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.12);
         border-radius: 10px;
     }
 
@@ -1385,7 +1430,7 @@
                 <div class="ai-avatar">🐧</div>
                 <span class="ai-label">Penguin</span>
             </div>
-            <div class="ai-answer-text" style="color: rgba(255,200,200,0.9);">${escapeHtml(message)}</div>
+            <div class="ai-answer-text" style="color: #c0392b;">${escapeHtml(message)}</div>
             <div style="padding-left: 42px; margin-top: 10px;">
                 <button onclick="sendMessage('${safeQuery}')" style="
                     background: rgba(0,136,204,0.15);
@@ -1502,7 +1547,7 @@
     // boundaries so formatting is always correct and the reveal feels fluid.
     function typewriteText(element, text, onComplete) {
         const CHARS_PER_FRAME = 3;   // characters revealed per animation frame
-        const WORD_BATCH     = 2;    // re-render formatAnswer every N words (not every char)
+        const WORD_BATCH = 2;    // re-render formatAnswer every N words (not every char)
 
         element.innerHTML = '';
         const cursor = document.createElement('span');
@@ -1511,10 +1556,10 @@
 
         // Pre-split into characters for clean iteration
         const chars = Array.from(text);   // handles multi-byte / emoji
-        let charIndex  = 0;
-        let displayed  = '';             // raw text revealed so far
+        let charIndex = 0;
+        let displayed = '';             // raw text revealed so far
         let wordsSince = 0;              // words typed since last DOM re-render
-        let lastRaf    = null;
+        let lastRaf = null;
 
         // Separate content div so cursor stays at the very end
         const contentDiv = document.createElement('div');
@@ -1907,7 +1952,7 @@
         currentQuery = session.title;
         isProcessing = false;
         document.getElementById('send-btn').disabled = false;
-        
+
         // Remove initial center if loading history
         const chatMain = document.getElementById('chat-main');
         if (chatMain) chatMain.classList.remove('initial-center');
@@ -1952,11 +1997,11 @@
                 <h2>🐧 Penguin Search <small class="text-warning">alpha</small></h2>
                 <p>Ask questions about India's polar and cryospheric research datasets</p>
             </div>`;
-        
+
         // Center the input area again
         const chatMain = document.getElementById('chat-main');
         if (chatMain) chatMain.classList.add('initial-center');
-            
+
         renderHistory(); // clear active highlight
         chatInput.focus();
     }
