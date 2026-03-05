@@ -17,6 +17,7 @@
                 <i class="fas fa-chevron-down"></i>
             </div>
         </div>
+<<<<<<< Updated upstream
         <div class="collapse" id="existingAdmins">
             <div class="card-body">
                 <div class="table-responsive">
@@ -72,6 +73,138 @@
                             {% endfor %}
                         </tbody>
                     </table>
+=======
+
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9">
+
+            <style>
+                /* ═══ Hero Banner ═══ */
+                .ca-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2rem 2rem 1.6rem;
+                    border-radius: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                    margin-bottom: 1.5rem;
+                }
+                .ca-hero-orb {
+                    position: absolute; border-radius: 50%;
+                    filter: blur(60px); opacity: 0.15; pointer-events: none;
+                }
+                .ca-hero-orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; left: -50px; animation: caOrb1 8s ease-in-out infinite; }
+                .ca-hero-orb-2 { width: 200px; height: 200px; background: #8b5cf6; top: -50px; right: 10%; animation: caOrb2 10s ease-in-out infinite; }
+                .ca-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: caOrb1 12s ease-in-out infinite reverse; }
+                @keyframes caOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
+                @keyframes caOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
+                .ca-hero-title { color:#E8734A; font-weight:800; font-size:3rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
+                .ca-hero-title i { color:#ffffff; }
+                .ca-hero-sub { color:#94a3b8; font-size:0.9rem; position:relative; z-index:2; margin-bottom:0; }
+                .ca-back-btn {
+                    position:relative; z-index:2;
+                    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+                    color:#94a3b8; padding:0.4rem 1rem; border-radius:0.5rem;
+                    font-size:0.82rem; font-weight:600; text-decoration:none; transition:all 0.2s ease;
+                }
+                .ca-back-btn:hover { background:rgba(255,255,255,0.15); color:#fff; }
+
+                /* ═══ Existing Admins ═══ */
+                .ca-admins-card { border-radius:0.85rem; border:1px solid rgba(0,0,0,0.04)!important; box-shadow:0 4px 16px rgba(15,23,42,0.06); overflow:hidden; margin-bottom:1.25rem; }
+                .ca-admins-header {
+                    padding:0.85rem 1.25rem; font-weight:700; font-size:0.88rem; cursor:pointer;
+                    background:linear-gradient(135deg,#0f172a,#1e293b); color:#e2e8f0;
+                    display:flex; align-items:center; justify-content:space-between; transition:background 0.2s;
+                }
+                .ca-admins-header:hover { background:linear-gradient(135deg,#1e293b,#334155); }
+                .ca-admin-tbl { margin-bottom:0; }
+                .ca-admin-tbl thead th { background:#f8fafc; font-size:0.7rem; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#64748b; padding:0.65rem 1rem; border-bottom:2px solid #e2e8f0; }
+                .ca-admin-tbl tbody tr { transition:background 0.15s; border-bottom:1px solid #f1f5f9; }
+                .ca-admin-tbl tbody tr:hover { background:#f0f9ff; }
+                .ca-admin-tbl tbody td { padding:0.65rem 1rem; vertical-align:middle; font-size:0.85rem; }
+                .ca-av { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.7rem; background:#e0e7ff; color:#4338ca; flex-shrink:0; }
+                .ca-rb { display:inline-flex; align-items:center; gap:0.25rem; padding:0.2rem 0.5rem; border-radius:2rem; font-size:0.68rem; font-weight:700; }
+                .ca-rb-super { background:#0f172a; color:#e2e8f0; }
+                .ca-rb-exp { background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; }
+                .ca-rb-staff { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+
+                /* ═══ Form Card ═══ */
+                .ca-form-card { border-radius:0.85rem; border:1px solid rgba(0,0,0,0.04)!important; box-shadow:0 6px 24px rgba(15,23,42,0.06); }
+                .ca-form-card .card-body { padding:1.75rem; }
+
+                /* Toggle */
+                .ca-type-toggle { display:inline-flex; border-radius:0.6rem; overflow:hidden; border:2px solid #e2e8f0; background:#f8fafc; }
+                .ca-type-toggle .btn-check:checked+.ca-type-btn-std { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+                .ca-type-toggle .btn-check:checked+.ca-type-btn-adm { background:#ef4444; color:#fff; border-color:#ef4444; }
+                .ca-type-btn { background:transparent; color:#64748b; border:none; padding:0.45rem 1.35rem; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+
+                /* Section Headers */
+                .ca-sec-title {
+                    font-size:0.82rem; font-weight:700; margin-bottom:0.75rem; padding-bottom:0.5rem;
+                    display:flex; align-items:center; gap:0.4rem;
+                }
+                .ca-sec-blue { color:#1d4ed8; border-bottom:2px solid #dbeafe; }
+                .ca-sec-red { color:#dc2626; border-bottom:2px solid #fecaca; }
+
+                /* Form Grid */
+                .ca-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem 1.25rem; margin-bottom:1.25rem; }
+                .ca-form-grid.ca-single { grid-template-columns:1fr; }
+                .ca-field label {
+                    display:block; font-size:0.78rem; font-weight:600; color:#475569;
+                    margin-bottom:0.3rem; letter-spacing:0.2px;
+                }
+                .ca-field label .text-danger { font-size:0.8rem; }
+                .ca-field .form-control,
+                .ca-field .form-select {
+                    border:1.5px solid #e2e8f0; border-radius:0.5rem;
+                    padding:0.5rem 0.75rem; font-size:0.88rem; transition:all 0.2s ease;
+                    width:100%;
+                }
+                .ca-field .form-control:focus,
+                .ca-field .form-select:focus {
+                    border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.1);
+                }
+                .ca-field textarea.form-control { resize:vertical; }
+                .ca-field .form-text { font-size:0.72rem; color:#94a3b8; margin-top:0.2rem; }
+                .ca-field-full { grid-column:1/-1; }
+
+                /* Buttons */
+                .ca-submit {
+                    background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; border:none;
+                    font-weight:700; padding:0.6rem 1.75rem; border-radius:0.6rem; font-size:0.88rem;
+                    transition:all 0.25s; box-shadow:0 4px 12px rgba(22,163,74,0.25);
+                }
+                .ca-submit:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(22,163,74,0.35); }
+                .ca-cancel {
+                    background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;
+                    font-weight:600; padding:0.6rem 1.75rem; border-radius:0.6rem; font-size:0.88rem;
+                    text-decoration:none; transition:all 0.2s;
+                }
+                .ca-cancel:hover { background:#e2e8f0; color:#334155; }
+
+                .ca-info-note {
+                    background:#eff6ff; color:#1d4ed8; border:none; border-radius:0.6rem;
+                    padding:0.75rem 1rem; font-size:0.85rem;
+                }
+
+                @media(max-width:768px) {
+                    .ca-form-grid { grid-template-columns:1fr; }
+                }
+            </style>
+
+            <!-- Hero Banner -->
+            <div class="ca-hero">
+                <div class="ca-hero-orb ca-hero-orb-1"></div>
+                <div class="ca-hero-orb ca-hero-orb-2"></div>
+                <div class="ca-hero-orb ca-hero-orb-3"></div>
+                <div class="d-flex justify-content-between align-items-center" style="position:relative;z-index:2;">
+                    <div>
+                        <h3 class="ca-hero-title"><i class="fas fa-user-plus me-2"></i>Add New User</h3>
+                        <p class="ca-hero-sub">Create standard users or administrator accounts</p>
+                    </div>
+                    <a href="{% url 'users:user_approval_dashboard' %}" class="ca-back-btn">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+>>>>>>> Stashed changes
                 </div>
             </div>
         </div>

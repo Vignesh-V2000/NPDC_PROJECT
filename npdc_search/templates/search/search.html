@@ -92,8 +92,233 @@
     .ai-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
     .ai-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes aiPulse {
+<<<<<<< Updated upstream
         0%, 100% { opacity: 0.3; transform: scale(0.8); }
         50% { opacity: 1; transform: scale(1.2); }
+=======
+        0%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+    }
+
+    /* ====== Hero Search Header ====== */
+    .search-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        padding: 2.5rem 0 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .search-hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    .search-hero-orb-1 {
+        width: 300px;
+        height: 300px;
+        background: #3b82f6;
+        top: -100px;
+        left: -50px;
+        animation: orbFloat1 8s ease-in-out infinite;
+    }
+
+    .search-hero-orb-2 {
+        width: 200px;
+        height: 200px;
+        background: #8b5cf6;
+        top: -50px;
+        right: 10%;
+        animation: orbFloat2 10s ease-in-out infinite;
+    }
+
+    .search-hero-orb-3 {
+        width: 250px;
+        height: 250px;
+        background: #06b6d4;
+        bottom: -80px;
+        right: 30%;
+        animation: orbFloat1 12s ease-in-out infinite reverse;
+    }
+
+    @keyframes orbFloat1 {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(20px, 15px); }
+    }
+
+    @keyframes orbFloat2 {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(-15px, 20px); }
+    }
+
+    .search-hero-title {
+        color: #E8734A;
+        font-weight: 800;
+        font-size: 3rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.3rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .search-hero-title-icon {
+        color: #ffffff;
+    }
+
+    .search-hero-sub {
+        color: #94a3b8;
+        font-size: 0.92rem;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 0;
+    }
+
+    /* Search Bar */
+    .search-hero-bar {
+        position: relative;
+        z-index: 2;
+    }
+
+    .search-hero-bar-inner {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 0.75rem;
+        padding: 0.35rem 0.35rem 0.35rem 1.25rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255,255,255,0.05);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .search-hero-bar-inner:focus-within {
+        box-shadow: 0 8px 40px rgba(59, 130, 246, 0.3), 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    .search-bar-icon {
+        color: #94a3b8;
+        font-size: 1.1rem;
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .search-hero-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 1.05rem;
+        color: #0f172a;
+        background: transparent;
+        padding: 0.65rem 0;
+    }
+
+    .search-hero-input::placeholder {
+        color: #94a3b8;
+    }
+
+    .search-hero-btn {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #ffffff;
+        border: none;
+        padding: 0.7rem 1.75rem;
+        border-radius: 0.6rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        white-space: nowrap;
+    }
+
+    .search-hero-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    /* Hero Controls Row */
+    .search-hero-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        z-index: 2;
+    }
+
+    .search-hero .ai-toggle {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+    }
+
+    .search-hero .ai-toggle .form-check-label {
+        color: #e2e8f0;
+    }
+
+    .ai-status-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: #94a3b8;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 0.3rem 0.75rem;
+        border-radius: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .ai-status-dot {
+        width: 7px;
+        height: 7px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+        50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+    }
+
+    .search-hero .advanced-search-toggle {
+        color: #60a5fa !important;
+        font-size: 1.25rem;
+    }
+
+    .search-hero .advanced-search-toggle:hover {
+        color: #93c5fd !important;
+    }
+
+    .adv-search-panel {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.6rem;
+        padding: 1rem;
+        backdrop-filter: blur(8px);
+    }
+
+    .adv-search-panel .form-select,
+    .adv-search-panel .form-control {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .adv-add-btn {
+        color: #60a5fa;
+        background: transparent;
+        border: none;
+        font-weight: 600;
+    }
+
+    .adv-add-btn:hover {
+        color: #93c5fd;
+>>>>>>> Stashed changes
     }
 </style>
 <div class="container-fluid py-4">
@@ -376,6 +601,7 @@
                         </div>
                     </div>
 
+<<<<<<< Updated upstream
                     <!-- Sort -->
                     <div class="mb-3 filter-group">
                         <h6 class="small fw-bold text-uppercase text-secondary mb-2">
@@ -387,6 +613,17 @@
                             {% endfor %}
                         </select>
                     </div>
+=======
+    <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-clear-filters w-100" id="clearFilters">
+            Clear All Filters</a>
+</div>
+</div>
+</div>
+<div class="col-lg-9 col-md-8">
+    <!-- Leaflet Map -->
+    <div id="datasetMap" style="height: 350px; width: 100%; z-index: 0;" class="mb-3 rounded border shadow-sm">
+    </div>
+>>>>>>> Stashed changes
 
                     <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-outline-danger w-100"
                         id="clearFilters"><i class="fas fa-times me-1"></i>Clear All Filters</a>
@@ -495,6 +732,7 @@
             { value: 'keywords', label: 'Keywords', type: 'text' },
             { value: 'project', label: 'Project Name', type: 'text' },
             { value: 'doi', label: 'DOI', type: 'text' },
+            { value: 'metadata_id', label: 'Metadata ID', type: 'text' },
             {
                 value: 'expedition', label: 'Expedition Type', type: 'select', choices: [
                     {% for v, d in expedition_choices %}{ value: "{{ v|escapejs }}", label: "{{ d|escapejs }}" },{% endfor %}

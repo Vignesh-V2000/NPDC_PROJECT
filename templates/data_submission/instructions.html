@@ -9,10 +9,29 @@
     .instructions-container h4 {
         color: var(--accent-teal) !important;
     }
+<<<<<<< Updated upstream
     
     .instructions-container span,
     .instructions-container div {
         color: #FFFFFF;
+=======
+    .dsi-hero-orb-1 { width: 200px; height: 200px; background: #3b82f6; top: -80px; left: -40px; animation: dsiOrb1 8s ease-in-out infinite; }
+    .dsi-hero-orb-2 { width: 140px; height: 140px; background: #8b5cf6; top: -40px; right: 10%; animation: dsiOrb2 10s ease-in-out infinite; }
+    .dsi-hero-orb-3 { width: 160px; height: 160px; background: #06b6d4; bottom: -60px; right: 30%; animation: dsiOrb1 12s ease-in-out infinite reverse; }
+    @keyframes dsiOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
+    @keyframes dsiOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
+    .dsi-hero-title { color:#E8734A; font-weight:800; font-size:3rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
+    .dsi-hero-title i { color: #ffffff; }
+    .dsi-hero-sub { color:#ffffff; font-size:0.88rem; position:relative; z-index:2; margin-bottom:1rem; max-width:550px; line-height:1.5; }
+    .dsi-hero-cta {
+        position: relative; z-index: 2;
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff; border: none; padding: 0.55rem 1.5rem;
+        border-radius: 0.5rem; font-weight: 700; font-size: 0.88rem;
+        text-decoration: none; transition: all 0.25s ease;
+        box-shadow: 0 4px 16px rgba(37,99,235,0.35);
+>>>>>>> Stashed changes
     }
 </style>
 <div class="container py-5 instructions-container">

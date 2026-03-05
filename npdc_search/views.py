@@ -86,6 +86,9 @@ def search_view(request):
     if query:
         if query.startswith("10."):
             queryset = queryset.filter(doi__iexact=query)
+        elif query.upper().startswith("MF"):
+            # Partial metadata_id search (allows incomplete IDs like "mf12")
+            queryset = queryset.filter(metadata_id__icontains=query)
         else:
             phrases = re.findall(r'"([^"]+)"', query)
             remaining = re.sub(r'"[^"]+', '', query).strip()
@@ -113,7 +116,8 @@ def search_view(request):
                     Q(scientists__first_name__icontains=search_terms[0]) |
                     Q(scientists__last_name__icontains=search_terms[0]) |
                     Q(instruments__short_name__icontains=search_terms[0]) |
-                    Q(platform__short_name__icontains=search_terms[0])
+                    Q(platform__short_name__icontains=search_terms[0]) |
+                    Q(metadata_id__icontains=search_terms[0])
                 ).distinct()
 
                 search_rank = True
@@ -166,6 +170,8 @@ def search_view(request):
                 row_q = Q(project_name__icontains=val)
             elif field == 'doi':
                 row_q = Q(title__icontains=val)
+            elif field == 'metadata_id':
+                row_q = Q(metadata_id__icontains=val)
             elif field == 'platform':
                 row_q = Q(platform__short_name__icontains=val) | Q(platform__long_name__icontains=val)
             elif field == 'instrument':

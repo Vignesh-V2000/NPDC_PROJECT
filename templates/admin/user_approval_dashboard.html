@@ -17,6 +17,7 @@
 
         <div class="card-body">
 
+<<<<<<< Updated upstream
             <div style="max-height: 400px; overflow-y: auto;">
                 <table class="table table-hover">
                     <thead>
@@ -28,6 +29,100 @@
                             <th>Action</th>
                         </tr>
                     </thead>
+=======
+            <!-- ═══ Hero Banner ═══ -->
+            <style>
+                .usermgmt-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2.2rem 2rem 1.8rem;
+                    border-radius: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                    margin-bottom: 1.5rem;
+                }
+                .usermgmt-hero-orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(60px);
+                    opacity: 0.15;
+                    pointer-events: none;
+                }
+                .usermgmt-hero-orb-1 {
+                    width: 300px; height: 300px;
+                    background: #3b82f6;
+                    top: -100px; left: -50px;
+                    animation: umOrbFloat1 8s ease-in-out infinite;
+                }
+                .usermgmt-hero-orb-2 {
+                    width: 200px; height: 200px;
+                    background: #8b5cf6;
+                    top: -50px; right: 10%;
+                    animation: umOrbFloat2 10s ease-in-out infinite;
+                }
+                .usermgmt-hero-orb-3 {
+                    width: 250px; height: 250px;
+                    background: #06b6d4;
+                    bottom: -80px; right: 30%;
+                    animation: umOrbFloat1 12s ease-in-out infinite reverse;
+                }
+                @keyframes umOrbFloat1 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(20px, 15px); }
+                }
+                @keyframes umOrbFloat2 {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(-15px, 20px); }
+                }
+                .usermgmt-hero-title {
+                    color: #E8734A;
+                    font-weight: 800;
+                    font-size: 3rem;
+                    letter-spacing: -0.02em;
+                    margin-bottom: 0.3rem;
+                    position: relative;
+                    z-index: 2;
+                }
+                .usermgmt-hero-title-icon { color: #ffffff; }
+                .usermgmt-hero-sub {
+                    color: #94a3b8;
+                    font-size: 0.92rem;
+                    position: relative;
+                    z-index: 2;
+                    margin-bottom: 0;
+                }
+                .usermgmt-stat-pills {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 1rem;
+                    flex-wrap: wrap;
+                    position: relative;
+                    z-index: 2;
+                }
+                .usermgmt-pill {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    font-size: 0.78rem;
+                    color: #94a3b8;
+                    background: rgba(255,255,255,0.06);
+                    padding: 0.35rem 0.85rem;
+                    border-radius: 2rem;
+                    border: 1px solid rgba(255,255,255,0.08);
+                }
+                .usermgmt-dot {
+                    width: 7px; height: 7px;
+                    border-radius: 50%;
+                    animation: umDotPulse 2s ease-in-out infinite;
+                }
+                .usermgmt-dot-pending { background: #f59e0b; }
+                .usermgmt-dot-approved { background: #22c55e; }
+                .usermgmt-dot-admin { background: #a78bfa; }
+                @keyframes umDotPulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+>>>>>>> Stashed changes
 
                     <tbody>
                         {% for user in pending_users %}

@@ -7,27 +7,52 @@
     <!-- Background Image Slider -->
     <div class="hero-media-wrapper">
         <div id="heroCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel"
-            data-bs-interval="3000" data-bs-pause="false">
+            data-bs-interval="5000" data-bs-pause="false">
             <div class="carousel-inner h-100">
                 <div class="carousel-item active h-100">
                     <img src="{% static 'images/slider_images/1.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 1">
+                    <div class="hero-slide-caption">
+                        <span class="slide-step">Step 1</span>
+                        <h3>Collect Polar Data</h3>
+                        <p>Field observations and instrument measurements from expeditions.</p>
+                    </div>
                 </div>
                 <div class="carousel-item h-100">
                     <img src="{% static 'images/slider_images/2.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 2">
+                    <div class="hero-slide-caption">
+                        <span class="slide-step">Step 2</span>
+                        <h3>Submit to NPDC</h3>
+                        <p>Upload datasets with rich metadata for long-term archival and DOI assignment.</p>
+                    </div>
                 </div>
                 <div class="carousel-item h-100">
                     <img src="{% static 'images/slider_images/3.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 3">
+                    <div class="hero-slide-caption">
+                        <span class="slide-step">Step 3</span>
+                        <h3>Discover & Analyze</h3>
+                        <p>Use NPDC search tools to explore, visualize, and reuse polar research data.</p>
+                    </div>
                 </div>
                 <div class="carousel-item h-100">
                     <img src="{% static 'images/slider_images/4.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 4">
+                    <div class="hero-slide-caption">
+                        <span class="slide-step">Our Promise</span>
+                        <h3>Unique Data Integrity</h3>
+                        <p>Ensuring authenticity and sustainability of polar datasets for the global community.</p>
+                    </div>
                 </div>
                 <div class="carousel-item h-100">
                     <img src="{% static 'images/slider_images/5.jpg' %}" class="d-block w-100 h-100 hero-slide-img"
                         alt="Polar Landscape 5">
+                    <div class="hero-slide-caption">
+                        <span class="slide-step">Get Involved</span>
+                        <h3>Join the Polar Community</h3>
+                        <p>Collaborate with scientists worldwide and contribute to open polar research.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1277,10 +1302,21 @@
 
     /* Hero Section */
     .hero-section {
+<<<<<<< Updated upstream
         background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
         padding: 5rem 0;
         border-radius: var(--border-radius-lg);
         margin-bottom: 3rem;
+=======
+        background: transparent;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        border-radius: 20px;
+        margin: 1.5rem auto;
+        width: 98%;
+>>>>>>> Stashed changes
         position: relative;
         overflow: hidden;
         color: #ffffff;
@@ -1313,7 +1349,55 @@
         margin-bottom: 1.5rem;
     }
 
+<<<<<<< Updated upstream
     .hero-illustration {
+=======
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 2;
+    }
+
+    /* Slide caption overlay with workflow steps */
+    .hero-slide-caption {
+        position: absolute;
+        bottom: 20%;
+        left: 10%;
+        z-index: 3;
+        color: #ffffff;
+        background: rgba(0,0,0,0.4);
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        max-width: 400px;
+        backdrop-filter: blur(6px);
+    }
+    .hero-slide-caption .slide-step {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #FBBF24;
+    }
+    .hero-slide-caption h3 {
+        font-size: 2rem;
+        margin: 0.25rem 0;
+    }
+    .hero-slide-caption p {
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* Feature Cards - Modernized */
+    .feature-card {
+        background: var(--nsidc-surface);
+        border: 1px solid var(--nsidc-border);
+        border-radius: 1.25rem;
+        padding: 2.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        color: var(--nsidc-text-main);
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.01);
+>>>>>>> Stashed changes
         position: relative;
     }
 

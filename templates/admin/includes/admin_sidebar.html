@@ -1,4 +1,5 @@
 <!-- Admin Sidebar Navigation -->
+<<<<<<< Updated upstream
 <div class="admin-sidebar {% if is_full_sidebar %}sidebar-full{% endif %}">
     <div class="sidebar-header">
         <h5 class="mb-0">
@@ -38,6 +39,81 @@
         <a href="{% url 'users:home' %}" class="btn btn-outline-light btn-sm w-100">
             <i class="fas fa-arrow-left me-2"></i>Back to Main Site
         </a>
+=======
+<div class="admin-sidebar h-100">
+    <div class="sidebar-inner h-100 d-flex flex-column">
+        <div class="sidebar-header mb-4 pb-3">
+            <h5 class="mb-0 text-white fw-bold d-flex align-items-center">
+                <div class="header-icon-box me-3">
+                    <i class="fas fa-layer-group text-white"></i>
+                </div>
+                Admin Panel
+            </h5>
+        </div>
+        
+        <nav class="sidebar-nav flex-grow-1">
+            <ul class="nav flex-column gap-2">
+                <li class="nav-item">
+                    <a class="nav-link color-blue fw-semibold {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
+                        href="{% url 'data_submission:admin_dashboard' %}">
+                        <i class="fas fa-fw fa-tachometer-alt me-3 icon-fixed"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-purple fw-semibold {% if request.resolver_match.url_name == 'all_submissions' %}active{% endif %}"
+                        href="{% url 'data_submission:all_submissions' %}">
+                        <i class="fas fa-fw fa-database me-3 icon-fixed"></i>All Datasets
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-orange fw-semibold {% if request.resolver_match.url_name == 'review_submissions' or request.resolver_match.url_name == 'review_submission_detail' %}active{% endif %}"
+                        href="{% url 'data_submission:review_submissions' %}">
+                        <i class="fas fa-fw fa-clipboard-check me-3 icon-fixed"></i>Review Queue
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-teal fw-semibold {% if request.resolver_match.url_name == 'admin_data_requests' %}active{% endif %}"
+                        href="{% url 'data_submission:admin_data_requests' %}">
+                        <i class="fas fa-fw fa-file-download me-3 icon-fixed"></i>Data Requests
+                    </a>
+                </li>
+
+                {% if request.user.is_superuser or request.user.is_staff and not request.user.profile.expedition_admin_type %}
+                <div class="nav-heading mt-4 mb-2">Access Management</div>
+                <li class="nav-item">
+                    <a class="nav-link color-indigo fw-semibold {% if request.resolver_match.url_name == 'user_approval_dashboard' %}active{% endif %}"
+                        href="{% url 'users:user_approval_dashboard' %}">
+                        <i class="fas fa-fw fa-users-cog me-3 icon-fixed"></i>User Approvals
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-pink fw-semibold {% if request.resolver_match.url_name == 'admin_create_user' %}active{% endif %}"
+                        href="{% url 'users:admin_create_user' %}">
+                        <i class="fas fa-fw fa-user-shield me-3 icon-fixed"></i>Create Admin
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-slate fw-semibold {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}"
+                        href="{% url 'activity_logs:system_logs' %}">
+                        <i class="fas fa-fw fa-server me-3 icon-fixed"></i>System Log
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link color-green fw-semibold {% if request.resolver_match.url_name == 'system_report' %}active{% endif %}"
+                        href="{% url 'activity_logs:system_report' %}">
+                        <i class="fas fa-fw fa-chart-line me-3 icon-fixed"></i>System Report
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer mt-4 pt-4">
+            <a href="{% url 'users:home' %}" class="btn btn-exit w-100 fw-semibold transition-all d-flex align-items-center justify-content-center">
+                <i class="fas fa-sign-out-alt me-2"></i>Exit to Main Site
+            </a>
+        </div>
+>>>>>>> Stashed changes
     </div>
 </div>
 
