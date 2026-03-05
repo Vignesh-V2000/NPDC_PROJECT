@@ -601,36 +601,103 @@
     }
 
     .ai-answer-text ul {
-        margin: 6px 0;
-        padding-left: 20px;
+        margin: 6px 0 10px 0;
+        padding-left: 18px;
+        list-style: none;
     }
 
     .ai-answer-text li {
-        margin-bottom: 4px;
+        margin-bottom: 10px;
+        position: relative;
+        padding-left: 14px;
+    }
+
+    .ai-answer-text li::before {
+        content: '›';
+        position: absolute;
+        left: 0;
+        color: #0088CC;
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* Expedition type group header  e.g.  --- Antarctic --- */
+    .ai-answer-text .exp-group-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 18px 0 8px 0;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #0088CC;
+    }
+
+    .ai-answer-text .exp-group-header::before,
+    .ai-answer-text .exp-group-header::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(0, 136, 204, 0.25);
+    }
+
+    /* Metadata line  e.g.  Category | Region | Date */
+    .ai-answer-text .meta-line {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.45);
+        letter-spacing: 0.2px;
+        margin: 2px 0 3px 0;
+        display: block;
+    }
+
+    .ai-answer-text .meta-line .meta-sep {
+        margin: 0 5px;
+        opacity: 0.4;
+    }
+
+    /* Indented summary / description line below a bullet */
+    .ai-answer-text .item-summary {
+        display: block;
+        margin: 3px 0 8px 14px;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.55;
+    }
+
+    /* First intro sentence */
+    .ai-answer-text .intro-line {
+        margin-bottom: 14px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.95rem;
     }
 
     .ai-answer-text .dataset-id-badge {
         display: inline-block;
-        background: rgba(0, 136, 204, 0.15);
-        color: #0088CC;
-        font-size: 0.72rem;
+        background: rgba(0, 136, 204, 0.18);
+        color: #4db8f0;
+        font-size: 0.7rem;
         font-weight: 700;
-        padding: 1px 6px;
+        padding: 1px 7px;
         border-radius: 4px;
-        margin: 0 2px;
+        border: 1px solid rgba(0, 136, 204, 0.3);
+        margin: 0 3px;
+        letter-spacing: 0.3px;
+        vertical-align: middle;
     }
 
     .ai-answer-text .dataset-result-link {
-        color: rgba(255, 255, 255, 0.85);
+        color: rgba(255, 255, 255, 0.9);
         text-decoration: none;
-        border-bottom: 1px dashed rgba(0, 136, 204, 0.4);
+        border-bottom: 1px solid rgba(0, 136, 204, 0.35);
         transition: color 0.2s, border-color 0.2s;
         display: inline;
     }
 
     .ai-answer-text .dataset-result-link:hover {
-        color: #0088CC;
-        border-bottom-color: #0088CC;
+        color: #4db8f0;
+        border-bottom-color: #4db8f0;
         text-decoration: none;
     }
 
@@ -1357,44 +1424,76 @@
         const lines = escaped.split('\n');
         let html = '';
         let inList = false;
+        let isFirst = true;   // first non-empty non-header line = intro sentence
+
+        // Inline formatting helper: **bold**, _italic_, [ID: X] badges
+        function inlineFormat(str) {
+            // **bold**
+            str = str.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // _italic_
+            str = str.replace(/(?<![\w])_([^_]+)_(?![\w])/g, '<em>$1</em>');
+            // [ID: X] → clickable badge
+            str = str.replace(/\[ID:\s*([A-Za-z0-9_-]+)\]/g, (match, id) => {
+                return `<a href="/data/view/${id}/" target="_blank" class="dataset-result-link"><span class="dataset-id-badge">[ID:&nbsp;${id}]</span> <i class="fas fa-external-link-alt" style="font-size:0.6rem;opacity:0.45;"></i></a>`;
+            });
+            return str;
+        }
 
         lines.forEach(line => {
             const trimmed = line.trim();
-            // Match *, -, •, ● bullet markers (AI commonly uses *)
-            const isBullet = /^[-•●*]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
 
+            // --- Expedition Type Header ---  (e.g. "--- Antarctic ---" or "Expedition Type: Antarctic")
+            const expHeaderMatch =
+                trimmed.match(/^---+\s*(.+?)\s*---+$/) ||
+                trimmed.match(/^Expedition\s+Type:\s*(.+)$/i);
+            if (expHeaderMatch) {
+                if (inList) { html += '</ul>'; inList = false; }
+                html += `<div class="exp-group-header">${escapeHtml(expHeaderMatch[1])}</div>`;
+                return;
+            }
+
+            // Metadata line  — contains " | " (e.g. "Cryosphere | Antarctic | 2019 to 2020")
+            // Only treat as meta if it's NOT long prose (< 120 chars, at least 2 pipes)
+            const pipeCount = (trimmed.match(/\|/g) || []).length;
+            if (pipeCount >= 1 && trimmed.length < 130 && !trimmed.startsWith('•') && !/^\d+\.\s/.test(trimmed)) {
+                if (inList) { html += '</ul>'; inList = false; }
+                const parts = trimmed.split('|').map(p => p.trim());
+                const metaHtml = parts.map(p => `<span>${inlineFormat(p)}</span>`).join('<span class="meta-sep">|</span>');
+                html += `<div class="meta-line">${metaHtml}</div>`;
+                return;
+            }
+
+            // Indented line (starts with 2+ spaces or a tab) = summary / description
+            const isIndented = /^(  |\t)/.test(line) && trimmed.length > 0;
+            if (isIndented) {
+                html += `<span class="item-summary">${inlineFormat(trimmed)}</span>`;
+                return;
+            }
+
+            // Bullet / numbered list item
+            const isBullet = /^[-•●*]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
             if (isBullet) {
                 if (!inList) { html += '<ul>'; inList = true; }
                 let content = trimmed.replace(/^[-•●*]\s+/, '').replace(/^\d+\.\s+/, '');
-                // If this bullet has a dataset ID, make the whole item a clickable link
-                const idMatch = content.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/);
-                if (idMatch) {
-                    const datasetId = idMatch[1];
-                    html += `<li><a href="/data/view/${datasetId}/" target="_blank" class="dataset-result-link">${content} <i class="fas fa-external-link-alt" style="font-size:0.65rem;opacity:0.5;margin-left:3px;"></i></a></li>`;
-                } else {
-                    html += `<li>${content}</li>`;
-                }
+                html += `<li>${inlineFormat(content)}</li>`;
+                return;
+            }
+
+            // Close list before a normal paragraph
+            if (inList) { html += '</ul>'; inList = false; }
+
+            if (trimmed === '') {
+                html += '<br>';
+            } else if (isFirst) {
+                // First real content line → intro sentence styling
+                html += `<p class="intro-line">${inlineFormat(trimmed)}</p>`;
+                isFirst = false;
             } else {
-                if (inList) { html += '</ul>'; inList = false; }
-                if (trimmed === '') {
-                    html += '<br>';
-                } else {
-                    // Even non-bullet lines: if they contain [ID: X], make them a link
-                    const idMatch = trimmed.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/);
-                    if (idMatch) {
-                        const datasetId = idMatch[1];
-                        html += `<p style="margin:0 0 4px 0"><a href="/data/view/${datasetId}/" target="_blank" class="dataset-result-link">${trimmed} <i class="fas fa-external-link-alt" style="font-size:0.65rem;opacity:0.5;margin-left:3px;"></i></a></p>`;
-                    } else {
-                        html += `<p style="margin:0 0 4px 0">${trimmed}</p>`;
-                    }
-                }
+                html += `<p style="margin:0 0 6px 0">${inlineFormat(trimmed)}</p>`;
+                isFirst = false;
             }
         });
         if (inList) html += '</ul>';
-
-        // Style [ID: X] references as badges
-        html = html.replace(/\[ID:\s*([A-Za-z0-9_-]+)\]/g, '<span class="dataset-id-badge">[ID: $1]</span>');
-
         return html;
     }
 
