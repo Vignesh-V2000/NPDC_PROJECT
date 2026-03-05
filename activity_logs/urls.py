@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SystemLogListView
+from .views import SystemLogListView, SystemReportView
 
 app_name = 'activity_logs'
 

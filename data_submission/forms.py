@@ -222,7 +222,8 @@ class DatasetUploadForm(forms.ModelForm):
             except IndexError:
                 ext = ""
             
-            forbidden_exts = ['exe', 'sh', 'php', 'html', 'js', 'py', 'bat', 'cmd', 'dll', 'cgi', 'pl']
+            # disallow executable/malicious extensions and also PDF since it's no longer accepted on upload
+            forbidden_exts = ['exe', 'sh', 'php', 'html', 'js', 'py', 'bat', 'cmd', 'dll', 'cgi', 'pl', 'pdf']
             if ext in forbidden_exts:
                 raise ValidationError("For security reasons, this file type is not allowed.")
             
