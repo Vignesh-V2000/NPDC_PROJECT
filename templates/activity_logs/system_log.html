@@ -61,15 +61,15 @@
                     50% { transform: translate(-15px, 20px); }
                 }
                 .syslog-hero-title {
-                    color: #ffffff;
+                    color: #E8734A;
                     font-weight: 800;
-                    font-size: 1.6rem;
+                    font-size: 3rem;
                     letter-spacing: -0.02em;
                     margin-bottom: 0.3rem;
                     position: relative;
                     z-index: 2;
                 }
-                .syslog-hero-title-icon { color: #60a5fa; }
+                .syslog-hero-title-icon { color: #ffffff; }
                 .syslog-hero-sub {
                     color: #94a3b8;
                     font-size: 0.92rem;
@@ -249,6 +249,46 @@
 
             <!-- Log Table -->
             <div class="card syslog-table-card border-0 mb-4">
+                <!-- Filter Bar -->
+                <div class="card-header bg-light p-3" style="border-bottom: 1px solid #e2e8f0;">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted mb-1">Action Type</label>
+                            <select class="form-select form-select-sm" name="action_type" id="filterAction" onchange="applyFilters()">
+                                <option value="">All Actions</option>
+                                {% for action_val, action_label in action_type_choices %}
+                                    <option value="{{ action_val }}" {% if selected_action == action_val %}selected{% endif %}>{{ action_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">From Date</label>
+                            <input type="date" class="form-control form-control-sm" id="filterDateFrom" value="{{ date_from }}" onchange="applyFilters()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">To Date</label>
+                            <input type="date" class="form-control form-control-sm" id="filterDateTo" value="{{ date_to }}" onchange="applyFilters()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">User</label>
+                            <select class="form-select form-select-sm" id="filterUser" onchange="applyFilters()">
+                                <option value="">All Users</option>
+                                {% for user in users %}
+                                    <option value="{{ user.id }}" {% if selected_user|stringformat:'s' == user.id|stringformat:'s' %}selected{% endif %}>{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-secondary w-50" style="height: 1.8125rem !important;" onclick="clearFilters()">
+                                <i class="fas fa-refresh me-1"></i>Clear
+                            </button>
+                            <a href="?{% if selected_action %}action_type={{ selected_action }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}&{% endif %}{% if selected_user %}user={{ selected_user }}&{% endif %}export=csv" class="btn btn-sm btn-success w-50" style="height: 1.8125rem !important;">
+                                <i class="fas fa-download me-1"></i>CSV Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="card-body p-0">
                     <div class="table-responsive syslog-table-scroll">
                         <table class="table syslog-table align-middle">
@@ -336,7 +376,7 @@
                 <ul class="pagination syslog-pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_action %}&action_type={{ selected_action }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if selected_user %}&user={{ selected_user }}{% endif %}">
                             <i class="fas fa-chevron-left me-1"></i> Prev
                         </a>
                     </li>
@@ -352,7 +392,7 @@
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_action %}&action_type={{ selected_action }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if selected_user %}&user={{ selected_user }}{% endif %}">
                             Next <i class="fas fa-chevron-right ms-1"></i>
                         </a>
                     </li>
@@ -368,4 +408,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    function applyFilters() {
+        const actionType = document.getElementById('filterAction').value;
+        const dateFrom = document.getElementById('filterDateFrom').value;
+        const dateTo = document.getElementById('filterDateTo').value;
+        const user = document.getElementById('filterUser').value;
+        
+        let params = new URLSearchParams();
+        if (actionType) params.append('action_type', actionType);
+        if (dateFrom) params.append('date_from', dateFrom);
+        if (dateTo) params.append('date_to', dateTo);
+        if (user) params.append('user', user);
+        
+        window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    }
+    
+    function clearFilters() {
+        document.getElementById('filterAction').value = '';
+        document.getElementById('filterDateFrom').value = '';
+        document.getElementById('filterDateTo').value = '';
+        document.getElementById('filterUser').value = '';
+        window.location.href = window.location.pathname;
+    }
+</script>
+
 {% endblock %}
