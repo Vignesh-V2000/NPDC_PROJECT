@@ -900,8 +900,9 @@
                 this.initDrag();
 
                 // Show proactive tip after delay based on current page
+                // Only show once per day per page type (stored in localStorage)
                 setTimeout(() => {
-                    if (!this.isOpen && !this.tipShown) {
+                    if (!this.isOpen && !this.tipShown && this._tipCooledDown()) {
                         this.showPageTip();
                     }
                 }, 5000);
@@ -983,6 +984,16 @@
                 };
             },
 
+            // Returns true if the tip for this page type hasn't been shown in the last 24 hours
+            _tipCooledDown() {
+                const pageType = this.getCurrentPageContext().pageType;
+                const key = `npdc_tip_shown_${pageType}`;
+                const lastShown = localStorage.getItem(key);
+                if (!lastShown) return true;
+                const elapsed = Date.now() - parseInt(lastShown, 10);
+                return elapsed > 24 * 60 * 60 * 1000; // 24 hours
+            },
+
             showPageTip() {
                 const tip = this.getPageTips();
                 this.tipIcon.textContent = tip.icon;
@@ -990,6 +1001,10 @@
                 this.tipMessage.textContent = tip.message;
                 this.tipAction.textContent = tip.action;
                 this.currentTipAction = tip.action;
+
+                // Record the timestamp so it won't show again for 24h on this page type
+                const pageType = this.getCurrentPageContext().pageType;
+                localStorage.setItem(`npdc_tip_shown_${pageType}`, Date.now().toString());
 
                 this.proactiveTip.classList.remove('hidden');
                 this.tipShown = true;
