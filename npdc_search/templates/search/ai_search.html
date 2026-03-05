@@ -638,23 +638,18 @@
     .typewriter-cursor {
         display: inline-block;
         width: 2px;
-        height: 1em;
+        height: 1.1em;
         background: #0088CC;
-        margin-left: 2px;
-        animation: cursor-blink 0.7s step-end infinite;
+        margin-left: 1px;
+        border-radius: 1px;
+        animation: cursor-blink 1s ease-in-out infinite;
         vertical-align: text-bottom;
+        box-shadow: 0 0 4px rgba(0,136,204,0.6);
     }
 
     @keyframes cursor-blink {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0;
-        }
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0; }
     }
 
     /* ===== RELATED RESEARCH SECTION ===== */
@@ -1403,41 +1398,64 @@
         return html;
     }
 
-    // Typewriter animation for AI answer text
+    // Smooth typewriter animation using requestAnimationFrame.
+    // Types the raw text character by character and re-renders formatAnswer() at word
+    // boundaries so formatting is always correct and the reveal feels fluid.
     function typewriteText(element, text, onComplete) {
-        const formattedHtml = formatAnswer(text);
-        // Create a temp container to get the plain text content for word splitting
-        const temp = document.createElement('div');
-        temp.innerHTML = formattedHtml;
+        const CHARS_PER_FRAME = 3;   // characters revealed per animation frame
+        const WORD_BATCH     = 2;    // re-render formatAnswer every N words (not every char)
 
-        // For simple typewriter: reveal the formatted HTML progressively
         element.innerHTML = '';
         const cursor = document.createElement('span');
         cursor.className = 'typewriter-cursor';
         element.appendChild(cursor);
 
-        // Split into words for progressive reveal
-        const words = text.split(/\s+/);
-        let wordIndex = 0;
-        let currentText = '';
+        // Pre-split into characters for clean iteration
+        const chars = Array.from(text);   // handles multi-byte / emoji
+        let charIndex  = 0;
+        let displayed  = '';             // raw text revealed so far
+        let wordsSince = 0;              // words typed since last DOM re-render
+        let lastRaf    = null;
 
-        function addNextWord() {
-            if (wordIndex < words.length) {
-                currentText += (wordIndex > 0 ? ' ' : '') + words[wordIndex];
-                wordIndex++;
-                element.innerHTML = formatAnswer(currentText);
-                element.appendChild(cursor);
-                // Auto-scroll as text appears
-                if (wordIndex % 5 === 0) scrollToBottom();
-                setTimeout(addNextWord, 20);
-            } else {
-                // Done typing
-                cursor.remove();
-                element.innerHTML = formatAnswer(text);
-                if (onComplete) onComplete();
-            }
+        // Separate content div so cursor stays at the very end
+        const contentDiv = document.createElement('div');
+        contentDiv.style.display = 'inline';
+        element.insertBefore(contentDiv, cursor);
+
+        function renderCurrent() {
+            contentDiv.innerHTML = formatAnswer(displayed);
         }
-        addNextWord();
+
+        function tick(timestamp) {
+            if (charIndex >= chars.length) {
+                // Finalise
+                renderCurrent();
+                cursor.remove();
+                if (onComplete) onComplete();
+                scrollToBottom();
+                return;
+            }
+
+            // Add CHARS_PER_FRAME characters this frame
+            for (let i = 0; i < CHARS_PER_FRAME && charIndex < chars.length; i++) {
+                const ch = chars[charIndex++];
+                displayed += ch;
+                // Count word boundaries so we re-render at natural break points
+                if (ch === ' ' || ch === '\n') wordsSince++;
+            }
+
+            // Only call formatAnswer at word boundaries or end-of-text to avoid
+            // half-rendered tags while staying visually smooth
+            if (wordsSince >= WORD_BATCH || charIndex >= chars.length) {
+                renderCurrent();
+                wordsSince = 0;
+                if (charIndex % 60 === 0) scrollToBottom();
+            }
+
+            lastRaf = requestAnimationFrame(tick);
+        }
+
+        lastRaf = requestAnimationFrame(tick);
     }
 
     function appendAIMessage(answer, datasets, correctedQuery, suggestions, responseTime) {

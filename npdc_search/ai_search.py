@@ -685,7 +685,24 @@ def ai_search_answer(query, filters=None, top_k=5):
             )
 
     # ----- 5. Build prompt & call LLM -----
-    context_str = "\n".join(context_lines)
+    # Group datasets by expedition type for structured context
+    from collections import defaultdict as _dd
+    _exp_groups = _dd(list)
+    for _ds in datasets_list:
+        _exp_groups[_ds['expedition_type']].append(_ds)
+
+    context_parts = []
+    _global_idx = 1
+    for _exp_type, _exp_ds_list in _exp_groups.items():
+        context_parts.append(f"--- {_exp_type} ---")
+        for _ds in _exp_ds_list:
+            context_parts.append(
+                f"  {_global_idx}. [ID: {_ds['id']}] {_ds['title']}\n"
+                f"     {_ds['category']} | {_ds['temporal_start']} to {_ds['temporal_end']}\n"
+                f"     {_ds['abstract']}"
+            )
+            _global_idx += 1
+    context_str = "\n".join(context_parts)
     total_note = (
         f"\nNOTE: The NPDC repository contains {total_published_count} published datasets in total. "
         f"The context below shows the top {len(datasets_list)} most relevant matches for this query.\n"
@@ -700,10 +717,13 @@ def ai_search_answer(query, filters=None, top_k=5):
         "3. If the query is unrelated to polar/cryosphere science, start with 'UNRELATED:'.\n"
         "4. If results don't match the question, say you couldn't find matching datasets.\n"
         "5. For total count questions, use the count from the NOTE.\n"
-        "6. Format each result as a SINGLE bullet in this exact structure:\n"
-        "   • Title [ID: X] - Category, Region, StartDate to EndDate\n"
+        "6. Group results by expedition type exactly as shown in the context (--- Expedition Type ---).\n"
+        "   Format each group as:\n"
+        "   Expedition Type: <type name>\n"
+        "   • <N>. Title [ID: X] - Category, StartDate to EndDate\n"
         "     Brief 1-2 sentence summary of what the dataset contains.\n"
-        "   Do NOT add extra sub-bullets or split metadata across multiple lines.\n"
+        "   List each expedition type group on a new line, separated by a blank line.\n"
+        "   Do NOT mix datasets from different expedition types within the same group.\n"
         "7. Start with one short sentence like 'I found X datasets related to ...'\n"
         "8. Speak naturally — say 'I found' not 'based on the provided datasets'."
     )
