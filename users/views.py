@@ -389,6 +389,108 @@ def reject_user(request, user_id):
 
 
 # --------------------
+# Station Temperature Helper
+# --------------------
+
+def get_station_temperatures():
+    """Fetch the latest temperature reading from each station table.
+    
+    Returns a list of dicts with station info and latest temperature.
+    Each query is wrapped in try/except so missing tables don't crash.
+    """
+    from django.db import connection
+    
+    stations = [
+        {
+            'key': 'maitri',
+            'name': 'Maitri',
+            'location_label': 'Antarctica - Maitri',
+            'table': 'maitri_maitri',
+            'temp_col': 'temp',
+            'date_col': 'date',
+            'is_kelvin': False,
+            'icon': 'fa-snowflake',
+        },
+        {
+            'key': 'bharati',
+            'name': 'Bharati',
+            'location_label': 'Antarctica - Bharati',
+            'table': 'imd_bharati',
+            'temp_col': 'tempr',
+            'date_col': 'obstime',
+            'is_kelvin': False,
+            'icon': 'fa-snowflake',
+        },
+        {
+            'key': 'himansh',
+            'name': 'Himansh',
+            'location_label': 'Himalaya - Himansh',
+            'table': 'himansh_himansh',
+            'temp_col': 'air_temp',
+            'date_col': 'date',
+            'is_kelvin': False,
+            'icon': 'fa-mountain',
+        },
+        {
+            'key': 'himadri',
+            'name': 'Himadri',
+            'location_label': 'Arctic - Himadri',
+            'table': 'himadri_radiometer_surface',
+            'temp_col': 'temperature',
+            'date_col': 'date',
+            'is_kelvin': True,
+            'icon': 'fa-igloo',
+        },
+    ]
+    
+    results = []
+    for station in stations:
+        temp_value = None
+        temp_date = None
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f'SELECT {station["temp_col"]}, {station["date_col"]} '
+                    f'FROM {station["table"]} '
+                    f'WHERE {station["temp_col"]} IS NOT NULL '
+                    f'AND CAST({station["temp_col"]} AS FLOAT) > -999 '
+                    f'ORDER BY {station["date_col"]} DESC LIMIT 1'
+                )
+                row = cursor.fetchone()
+                if row:
+                    temp_value = row[0]
+                    temp_date = row[1]
+        except Exception:
+            # Table doesn't exist or query failed — skip gracefully
+            pass
+        
+        # Convert temperature to Celsius
+        temp_celsius = None
+        if temp_value is not None:
+            try:
+                temp_float = float(temp_value)
+                if temp_float <= -999:
+                    temp_celsius = None  # Sentinel value for missing data
+                elif station['is_kelvin']:
+                    temp_celsius = round(temp_float - 273.15, 1)
+                else:
+                    temp_celsius = round(temp_float, 1)
+            except (ValueError, TypeError):
+                pass
+        
+        results.append({
+            'key': station['key'],
+            'name': station['name'],
+            'location_label': station['location_label'],
+            'icon': station['icon'],
+            'temperature': temp_celsius,
+            'date': temp_date,
+        })
+    
+    return results
+
+
+# --------------------
 # Home
 # --------------------
 
@@ -601,7 +703,11 @@ def home(request):
         'expedition_type', 'category', 'iso_topic', 'keywords'
     ))
 
+    # Station temperature data
+    station_temps = get_station_temperatures()
+
     return render(request, 'home.html', {
+        'station_temps': station_temps,
         'recent_data': recent_data,
         'popular_data': popular_data,
         'total_datasets': total_datasets,

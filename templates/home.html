@@ -76,7 +76,7 @@
 
 
 
-<!-- Features Grid -->
+
 <section class="mb-6">
     <div class="row g-4 justify-content-center">
         <div class="col-lg-6">
@@ -1251,198 +1251,33 @@
         </div>
         
         <div class="row g-4 justify-content-center">
-            <!-- Maitri Card -->
+            {% for st in station_temps %}
             <div class="col-sm-6 col-lg-3">
-                <div class="weather-card weather-widget" data-lat="-70.7667" data-lon="11.7333">
-                    <div id="carouselMaitri" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="0" class="active"></button>
-                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="1"></button>
-                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="2"></button>
-                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="3"></button>
-                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="4"></button>
-                            <button type="button" data-bs-target="#carouselMaitri" data-bs-slide-to="5"></button>
-                        </div>
-                        <div class="carousel-inner weather-carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Maitri.jpg' %}" class="d-block w-100" alt="Maitri">
-                            </div>
-                        </div>
+                <div class="weather-card text-center">
+                    <div class="station-temp-icon">
+                        <i class="fas {{ st.icon }}"></i>
                     </div>
-                    
-                    <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset">
-                                Antarctica - Maitri:
-                            </a>
-                        </h5>
+                    <div class="weather-info text-center mt-2">
+                        <h5 class="station-name">{{ st.location_label }}:</h5>
+                        {% if st.temperature is not None %}
                         <div class="temperature-display my-1">
-                            <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-7.7&deg; C</span>
+                            <i class="fas fa-thermometer-half me-2"></i>
+                            <span class="fw-temp {% if st.temperature < 0 %}temp-negative{% else %}temp-positive{% endif %}">{{ st.temperature }}&deg; C</span>
                         </div>
-                        <div class="weather-date fw-datetime">Loading...</div>
+                        <div class="weather-date fw-datetime">
+                            {% if st.date %}
+                            {{ st.date|date:"d M Y h:i A" }}
+                            {% else %}
+                            --
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="temperature-display my-1 text-muted" style="font-size: 0.85rem;">No data available</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-
-            <!-- Bharati Card -->
-            <div class="col-sm-6 col-lg-3">
-                <div class="weather-card weather-widget" data-lat="-69.4083" data-lon="76.1950">
-                    <div id="carouselBharati" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="0" class="active"></button>
-                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="1"></button>
-                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="2"></button>
-                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="3"></button>
-                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="4"></button>
-                            <button type="button" data-bs-target="#carouselBharati" data-bs-slide-to="5"></button>
-                        </div>
-                        <div class="carousel-inner weather-carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/Bharati.jpg' %}" class="d-block w-100" alt="Bharati">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset">
-                                Antarctica - Bharati:
-                            </a>
-                        </h5>
-                            <div class="temperature-display my-1">
-                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-4.4&deg; C</span>
-                            </div>
-                        <div class="weather-date fw-datetime">Loading...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Himansh Card -->
-            <div class="col-sm-6 col-lg-3">
-                <div class="weather-card weather-widget" data-lat="32.39" data-lon="77.62">
-                    <div id="carouselHimansh" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="0" class="active"></button>
-                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="1"></button>
-                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="2"></button>
-                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="3"></button>
-                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="4"></button>
-                            <button type="button" data-bs-target="#carouselHimansh" data-bs-slide-to="5"></button>
-                        </div>
-                        <div class="carousel-inner weather-carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_himalaya.jpg' %}" class="d-block w-100" alt="Himansh">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset">
-                                Himalaya - Himansh:
-                            </a>
-                        </h5>
-                            <div class="temperature-display my-1">
-                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-8.4&deg; C</span>
-                            </div>
-                        <div class="weather-date fw-datetime">Loading...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Himadri Card -->
-            <div class="col-sm-6 col-lg-3">
-                <div class="weather-card weather-widget" data-lat="78.92" data-lon="11.93">
-                    <div id="carouselHimadri" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="0" class="active"></button>
-                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="1"></button>
-                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="2"></button>
-                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="3"></button>
-                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="4"></button>
-                            <button type="button" data-bs-target="#carouselHimadri" data-bs-slide-to="5"></button>
-                        </div>
-                        <div class="carousel-inner weather-carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
-                            </div>
-                            <div class="carousel-item">
-                                <img src="{% static 'images/stations/tn_arctic.png' %}" class="d-block w-100" alt="Himadri">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="weather-info text-center mt-4 pt-2">
-                        <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset">
-                                Arctic - Himadri:
-                            </a>
-                        </h5>
-                            <div class="temperature-display my-1">
-                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp">-3.4&deg; C</span>
-                            </div>
-                        <div class="weather-date fw-datetime">Loading...</div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
     </div>
 </section>
