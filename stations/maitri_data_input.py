@@ -1,22 +1,12 @@
 import os
-import sys
 import pandas as pd
-from pathlib import Path
 from sqlalchemy import text, create_engine
 
-# Import configuration from local config module
-sys.path.insert(0, str(Path(__file__).parent))
-from config import (
-    MAITRI_RAW_DIR, MAITRI_PROCESS_DIR,
-    DB_CONNECTION_STRING, ensure_directories_exist, get_logger
-)
-
-logger = get_logger(__name__)
-ensure_directories_exist()
-
-directory_path = str(MAITRI_RAW_DIR)
+directory_path = 'raw_data/Maitri/'
 table_name = 'maitri_input_file'
-engine = create_engine(DB_CONNECTION_STRING)
+db_connection_str = 'postgresql://postgres:postgres@localhost:5432/polardb'
+
+engine = create_engine(db_connection_str)
 
 def extract_file_pairs(directory):
     files = os.listdir(directory)
@@ -108,13 +98,11 @@ for index, row in file_list.iterrows():
     file2 = second_file(directory_path+row['file2'])
     merged_df = pd.merge(file1, file2,how='left', on='date')
     merged_df.to_sql('maitri_maitri', engine, if_exists='append', index=False)
-    csv_path = MAITRI_PROCESS_DIR / 'Maitri.csv'
-    if not csv_path.exists():
-        merged_df.to_csv(str(csv_path), header='column_names')
+    if not os.path.isfile('filename.csv'):
+        merged_df.to_csv('process_data/Maitri/Maitri.csv', header='column_names')
     else:
-        merged_df.to_csv(str(csv_path), mode='a', header=False)
+        merged_df.to_csv('process_data/Maitri/Maitri.csv', mode='a', header=False)
     update_query = text("UPDATE "+table_name+" SET processed = true WHERE sln = "+str(row['sln']))
     with engine.connect() as connection:
         connection.execute(update_query)
         connection.commit()
-    logger.info(f"Successfully processed {len(merged_df)} rows from {row['file1']}")

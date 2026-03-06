@@ -394,127 +394,119 @@ def reject_user(request, user_id):
 # --------------------
 
 def get_station_temperatures():
-    """Fetch the latest temperature reading from each station table.
+    """Fetch the latest temperature data from the official NPDC portal.
     
-    Returns a list of dicts with station info and latest temperature.
-    Each query is wrapped in try/except so missing tables don't crash.
+    Scrapes https://data.ncpor.res.in/ which renders station temperatures
+    server-side in the HTML. Results are cached for 30 minutes.
     """
-    from django.db import connection
+    import re
+    from django.core.cache import cache
     
-    stations = [
-        {
+    CACHE_KEY = 'station_temperatures'
+    CACHE_TIMEOUT = 1800  # 30 minutes
+    
+    # Check cache first
+    cached = cache.get(CACHE_KEY)
+    if cached is not None:
+        return cached
+    
+    # Station metadata (icon, key, label) — data comes from scraping
+    station_meta = {
+        'maitri': {
             'key': 'maitri',
             'name': 'Maitri',
             'location_label': 'Antarctica - Maitri',
-            'table': 'maitri_maitri',
-            'temp_col': 'temp',
-            'date_col': 'date',
-            'is_kelvin': False,
             'icon': 'fa-snowflake',
         },
-        {
+        'bharati': {
             'key': 'bharati',
             'name': 'Bharati',
             'location_label': 'Antarctica - Bharati',
-            'table': 'imd_bharati',
-            'temp_col': 'tempr',
-            'date_col': 'obstime',
-            'is_kelvin': False,
             'icon': 'fa-snowflake',
         },
-        {
+        'himansh': {
             'key': 'himansh',
             'name': 'Himansh',
             'location_label': 'Himalaya - Himansh',
-            'table': 'himansh_himansh',
-            'temp_col': 'air_temp',
-            'date_col': 'date',
-            'is_kelvin': False,
             'icon': 'fa-mountain',
         },
-        {
+        'himadri': {
             'key': 'himadri',
             'name': 'Himadri',
             'location_label': 'Arctic - Himadri',
-            'table': 'himadri_radiometer_surface',
-            'temp_col': 'temperature',
-            'date_col': 'date',
-            'is_kelvin': True,
             'icon': 'fa-igloo',
         },
-    ]
+    }
     
     results = []
-    for station in stations:
-        temp_value = None
-        temp_date = None
-        table_status = {
-            'exists': False,
-            'has_data': False,
-            'error': None,
-        }
+    
+    try:
+        response = requests.get('https://data.ncpor.res.in/', timeout=10)
+        response.raise_for_status()
+        html = response.text
         
-        try:
-            with connection.cursor() as cursor:
-                # Check if table exists
-                cursor.execute(
-                    'SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = %s)',
-                    [station['table']]
-                )
-                table_exists = cursor.fetchone()[0]
-                table_status['exists'] = table_exists
-                
-                if not table_exists:
-                    table_status['error'] = f"Table {station['table']} does not exist"
-                    logger.warning(f"Station {station['name']}: {table_status['error']}")
-                else:
-                    # Try to fetch latest temperature
-                    cursor.execute(
-                        f'SELECT {station["temp_col"]}, {station["date_col"]} '
-                        f'FROM {station["table"]} '
-                        f'WHERE {station["temp_col"]} IS NOT NULL '
-                        f'ORDER BY {station["date_col"]} DESC LIMIT 1'
-                    )
-                    row = cursor.fetchone()
-                    if row:
-                        temp_value = row[0]
-                        temp_date = row[1]
-                        table_status['has_data'] = True
-                        logger.info(f"Station {station['name']}: temp={temp_value}, date={temp_date}")
-                    else:
-                        cursor.execute(f'SELECT COUNT(*) FROM {station["table"]}')
-                        row_count = cursor.fetchone()[0]
-                        table_status['error'] = f"Table has {row_count} rows but none with temperature data"
-                        logger.warning(f"Station {station['name']}: {table_status['error']}")
-        except Exception as e:
-            # Log the actual error so we can debug on production
-            table_status['error'] = str(e)
-            logger.error(f"Station {station['name']}: query failed on {station['table']} - {e}", exc_info=True)
+        # Parse the official page HTML to extract station data
+        # The page has sections like "Antarctica - Maitri:" followed by temperature
+        # Pattern: station label, then temperature value, then date
         
-        # Convert temperature to Celsius
-        temp_celsius = None
-        if temp_value is not None:
+        # Match patterns like: Antarctica - Maitri:  ... -1.4° C ... March 5, 2026
+        # The HTML structure uses <h5> for station name and <strong> for temperature
+        
+        for key, meta in station_meta.items():
+            temp_celsius = None
+            temp_date_str = None
+            
             try:
-                temp_float = float(temp_value)
-                if temp_float <= -999:
-                    temp_celsius = None  # Sentinel value for missing data
-                    logger.debug(f"Station {station['name']}: Sentinel value detected ({temp_float})")
-                elif station['is_kelvin']:
-                    temp_celsius = round(temp_float - 273.15, 1)
-                else:
-                    temp_celsius = round(temp_float, 1)
-            except (ValueError, TypeError) as e:
-                logger.error(f"Station {station['name']}: Failed to convert temperature {temp_value} to float - {e}")
-                pass
+                # Look for temperature near station name
+                # Pattern: station label followed by temperature value like -1.4° C or 5.2° C
+                label_pattern = re.escape(meta['location_label'])
+                
+                # Find the section containing this station
+                section_match = re.search(
+                    label_pattern + r'.*?(-?\d+\.?\d*)\s*[°&]',
+                    html, re.DOTALL | re.IGNORECASE
+                )
+                if section_match:
+                    temp_celsius = float(section_match.group(1))
+                    logger.info(f"Station {meta['name']}: scraped temp={temp_celsius}°C from official site")
+                
+                # Try to find date near the station section
+                date_match = re.search(
+                    label_pattern + r'.*?(\w+ \d+, \d{4},?\s*\d+:\d+)',
+                    html, re.DOTALL | re.IGNORECASE
+                )
+                if date_match:
+                    temp_date_str = date_match.group(1)
+                    
+            except Exception as e:
+                logger.warning(f"Station {meta['name']}: failed to parse from HTML - {e}")
+            
+            results.append({
+                'key': meta['key'],
+                'name': meta['name'],
+                'location_label': meta['location_label'],
+                'icon': meta['icon'],
+                'temperature': temp_celsius,
+                'date': temp_date_str,
+            })
         
-        results.append({
-            'key': station['key'],
-            'name': station['name'],
-            'location_label': station['location_label'],
-            'icon': station['icon'],
-            'temperature': temp_celsius,
-            'date': temp_date,
-        })
+        logger.info(f"Successfully scraped {len([r for r in results if r['temperature'] is not None])} station temperatures from official NPDC site")
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch station data from official NPDC site: {e}")
+        # Return empty results with metadata so cards still render
+        for key, meta in station_meta.items():
+            results.append({
+                'key': meta['key'],
+                'name': meta['name'],
+                'location_label': meta['location_label'],
+                'icon': meta['icon'],
+                'temperature': None,
+                'date': None,
+            })
+    
+    # Cache the results
+    cache.set(CACHE_KEY, results, CACHE_TIMEOUT)
     
     return results
 

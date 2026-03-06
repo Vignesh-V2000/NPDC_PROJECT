@@ -170,12 +170,12 @@ echo.
 :: -------------------------------
 echo ==========================================
 echo   Server starting...
-echo   URL: http://localhost:10000
+echo   URL: http://localhost:8000
 echo   First login: use ANY password
 echo   Then reuse same password
 echo ==========================================
 echo.
 
-python manage.py runserver 10000
+python manage.py runserver 8000
 
 endlocal

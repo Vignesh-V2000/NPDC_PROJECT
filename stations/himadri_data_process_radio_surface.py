@@ -1,6 +1,4 @@
 import os
-import sys
-from pathlib import Path
 import pandas as pd
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -11,21 +9,16 @@ import argparse
 from sqlalchemy import text
 import re
 
-# Import configuration
-sys.path.insert(0, str(Path(__file__).parent))
-from config import (
-    HIMADRI_RAW_DIR, HIMADRI_PROCESS_DIR,
-    DB_CONNECTION_STRING, ensure_directories_exist, get_logger
-)
-
-logger = get_logger(__name__)
-ensure_directories_exist()
-
+host = "localhost"
+database = "polardb"
+user = "postgres"
+password = "postgres"
+port = "5432"
 table_name = "himadri_radiometer_surface"
-connection_string = DB_CONNECTION_STRING
+connection_string = f"postgresql://{user}:{password}@{host}:{port}/{database}"
 engine = create_engine(connection_string)
-data_dir_base = str(HIMADRI_RAW_DIR)
-data_target_base = str(HIMADRI_PROCESS_DIR)
+data_dir_base = "/opt/djangoProject/raw_data/Himadri/Radiometer/"
+data_target_base = "/opt/djangoProject/process_data/Himadri/Radiometer/AWS_DATA/"
 monthly_file_name = "Himadri_AWS"
 
 def list_csv_files(folder_path):
