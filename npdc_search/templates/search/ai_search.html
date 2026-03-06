@@ -573,6 +573,27 @@
         display: flex;
         justify-content: flex-end;
         margin-bottom: 1rem;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .user-bubble-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #2a6496, #3d8fc4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.85rem;
     }
 
     .message-user .bubble {
@@ -585,6 +606,7 @@
         line-height: 1.5;
         border: none;
         box-shadow: none;
+        margin-right: 0;
     }
 
     .message-ai {
@@ -650,7 +672,7 @@
         content: '›';
         position: absolute;
         left: 0;
-        color: #0077b6;
+        color: #E8734A;
         font-weight: 700;
         font-size: 1rem;
         line-height: 1.6;
@@ -666,7 +688,7 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1.2px;
-        color: #0088CC;
+        color: #E8734A;
     }
 
     .ai-answer-text .exp-group-header::before,
@@ -674,7 +696,7 @@
         content: '';
         flex: 1;
         height: 1px;
-        background: rgba(0, 136, 204, 0.25);
+        background: rgba(232, 115, 74, 0.25);
     }
 
     /* Metadata line  e.g.  Category | Region | Date */
@@ -709,29 +731,29 @@
 
     .ai-answer-text .dataset-id-badge {
         display: inline-block;
-        background: rgba(0, 136, 204, 0.12);
-        color: #0077b6;
+        background: rgba(232, 115, 74, 0.10);
+        color: #E8734A;
         font-size: 0.7rem;
         font-weight: 700;
         padding: 1px 7px;
         border-radius: 4px;
-        border: 1px solid rgba(0, 136, 204, 0.25);
+        border: 1px solid rgba(232, 115, 74, 0.28);
         margin: 0 3px;
         letter-spacing: 0.3px;
         vertical-align: middle;
     }
 
     .ai-answer-text .dataset-result-link {
-        color: #0077b6;
+        color: #E8734A;
         text-decoration: none;
-        border-bottom: 1px solid rgba(0, 136, 204, 0.35);
+        border-bottom: 1px solid rgba(232, 115, 74, 0.35);
         transition: color 0.2s, border-color 0.2s;
         display: inline;
     }
 
     .ai-answer-text .dataset-result-link:hover {
-        color: #005f8a;
-        border-bottom-color: #005f8a;
+        color: #c85a34;
+        border-bottom-color: #c85a34;
         text-decoration: none;
     }
 
@@ -740,12 +762,12 @@
         display: inline-block;
         width: 2px;
         height: 1.1em;
-        background: #0088CC;
+        background: #E8734A;
         margin-left: 1px;
         border-radius: 1px;
         animation: cursor-blink 1s ease-in-out infinite;
         vertical-align: text-bottom;
-        box-shadow: 0 0 4px rgba(0, 136, 204, 0.6);
+        box-shadow: 0 0 4px rgba(232, 115, 74, 0.6);
     }
 
     @keyframes cursor-blink {
@@ -792,7 +814,7 @@
     .view-more-results-btn {
         background: none;
         border: none;
-        color: #0088CC;
+        color: #E8734A;
         font-size: 0.78rem;
         cursor: pointer;
         padding: 0;
@@ -804,7 +826,7 @@
     }
 
     .view-more-results-btn:hover {
-        color: #33aadd;
+        color: #c85a34;
         text-decoration: none;
     }
 
@@ -834,7 +856,7 @@
     }
 
     .research-item:hover {
-        background: rgba(0, 136, 204, 0.06);
+        background: rgba(232, 115, 74, 0.06);
         border-radius: 6px;
         padding-left: 6px;
         text-decoration: none;
@@ -1123,6 +1145,7 @@
         transition: all 0.3s;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         backdrop-filter: blur(6px);
+        border-color: black;
     }
 
     .chat-input-wrapper:focus-within {
@@ -1293,7 +1316,18 @@
         if (!currentSessionId) return;
         const session = sessions.find(s => s.id === currentSessionId);
         if (session) {
-            session.html = chatMessages.innerHTML;
+            // Clone the DOM so we don't mutate the live view
+            const clone = chatMessages.cloneNode(true);
+            // Remove any in-flight typewriter cursors
+            clone.querySelectorAll('.typewriter-cursor').forEach(el => el.remove());
+            // Normalise the inline typewriter wrapper to block so it restores correctly
+            clone.querySelectorAll('.ai-answer-text > div').forEach(el => {
+                el.style.display = 'block';
+            });
+            // Make sure all deferred elements are visible when restored
+            clone.querySelectorAll('.reveal-after-type').forEach(el => el.style.display = '');
+            clone.querySelectorAll('.source-pills').forEach(el => el.style.display = '');
+            session.html = clone.innerHTML;
             session.time = Date.now();
             saveSessions();
         }
@@ -1458,7 +1492,12 @@
     function appendUserMessage(text) {
         const row = document.createElement('div');
         row.className = 'message-row message-user';
-        row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+        row.innerHTML = `
+            <div class="user-bubble-row">
+                <div class="bubble">${escapeHtml(text)}</div>
+                <div class="user-avatar">👤</div>
+            </div>
+        `;
         chatMessages.appendChild(row);
     }
 
@@ -1959,6 +1998,21 @@
 
         // Restore the saved HTML
         chatMessages.innerHTML = session.html || '';
+
+        // Clean up any in-progress typewriter state from the saved snapshot:
+        // 1. Remove blinking cursors left mid-animation
+        chatMessages.querySelectorAll('.typewriter-cursor').forEach(el => el.remove());
+        // 2. The typewriter wraps content in a div[style="display:inline"] — when serialised
+        //    and re-parsed as innerHTML, block-level children inside an inline div collapse.
+        //    Fix: promote that wrapper to display:block so the answer text is visible.
+        chatMessages.querySelectorAll('.ai-answer-text > div').forEach(el => {
+            el.style.display = 'block';
+        });
+        // 3. Reveal everything that was hidden pending typewriter completion
+        chatMessages.querySelectorAll('.reveal-after-type').forEach(el => el.style.display = '');
+        // 4. Show source pills
+        chatMessages.querySelectorAll('.source-pills').forEach(el => el.style.display = '');
+
         scrollToBottom();
         renderHistory(); // re-render so active highlight updates
     }
