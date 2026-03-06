@@ -1,5 +1,7 @@
 # import schedule
 import time
+import sys
+from pathlib import Path
 import pandas as pd
 import glob
 import os
@@ -12,13 +14,25 @@ import re
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 import numpy as np
+
+# Import configuration
+sys.path.insert(0, str(Path(__file__).parent))
+from config import (
+    BHARATI_RAW_DIR, BHARATI_PROCESS_DIR,
+    DB_CONNECTION_STRING, DB_CONN_PARAMS,
+    ensure_directories_exist, get_logger
+)
+
+logger = get_logger(__name__)
+ensure_directories_exist()
+
 pd.set_option('future.no_silent_downcasting', True)
 
 # === CONFIGURATION ===
-DATA_DIR = "/opt/djangoProject/raw_data/DCWIS_NEW"  # Change to path where your files are
-TEMPLATE_FILE = "/opt/djangoProject/raw_data/DCWIS_NEW/template.xlsx"
-directory_path = OUTPUT_DIR = "/opt/djangoProject/raw_data/DCWIS/"  # Where to save output files
-process_data_path ="/opt/djangoProject/process_data/DCWIS/"
+DATA_DIR = str(BHARATI_RAW_DIR)  # Where input files are
+TEMPLATE_FILE = str(BHARATI_RAW_DIR / "template.xlsx")
+OUTPUT_DIR = str(BHARATI_PROCESS_DIR)  # Where to save output files
+process_data_path = str(BHARATI_PROCESS_DIR)
 
 ###############################################################################
 # Reading each file in a directory and append the data 
@@ -93,8 +107,8 @@ def process_file(file_name):
     # Loading CSV file to Database 
     ###############################################################################
     try:
-        conn = psycopg2.connect("dbname='data_analysis' user='postgres' port=5432 host='localhost' password='postgres'")
-        excel_path = os.path.join(directory_path, file_name)
+        conn = psycopg2.connect(**DB_CONN_PARAMS)
+        excel_path = os.path.join(DATA_DIR, file_name)
         db_table = 'last_24_hrs_data'
         db_table2 = 'imd_bharati'
         try:

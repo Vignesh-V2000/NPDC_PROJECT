@@ -1,98 +1,101 @@
 """
-Run this on the production machine to see all database tables and their columns.
-Usage: python check_db_tables.py
-
-It will show:
-1. Which database Django is connected to
-2. All tables in the database
-3. For station-related tables: column names, row count, and a sample row
+Check if station data exists in the other databases (polardb / data_analysis).
+Run on the production machine: python check_db_tables.py
 """
 import os, sys, django
 
-# Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'npdc_site.settings')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 django.setup()
 
 from django.db import connection
 
-print("=" * 60)
-print("DATABASE CONNECTION INFO")
-print("=" * 60)
+# Get Django's DB host info
 db_settings = connection.settings_dict
-print(f"  Engine : {db_settings['ENGINE']}")
-print(f"  Name   : {db_settings['NAME']}")
-print(f"  Host   : {db_settings['HOST']}")
-print(f"  Port   : {db_settings['PORT']}")
-print(f"  User   : {db_settings['USER']}")
+django_host = db_settings['HOST']
+django_port = db_settings['PORT']
+django_user = db_settings['USER']
+django_password = db_settings['PASSWORD']
+
+print(f"Django DB: {db_settings['NAME']} @ {django_host}:{django_port} (user: {django_user})")
 print()
 
-print("=" * 60)
-print("ALL TABLES IN DATABASE")
-print("=" * 60)
-with connection.cursor() as cursor:
-    cursor.execute("""
-        SELECT table_name FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        ORDER BY table_name
-    """)
-    tables = [row[0] for row in cursor.fetchall()]
-    for t in tables:
-        print(f"  {t}")
+# Now try connecting to polardb and data_analysis on same host AND on localhost
+import psycopg2
 
-print()
-print("=" * 60)
-print("STATION-RELATED TABLES (detail)")
-print("=" * 60)
+targets = [
+    # Try same host as Django (172.27.11.202:5444)
+    {'host': django_host, 'port': django_port, 'user': django_user, 'password': django_password, 'dbname': 'polardb'},
+    {'host': django_host, 'port': django_port, 'user': django_user, 'password': django_password, 'dbname': 'data_analysis'},
+    # Try localhost with postgres user (as in the scripts)
+    {'host': 'localhost', 'port': '5432', 'user': 'postgres', 'password': 'postgres', 'dbname': 'polardb'},
+    {'host': 'localhost', 'port': '5432', 'user': 'postgres', 'password': 'postgres', 'dbname': 'data_analysis'},
+    # Try localhost with same port as Django
+    {'host': 'localhost', 'port': django_port, 'user': django_user, 'password': django_password, 'dbname': 'polardb'},
+    {'host': 'localhost', 'port': django_port, 'user': django_user, 'password': django_password, 'dbname': 'data_analysis'},
+]
 
-# Look for any table related to stations
-station_keywords = ['maitri', 'bharati', 'himansh', 'himadri', 'weather', 'station', 'imd', 'radiometer', 'last_24']
+station_tables = ['maitri_maitri', 'imd_bharati', 'himansh_himansh', 'himadri_radiometer_surface', 'last_24_hrs_data']
 
-for table in tables:
-    if any(kw in table.lower() for kw in station_keywords):
-        print(f"\n--- {table} ---")
-        try:
-            # Get columns
-            with connection.cursor() as cursor:
-                cursor.execute(f"""
-                    SELECT column_name, data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = '{table}' 
-                    ORDER BY ordinal_position
-                """)
-                columns = cursor.fetchall()
-                print(f"  Columns:")
-                for col_name, col_type in columns:
-                    print(f"    {col_name} ({col_type})")
-                
-                # Get row count
-                cursor.execute(f"SELECT COUNT(*) FROM {table}")
-                count = cursor.fetchone()[0]
-                print(f"  Row count: {count}")
-                
-                # Get latest row (try common date columns)
+for target in targets:
+    label = f"{target['dbname']} @ {target['host']}:{target['port']} (user: {target['user']})"
+    print(f"--- Trying: {label} ---")
+    try:
+        conn = psycopg2.connect(
+            host=target['host'],
+            port=target['port'],
+            dbname=target['dbname'],
+            user=target['user'],
+            password=target['password'],
+            connect_timeout=5
+        )
+        cur = conn.cursor()
+        print(f"  CONNECTED OK!")
+        
+        for table in station_tables:
+            try:
+                cur.execute(f"SELECT COUNT(*) FROM {table}")
+                count = cur.fetchone()[0]
                 if count > 0:
-                    col_names = [c[0] for c in columns]
+                    # Get columns
+                    cur.execute(f"""
+                        SELECT column_name, data_type 
+                        FROM information_schema.columns 
+                        WHERE table_name = '{table}' 
+                        ORDER BY ordinal_position
+                    """)
+                    cols = cur.fetchall()
+                    col_names = [c[0] for c in cols]
+                    
+                    # Try to get latest row
                     date_col = None
-                    for possible in ['date', 'obstime', 'date_time', 'created_at', 'timestamp']:
-                        if possible in col_names:
-                            date_col = possible
+                    for dc in ['date', 'obstime', 'date_time']:
+                        if dc in col_names:
+                            date_col = dc
                             break
                     
                     if date_col:
-                        cursor.execute(f"SELECT * FROM {table} ORDER BY {date_col} DESC LIMIT 1")
-                        row = cursor.fetchone()
-                        print(f"  Latest row (by {date_col}):")
-                        for i, col in enumerate(columns):
-                            print(f"    {col[0]} = {row[i]}")
+                        cur.execute(f"SELECT * FROM {table} ORDER BY {date_col} DESC LIMIT 1")
                     else:
-                        cursor.execute(f"SELECT * FROM {table} LIMIT 1")
-                        row = cursor.fetchone()
-                        print(f"  Sample row:")
-                        for i, col in enumerate(columns):
-                            print(f"    {col[0]} = {row[i]}")
-        except Exception as e:
-            print(f"  ERROR: {e}")
+                        cur.execute(f"SELECT * FROM {table} LIMIT 1")
+                    row = cur.fetchone()
+                    
+                    print(f"  TABLE {table}: {count} rows")
+                    print(f"    Columns: {col_names}")
+                    print(f"    Latest row:")
+                    for i, col in enumerate(cols):
+                        print(f"      {col[0]} ({col[1]}) = {row[i]}")
+                else:
+                    print(f"  TABLE {table}: EXISTS but EMPTY (0 rows)")
+            except Exception as e:
+                err_msg = str(e).split('\n')[0]
+                print(f"  TABLE {table}: NOT FOUND - {err_msg}")
+                conn.rollback()
+        
+        conn.close()
+    except Exception as e:
+        err_msg = str(e).split('\n')[0]
+        print(f"  FAILED to connect: {err_msg}")
+    print()
 
-print()
 print("Done!")

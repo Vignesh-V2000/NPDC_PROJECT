@@ -2,6 +2,8 @@ import imaplib
 import email
 from email.header import decode_header
 import os
+import sys
+from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy import text
@@ -9,18 +11,30 @@ import re
 from datetime import datetime, timedelta
 import argparse
 
+# Import configuration
+sys.path.insert(0, str(Path(__file__).parent))
+from config import (
+    HIMANSH_WATER_RAW_DIR, HIMANSH_WATER_PROCESS_DIR,
+    DB_CONNECTION_STRING,
+    WATER_LEVEL_EMAIL_USER, WATER_LEVEL_EMAIL_PASS, WATER_LEVEL_EMAIL_IMAP,
+    ensure_directories_exist, get_logger
+)
+
+logger = get_logger(__name__)
+ensure_directories_exist()
+
 # Email credentials
-EMAIL_USER = "pnsharmancpor@gmail.com"
-EMAIL_PASS = "vqhxdcrvadojfyru"
+EMAIL_USER = WATER_LEVEL_EMAIL_USER
+EMAIL_PASS = WATER_LEVEL_EMAIL_PASS
 
 # Download directory for attachments
-DOWNLOAD_FOLDER = "raw_data/Himalaya/WaterLevel"
-PROCESS_FOLDER = "process_data/Himalaya/WaterLevel"
+DOWNLOAD_FOLDER = str(HIMANSH_WATER_RAW_DIR)
+PROCESS_FOLDER = str(HIMANSH_WATER_PROCESS_DIR)
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESS_FOLDER, exist_ok=True)
 
 # PostgreSQL connection
-engine = create_engine('postgresql://postgres:postgres@localhost:5432/polardb')
+engine = create_engine(DB_CONNECTION_STRING)
 table_name = 'himansh_water_level'
 
 def sanitize_filename(original_filename):

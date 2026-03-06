@@ -2,10 +2,25 @@ import imaplib
 import email
 from datetime import datetime, timedelta
 import os
+import sys
+from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine
 import psycopg2
+import psycopg2.extras
 import numpy as np
+
+# Import configuration
+sys.path.insert(0, str(Path(__file__).parent))
+from config import (
+    HIMANSH_RAW_DIR, HIMANSH_PROCESS_DIR,
+    DB_CONNECTION_STRING, DB_CONN_PARAMS,
+    HIMANSH_EMAIL_USER, HIMANSH_EMAIL_PASS, HIMANSH_EMAIL_IMAP,
+    ensure_directories_exist, get_logger
+)
+
+logger = get_logger(__name__)
+ensure_directories_exist()
 
 def extract_day(row):
     month = row['Month']
@@ -55,22 +70,20 @@ def create_datetime(row):
     date_time_str = year+"-"+month+"-"+day+" "+time
     return pd.to_datetime(date_time_str)
 
-db_connection_str = 'postgresql://postgres:postgres@localhost:5432/polardb'
-engine = create_engine(db_connection_str)
-
-conn = psycopg2.connect(
-    host="localhost",
-    port="5432",
-    database="polardb",
-    user="postgres",
-    password="postgres"
-)
-c = conn.cursor()
-
-username = "himanshncpor@gmail.com"
-password = "xiozroyjxavbchiz"
-imap_server = "imap.gmail.com"
+# Email and database configuration (from environment or config)
+username = HIMANSH_EMAIL_USER
+password = HIMANSH_EMAIL_PASS
+imap_server = HIMANSH_EMAIL_IMAP
 subject_to_check = "Himansh"
+
+engine = create_engine(DB_CONNECTION_STRING)
+
+try:
+    conn = psycopg2.connect(**DB_CONN_PARAMS)
+    c = conn.cursor()
+except Exception as e:
+    logger.error(f"Database connection failed: {e}")
+    sys.exit(1)
 
 df = pd.DataFrame(columns=['date', 'acc_preciptn', 'tot_acc_preciptn', 'ap', 'wd', 'wd_6m', 'batt_avg', 'air_temp', 'pannel_temp', 'rh', 's_up', 's_dn', 'l_up', 'l_dn', 'albedo', 'ws', 'ws_6m', 'tcdt', 'sur_temp','mail_received_date', 'mail_processed_date'])
 
@@ -95,7 +108,8 @@ status, data = mail.search(None, search_query)
 if status == 'OK':
     for num in data[0].split():
         email_id = int(num)
-        c.execute("SELECT * FROM himansh_email_headers WHERE email_id="+str(email_id))
+        # Use parameterized queries to prevent SQL injection
+        c.execute("SELECT * FROM himansh_email_headers WHERE email_id = %s", (email_id,))
         row = c.fetchone()
         if not row:
             status, msg_data = mail.fetch(num, '(RFC822)')
@@ -104,8 +118,17 @@ if status == 'OK':
                 msg = email.message_from_bytes(raw_email)
                 subject = msg["Subject"]
                 date_time = msg["Date"]
-                c.execute("INSERT INTO himansh_email_headers (email_id, subject, date_time) VALUES ("+str(email_id)+", '"+subject+"', '"+date_time+"')")
-                conn.commit()
+                # Use parameterized insert query to prevent SQL injection
+                try:
+                    c.execute(
+                        "INSERT INTO himansh_email_headers (email_id, subject, date_time) VALUES (%s, %s, %s)",
+                        (email_id, subject, date_time)
+                    )
+                    conn.commit()
+                except Exception as e:
+                    logger.error(f"Failed to insert email header for email_id {email_id}: {e}")
+                    conn.rollback()
+                    continue
                 
                 for part in msg.walk():
                     if part.get_content_maintype() == 'multipart':
@@ -115,9 +138,16 @@ if status == 'OK':
                     if not filename:
                         filename = "noname"
                     if filename == "noname":
-                        with open(os.path.join("raw_data/Himansh",filename+"_"
-                                               +datetime.strptime(date_time.split("+")[0].strip(),"%a, %d %b %Y %H:%M:%S").strftime('%Y_%m_%d_%H_%M')+".txt"), 'wb') as f:
-                            f.write(part.get_payload(decode=True))
+                        # Use config path for file writing
+                        try:
+                            timestamp = datetime.strptime(date_time.split("+")[0].strip(), "%a, %d %b %Y %H:%M:%S").strftime('%Y_%m_%d_%H_%M')
+                            file_path = HIMANSH_RAW_DIR / f"{filename}_{timestamp}.txt"
+                            with open(file_path, 'wb') as f:
+                                f.write(part.get_payload(decode=True))
+                        except Exception as e:
+                            logger.error(f"Failed to save email attachment: {e}")
+                            continue
+                        
                         attachment_data = part.get_payload(decode=True).decode()
                         start_index = attachment_data.find('@')
                         if start_index != -1:
@@ -135,10 +165,13 @@ if status == 'OK':
                                     l.append(current_datetime)
                                     df.loc[len(df)] = l
                                 except ValueError as ve:
-                                    print("Error Processing email: "+str(email_id)+" dated: "+date_time)
-                                    print(ve)
-                                with open('process_data/Himansh/Himansh.csv', 'a', newline='', encoding='utf-8') as csvfile:
-                                    csvfile.write(str(email_id)+","+extracted_string+",\""+date_time+"\","+"\""+current_datetime+"\"\n")
+                                    logger.error(f"Error Processing email {email_id} dated {date_time}: {ve}")
+                                csv_file = HIMANSH_PROCESS_DIR / 'Himansh.csv'
+                                try:
+                                    with open(str(csv_file), 'a', newline='', encoding='utf-8') as csvfile:
+                                        csvfile.write(str(email_id)+","+extracted_string+",\""+date_time+"\","+"\""+current_datetime+"\"\n")
+                                except Exception as e:
+                                    logger.error(f"Failed to write CSV: {e}")
 conn.close()
 mail.close()
 mail.logout()

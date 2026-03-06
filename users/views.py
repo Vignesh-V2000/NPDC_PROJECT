@@ -448,25 +448,48 @@ def get_station_temperatures():
     for station in stations:
         temp_value = None
         temp_date = None
+        table_status = {
+            'exists': False,
+            'has_data': False,
+            'error': None,
+        }
+        
         try:
             with connection.cursor() as cursor:
+                # Check if table exists
                 cursor.execute(
-                    f'SELECT {station["temp_col"]}, {station["date_col"]} '
-                    f'FROM {station["table"]} '
-                    f'WHERE {station["temp_col"]} IS NOT NULL '
-                    f'ORDER BY {station["date_col"]} DESC LIMIT 1'
+                    'SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = %s)',
+                    [station['table']]
                 )
-                row = cursor.fetchone()
-                if row:
-                    temp_value = row[0]
-                    temp_date = row[1]
-                    logger.info(f"Station {station['name']}: temp={temp_value}, date={temp_date}")
+                table_exists = cursor.fetchone()[0]
+                table_status['exists'] = table_exists
+                
+                if not table_exists:
+                    table_status['error'] = f"Table {station['table']} does not exist"
+                    logger.warning(f"Station {station['name']}: {table_status['error']}")
                 else:
-                    logger.warning(f"Station {station['name']}: table {station['table']} exists but returned no rows")
+                    # Try to fetch latest temperature
+                    cursor.execute(
+                        f'SELECT {station["temp_col"]}, {station["date_col"]} '
+                        f'FROM {station["table"]} '
+                        f'WHERE {station["temp_col"]} IS NOT NULL '
+                        f'ORDER BY {station["date_col"]} DESC LIMIT 1'
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        temp_value = row[0]
+                        temp_date = row[1]
+                        table_status['has_data'] = True
+                        logger.info(f"Station {station['name']}: temp={temp_value}, date={temp_date}")
+                    else:
+                        cursor.execute(f'SELECT COUNT(*) FROM {station["table"]}')
+                        row_count = cursor.fetchone()[0]
+                        table_status['error'] = f"Table has {row_count} rows but none with temperature data"
+                        logger.warning(f"Station {station['name']}: {table_status['error']}")
         except Exception as e:
             # Log the actual error so we can debug on production
-            logger.error(f"Station {station['name']}: query failed on {station['table']} - {e}")
-            pass
+            table_status['error'] = str(e)
+            logger.error(f"Station {station['name']}: query failed on {station['table']} - {e}", exc_info=True)
         
         # Convert temperature to Celsius
         temp_celsius = None
@@ -475,11 +498,13 @@ def get_station_temperatures():
                 temp_float = float(temp_value)
                 if temp_float <= -999:
                     temp_celsius = None  # Sentinel value for missing data
+                    logger.debug(f"Station {station['name']}: Sentinel value detected ({temp_float})")
                 elif station['is_kelvin']:
                     temp_celsius = round(temp_float - 273.15, 1)
                 else:
                     temp_celsius = round(temp_float, 1)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError) as e:
+                logger.error(f"Station {station['name']}: Failed to convert temperature {temp_value} to float - {e}")
                 pass
         
         results.append({
@@ -708,7 +733,11 @@ def home(request):
     ))
 
     # Station temperature data
-    station_temps = get_station_temperatures()
+    try:
+        station_temps = get_station_temperatures()
+    except Exception as e:
+        logger.error(f"Failed to get station temperatures: {e}")
+        station_temps = []  # Return empty list if tables don't exist
 
     return render(request, 'home.html', {
         'station_temps': station_temps,
