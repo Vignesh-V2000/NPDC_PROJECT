@@ -684,6 +684,25 @@ RULES:
             else:
                 return "I'm unable to fetch statistics at the moment. Please try again later."
         
+        # How to submit / submission steps (must come before generic navigation link check)
+        if self.fuzzy_match(message_lower, ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data', 'how do i submit', 'how to submit metadata', 'submit the metadata', 'submit metadata']):
+            return (
+                "<strong>📤 How to Submit a Dataset</strong><br><br>"
+                "<strong>Steps:</strong><br>"
+                "1. <strong>Log in</strong> — your account must be approved by NPDC staff first<br>"
+                "2. Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a><br>"
+                "3. Fill in the <strong>metadata form</strong>:<br>"
+                "&nbsp;&nbsp;• Title, Abstract (max 1000 chars), Purpose (max 1000 chars), Keywords<br>"
+                "&nbsp;&nbsp;• Expedition Type, Expedition Year, Project Name &amp; Number<br>"
+                "&nbsp;&nbsp;• Category, ISO Topic, Data Progress<br>"
+                "&nbsp;&nbsp;• Temporal coverage (Start &amp; End dates)<br>"
+                "&nbsp;&nbsp;• Spatial coverage (bounding box in Degrees/Minutes/Seconds)<br>"
+                "4. On the next page, <strong>upload files</strong>: Data file, Metadata file, README (all required)<br>"
+                "5. Click <strong>Submit</strong> — your dataset enters the review queue<br><br>"
+                "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Start Submission</a><br><br>"
+                "<em>Use the 9 AI tools on the form to auto-fill fields, generate keywords, check abstract quality, and more.</em>"
+            )
+
         # Navigation links
         if self.fuzzy_match(message_lower, ['submit link', 'submit dataset', 'new dataset', 'upload data']):
             return "<strong>📤 Submit a Dataset</strong><br><br>Submit your research data here:<br><a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Submit New Dataset</a><br><br>You'll need to provide metadata, temporal/spatial coverage, and upload your data files."
@@ -740,24 +759,6 @@ RULES:
                 "<a href='mailto:npdc@ncpor.res.in' style='color: #00A3A1;'>npdc@ncpor.res.in</a>."
             )
         
-        if self.fuzzy_match(message_lower, ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data', 'how do i submit']):
-            return (
-                "<strong>📤 How to Submit a Dataset</strong><br><br>"
-                "<strong>Steps:</strong><br>"
-                "1. <strong>Log in</strong> — your account must be approved by NPDC staff first<br>"
-                "2. Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a><br>"
-                "3. Fill in the <strong>metadata form</strong>:<br>"
-                "&nbsp;&nbsp;• Title, Abstract (max 1000 chars), Purpose (max 1000 chars), Keywords<br>"
-                "&nbsp;&nbsp;• Expedition Type, Expedition Year, Project Name &amp; Number<br>"
-                "&nbsp;&nbsp;• Category, ISO Topic, Data Progress<br>"
-                "&nbsp;&nbsp;• Temporal coverage (Start &amp; End dates)<br>"
-                "&nbsp;&nbsp;• Spatial coverage (bounding box in Degrees/Minutes/Seconds)<br>"
-                "4. On the next page, <strong>upload files</strong>: Data file, Metadata file, README (all required)<br>"
-                "5. Click <strong>Submit</strong> — your dataset enters the review queue<br><br>"
-                "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Start Submission</a><br><br>"
-                "<em>Use the 9 AI tools on the form to auto-fill fields, generate keywords, check abstract quality, and more.</em>"
-            )
-
         if self.fuzzy_match(message_lower, ['login', 'sign in', 'log in', 'how to login']):
             return (
                 "<strong>🔐 Login</strong><br><br>"
