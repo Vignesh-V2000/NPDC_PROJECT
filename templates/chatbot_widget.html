@@ -906,6 +906,11 @@
                         this.showPageTip();
                     }
                 }, 5000);
+
+                // Show progress panel with delay (independent of proactive tip)
+                setTimeout(() => {
+                    this.showProgressPanel();
+                }, 6000);
             },
 
             // Get page-specific tips
@@ -1021,13 +1026,17 @@
 
                     // Show progress panel after proactive tip disappears
                     setTimeout(() => {
-                        const progressPanel = document.getElementById('ai-progress-panel');
-                        if (progressPanel) {
-                            progressPanel.style.display = 'block';
-                            // Trigger animation
-                            progressPanel.style.animation = 'popFromPenguin 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                        }
+                        this.showProgressPanel();
                     }, 300); // Small delay for smooth transition
+                }
+            },
+
+            showProgressPanel() {
+                const progressPanel = document.getElementById('ai-progress-panel');
+                if (progressPanel) {
+                    progressPanel.style.display = 'block';
+                    // Trigger animation
+                    progressPanel.style.animation = 'popFromPenguin 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
                 }
             },
 
