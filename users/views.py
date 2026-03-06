@@ -5,7 +5,6 @@ from datetime import timedelta
 
 from django.conf import settings
 import logging
-logger = logging.getLogger(__name__)
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -390,128 +389,6 @@ def reject_user(request, user_id):
 
 
 # --------------------
-# Station Temperature Helper
-# --------------------
-
-def get_station_temperatures():
-    """Fetch the latest temperature data from the official NPDC portal.
-    
-    Scrapes https://data.ncpor.res.in/ which renders station temperatures
-    server-side in the HTML. Results are cached for 30 minutes.
-    """
-    import re
-    from django.core.cache import cache
-    
-    CACHE_KEY = 'station_temperatures'
-    CACHE_TIMEOUT = 1800  # 30 minutes
-    
-    # Check cache first
-    cached = cache.get(CACHE_KEY)
-    if cached is not None:
-        return cached
-    
-    # Station metadata (icon, key, label) — data comes from scraping
-    station_meta = {
-        'maitri': {
-            'key': 'maitri',
-            'name': 'Maitri',
-            'location_label': 'Antarctica - Maitri',
-            'icon': 'fa-snowflake',
-        },
-        'bharati': {
-            'key': 'bharati',
-            'name': 'Bharati',
-            'location_label': 'Antarctica - Bharati',
-            'icon': 'fa-snowflake',
-        },
-        'himansh': {
-            'key': 'himansh',
-            'name': 'Himansh',
-            'location_label': 'Himalaya - Himansh',
-            'icon': 'fa-mountain',
-        },
-        'himadri': {
-            'key': 'himadri',
-            'name': 'Himadri',
-            'location_label': 'Arctic - Himadri',
-            'icon': 'fa-igloo',
-        },
-    }
-    
-    results = []
-    
-    try:
-        response = requests.get('https://data.ncpor.res.in/', timeout=10)
-        response.raise_for_status()
-        html = response.text
-        
-        # Parse the official page HTML to extract station data
-        # The page has sections like "Antarctica - Maitri:" followed by temperature
-        # Pattern: station label, then temperature value, then date
-        
-        # Match patterns like: Antarctica - Maitri:  ... -1.4° C ... March 5, 2026
-        # The HTML structure uses <h5> for station name and <strong> for temperature
-        
-        for key, meta in station_meta.items():
-            temp_celsius = None
-            temp_date_str = None
-            
-            try:
-                # Look for temperature near station name
-                # Pattern: station label followed by temperature value like -1.4° C or 5.2° C
-                label_pattern = re.escape(meta['location_label'])
-                
-                # Find the section containing this station
-                section_match = re.search(
-                    label_pattern + r'.*?(-?\d+\.?\d*)\s*[°&]',
-                    html, re.DOTALL | re.IGNORECASE
-                )
-                if section_match:
-                    temp_celsius = float(section_match.group(1))
-                    logger.info(f"Station {meta['name']}: scraped temp={temp_celsius}°C from official site")
-                
-                # Try to find date near the station section
-                date_match = re.search(
-                    label_pattern + r'.*?(\w+ \d+, \d{4},?\s*\d+:\d+)',
-                    html, re.DOTALL | re.IGNORECASE
-                )
-                if date_match:
-                    temp_date_str = date_match.group(1)
-                    
-            except Exception as e:
-                logger.warning(f"Station {meta['name']}: failed to parse from HTML - {e}")
-            
-            results.append({
-                'key': meta['key'],
-                'name': meta['name'],
-                'location_label': meta['location_label'],
-                'icon': meta['icon'],
-                'temperature': temp_celsius,
-                'date': temp_date_str,
-            })
-        
-        logger.info(f"Successfully scraped {len([r for r in results if r['temperature'] is not None])} station temperatures from official NPDC site")
-        
-    except Exception as e:
-        logger.error(f"Failed to fetch station data from official NPDC site: {e}")
-        # Return empty results with metadata so cards still render
-        for key, meta in station_meta.items():
-            results.append({
-                'key': meta['key'],
-                'name': meta['name'],
-                'location_label': meta['location_label'],
-                'icon': meta['icon'],
-                'temperature': None,
-                'date': None,
-            })
-    
-    # Cache the results
-    cache.set(CACHE_KEY, results, CACHE_TIMEOUT)
-    
-    return results
-
-
-# --------------------
 # Home
 # --------------------
 
@@ -724,15 +601,7 @@ def home(request):
         'expedition_type', 'category', 'iso_topic', 'keywords'
     ))
 
-    # Station temperature data
-    try:
-        station_temps = get_station_temperatures()
-    except Exception as e:
-        logger.error(f"Failed to get station temperatures: {e}")
-        station_temps = []  # Return empty list if tables don't exist
-
     return render(request, 'home.html', {
-        'station_temps': station_temps,
         'recent_data': recent_data,
         'popular_data': popular_data,
         'total_datasets': total_datasets,
