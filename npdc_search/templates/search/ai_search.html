@@ -569,6 +569,18 @@
         padding: 0 2rem;
     }
 
+    /* AI messages lean slightly left */
+    .message-row.message-ai {
+        margin-left: 15rem;
+        margin-right: auto;
+    }
+
+    /* User messages lean slightly right */
+    .message-row.message-user {
+        margin-left: auto;
+        margin-right: 16rem;
+    }
+
     .message-user {
         display: flex;
         justify-content: flex-end;
@@ -1270,6 +1282,12 @@
 
         .message-row {
             padding: 0 1rem;
+        }
+
+        .message-row.message-ai,
+        .message-row.message-user {
+            margin-left: 0;
+            margin-right: 0;
         }
 
         .chat-input-area {
