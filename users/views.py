@@ -5,6 +5,7 @@ from datetime import timedelta
 
 from django.conf import settings
 import logging
+logger = logging.getLogger(__name__)
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -453,15 +454,18 @@ def get_station_temperatures():
                     f'SELECT {station["temp_col"]}, {station["date_col"]} '
                     f'FROM {station["table"]} '
                     f'WHERE {station["temp_col"]} IS NOT NULL '
-                    f'AND CAST({station["temp_col"]} AS FLOAT) > -999 '
                     f'ORDER BY {station["date_col"]} DESC LIMIT 1'
                 )
                 row = cursor.fetchone()
                 if row:
                     temp_value = row[0]
                     temp_date = row[1]
-        except Exception:
-            # Table doesn't exist or query failed — skip gracefully
+                    logger.info(f"Station {station['name']}: temp={temp_value}, date={temp_date}")
+                else:
+                    logger.warning(f"Station {station['name']}: table {station['table']} exists but returned no rows")
+        except Exception as e:
+            # Log the actual error so we can debug on production
+            logger.error(f"Station {station['name']}: query failed on {station['table']} - {e}")
             pass
         
         # Convert temperature to Celsius
