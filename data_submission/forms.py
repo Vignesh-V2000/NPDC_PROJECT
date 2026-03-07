@@ -46,21 +46,21 @@ class DatasetSubmissionForm(forms.ModelForm):
     )
 
     # Spatial Coverage Split Fields
-    north_lat_deg = forms.CharField(label="North Lat Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg'}))
-    north_lat_min = forms.CharField(label="North Lat Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'}))
-    north_lat_sec = forms.CharField(label="North Lat Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec'}))
+    north_lat_deg = forms.CharField(label="North Lat Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    north_lat_min = forms.CharField(label="North Lat Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    north_lat_sec = forms.CharField(label="North Lat Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec', 'oninput': "this.value = this.value.replace(/[^0-9.]/g, '')"}))
 
-    south_lat_deg = forms.CharField(label="South Lat Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg'}))
-    south_lat_min = forms.CharField(label="South Lat Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'}))
-    south_lat_sec = forms.CharField(label="South Lat Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec'}))
+    south_lat_deg = forms.CharField(label="South Lat Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    south_lat_min = forms.CharField(label="South Lat Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    south_lat_sec = forms.CharField(label="South Lat Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec', 'oninput': "this.value = this.value.replace(/[^0-9.]/g, '')"}))
 
-    east_lon_deg = forms.CharField(label="East Lon Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg'}))
-    east_lon_min = forms.CharField(label="East Lon Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'}))
-    east_lon_sec = forms.CharField(label="East Lon Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec'}))
+    east_lon_deg = forms.CharField(label="East Lon Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    east_lon_min = forms.CharField(label="East Lon Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    east_lon_sec = forms.CharField(label="East Lon Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec', 'oninput': "this.value = this.value.replace(/[^0-9.]/g, '')"}))
 
-    west_lon_deg = forms.CharField(label="West Lon Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg'}))
-    west_lon_min = forms.CharField(label="West Lon Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'}))
-    west_lon_sec = forms.CharField(label="West Lon Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec'}))
+    west_lon_deg = forms.CharField(label="West Lon Deg", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Deg', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    west_lon_min = forms.CharField(label="West Lon Min", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"}))
+    west_lon_sec = forms.CharField(label="West Lon Sec", required=False, widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Sec', 'oninput': "this.value = this.value.replace(/[^0-9.]/g, '')"}))
 
     class Meta:
         model = DatasetSubmission
@@ -127,6 +127,9 @@ class DatasetSubmissionForm(forms.ModelForm):
             # Topic as Select (populated by JS)
             'topic': forms.Select(attrs={'id': 'id_topic'}),
             'category': forms.Select(attrs={'id': 'id_category'}),
+
+            # Number-only fields
+            'expedition_number': forms.TextInput(attrs={'oninput': "this.value = this.value.replace(/[^0-9]/g, '')", 'title': 'Enter numbers only'}),
 
             # Character Counters
             'title': forms.TextInput(attrs={'maxlength': '220', 'class': 'char-counter'}),
@@ -304,9 +307,9 @@ class ScientistDetailForm(forms.ModelForm):
             'address': forms.TextInput(),
             'country': forms.Select(attrs={'id': 'id_country', 'class': 'country-select form-select'}),
             'state': forms.Select(attrs={'id': 'id_state', 'class': 'state-select form-select'}),
-            'phone': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9+\-\s\(\)]+$', 'title': 'Enter valid phone number'}),
-            'mobile': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9]+$', 'title': 'Enter valid mobile number (digits only)'}),
-            'postal_code': forms.TextInput(attrs={'pattern': r'^\d{4,10}$', 'title': 'Enter valid postal code (4-10 digits)'}),
+            'phone': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9+\-\s\(\)]+$', 'title': 'Enter valid phone number', 'oninput': "this.value = this.value.replace(/[^0-9+\-\\s()]/g, '')", 'maxlength': '20'}),
+            'mobile': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9]+$', 'title': 'Enter valid mobile number (digits only)', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')", 'maxlength': '15'}),
+            'postal_code': forms.TextInput(attrs={'pattern': r'^\d{4,10}$', 'title': 'Enter valid postal code (4-10 digits)', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')", 'maxlength': '10'}),
         }
 
 
@@ -347,6 +350,12 @@ class GPSMetadataForm(forms.ModelForm):
         exclude = ('dataset',)
         labels = {
             'gps_used': 'Whether GPS is used for Data Collection ?',
+        }
+        widgets = {
+            'minimum_altitude': forms.TextInput(attrs={'oninput': "this.value = this.value.replace(/[^0-9.-]/g, '')", 'title': 'Enter valid number'}),
+            'maximum_altitude': forms.TextInput(attrs={'oninput': "this.value = this.value.replace(/[^0-9.-]/g, '')", 'title': 'Enter valid number'}),
+            'minimum_depth': forms.TextInput(attrs={'oninput': "this.value = this.value.replace(/[^0-9.-]/g, '')", 'title': 'Enter valid number'}),
+            'maximum_depth': forms.TextInput(attrs={'oninput': "this.value = this.value.replace(/[^0-9.-]/g, '')", 'title': 'Enter valid number'}),
         }
 
     def clean(self):
