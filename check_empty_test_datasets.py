@@ -1,36 +1,22 @@
 """
-NPDC Dataset Quality Audit
+Delete Test Datasets Safely
 
-Checks:
-1. Test datasets
-2. Duplicate datasets
-3. Datasets without scientists
-4. Incomplete datasets
-5. Empty datasets
-
-Shows:
-- Submitter name
-- Submission date and time
-
-Generates CSV report automatically.
+Steps:
+1. List all test datasets
+2. Ask confirmation
+3. Delete only if user types 'yes'
 
 Usage:
-    python manage.py shell < dataset_quality_audit.py
+    python manage.py shell < delete_test_datasets.py
 """
 
 import os
 import django
-import csv
-from datetime import datetime
-from collections import defaultdict
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "npdc_site.settings")
 django.setup()
 
 from data_submission.models import DatasetSubmission
-
-
-REPORT_FILE = "npdc_dataset_audit_report.csv"
 
 
 def safe(value, default="NULL"):
@@ -40,6 +26,7 @@ def safe(value, default="NULL"):
 
 
 def get_submitter(ds):
+
     submitter = getattr(ds, "submitter", None)
 
     if submitter:
@@ -52,168 +39,56 @@ def get_submitter(ds):
 
 
 def get_submission_time(ds):
+
     date = getattr(ds, "submission_date", None)
+
     if date:
         return str(date)
+
     return "NULL"
 
 
-def audit_dataset_quality():
+def delete_test_datasets():
 
-    print("=" * 110)
-    print("NPDC DATASET QUALITY AUDIT")
-    print("=" * 110)
-    print(f"Scan started: {datetime.now()}\n")
+    test_datasets = DatasetSubmission.objects.filter(
+        title__icontains="test"
+    )
 
-    datasets = DatasetSubmission.objects.all()
+    count = test_datasets.count()
 
-    test_datasets = []
-    empty_datasets = []
-    incomplete_datasets = []
-    no_scientists = []
+    print("\nTEST DATASETS FOUND:", count)
+    print("=" * 100)
 
-    title_map = defaultdict(list)
+    if count == 0:
+        print("No test datasets found.")
+        return
 
-    report_rows = []
+    for ds in test_datasets:
 
-    # -------------------------
-    # SCAN DATASETS
-    # -------------------------
+        print(
+            f"ID:{ds.id:5d} | "
+            f"MID:{safe(ds.metadata_id):25s} | "
+            f"Submitter:{safe(get_submitter(ds)):25s} | "
+            f"Submitted:{safe(get_submission_time(ds)):20s} | "
+            f"Title:{safe(ds.title)}"
+        )
 
-    for ds in datasets:
+    print("=" * 100)
 
-        title = (ds.title or "").strip()
-        abstract = (ds.abstract or "").strip()
+    confirm = input("\nType YES to delete these datasets: ")
 
-        title_lower = title.lower()
+    if confirm == "YES":
 
-        metadata_id = safe(ds.metadata_id)
-        submitter = get_submitter(ds)
-        submitted = get_submission_time(ds)
+        deleted = test_datasets.count()
 
-        # TEST DATASETS
-        if (
-            title_lower.startswith("test")
-            or "test metadata" in title_lower
-            or "sample dataset - test metadata" in title_lower
-            or "testing" in title_lower
-        ):
-            test_datasets.append(ds)
+        test_datasets.delete()
 
-            report_rows.append([
-                "TEST DATASET",
-                ds.id,
-                metadata_id,
-                submitter,
-                submitted,
-                title
-            ])
+        print("\nDeleted test datasets:", deleted)
 
-        # EMPTY DATASETS
-        if not title and not abstract:
+    else:
 
-            empty_datasets.append(ds)
-
-            report_rows.append([
-                "EMPTY DATASET",
-                ds.id,
-                metadata_id,
-                submitter,
-                submitted,
-                "EMPTY"
-            ])
-
-        # INCOMPLETE DATASETS
-        category = getattr(ds, "category", None)
-        iso_topic = getattr(ds, "iso_topic", None)
-
-        if not title or not abstract or not category or not iso_topic:
-
-            incomplete_datasets.append(ds)
-
-            report_rows.append([
-                "INCOMPLETE DATASET",
-                ds.id,
-                metadata_id,
-                submitter,
-                submitted,
-                title
-            ])
-
-        # DATASETS WITHOUT SCIENTISTS
-        try:
-            if ds.scientists.count() == 0:
-
-                no_scientists.append(ds)
-
-                report_rows.append([
-                    "NO SCIENTIST",
-                    ds.id,
-                    metadata_id,
-                    submitter,
-                    submitted,
-                    title
-                ])
-        except:
-            pass
-
-        # DUPLICATE CHECK
-        if title:
-            title_map[title.lower()].append(ds)
-
-    duplicate_groups = [group for group in title_map.values() if len(group) > 1]
-
-    for group in duplicate_groups:
-
-        for ds in group:
-
-            report_rows.append([
-                "DUPLICATE DATASET",
-                ds.id,
-                safe(ds.metadata_id),
-                get_submitter(ds),
-                get_submission_time(ds),
-                safe(ds.title)
-            ])
-
-    # -------------------------
-    # PRINT SUMMARY
-    # -------------------------
-
-    print("SUMMARY")
-    print("-" * 60)
-
-    print("Test datasets:", len(test_datasets))
-    print("Duplicate dataset groups:", len(duplicate_groups))
-    print("Datasets without scientists:", len(no_scientists))
-    print("Incomplete datasets:", len(incomplete_datasets))
-    print("Empty datasets:", len(empty_datasets))
-
-    # -------------------------
-    # GENERATE REPORT
-    # -------------------------
-
-    print("\nGenerating CSV report...")
-
-    with open(REPORT_FILE, "w", newline="", encoding="utf-8") as f:
-
-        writer = csv.writer(f)
-
-        writer.writerow([
-            "Issue Type",
-            "Dataset ID",
-            "Metadata ID",
-            "Submitter",
-            "Submission Date & Time",
-            "Title"
-        ])
-
-        writer.writerows(report_rows)
-
-    print("Report generated successfully:")
-    print(REPORT_FILE)
-    print("=" * 110)
+        print("\nDeletion cancelled.")
 
 
 if __name__ == "__main__":
-    audit_dataset_quality()
+    delete_test_datasets()
