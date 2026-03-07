@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'activity_logs.apps.ActivityLogsConfig',
     'chatbot.apps.ChatbotConfig',  # AI Chatbot Assistant
     'npdc_search.apps.DatasetSearchConfig',
+    'stations_weather.apps.StationsWeatherConfig',  # Live Weather Station Data
     'captcha',
     'django_countries',
 

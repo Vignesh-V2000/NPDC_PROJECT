@@ -25,6 +25,8 @@ urlpatterns = [
     # ✅ AI Chatbot Assistant
     path('chatbot/', include('chatbot.urls')),
     path("search/", include("npdc_search.urls")),
+    # ✅ Weather Stations API
+    path('weather/', include('stations_weather.urls')),
 ]
 
 if settings.DEBUG:
