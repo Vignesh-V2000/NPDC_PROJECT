@@ -77,6 +77,23 @@ class HimanshWaterLevel(models.Model):
         ordering = ['-date']
 
 
+class HimanshWeatherData(models.Model):
+    """Himalaya - Himansh Station Weather Data"""
+    date = models.DateTimeField(primary_key=True, db_index=True)
+    air_temp = models.FloatField(null=True, blank=True)
+    rh = models.FloatField(null=True, blank=True)
+    ap = models.FloatField(null=True, blank=True)
+    ws = models.FloatField(null=True, blank=True)
+    wd = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'himansh_himansh'
+        managed = False
+        verbose_name = "Himansh Weather Data"
+        verbose_name_plural = "Himansh Weather Data"
+        ordering = ['-date']
+
+
 class Last24HrsData(models.Model):
     """Antarctic last 24 hours weather data"""
     obstime = models.TimeField(null=True, blank=True)

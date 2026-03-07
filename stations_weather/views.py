@@ -13,6 +13,7 @@ from .models import (
     BharatiWeatherData,
     HimadriWeatherData,
     HimanshWaterLevel,
+    HimanshWeatherData,
     Last24HrsData
 )
 
@@ -213,17 +214,21 @@ def weather_api(request):
                 print(f"Error fetching Himadri data: {e}")
         
         # Himansh (Himalaya)
-        if table_exists('himansh_water_level'):
+        if table_exists('himansh_himansh'):
             try:
                 himansh, was_11pm = get_weather_data_priority(
-                    HimanshWaterLevel.objects.all(),
+                    HimanshWeatherData.objects.all(),
                     'date'
                 )
                 
                 if himansh:
                     stations_data['himansh'] = {
                         'name': 'Himalaya - Himansh',
-                        'water_level': round(himansh.water_level, 2) if himansh.water_level else None,
+                        'temperature': round(himansh.air_temp, 1) if himansh.air_temp else None,
+                        'humidity': round(himansh.rh, 1) if himansh.rh else None,
+                        'pressure': round(himansh.ap, 1) if himansh.ap else None,
+                        'wind_speed': round(himansh.ws, 1) if himansh.ws else None,
+                        'wind_direction': round(himansh.wd, 1) if himansh.wd else None,
                         'date': himansh.date.isoformat() if himansh.date else None,
                         'formatted_date': formatted_display,
                     }
@@ -332,10 +337,10 @@ def weather_station(request, station_code):
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
         
-        elif station_code == 'himansh' and table_exists('himansh_water_level'):
+        elif station_code == 'himansh' and table_exists('himansh_himansh'):
             try:
                 himansh, was_11pm = get_weather_data_priority(
-                    HimanshWaterLevel.objects.all(),
+                    HimanshWeatherData.objects.all(),
                     'date'
                 )
                 
@@ -343,7 +348,11 @@ def weather_station(request, station_code):
                     return JsonResponse({
                         'status': 'success',
                         'station': 'Himansh',
-                        'water_level': round(himansh.water_level, 2) if himansh.water_level else None,
+                        'temperature': round(himansh.air_temp, 1) if himansh.air_temp else None,
+                        'humidity': round(himansh.rh, 1) if himansh.rh else None,
+                        'pressure': round(himansh.ap, 1) if himansh.ap else None,
+                        'wind_speed': round(himansh.ws, 1) if himansh.ws else None,
+                        'wind_direction': round(himansh.wd, 1) if himansh.wd else None,
                         'date': himansh.date.isoformat() if himansh.date else None,
                         'formatted_date': formatted_display,
                     })
