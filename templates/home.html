@@ -1969,103 +1969,65 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         function updateWeatherWidgets() {
-            const widgets = document.querySelectorAll('.weather-widget');
-            widgets.forEach(widget => {
-                const lat = widget.getAttribute('data-lat');
-                const lon = widget.getAttribute('data-lon');
-                if (!lat || !lon) return;
+            // Fetch data from our Django API instead of Open-Meteo
+            fetch('/weather/api/weather/')
+                .then(response => response.json())
+                .then(apiData => {
+                    if (!apiData || !apiData.data) return;
 
-                // compute the date two days before today and request hourly data for that date
-                const today = new Date();
-                const target = new Date(today);
-                target.setDate(today.getDate() - 2);
-                const yyyy = target.getFullYear();
-                const mm = String(target.getMonth() + 1).padStart(2, '0');
-                const dd = String(target.getDate()).padStart(2, '0');
-                const dateStr = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD
+                    const widgets = document.querySelectorAll('.weather-widget');
+                    widgets.forEach(widget => {
+                        const station = widget.getAttribute('data-station');
+                        if (!station || !apiData.data[station]) return;
 
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relativehumidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
+                        const stationData = apiData.data[station];
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data) return;
+                        // Update temperature
+                        const tempEl = widget.querySelector('.fw-temp');
+                        if (tempEl && stationData.temperature !== null && stationData.temperature !== undefined) {
+                            tempEl.textContent = stationData.temperature + '° C';
+                        }
 
-                        // Format date for display e.g. "26 Feb 2026"
-                        const day = String(target.getDate()).padStart(2, '0');
-                        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                        const monthStr = months[target.getMonth()];
-                        const year = target.getFullYear();
-                        const timeStr = '11:00 PM';
-
-                        // Update the datetime display to the fixed 11:00 PM label (official data at 23:00)
+                        // Update date (already formatted as 11:00 PM by backend)
                         const dtEl = widget.querySelector('.fw-datetime');
-                        if (dtEl) dtEl.textContent = `${day} ${monthStr} ${year} ${timeStr}`;
-
-                        // Try to pick the hourly value for 23:00 from the API (timezone=auto -> local times)
-                        let tempVal = null;
-                        if (data.hourly && Array.isArray(data.hourly.time)) {
-                            const times = data.hourly.time;
-                            // find index matching 23:00 precisely
-                            let idx = times.findIndex(t => /T23:00(:00)?$/.test(t));
-                            if (idx === -1) {
-                                // fallback: look for any entry that contains "23:00"
-                                idx = times.findIndex(t => t.includes('23:00'));
-                            }
-                            if (idx !== -1 && data.hourly.temperature_2m && data.hourly.temperature_2m.length > idx) {
-                                tempVal = data.hourly.temperature_2m[idx];
-                            }
+                        if (dtEl && stationData.formatted_date) {
+                            dtEl.textContent = stationData.formatted_date;
                         }
 
-                        // If we found a temperature at 23:00, update the card. Otherwise, leave existing value.
-                        if (tempVal !== null) {
-                            const tEl = widget.querySelector('.fw-temp');
-                            if (tEl) tEl.textContent = (Math.round(tempVal * 10) / 10) + '\u00B0 C';
+                        // Update humidity
+                        const humEl = widget.querySelector('.fw-humidity');
+                        if (humEl && stationData.humidity !== null && stationData.humidity !== undefined) {
+                            humEl.textContent = stationData.humidity + ' %';
                         }
 
-                        // Parse Sunrise/Sunset from daily if present
-                        const sunriseIso = data.daily && data.daily.sunrise ? data.daily.sunrise[0] : null;
-                        const sunsetIso = data.daily && data.daily.sunset ? data.daily.sunset[0] : null;
-
-                        if (sunriseIso) {
-                            const dRise = new Date(sunriseIso);
-                            const rStr = String(dRise.getHours()).padStart(2, '0') + ':' + String(dRise.getMinutes()).padStart(2, '0');
-                            const el = widget.querySelector('.fw-sunrise');
-                            if (el) el.textContent = rStr;
+                        // Update pressure
+                        const presEl = widget.querySelector('.fw-pressure');
+                        if (presEl && stationData.pressure !== null && stationData.pressure !== undefined) {
+                            presEl.textContent = stationData.pressure + ' hPa';
                         }
 
-                        if (sunsetIso) {
-                            const dSet = new Date(sunsetIso);
-                            const sStr = String(dSet.getHours()).padStart(2, '0') + ':' + String(dSet.getMinutes()).padStart(2, '0');
-                            const el = widget.querySelector('.fw-sunset');
-                            if (el) el.textContent = sStr;
+                        // Update wind speed and direction
+                        const windEl = widget.querySelector('.fw-wind');
+                        if (windEl && stationData.wind_speed !== null && stationData.wind_speed !== undefined) {
+                            const windDir = stationData.wind_direction || 0;
+                            // Convert wind direction degrees to compass direction
+                            const val = Math.floor((windDir / 22.5) + 0.5);
+                            const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+                            const windDirStr = arr[(val % 16)];
+                            windEl.textContent = stationData.wind_speed + ' m/s, ' + windDirStr;
                         }
-
-                        widget.querySelector('.fw-temp').textContent = data.current.temperature_2m.toFixed(1) + ' °C';
-                        widget.querySelector('.fw-humidity').textContent = data.current.relative_humidity_2m + ' %';
-                        widget.querySelector('.fw-pressure').textContent = data.current.surface_pressure + ' hPa';
-
-                        // convert km/h to m/s
-                        const windMs = (data.current.wind_speed_10m * (1000 / 3600)).toFixed(1);
-
-                        // Convert wind direction degrees to compass direction (N, NNE, NE...)
-                        const val = Math.floor((data.current.wind_direction_10m / 22.5) + 0.5);
-                        const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-                        const windDir = arr[(val % 16)];
-
-                        widget.querySelector('.fw-wind').textContent = windMs + ' m/s, ' + windDir;
 
                         // Update thermometer icon color based on temp
                         const tempIcon = widget.querySelector('.fa-thermometer-half, .fa-thermometer-empty, .fa-thermometer-full');
-                        if (tempIcon) {
+                        if (tempIcon && stationData.temperature !== null && stationData.temperature !== undefined) {
                             tempIcon.className = 'fas text-primary me-1';
-                            if (data.current.temperature_2m < 5) tempIcon.classList.add('fa-thermometer-empty');
-                            else if (data.current.temperature_2m < 20) tempIcon.classList.add('fa-thermometer-half');
+                            if (stationData.temperature < 5) tempIcon.classList.add('fa-thermometer-empty');
+                            else if (stationData.temperature < 20) tempIcon.classList.add('fa-thermometer-half');
                             else { tempIcon.classList.add('fa-thermometer-full'); tempIcon.classList.replace('text-primary', 'text-danger'); }
                         }
-                    })
-                    .catch(err => console.error('Weather fetch error:', err));
-            });
+                    });
+                })
+                .catch(err => console.error('Weather fetch error:', err));
         }
 
         updateWeatherWidgets();
