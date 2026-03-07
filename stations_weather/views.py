@@ -21,13 +21,17 @@ IST = pytz_timezone('Asia/Kolkata')
 
 
 def convert_to_ist(dt):
-    """Convert timezone-aware datetime to IST"""
+    """Convert datetime to IST
+    Handles both naive (local IST) and timezone-aware datetimes
+    """
     if dt is None:
         return None
     if dt.tzinfo is None:
-        # Assume UTC if naive
-        dt = pytz_timezone('UTC').localize(dt)
-    return dt.astimezone(IST)
+        # Naive datetime - database stores them as IST already (no conversion needed)
+        return IST.localize(dt)
+    else:
+        # Timezone-aware datetime - convert to IST
+        return dt.astimezone(IST)
 
 
 def format_date_ist(dt):
