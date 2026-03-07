@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db import connection
 from datetime import timedelta
 import json
+from pytz import timezone as pytz_timezone
 
 from .models import (
     MaitriWeatherData,
@@ -14,6 +15,27 @@ from .models import (
     HimanshWaterLevel,
     Last24HrsData
 )
+
+# Indian Standard Time (UTC+5:30)
+IST = pytz_timezone('Asia/Kolkata')
+
+
+def convert_to_ist(dt):
+    """Convert timezone-aware datetime to IST"""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        # Assume UTC if naive
+        dt = pytz_timezone('UTC').localize(dt)
+    return dt.astimezone(IST)
+
+
+def format_date_ist(dt):
+    """Format datetime in IST"""
+    if dt is None:
+        return 'N/A'
+    ist_dt = convert_to_ist(dt)
+    return ist_dt.strftime('%d %b %Y %I:%M %p')
 
 
 def table_exists(table_name):
@@ -51,7 +73,7 @@ def weather_api(request):
                         'wind_speed': round(maitri.wind_speed, 1) if maitri.wind_speed else None,
                         'wind_direction': round(maitri.wind_direction, 1) if maitri.wind_direction else None,
                         'date': maitri.date.isoformat() if maitri.date else None,
-                        'formatted_date': maitri.date.strftime('%d %b %Y %I:%M %p') if maitri.date else 'N/A',
+                        'formatted_date': format_date_ist(maitri.date),
                     }
             except Exception as e:
                 print(f"Error fetching Maitri data: {e}")
@@ -69,7 +91,7 @@ def weather_api(request):
                         'wind_speed': round(bharati.wind_speed, 1) if bharati.wind_speed else None,
                         'wind_direction': round(bharati.wind_direction, 1) if bharati.wind_direction else None,
                         'date': bharati.date.isoformat() if bharati.date else None,
-                        'formatted_date': bharati.date.strftime('%d %b %Y %I:%M %p') if bharati.date else 'N/A',
+                        'formatted_date': format_date_ist(bharati.date),
                     }
             except Exception as e:
                 print(f"Error fetching Bharati data: {e}")
@@ -87,7 +109,7 @@ def weather_api(request):
                         'humidity': round(himadri.relative_humidity, 1) if himadri.relative_humidity else None,
                         'pressure': round(himadri.air_pressure, 1) if himadri.air_pressure else None,
                         'date': himadri.date.isoformat() if himadri.date else None,
-                        'formatted_date': himadri.date.strftime('%d %b %Y %I:%M %p') if himadri.date else 'N/A',
+                        'formatted_date': format_date_ist(himadri.date),
                     }
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
@@ -101,7 +123,7 @@ def weather_api(request):
                         'name': 'Himalaya - Himansh',
                         'water_level': round(himansh.water_level, 2) if himansh.water_level else None,
                         'date': himansh.date_time.isoformat() if himansh.date_time else None,
-                        'formatted_date': himansh.date_time.strftime('%d %b %Y %I:%M %p') if himansh.date_time else 'N/A',
+                        'formatted_date': format_date_ist(himansh.date_time),
                     }
             except Exception as e:
                 print(f"Error fetching Himansh data: {e}")
@@ -142,7 +164,7 @@ def weather_station(request, station_code):
                         'wind_speed': round(data.wind_speed, 1) if data.wind_speed else None,
                         'wind_direction': round(data.wind_direction, 1) if data.wind_direction else None,
                         'date': data.date.isoformat() if data.date else None,
-                        'formatted_date': data.date.strftime('%d %b %Y %I:%M %p') if data.date else 'N/A',
+                        'formatted_date': format_date_ist(data.date),
                     })
             except Exception as e:
                 print(f"Error fetching Maitri data: {e}")
@@ -160,7 +182,7 @@ def weather_station(request, station_code):
                         'wind_speed': round(data.wind_speed, 1) if data.wind_speed else None,
                         'wind_direction': round(data.wind_direction, 1) if data.wind_direction else None,
                         'date': data.date.isoformat() if data.date else None,
-                        'formatted_date': data.date.strftime('%d %b %Y %I:%M %p') if data.date else 'N/A',
+                        'formatted_date': format_date_ist(data.date),
                     })
             except Exception as e:
                 print(f"Error fetching Bharati data: {e}")
@@ -177,7 +199,7 @@ def weather_station(request, station_code):
                         'humidity': round(data.relative_humidity, 1) if data.relative_humidity else None,
                         'pressure': round(data.air_pressure, 1) if data.air_pressure else None,
                         'date': data.date.isoformat() if data.date else None,
-                        'formatted_date': data.date.strftime('%d %b %Y %I:%M %p') if data.date else 'N/A',
+                        'formatted_date': format_date_ist(data.date),
                     })
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
@@ -191,7 +213,7 @@ def weather_station(request, station_code):
                         'station': 'Himansh',
                         'water_level': round(data.water_level, 2) if data.water_level else None,
                         'date': data.date_time.isoformat() if data.date_time else None,
-                        'formatted_date': data.date_time.strftime('%d %b %Y %I:%M %p') if data.date_time else 'N/A',
+                        'formatted_date': format_date_ist(data.date_time),
                     })
             except Exception as e:
                 print(f"Error fetching Himansh data: {e}")
