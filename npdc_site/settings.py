@@ -112,18 +112,18 @@ DATABASES = {
 DATABASES['data_analysis'] = {
     'ENGINE': os.environ.get('WEATHER_DB_ENGINE', 'django.db.backends.postgresql'),
     'NAME': 'data_analysis',
-    'USER': os.environ.get('WEATHER_DB_USER', 'enterprisedb'),
+    'USER': os.environ.get('WEATHER_DB_USER', 'postgres'),
     'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
     'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.12.28'),
-    'PORT': os.environ.get('WEATHER_DB_PORT', '5444'),
+    'PORT': os.environ.get('WEATHER_DB_PORT', '5432'),
 }
 DATABASES['polardb'] = {
     'ENGINE': os.environ.get('WEATHER_DB_ENGINE', 'django.db.backends.postgresql'),
     'NAME': 'polardb',
-    'USER': os.environ.get('WEATHER_DB_USER', 'enterprisedb'),
+    'USER': os.environ.get('WEATHER_DB_USER', 'postgres'),
     'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
     'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.12.28'),
-    'PORT': os.environ.get('WEATHER_DB_PORT', '5444'),
+    'PORT': os.environ.get('WEATHER_DB_PORT', '5432'),
 }
 
 # Assign specific weather app models to route over to data_analysis or polardb

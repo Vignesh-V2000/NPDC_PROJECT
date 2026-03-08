@@ -9,8 +9,8 @@ load_dotenv('.env')
 
 # DB Configuration
 DB_HOST = os.environ.get('WEATHER_DB_HOST', '172.27.12.28')
-DB_PORT = os.environ.get('WEATHER_DB_PORT', '5444')
-DB_USER = os.environ.get('WEATHER_DB_USER', 'enterprisedb')
+DB_PORT = os.environ.get('WEATHER_DB_PORT', '5432')
+DB_USER = os.environ.get('WEATHER_DB_USER', 'postgres')
 DB_PASS = os.environ.get('WEATHER_DB_PASSWORD', 'postgres')
 
 print(f"\n{Fore.CYAN}{Style.BRIGHT}==================================================")
