@@ -114,7 +114,7 @@ DATABASES['data_analysis'] = {
     'NAME': 'data_analysis',
     'USER': os.environ.get('WEATHER_DB_USER', 'enterprisedb'),
     'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
-    'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.11.202'),
+    'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.12.28'),
     'PORT': os.environ.get('WEATHER_DB_PORT', '5444'),
 }
 DATABASES['polardb'] = {
@@ -122,7 +122,7 @@ DATABASES['polardb'] = {
     'NAME': 'polardb',
     'USER': os.environ.get('WEATHER_DB_USER', 'enterprisedb'),
     'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
-    'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.11.202'),
+    'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.12.28'),
     'PORT': os.environ.get('WEATHER_DB_PORT', '5444'),
 }
 

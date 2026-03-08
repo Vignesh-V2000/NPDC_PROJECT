@@ -8,7 +8,7 @@ init(autoreset=True)
 load_dotenv('.env')
 
 # DB Configuration
-DB_HOST = os.environ.get('WEATHER_DB_HOST', '172.27.11.202')
+DB_HOST = os.environ.get('WEATHER_DB_HOST', '172.27.12.28')
 DB_PORT = os.environ.get('WEATHER_DB_PORT', '5444')
 DB_USER = os.environ.get('WEATHER_DB_USER', 'enterprisedb')
 DB_PASS = os.environ.get('WEATHER_DB_PASSWORD', 'postgres')
