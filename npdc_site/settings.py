@@ -108,18 +108,25 @@ DATABASES = {
     }
 }
 
-# Add secondary database `data_analysis` for weather stations if configured in .env
-if os.environ.get('WEATHER_DB_NAME'):
-    DATABASES['data_analysis'] = {
-        'ENGINE': os.environ.get('WEATHER_DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.environ.get('WEATHER_DB_NAME', 'data_analysis'),
-        'USER': os.environ.get('WEATHER_DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
-        'HOST': os.environ.get('WEATHER_DB_HOST', 'localhost'),
-        'PORT': os.environ.get('WEATHER_DB_PORT', '5432'),
-    }
+# Connect to the official remote NCPOR databases for live weather readings
+DATABASES['data_analysis'] = {
+    'ENGINE': os.environ.get('WEATHER_DB_ENGINE', 'django.db.backends.postgresql'),
+    'NAME': 'data_analysis',
+    'USER': os.environ.get('WEATHER_DB_USER', 'enterprisedb'),
+    'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
+    'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.11.202'),
+    'PORT': os.environ.get('WEATHER_DB_PORT', '5444'),
+}
+DATABASES['polardb'] = {
+    'ENGINE': os.environ.get('WEATHER_DB_ENGINE', 'django.db.backends.postgresql'),
+    'NAME': 'polardb',
+    'USER': os.environ.get('WEATHER_DB_USER', 'enterprisedb'),
+    'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
+    'HOST': os.environ.get('WEATHER_DB_HOST', '172.27.11.202'),
+    'PORT': os.environ.get('WEATHER_DB_PORT', '5444'),
+}
 
-# Assign specific weather apps to the data_analysis database router
+# Assign specific weather app models to route over to data_analysis or polardb
 DATABASE_ROUTERS = ['stations_weather.routers.WeatherDatabaseRouter']
 
 LANGUAGE_CODE = 'en-us'

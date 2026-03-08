@@ -112,15 +112,38 @@ def get_weather_data_priority(queryset, date_field_name):
 
 
 def table_exists(table_name):
-    """Check if a table exists in the database"""
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT EXISTS (
-                SELECT 1 FROM information_schema.tables 
-                WHERE table_name = %s
-            )
-        """, [table_name])
-        return cursor.fetchone()[0]
+    """Check if a table exists in any of the configured databases"""
+    from django.db import connections
+    from django.db.utils import OperationalError, ProgrammingError
+    
+    # Check default DB first
+    try:
+        with connection.cursor() as cursor:
+            # SQLite specific check
+            if connection.vendor == 'sqlite':
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=%s", [table_name])
+                if cursor.fetchone():
+                    return True
+            else:
+                cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)", [table_name])
+                if cursor.fetchone()[0]:
+                    return True
+    except (OperationalError, ProgrammingError):
+        pass
+
+    # Check external DBs if they're configured
+    for external_db in ['data_analysis', 'polardb']:
+        if external_db in connections:
+            db_conn = connections[external_db]
+            try:
+                with db_conn.cursor() as cursor:
+                    cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)", [table_name])
+                    if cursor.fetchone()[0]:
+                        return True
+            except (OperationalError, ProgrammingError):
+                pass
+            
+    return False
 
 
 @csrf_exempt
@@ -128,23 +151,25 @@ def table_exists(table_name):
 def weather_api(request):
     """
     API endpoint to get current weather data from all stations
-    Returns temperature and timestamp for each station
     Shows yesterday's 9-11 PM data (priority: 11 PM → 10 PM → 9 PM)
-    All stations display their actual recorded timestamp.
+    Always displays yesterday's date at 11:00 PM for consistency.
     """
     from datetime import timedelta
     
     try:
         stations_data = {}
         
+        today = timezone.now()
+        yesterday = today - timedelta(days=1)
+        
+        yesterday_ist = IST.normalize(yesterday.astimezone(IST))
+        display_date_ist = yesterday_ist.replace(hour=23, minute=0, second=0, microsecond=0)
+        formatted_display = display_date_ist.strftime('%d %b %Y %I:%M %p')
+        
         # Maitri (Antarctica)
         if table_exists('maitri_maitri'):
             try:
-                maitri, was_11pm = get_weather_data_priority(
-                    MaitriWeatherData.objects.all(),
-                    'date'
-                )
-                
+                maitri, was_11pm = get_weather_data_priority(MaitriWeatherData.objects.all(), 'date')
                 if maitri:
                     stations_data['maitri'] = {
                         'name': 'Antarctica - Maitri',
@@ -154,7 +179,7 @@ def weather_api(request):
                         'wind_speed': round(maitri.ws, 1) if maitri.ws else None,
                         'wind_direction': round(maitri.wd, 1) if maitri.wd else None,
                         'date': maitri.date.isoformat() if maitri.date else None,
-                        'formatted_date': format_date_ist(maitri.date),
+                        'formatted_date': formatted_display,
                     }
             except Exception as e:
                 print(f"Error fetching Maitri data: {e}")
@@ -162,11 +187,7 @@ def weather_api(request):
         # Bharati (Antarctica)
         if table_exists('imd_bharati'):
             try:
-                bharati, was_11pm = get_weather_data_priority(
-                    BharatiWeatherData.objects.all(),
-                    'obstime'
-                )
-                
+                bharati, was_11pm = get_weather_data_priority(BharatiWeatherData.objects.all(), 'obstime')
                 if bharati:
                     stations_data['bharati'] = {
                         'name': 'Antarctica - Bharati',
@@ -176,7 +197,7 @@ def weather_api(request):
                         'wind_speed': round(bharati.ws, 1) if bharati.ws else None,
                         'wind_direction': round(bharati.wd, 1) if bharati.wd else None,
                         'date': bharati.obstime.isoformat() if bharati.obstime else None,
-                        'formatted_date': format_date_ist(bharati.obstime),
+                        'formatted_date': formatted_display,
                     }
             except Exception as e:
                 print(f"Error fetching Bharati data: {e}")
@@ -184,13 +205,8 @@ def weather_api(request):
         # Himadri (Arctic)
         if table_exists('himadri_radiometer_surface'):
             try:
-                himadri, was_11pm = get_weather_data_priority(
-                    HimadriWeatherData.objects.all(),
-                    'date'
-                )
-                
+                himadri, was_11pm = get_weather_data_priority(HimadriWeatherData.objects.all(), 'date')
                 if himadri:
-                    # Convert Kelvin to Celsius
                     temp_celsius = himadri.temperature_celsius if himadri.temperature else None
                     stations_data['himadri'] = {
                         'name': 'Arctic - Himadri',
@@ -198,7 +214,7 @@ def weather_api(request):
                         'humidity': round(himadri.relative_humidity, 1) if himadri.relative_humidity else None,
                         'pressure': round(himadri.air_pressure, 1) if himadri.air_pressure else None,
                         'date': himadri.date.isoformat() if himadri.date else None,
-                        'formatted_date': format_date_ist(himadri.date),
+                        'formatted_date': formatted_display,
                     }
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
@@ -206,11 +222,7 @@ def weather_api(request):
         # Himansh (Himalaya)
         if table_exists('himansh_himansh'):
             try:
-                himansh, was_11pm = get_weather_data_priority(
-                    HimanshWeatherData.objects.all(),
-                    'date'
-                )
-                
+                himansh, was_11pm = get_weather_data_priority(HimanshWeatherData.objects.all(), 'date')
                 if himansh:
                     stations_data['himansh'] = {
                         'name': 'Himalaya - Himansh',
@@ -220,7 +232,7 @@ def weather_api(request):
                         'wind_speed': round(himansh.ws, 1) if himansh.ws else None,
                         'wind_direction': round(himansh.wd, 1) if himansh.wd else None,
                         'date': himansh.date.isoformat() if himansh.date else None,
-                        'formatted_date': format_date_ist(himansh.date),
+                        'formatted_date': formatted_display,
                     }
             except Exception as e:
                 print(f"Error fetching Himansh data: {e}")
@@ -232,10 +244,7 @@ def weather_api(request):
         })
     
     except Exception as e:
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=500)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
 @csrf_exempt
@@ -243,22 +252,24 @@ def weather_api(request):
 def weather_station(request, station_code):
     """
     Get weather data for a specific station
-    station_code: maitri, bharati, himadri, himansh
     Shows yesterday's 9-11 PM data (priority: 11 PM → 10 PM → 9 PM)
-    All stations display their actual recorded timestamp.
+    Always displays yesterday's date at 11:00 PM for consistency.
     """
     from datetime import timedelta
     
     try:
         station_code = station_code.lower()
         
+        today = timezone.now()
+        yesterday = today - timedelta(days=1)
+        
+        yesterday_ist = IST.normalize(yesterday.astimezone(IST))
+        display_date_ist = yesterday_ist.replace(hour=23, minute=0, second=0, microsecond=0)
+        formatted_display = display_date_ist.strftime('%d %b %Y %I:%M %p')
+        
         if station_code == 'maitri' and table_exists('maitri_maitri'):
             try:
-                maitri, was_11pm = get_weather_data_priority(
-                    MaitriWeatherData.objects.all(),
-                    'date'
-                )
-                
+                maitri, was_11pm = get_weather_data_priority(MaitriWeatherData.objects.all(), 'date')
                 if maitri:
                     return JsonResponse({
                         'status': 'success',
@@ -269,18 +280,14 @@ def weather_station(request, station_code):
                         'wind_speed': round(maitri.ws, 1) if maitri.ws else None,
                         'wind_direction': round(maitri.wd, 1) if maitri.wd else None,
                         'date': maitri.date.isoformat() if maitri.date else None,
-                        'formatted_date': format_date_ist(maitri.date),
+                        'formatted_date': formatted_display,
                     })
             except Exception as e:
                 print(f"Error fetching Maitri data: {e}")
         
         elif station_code == 'bharati' and table_exists('imd_bharati'):
             try:
-                bharati, was_11pm = get_weather_data_priority(
-                    BharatiWeatherData.objects.all(),
-                    'obstime'
-                )
-                
+                bharati, was_11pm = get_weather_data_priority(BharatiWeatherData.objects.all(), 'obstime')
                 if bharati:
                     return JsonResponse({
                         'status': 'success',
@@ -291,18 +298,14 @@ def weather_station(request, station_code):
                         'wind_speed': round(bharati.ws, 1) if bharati.ws else None,
                         'wind_direction': round(bharati.wd, 1) if bharati.wd else None,
                         'date': bharati.obstime.isoformat() if bharati.obstime else None,
-                        'formatted_date': format_date_ist(bharati.obstime),
+                        'formatted_date': formatted_display,
                     })
             except Exception as e:
                 print(f"Error fetching Bharati data: {e}")
         
         elif station_code == 'himadri' and table_exists('himadri_radiometer_surface'):
             try:
-                himadri, was_11pm = get_weather_data_priority(
-                    HimadriWeatherData.objects.all(),
-                    'date'
-                )
-                
+                himadri, was_11pm = get_weather_data_priority(HimadriWeatherData.objects.all(), 'date')
                 if himadri:
                     temp_celsius = himadri.temperature_celsius if himadri.temperature else None
                     return JsonResponse({
@@ -312,18 +315,14 @@ def weather_station(request, station_code):
                         'humidity': round(himadri.relative_humidity, 1) if himadri.relative_humidity else None,
                         'pressure': round(himadri.air_pressure, 1) if himadri.air_pressure else None,
                         'date': himadri.date.isoformat() if himadri.date else None,
-                        'formatted_date': format_date_ist(himadri.date),
+                        'formatted_date': formatted_display,
                     })
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
         
         elif station_code == 'himansh' and table_exists('himansh_himansh'):
             try:
-                himansh, was_11pm = get_weather_data_priority(
-                    HimanshWeatherData.objects.all(),
-                    'date'
-                )
-                
+                himansh, was_11pm = get_weather_data_priority(HimanshWeatherData.objects.all(), 'date')
                 if himansh:
                     return JsonResponse({
                         'status': 'success',
@@ -334,19 +333,13 @@ def weather_station(request, station_code):
                         'wind_speed': round(himansh.ws, 1) if himansh.ws else None,
                         'wind_direction': round(himansh.wd, 1) if himansh.wd else None,
                         'date': himansh.date.isoformat() if himansh.date else None,
-                        'formatted_date': format_date_ist(himansh.date),
+                        'formatted_date': formatted_display,
                     })
             except Exception as e:
                 print(f"Error fetching Himansh data: {e}")
         
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Station not found or data tables not yet populated'
-        }, status=404)
+        return JsonResponse({'status': 'error','message': 'Station not found or data tables not yet populated'}, status=404)
     
     except Exception as e:
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=500)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
