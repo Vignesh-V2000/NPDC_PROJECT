@@ -404,20 +404,7 @@
             color: #FFFFFF;
         }
 
-        /* User Avatar */
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background-color: var(--border-color);
-            color: var(--text-secondary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-right: 8px;
-        }
+
 
         /* Main Content */
         .container {
@@ -629,6 +616,23 @@
 
         .social-links a:hover {
             color: #e9c46a;
+        }
+
+        /* Hover-triggered dropdowns on desktop */
+        @media (min-width: 992px) {
+            .navbar .nav-item.dropdown:hover > .dropdown-menu {
+                display: block;
+                margin-top: 0;
+                top: 100%;
+                left: 0;
+                position: absolute;
+            }
+            .navbar .nav-item.dropdown > .dropdown-toggle::after {
+                transition: transform 0.2s ease;
+            }
+            .navbar .nav-item.dropdown:hover > .dropdown-toggle::after {
+                transform: rotate(180deg);
+            }
         }
     </style>
 </head>
