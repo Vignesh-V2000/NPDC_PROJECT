@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Field Data - Weather at Polar Stations | NPDC{% endblock %}
+{% block content %}
+<style>
+    .field-data-wrapper {
+        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        min-height: calc(100vh - 120px);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Hero Header */
+    .field-data-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        padding: 2.5rem 0 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .field-data-hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    .field-data-hero-orb-1 {
+        width: 300px; height: 300px; background: #3b82f6;
+        top: -100px; left: -50px;
+        animation: orbFloat1 8s ease-in-out infinite;
+    }
+
+    .field-data-hero-orb-2 {
+        width: 200px; height: 200px; background: #8b5cf6;
+        top: -50px; right: 10%;
+        animation: orbFloat2 10s ease-in-out infinite;
+    }
+
+    .field-data-hero-orb-3 {
+        width: 250px; height: 250px; background: #06b6d4;
+        bottom: -80px; right: 30%;
+        animation: orbFloat1 12s ease-in-out infinite reverse;
+    }
+
+    @keyframes orbFloat1 {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(20px, 15px); }
+    }
+
+    @keyframes orbFloat2 {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(-15px, 20px); }
+    }
+
+    .field-data-hero-title {
+        color: #E8734A;
+        font-weight: 800;
+        font-size: 2.5rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.3rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .field-data-hero-sub {
+        color: #e2e8f0;
+        font-size: 1rem;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 0;
+    }
+
+    /* Weather Section */
+    .weather-section {
+        background-color: #ffffff;
+        border-radius: 1.25rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+    }
+
+    .weather-section .section-title h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.025em;
+    }
+
+    .weather-section .title-underline {
+        width: 80px; height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #0ea5e9);
+        margin: 0 auto; border-radius: 2px;
+    }
+
+    .weather-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        padding: 1rem;
+        height: 100%;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .weather-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        border-color: #cbd5e1;
+    }
+
+    .weather-carousel-inner {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .weather-carousel-inner img {
+        height: 200px;
+        object-fit: cover;
+        filter: brightness(0.9);
+    }
+
+    .weather-card .carousel-indicators { bottom: -30px; }
+
+    .weather-info { padding-top: 1.5rem; }
+
+    .weather-info .station-name {
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .weather-info .station-name a:hover { color: #3b82f6; }
+
+    .temperature-display {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #dc2626;
+        border-bottom: 2px solid #fee2e2;
+        padding-bottom: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .temperature-display i { color: #3b82f6; margin-right: 0.5rem; }
+
+    .weather-date {
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Station Info Cards */
+    .station-info-card {
+        background: #ffffff;
+        border-radius: 1.25rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .station-info-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1);
+    }
+
+    .station-info-header {
+        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1d4ed8 100%);
+        color: #ffffff;
+        padding: 1.25rem 1.5rem;
+        position: relative;
+    }
+
+    .station-info-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+    }
+
+    .station-info-header h5 {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    .station-info-body {
+        padding: 1.5rem;
+    }
+
+    .station-info-body .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .station-info-body .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .station-info-body .info-label {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .station-info-body .info-value {
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .field-data-hero-title { font-size: 1.8rem; }
+        .weather-carousel-inner img { height: 160px; }
+    }
+</style>
+
+<div class="field-data-wrapper">
+
+<!-- Hero Header -->
+<div class="field-data-hero">
+    <div class="field-data-hero-orb field-data-hero-orb-1"></div>
+    <div class="field-data-hero-orb field-data-hero-orb-2"></div>
+    <div class="field-data-hero-orb field-data-hero-orb-3"></div>
+    <div class="container">
+        <div class="text-center">
+            <h2 class="field-data-hero-title">
+                <i class="fas fa-satellite-dish me-2" style="color:#ffffff;"></i>Field Data
+            </h2>
+            <p class="field-data-hero-sub">Live weather observations from India's polar and high-altitude research stations</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+
+    <!-- Weather at Indian Polar Stations -->
+    <section class="weather-section mb-4">
+        <div class="container py-5">
+            <div class="section-title text-center mb-5">
+                <h2 class="fw-bold mb-3">Weather at Indian Polar Stations</h2>
+                <div class="title-underline"></div>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <!-- Maitri Card -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="weather-card weather-widget" data-station="maitri" data-lat="-70.7667" data-lon="11.7333">
+                        <div id="carouselMaitriField" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselMaitriField" data-bs-slide-to="0" class="active"></button>
+                                <button type="button" data-bs-target="#carouselMaitriField" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#carouselMaitriField" data-bs-slide-to="2"></button>
+                            </div>
+                            <div class="carousel-inner weather-carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="{% static 'images/Polar_stations/Maitri/IMG_2.jpg' %}" class="d-block w-100" alt="Maitri">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Maitri/IMG_4.jpg' %}" class="d-block w-100" alt="Maitri">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Maitri/IMG_5.jpg' %}" class="d-block w-100" alt="Maitri">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="weather-info text-center mt-4 pt-2">
+                            <h5 class="station-name">
+                                <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset">
+                                    Antarctica - Maitri:
+                                </a>
+                            </h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="maitri">--&deg; C</span>
+                            </div>
+                            <div class="weather-date fw-datetime" data-station="maitri">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bharati Card -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="weather-card weather-widget" data-station="bharati" data-lat="-69.4083" data-lon="76.1950">
+                        <div id="carouselBharatiField" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselBharatiField" data-bs-slide-to="0" class="active"></button>
+                                <button type="button" data-bs-target="#carouselBharatiField" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#carouselBharatiField" data-bs-slide-to="2"></button>
+                                <button type="button" data-bs-target="#carouselBharatiField" data-bs-slide-to="3"></button>
+                                <button type="button" data-bs-target="#carouselBharatiField" data-bs-slide-to="4"></button>
+                                <button type="button" data-bs-target="#carouselBharatiField" data-bs-slide-to="5"></button>
+                            </div>
+                            <div class="carousel-inner weather-carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="{% static 'images/Polar_stations/Bharati/IMG_(1).jpg' %}" class="d-block w-100" alt="Bharati">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Bharati/IMG_(14).jpg' %}" class="d-block w-100" alt="Bharati">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Bharati/IMG_(20).jpg' %}" class="d-block w-100" alt="Bharati">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Bharati/IMG_(4).jpg' %}" class="d-block w-100" alt="Bharati">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Bharati/IMG_(8).jpg' %}" class="d-block w-100" alt="Bharati">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Bharati/IMG_(9).jpg' %}" class="d-block w-100" alt="Bharati">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="weather-info text-center mt-4 pt-2">
+                            <h5 class="station-name">
+                                <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset">
+                                    Antarctica - Bharati:
+                                </a>
+                            </h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="bharati">--&deg; C</span>
+                            </div>
+                            <div class="weather-date fw-datetime" data-station="bharati">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Himansh Card -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="weather-card weather-widget" data-station="himansh" data-lat="32.39" data-lon="77.62">
+                        <div id="carouselHimanshField" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselHimanshField" data-bs-slide-to="0" class="active"></button>
+                                <button type="button" data-bs-target="#carouselHimanshField" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#carouselHimanshField" data-bs-slide-to="2"></button>
+                                <button type="button" data-bs-target="#carouselHimanshField" data-bs-slide-to="3"></button>
+                            </div>
+                            <div class="carousel-inner weather-carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="{% static 'images/Polar_stations/Himansh/IMG_2.jpg' %}" class="d-block w-100" alt="Himansh">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Himansh/IMG_3.jpg' %}" class="d-block w-100" alt="Himansh">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Himansh/IMG_4.jpg' %}" class="d-block w-100" alt="Himansh">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Himansh/IMG_6.jpg' %}" class="d-block w-100" alt="Himansh">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="weather-info text-center mt-4 pt-2">
+                            <h5 class="station-name">
+                                <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset">
+                                    Himalaya - Himansh:
+                                </a>
+                            </h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="himansh">--&deg; C</span>
+                            </div>
+                            <div class="weather-date fw-datetime" data-station="himansh">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Himadri Card -->
+                <div class="col-sm-6 col-lg-3">
+                    <div class="weather-card weather-widget" data-station="himadri" data-lat="78.92" data-lon="11.93">
+                        <div id="carouselHimadriField" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselHimadriField" data-bs-slide-to="0" class="active"></button>
+                                <button type="button" data-bs-target="#carouselHimadriField" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#carouselHimadriField" data-bs-slide-to="2"></button>
+                                <button type="button" data-bs-target="#carouselHimadriField" data-bs-slide-to="3"></button>
+                            </div>
+                            <div class="carousel-inner weather-carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="{% static 'images/Polar_stations/Himadri/IMG_1.jpg' %}" class="d-block w-100" alt="Himadri">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Himadri/IMG_2.jpg' %}" class="d-block w-100" alt="Himadri">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Himadri/IMG_5.jpg' %}" class="d-block w-100" alt="Himadri">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'images/Polar_stations/Himadri/IMG_6 (1).jpg' %}" class="d-block w-100" alt="Himadri">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="weather-info text-center mt-4 pt-2">
+                            <h5 class="station-name">
+                                <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset">
+                                    Arctic - Himadri:
+                                </a>
+                            </h5>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="himadri">--&deg; C</span>
+                            </div>
+                            <div class="weather-date fw-datetime" data-station="himadri">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Station Details -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="station-info-card">
+                <div class="station-info-header">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Maitri Station</h5>
+                </div>
+                <div class="station-info-body">
+                    <div class="info-row"><span class="info-label">Region</span><span class="info-value">Antarctica</span></div>
+                    <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">70°46'S</span></div>
+                    <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">11°44'E</span></div>
+                    <div class="info-row"><span class="info-label">Established</span><span class="info-value">1989</span></div>
+                    <div class="info-row"><span class="info-label">Location</span><span class="info-value">Schirmacher Oasis</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="station-info-card">
+                <div class="station-info-header">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Bharati Station</h5>
+                </div>
+                <div class="station-info-body">
+                    <div class="info-row"><span class="info-label">Region</span><span class="info-value">Antarctica</span></div>
+                    <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">69°24'S</span></div>
+                    <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">76°12'E</span></div>
+                    <div class="info-row"><span class="info-label">Established</span><span class="info-value">2012</span></div>
+                    <div class="info-row"><span class="info-label">Location</span><span class="info-value">Larsemann Hills</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="station-info-card">
+                <div class="station-info-header">
+                    <h5><i class="fas fa-mountain me-2"></i>Himansh Station</h5>
+                </div>
+                <div class="station-info-body">
+                    <div class="info-row"><span class="info-label">Region</span><span class="info-value">Himalaya</span></div>
+                    <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">32°23'N</span></div>
+                    <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">77°37'E</span></div>
+                    <div class="info-row"><span class="info-label">Altitude</span><span class="info-value">~4,000 m</span></div>
+                    <div class="info-row"><span class="info-label">Location</span><span class="info-value">Spiti Valley, HP</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="station-info-card">
+                <div class="station-info-header">
+                    <h5><i class="fas fa-snowflake me-2"></i>Himadri Station</h5>
+                </div>
+                <div class="station-info-body">
+                    <div class="info-row"><span class="info-label">Region</span><span class="info-value">Arctic</span></div>
+                    <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">78°55'N</span></div>
+                    <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">11°56'E</span></div>
+                    <div class="info-row"><span class="info-label">Established</span><span class="info-value">2008</span></div>
+                    <div class="info-row"><span class="info-label">Location</span><span class="info-value">Ny-Ålesund, Svalbard</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}
