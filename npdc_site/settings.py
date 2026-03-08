@@ -108,6 +108,20 @@ DATABASES = {
     }
 }
 
+# Add secondary database `data_analysis` for weather stations if configured in .env
+if os.environ.get('WEATHER_DB_NAME'):
+    DATABASES['data_analysis'] = {
+        'ENGINE': os.environ.get('WEATHER_DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.environ.get('WEATHER_DB_NAME', 'data_analysis'),
+        'USER': os.environ.get('WEATHER_DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('WEATHER_DB_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('WEATHER_DB_HOST', 'localhost'),
+        'PORT': os.environ.get('WEATHER_DB_PORT', '5432'),
+    }
+
+# Assign specific weather apps to the data_analysis database router
+DATABASE_ROUTERS = ['stations_weather.routers.WeatherDatabaseRouter']
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True

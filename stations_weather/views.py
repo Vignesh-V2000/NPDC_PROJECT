@@ -129,22 +129,12 @@ def weather_api(request):
     """
     API endpoint to get current weather data from all stations
     Returns temperature and timestamp for each station
-    Shows yesterday's 9-11 PM data (priority: 11 PM → 10 PM → 9 PM), always displays as 11 PM
-    All stations display yesterday's date (same date for consistency)
+    Shows yesterday's 9-11 PM data (priority: 11 PM → 10 PM → 9 PM)
+    All stations display their actual recorded timestamp.
     """
     from datetime import timedelta
     
     try:
-        today = timezone.now()
-        yesterday = today - timedelta(days=1)
-        
-        # Create display date in IST timezone (YESTERDAY at 11:00 PM)
-        yesterday_ist = IST.normalize(yesterday.astimezone(IST))
-        display_date_ist = yesterday_ist.replace(hour=23, minute=0, second=0, microsecond=0)
-        
-        # Format for display
-        formatted_display = display_date_ist.strftime('%d %b %Y %I:%M %p')
-        
         stations_data = {}
         
         # Maitri (Antarctica)
@@ -164,7 +154,7 @@ def weather_api(request):
                         'wind_speed': round(maitri.ws, 1) if maitri.ws else None,
                         'wind_direction': round(maitri.wd, 1) if maitri.wd else None,
                         'date': maitri.date.isoformat() if maitri.date else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(maitri.date),
                     }
             except Exception as e:
                 print(f"Error fetching Maitri data: {e}")
@@ -186,7 +176,7 @@ def weather_api(request):
                         'wind_speed': round(bharati.ws, 1) if bharati.ws else None,
                         'wind_direction': round(bharati.wd, 1) if bharati.wd else None,
                         'date': bharati.obstime.isoformat() if bharati.obstime else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(bharati.obstime),
                     }
             except Exception as e:
                 print(f"Error fetching Bharati data: {e}")
@@ -208,7 +198,7 @@ def weather_api(request):
                         'humidity': round(himadri.relative_humidity, 1) if himadri.relative_humidity else None,
                         'pressure': round(himadri.air_pressure, 1) if himadri.air_pressure else None,
                         'date': himadri.date.isoformat() if himadri.date else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(himadri.date),
                     }
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
@@ -230,7 +220,7 @@ def weather_api(request):
                         'wind_speed': round(himansh.ws, 1) if himansh.ws else None,
                         'wind_direction': round(himansh.wd, 1) if himansh.wd else None,
                         'date': himansh.date.isoformat() if himansh.date else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(himansh.date),
                     }
             except Exception as e:
                 print(f"Error fetching Himansh data: {e}")
@@ -254,23 +244,13 @@ def weather_station(request, station_code):
     """
     Get weather data for a specific station
     station_code: maitri, bharati, himadri, himansh
-    Shows yesterday's 9-11 PM data (priority: 11 PM → 10 PM → 9 PM), always displays as 11 PM
-    All stations display yesterday's date (same date for consistency)
+    Shows yesterday's 9-11 PM data (priority: 11 PM → 10 PM → 9 PM)
+    All stations display their actual recorded timestamp.
     """
     from datetime import timedelta
     
     try:
         station_code = station_code.lower()
-        
-        today = timezone.now()
-        yesterday = today - timedelta(days=1)
-        
-        # Create display date in IST timezone (YESTERDAY at 11:00 PM)
-        yesterday_ist = IST.normalize(yesterday.astimezone(IST))
-        display_date_ist = yesterday_ist.replace(hour=23, minute=0, second=0, microsecond=0)
-        
-        # Format for display
-        formatted_display = display_date_ist.strftime('%d %b %Y %I:%M %p')
         
         if station_code == 'maitri' and table_exists('maitri_maitri'):
             try:
@@ -289,7 +269,7 @@ def weather_station(request, station_code):
                         'wind_speed': round(maitri.ws, 1) if maitri.ws else None,
                         'wind_direction': round(maitri.wd, 1) if maitri.wd else None,
                         'date': maitri.date.isoformat() if maitri.date else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(maitri.date),
                     })
             except Exception as e:
                 print(f"Error fetching Maitri data: {e}")
@@ -311,7 +291,7 @@ def weather_station(request, station_code):
                         'wind_speed': round(bharati.ws, 1) if bharati.ws else None,
                         'wind_direction': round(bharati.wd, 1) if bharati.wd else None,
                         'date': bharati.obstime.isoformat() if bharati.obstime else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(bharati.obstime),
                     })
             except Exception as e:
                 print(f"Error fetching Bharati data: {e}")
@@ -332,7 +312,7 @@ def weather_station(request, station_code):
                         'humidity': round(himadri.relative_humidity, 1) if himadri.relative_humidity else None,
                         'pressure': round(himadri.air_pressure, 1) if himadri.air_pressure else None,
                         'date': himadri.date.isoformat() if himadri.date else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(himadri.date),
                     })
             except Exception as e:
                 print(f"Error fetching Himadri data: {e}")
@@ -354,7 +334,7 @@ def weather_station(request, station_code):
                         'wind_speed': round(himansh.ws, 1) if himansh.ws else None,
                         'wind_direction': round(himansh.wd, 1) if himansh.wd else None,
                         'date': himansh.date.isoformat() if himansh.date else None,
-                        'formatted_date': formatted_display,
+                        'formatted_date': format_date_ist(himansh.date),
                     })
             except Exception as e:
                 print(f"Error fetching Himansh data: {e}")
