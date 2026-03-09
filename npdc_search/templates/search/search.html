@@ -7,7 +7,7 @@
 <style>
     /* Page Wrapper */
     .search-page-wrapper {
-        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
         min-height: calc(100vh - 120px);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
@@ -90,8 +90,9 @@
 
     /* ====== Filter Panel ====== */
     .filter-card {
-        box-shadow: 0 8px 32px rgba(15, 23, 42, 0.07) !important;
-        border: 1px solid rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background-color: #0b0f19 !important; /* Very dark rich black/blue */
         overflow: hidden;
     }
 
@@ -121,8 +122,8 @@
         border-radius: 8px;
         padding: 0.75rem;
         margin-bottom: 0.65rem;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
+        border: 1px solid #1e293b;
+        background: #131b2f;
     }
 
     .filter-group:last-child {
@@ -131,7 +132,7 @@
 
     /* Section Header */
     .filter-group h6 {
-        color: #334155 !important;
+        color: #f8fafc !important;
         font-size: 0.72rem !important;
         font-weight: 800 !important;
         letter-spacing: 0.6px;
@@ -150,45 +151,14 @@
         font-size: 0.65rem;
     }
 
-    .filter-group h6 .fa-compass {
-        background: #eff6ff;
-        color: #3b82f6;
-    }
-
-    .filter-group h6 .fa-folder {
-        background: #fef3c7;
-        color: #d97706;
-    }
-
-    .filter-group h6 .fa-globe {
-        background: #ecfdf5;
-        color: #059669;
-    }
-
-    .filter-group h6 .fa-calendar {
-        background: #fce7f3;
-        color: #db2777;
-    }
-
-    .filter-group h6 .fa-tags {
-        background: #f5f3ff;
-        color: #7c3aed;
-    }
-
-    .filter-group h6 .fa-calendar-alt {
-        background: #fff7ed;
-        color: #ea580c;
-    }
-
-    .filter-group h6 .fa-map-marked-alt {
-        background: #ecfdf5;
-        color: #059669;
-    }
-
-    .filter-group h6 .fa-sort {
-        background: #f1f5f9;
-        color: #475569;
-    }
+    .filter-group h6 .fa-compass { background: #1e3a8a; color: #60a5fa; }
+    .filter-group h6 .fa-folder { background: #78350f; color: #fbbf24; }
+    .filter-group h6 .fa-globe { background: #064e3b; color: #34d399; }
+    .filter-group h6 .fa-calendar { background: #831843; color: #f472b6; }
+    .filter-group h6 .fa-tags { background: #4c1d95; color: #a78bfa; }
+    .filter-group h6 .fa-calendar-alt { background: #7c2d12; color: #fb923c; }
+    .filter-group h6 .fa-map-marked-alt { background: #064e3b; color: #34d399; }
+    .filter-group h6 .fa-sort { background: #334155; color: #94a3b8; }
 
     /* Radio Button Styling */
     .filter-group .form-check {
@@ -199,30 +169,31 @@
     }
 
     .filter-group .form-check:hover {
-        background: #f8fafc;
+        background: #1e293b;
     }
 
     .filter-group .form-check-input {
         width: 1.1em;
         height: 1.1em;
-        border: 2px solid #cbd5e1;
+        border: 2px solid #64748b;
+        background-color: transparent;
         border-radius: 50%;
         transition: all 0.2s ease;
         cursor: pointer;
     }
 
     .filter-group .form-check-input:hover {
-        border-color: #3b82f6;
+        border-color: #60a5fa;
     }
 
     .filter-group .form-check-input:checked {
         background-color: #3b82f6;
         border-color: #3b82f6;
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.4);
     }
 
     .filter-group .form-check-label {
-        color: #334155;
+        color: #cbd5e1;
         font-size: 0.88rem;
         transition: all 0.15s ease;
         cursor: pointer;
@@ -230,29 +201,40 @@
     }
 
     .filter-group .form-check:hover .form-check-label {
-        color: #0f172a;
+        color: #ffffff;
     }
 
     /* Facet Counts */
     .facet-count {
-        font-size: 0.72em;
-        color: #94a3b8;
+        font-size: 0.75em;
+        color: #60a5fa !important;
         margin-left: 4px;
-        background: #f1f5f9;
-        padding: 1px 6px;
+        background: rgba(59, 130, 246, 0.2) !important;
+        padding: 2px 7px;
         border-radius: 8px;
-        font-weight: 600;
+        font-weight: 700;
     }
 
     /* Filter Inputs */
     .filter-group .form-select,
     .filter-group .form-control {
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid #334155 !important;
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
         border-radius: 0.5rem;
         font-size: 0.85rem;
-        background-color: #f8fafc;
-        transition: all 0.2s ease;
-        padding: 0.45rem 0.7rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        color-scheme: dark; /* Makes the date picker calendar icon light */
+    }
+
+    .filter-group .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f8fafc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    }
+
+    .filter-group .form-select option {
+        background-color: #0f172a;
+        color: #f8fafc;
     }
 
     .filter-group .form-select:hover,
@@ -263,8 +245,9 @@
     .filter-group .form-select:focus,
     .filter-group .form-control:focus {
         border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        background-color: #0f172a;
+        color: #ffffff !important;
     }
 
     /* Toggle More */
@@ -670,7 +653,7 @@
     }
     .search-breadcrumb li {
         font-size: 0.88rem;
-        color: #64748b;
+        color: #94a3b8;
         font-weight: 500;
     }
     .search-breadcrumb li + li::before {
@@ -690,7 +673,7 @@
         text-decoration: underline;
     }
     .search-breadcrumb li.active {
-        color: #0f172a;
+        color: #cbd5e1;
         font-weight: 700;
     }
 </style>
@@ -994,7 +977,7 @@
                                 <input class="form-check-input filter-radio" type="radio" name="iso" value="{{ opt.value }}"
                                     id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
-                                    {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
+                                    {{ opt.label }} <span class="facet-count" data-facet="iso"
                                         data-value="{{ opt.value }}">({{ opt.count }})</span>
                                 </label>
                             </div>
@@ -1036,7 +1019,7 @@
                         <input class="form-check-input filter-radio" type="radio" name="keyword" value="{{ opt.value }}"
                             id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                         <label class="form-check-label small" for="kw_{{ opt.value }}">
-                            {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
+                            {{ opt.label }} <span class="facet-count" data-facet="keyword"
                                 data-value="{{ opt.value }}">({{ opt.count }})</span>
                         </label>
                     </div>
@@ -1051,7 +1034,7 @@
                             <input class="form-check-input filter-radio" type="radio" name="keyword" value="{{ opt.value }}"
                                 id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="kw_{{ opt.value }}">
-                                {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
+                                {{ opt.label }} <span class="facet-count" data-facet="keyword"
                                     data-value="{{ opt.value }}">({{ opt.count }})</span>
                             </label>
                         </div>
@@ -1071,11 +1054,11 @@
         <h6 class="small fw-bold text-uppercase text-secondary mb-2">
             <i class="fas fa-calendar-alt me-1"></i>Temporal Range
         </h6>
-        <label class="form-label small">Start Date</label>
-        <input type="date" class="form-control form-control-sm filter-control mb-2" id="filterStart" name="start"
+        <label class="form-label small text-light">Start Date</label>
+        <input type="date" class="form-control form-control-sm filter-control mb-2 text-light" id="filterStart" name="start"
             value="{{ start|default:'' }}">
-        <label class="form-label small">End Date</label>
-        <input type="date" class="form-control form-control-sm filter-control" id="filterEnd" name="end"
+        <label class="form-label small text-light">End Date</label>
+        <input type="date" class="form-control form-control-sm filter-control text-light" id="filterEnd" name="end"
             value="{{ end|default:'' }}">
     </div>
 
@@ -1085,7 +1068,7 @@
         <h6 class="small fw-bold text-uppercase text-secondary mb-2">
             <i class="fas fa-sort me-1"></i>Sort By
         </h6>
-        <select class="form-select form-select-sm filter-control" id="filterSort" name="sort">
+        <select class="form-select form-select-sm filter-control text-light" id="filterSort" name="sort">
             {% for v, d in sort_options %}
             <option value="{{ v }}" {% if sort == v %}selected{% endif %}>{{ d }}</option>
             {% endfor %}
