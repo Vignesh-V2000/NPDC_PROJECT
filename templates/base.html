@@ -1036,17 +1036,17 @@
                         </div>
                     </div>
                     {% else %}
-                    <a class="btn btn-outline-primary me-2" href="{% url 'users:login' %}">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    <a class="btn btn-glass me-2" href="{% url 'users:login' %}">
+                        <i class="fas fa-sign-in-alt text-success me-2"></i>Login
                     </a>
-                    <a class="btn btn-primary" href="{% url 'users:register' %}">
+                    <a class="btn btn-glass-primary" href="{% url 'users:register' %}">
                         <i class="fas fa-user-plus me-2"></i>Register
                     </a>
-                    <a class="btn btn-outline-secondary ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
+                    <a class="btn btn-glass ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
                         target="_blank">
-                        <i class="fas fa-file-pdf me-2"></i>User Manual
+                        <i class="fas fa-book-open text-info me-2"></i>User Manual
                     </a>
-                    <a class="btn btn-outline-secondary ms-2" href="{% url 'users:contact_us' %}">
+                    <a class="btn btn-glass-primary ms-2" href="{% url 'users:contact_us' %}">
                         <i class="fas fa-envelope me-2"></i>Contact Us
                     </a>
                     {% endif %}
