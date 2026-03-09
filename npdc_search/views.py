@@ -39,511 +39,533 @@ def search_view(request):
     Core Search Engine with PostgreSQL Full Text Search,
     Advanced Query Builder, Keyword Facets, Map, and AI features.
     """
-    start_time = time.time()
-    # --------------------------------------------------
-    # 1. Base Queryset (Role-Based Visibility)
-    # --------------------------------------------------
-    if request.user.is_staff or request.user.is_superuser:
-        queryset = DatasetSubmission.objects.all()
-    else:
-        queryset = DatasetSubmission.objects.filter(status="published")
-
-    queryset = queryset.select_related(
-        "platform", "gps", "location", "resolution"
-    ).prefetch_related(
-        "scientists", "instruments"
-    )
-
-    # --------------------------------------------------
-    # 2. Get & Sanitize Parameters (Security Hardening)
-    # --------------------------------------------------
-    query = sanitize_query(request.GET.get("query", ""))
-    expedition = sanitize_filter_value(request.GET.get("expedition", ""))
-    category = sanitize_filter_value(request.GET.get("category", ""))
-    iso = sanitize_filter_value(request.GET.get("iso", ""))
-    year = sanitize_filter_value(request.GET.get("year", ""))
-
-    # Keyword filter (from NPDC_With_Chatbot)
-    keyword_selected = request.GET.getlist('keyword')
-    keyword_selected = [sanitize_filter_value(k) for k in keyword_selected if k]
-
-    start_date = validate_date(request.GET.get("start", ""))
-    end_date = validate_date(request.GET.get("end", ""))
-    sort = sanitize_sort(request.GET.get("sort", "newest"))
-
-    # --------------------------------------------------
-    # 2.5 Get Filter Options for Advanced Search
-    # --------------------------------------------------
-    from data_submission.models import PlatformMetadata, InstrumentMetadata
-
-    platforms = PlatformMetadata.objects.values_list('short_name', flat=True).distinct().order_by('short_name')
-    instruments = InstrumentMetadata.objects.values_list('short_name', flat=True).distinct().order_by('short_name')
-
-    # --------------------------------------------------
-    # 3. PostgreSQL Full Text Search (Performance Optimized)
-    # --------------------------------------------------
-    search_rank = None
-    if query:
-        if query.startswith("10."):
-            queryset = queryset.filter(doi__iexact=query)
-        elif query.upper().startswith("MF"):
-            # Partial metadata_id search (allows incomplete IDs like "mf12")
-            queryset = queryset.filter(metadata_id__icontains=query)
+    try:
+        start_time = time.time()
+        # --------------------------------------------------
+        # 1. Base Queryset (Role-Based Visibility)
+        # --------------------------------------------------
+        if request.user.is_staff or request.user.is_superuser:
+            queryset = DatasetSubmission.objects.all()
         else:
-            phrases = re.findall(r'"([^"]+)"', query)
-            remaining = re.sub(r'"[^"]+', '', query).strip()
-            words = remaining.split() if remaining else []
-            search_terms = phrases + words
+            queryset = DatasetSubmission.objects.filter(status="published")
 
-            if search_terms:
-                search_string = ' & '.join(search_terms)
-                search_query = SearchQuery(search_string, search_type='raw')
+        queryset = queryset.select_related(
+            "platform", "gps", "location", "resolution"
+        ).prefetch_related(
+            "scientists", "instruments"
+        )
 
-                search_vector = SearchVector(
-                    'title', weight='A'
-                ) + SearchVector(
-                    'abstract', weight='B'
-                ) + SearchVector(
-                    'keywords', weight='A'
-                ) + SearchVector(
-                    'project_name', weight='C'
-                )
+        # --------------------------------------------------
+        # 2. Get & Sanitize Parameters (Security Hardening)
+        # --------------------------------------------------
+        query = sanitize_query(request.GET.get("query", ""))
+        expedition = sanitize_filter_value(request.GET.get("expedition", ""))
+        category = sanitize_filter_value(request.GET.get("category", ""))
+        iso = sanitize_filter_value(request.GET.get("iso", ""))
+        year = sanitize_filter_value(request.GET.get("year", ""))
 
-                queryset = queryset.annotate(
-                    search_rank=SearchRank(search_vector, search_query)
-                ).filter(
-                    Q(search_rank__gte=0.001) |
-                    Q(scientists__first_name__icontains=search_terms[0]) |
-                    Q(scientists__last_name__icontains=search_terms[0]) |
-                    Q(instruments__short_name__icontains=search_terms[0]) |
-                    Q(platform__short_name__icontains=search_terms[0]) |
-                    Q(metadata_id__icontains=search_terms[0])
-                ).distinct()
+        # Keyword filter (from NPDC_With_Chatbot)
+        keyword_selected = request.GET.getlist('keyword')
+        keyword_selected = [sanitize_filter_value(k) for k in keyword_selected if k]
 
-                search_rank = True
+        start_date = validate_date(request.GET.get("start", ""))
+        end_date = validate_date(request.GET.get("end", ""))
+        sort = sanitize_sort(request.GET.get("sort", "newest"))
 
-    # --------------------------------------------------
-    # 3.1 Advanced Search Query Builder
-    # --------------------------------------------------
-    adv_ops = request.GET.getlist('adv_op')
-    adv_fields = request.GET.getlist('adv_field')
-    adv_vals = request.GET.getlist('adv_val')
+        # --------------------------------------------------
+        # 2.5 Get Filter Options for Advanced Search
+        # --------------------------------------------------
+        from data_submission.models import PlatformMetadata, InstrumentMetadata
 
-    if adv_ops and adv_fields and adv_vals and len(adv_ops) == len(adv_fields) == len(adv_vals):
-        advanced_q = Q()
-        has_adv_filter = False
-        is_first_valid = True
+        platforms = PlatformMetadata.objects.values_list('short_name', flat=True).distinct().order_by('short_name')
+        instruments = InstrumentMetadata.objects.values_list('short_name', flat=True).distinct().order_by('short_name')
 
-        for i in range(len(adv_ops)):
-            op = adv_ops[i]
-            field = adv_fields[i]
-            val = adv_vals[i].strip()[:200]
+        # --------------------------------------------------
+        # 3. PostgreSQL Full Text Search (Performance Optimized)
+        # --------------------------------------------------
+        search_rank = None
+        if query:
+            if query.startswith("10."):
+                queryset = queryset.filter(doi__iexact=query)
+            elif query.upper().startswith("MF"):
+                # Partial metadata_id search (allows incomplete IDs like "mf12")
+                queryset = queryset.filter(metadata_id__icontains=query)
+            else:
+                phrases = re.findall(r'"([^"]+)"', query)
+                remaining = re.sub(r'"[^"]+', '', query).strip()
+                words = remaining.split() if remaining else []
+                search_terms = phrases + words
 
-            if not val:
-                continue
+                if search_terms:
+                    search_string = ' & '.join(search_terms)
+                    search_query = SearchQuery(search_string, search_type='raw')
 
-            has_adv_filter = True
-            row_q = Q()
+                    search_vector = SearchVector(
+                        'title', weight='A'
+                    ) + SearchVector(
+                        'abstract', weight='B'
+                    ) + SearchVector(
+                        'keywords', weight='A'
+                    ) + SearchVector(
+                        'project_name', weight='C'
+                    )
 
-            if field == 'all':
-                row_q = (
-                    Q(title__icontains=val) |
-                    Q(abstract__icontains=val) |
-                    Q(keywords__icontains=val) |
-                    Q(project_name__icontains=val)
-                )
-            elif field == 'title':
-                row_q = Q(title__icontains=val)
-            elif field == 'abstract':
-                row_q = Q(abstract__icontains=val)
-            elif field == 'person':
-                row_q = (
-                    Q(scientists__first_name__icontains=val) |
-                    Q(scientists__last_name__icontains=val) |
-                    Q(submitter__first_name__icontains=val) |
-                    Q(submitter__last_name__icontains=val) |
-                    Q(contact_person__icontains=val)
-                )
-            elif field == 'keywords':
-                row_q = Q(keywords__icontains=val)
-            elif field == 'project':
-                row_q = Q(project_name__icontains=val)
-            elif field == 'doi':
-                row_q = Q(title__icontains=val)
-            elif field == 'metadata_id':
-                row_q = Q(metadata_id__icontains=val)
-            elif field == 'platform':
-                row_q = Q(platform__short_name__icontains=val) | Q(platform__long_name__icontains=val)
-            elif field == 'instrument':
-                row_q = Q(instruments__short_name__icontains=val) | Q(instruments__long_name__icontains=val)
-            elif field == 'submission_date':
-                try:
-                    date_val = datetime.strptime(val, '%Y-%m-%d').date()
-                    row_q = Q(submission_date__date=date_val)
-                except ValueError:
+                    queryset = queryset.annotate(
+                        search_rank=SearchRank(search_vector, search_query)
+                    ).filter(
+                        Q(search_rank__gte=0.001) |
+                        Q(scientists__first_name__icontains=search_terms[0]) |
+                        Q(scientists__last_name__icontains=search_terms[0]) |
+                        Q(instruments__short_name__icontains=search_terms[0]) |
+                        Q(platform__short_name__icontains=search_terms[0]) |
+                        Q(metadata_id__icontains=search_terms[0])
+                    ).distinct()
+
+                    search_rank = True
+
+        # --------------------------------------------------
+        # 3.1 Advanced Search Query Builder
+        # --------------------------------------------------
+        adv_ops = request.GET.getlist('adv_op')
+        adv_fields = request.GET.getlist('adv_field')
+        adv_vals = request.GET.getlist('adv_val')
+
+        if adv_ops and adv_fields and adv_vals and len(adv_ops) == len(adv_fields) == len(adv_vals):
+            advanced_q = Q()
+            has_adv_filter = False
+            is_first_valid = True
+
+            for i in range(len(adv_ops)):
+                op = adv_ops[i]
+                field = adv_fields[i]
+                val = adv_vals[i].strip()[:200]
+
+                if not val:
                     continue
 
-            if is_first_valid:
-                advanced_q = row_q
-                is_first_valid = False
-            else:
-                if op == 'and':
-                    advanced_q &= row_q
-                elif op == 'or':
-                    advanced_q |= row_q
-                elif op == 'not':
-                    advanced_q &= ~row_q
+                has_adv_filter = True
+                row_q = Q()
 
-        if has_adv_filter:
-            queryset = queryset.filter(advanced_q).distinct()
+                if field == 'all':
+                    row_q = (
+                        Q(title__icontains=val) |
+                        Q(abstract__icontains=val) |
+                        Q(keywords__icontains=val) |
+                        Q(project_name__icontains=val)
+                    )
+                elif field == 'title':
+                    row_q = Q(title__icontains=val)
+                elif field == 'abstract':
+                    row_q = Q(abstract__icontains=val)
+                elif field == 'person':
+                    row_q = (
+                        Q(scientists__first_name__icontains=val) |
+                        Q(scientists__last_name__icontains=val) |
+                        Q(submitter__first_name__icontains=val) |
+                        Q(submitter__last_name__icontains=val) |
+                        Q(contact_person__icontains=val)
+                    )
+                elif field == 'keywords':
+                    row_q = Q(keywords__icontains=val)
+                elif field == 'project':
+                    row_q = Q(project_name__icontains=val)
+                elif field == 'doi':
+                    row_q = Q(title__icontains=val)
+                elif field == 'metadata_id':
+                    row_q = Q(metadata_id__icontains=val)
+                elif field == 'platform':
+                    row_q = Q(platform__short_name__icontains=val) | Q(platform__long_name__icontains=val)
+                elif field == 'instrument':
+                    row_q = Q(instruments__short_name__icontains=val) | Q(instruments__long_name__icontains=val)
+                elif field == 'submission_date':
+                    try:
+                        date_val = datetime.strptime(val, '%Y-%m-%d').date()
+                        row_q = Q(submission_date__date=date_val)
+                    except ValueError:
+                        continue
 
-    # --------------------------------------------------
-    # 4. Apply Filters
-    # --------------------------------------------------
-    if expedition:
-        expedition_list = request.GET.getlist('expedition')
-        expedition_list = [sanitize_filter_value(e) for e in expedition_list if e]
-        if expedition_list:
-            queryset = queryset.filter(expedition_type__in=expedition_list)
+                if is_first_valid:
+                    advanced_q = row_q
+                    is_first_valid = False
+                else:
+                    if op == 'and':
+                        advanced_q &= row_q
+                    elif op == 'or':
+                        advanced_q |= row_q
+                    elif op == 'not':
+                        advanced_q &= ~row_q
 
-    if category:
-        category_list = request.GET.getlist('category')
-        category_list = [sanitize_filter_value(c) for c in category_list if c]
-        if category_list:
-            queryset = queryset.filter(category__in=category_list)
+            if has_adv_filter:
+                queryset = queryset.filter(advanced_q).distinct()
 
-    if iso:
-        iso_list = request.GET.getlist('iso')
-        iso_list = [sanitize_filter_value(i) for i in iso_list if i]
-        if iso_list:
-            queryset = queryset.filter(iso_topic__in=iso_list)
+        # --------------------------------------------------
+        # 4. Apply Filters
+        # --------------------------------------------------
+        if expedition:
+            expedition_list = request.GET.getlist('expedition')
+            expedition_list = [sanitize_filter_value(e) for e in expedition_list if e]
+            if expedition_list:
+                queryset = queryset.filter(expedition_type__in=expedition_list)
 
-    # Keyword filter (OR logic within keywords)
-    if keyword_selected:
-        keyword_q = Q()
-        for k in keyword_selected:
-            keyword_q |= Q(keywords__icontains=k)
-        queryset = queryset.filter(keyword_q)
+        if category:
+            category_list = request.GET.getlist('category')
+            category_list = [sanitize_filter_value(c) for c in category_list if c]
+            if category_list:
+                queryset = queryset.filter(category__in=category_list)
 
-    if year:
-        year_list = request.GET.getlist('year')
-        year_list = [y for y in year_list if y]
-        if year_list:
-            queryset = queryset.filter(expedition_year__in=year_list)
+        if iso:
+            iso_list = request.GET.getlist('iso')
+            iso_list = [sanitize_filter_value(i) for i in iso_list if i]
+            if iso_list:
+                queryset = queryset.filter(iso_topic__in=iso_list)
 
-    # --------------------------------------------------
-    # 5. Temporal Overlap Filter
-    # --------------------------------------------------
-    if start_date and end_date:
-        try:
-            start_dt = datetime.strptime(start_date, "%Y-%m-%d").date()
-            end_dt = datetime.strptime(end_date, "%Y-%m-%d").date()
-            queryset = queryset.filter(
-                temporal_start_date__lte=end_dt,
-                temporal_end_date__gte=start_dt
-            )
-        except ValueError:
-            pass
+        # Keyword filter (OR logic within keywords)
+        if keyword_selected:
+            keyword_q = Q()
+            for k in keyword_selected:
+                keyword_q |= Q(keywords__icontains=k)
+            queryset = queryset.filter(keyword_q)
 
-    # --------------------------------------------------
-    # 6. Spatial Bounding Box Filter
-    # --------------------------------------------------
-    search_west = request.GET.get("bbox_west")
-    search_east = request.GET.get("bbox_east")
-    search_south = request.GET.get("bbox_south")
-    search_north = request.GET.get("bbox_north")
+        if year:
+            year_list = request.GET.getlist('year')
+            year_list = [y for y in year_list if y]
+            if year_list:
+                queryset = queryset.filter(expedition_year__in=year_list)
 
-    if search_west and search_east and search_south and search_north:
-        try:
-            sw = float(search_west)
-            se = float(search_east)
-            ss = float(search_south)
-            sn = float(search_north)
-            queryset = queryset.filter(
-                west_longitude__lte=se,
-                east_longitude__gte=sw,
-                south_latitude__lte=sn,
-                north_latitude__gte=ss
-            )
-        except ValueError:
-            pass
+        # --------------------------------------------------
+        # 5. Temporal Overlap Filter
+        # --------------------------------------------------
+        if start_date and end_date:
+            try:
+                start_dt = datetime.strptime(start_date, "%Y-%m-%d").date()
+                end_dt = datetime.strptime(end_date, "%Y-%m-%d").date()
+                queryset = queryset.filter(
+                    temporal_start_date__lte=end_dt,
+                    temporal_end_date__gte=start_dt
+                )
+            except ValueError:
+                pass
 
-    # --------------------------------------------------
-    # 7. Sorting (Relevance-aware)
-    # --------------------------------------------------
-    sort_mapping = {
-        "newest": "-submission_date",
-        "oldest": "submission_date",
-        "title_asc": "title",
-        "title_desc": "-title",
-    }
+        # --------------------------------------------------
+        # 6. Spatial Bounding Box Filter
+        # --------------------------------------------------
+        search_west = request.GET.get("bbox_west")
+        search_east = request.GET.get("bbox_east")
+        search_south = request.GET.get("bbox_south")
+        search_north = request.GET.get("bbox_north")
 
-    if query and search_rank:
-        queryset = queryset.order_by('-search_rank', '-submission_date')
-    else:
-        queryset = queryset.order_by(sort_mapping.get(sort, "-submission_date"))
+        if search_west and search_east and search_south and search_north:
+            try:
+                sw = float(search_west)
+                se = float(search_east)
+                ss = float(search_south)
+                sn = float(search_north)
+                queryset = queryset.filter(
+                    west_longitude__lte=se,
+                    east_longitude__gte=sw,
+                    south_latitude__lte=sn,
+                    north_latitude__gte=ss
+                )
+            except ValueError:
+                pass
 
-    # --------------------------------------------------
-    # 8. Facet Calculations
-    # --------------------------------------------------
-    # Use a clean queryset for facets: no ordering, distinct counts to
-    # prevent duplicate rows from multi-table JOINs (scientists, instruments)
-    # inflating or misrepresenting the per-group counts.
-    facet_qs = queryset.order_by()
-    expedition_facets = dict(
-        facet_qs.values_list('expedition_type').annotate(count=Count('id', distinct=True))
-    )
-    category_facets = dict(
-        facet_qs.values_list('category').annotate(count=Count('id', distinct=True))
-    )
-    iso_facets = dict(
-        facet_qs.values_list('iso_topic').annotate(count=Count('id', distinct=True))
-    )
-    year_facets = dict(
-        facet_qs.values_list('expedition_year').annotate(count=Count('id', distinct=True))
-    )
+        # --------------------------------------------------
+        # 7. Sorting (Relevance-aware)
+        # --------------------------------------------------
+        sort_mapping = {
+            "newest": "-submission_date",
+            "oldest": "submission_date",
+            "title_asc": "title",
+            "title_desc": "-title",
+        }
 
-    # Keyword facets (comma-separated field processed in Python)
-    all_keywords_raw = facet_qs.values_list('keywords', flat=True).distinct()
-    keyword_counter = Counter()
-    for k_str in all_keywords_raw:
-        if k_str:
-            parts = [k.strip() for k in k_str.split(',') if k.strip()]
-            keyword_counter.update(parts)
-    top_keywords = keyword_counter.most_common(20)
-    keyword_facets = dict(top_keywords)
+        if query and search_rank:
+            queryset = queryset.order_by('-search_rank', '-submission_date')
+        else:
+            queryset = queryset.order_by(sort_mapping.get(sort, "-submission_date"))
 
-    # --------------------------------------------------
-    # 8.1 Map Data Serialization
-    # --------------------------------------------------
-    map_data = list(queryset.filter(
-        west_longitude__isnull=False,
-        east_longitude__isnull=False,
-        south_latitude__isnull=False,
-        north_latitude__isnull=False
-    ).values(
-        'id', 'metadata_id', 'title',
-        'west_longitude', 'east_longitude',
-        'south_latitude', 'north_latitude'
-    ))
+        # --------------------------------------------------
+        # 8. Facet Calculations
+        # --------------------------------------------------
+        # Use a clean queryset for facets: no ordering, distinct counts to
+        # prevent duplicate rows from multi-table JOINs (scientists, instruments)
+        # inflating or misrepresenting the per-group counts.
+        facet_qs = queryset.order_by()
+        expedition_facets = dict(
+            facet_qs.values_list('expedition_type').annotate(count=Count('id', distinct=True))
+        )
+        category_facets = dict(
+            facet_qs.values_list('category').annotate(count=Count('id', distinct=True))
+        )
+        iso_facets = dict(
+            facet_qs.values_list('iso_topic').annotate(count=Count('id', distinct=True))
+        )
+        year_facets = dict(
+            facet_qs.values_list('expedition_year').annotate(count=Count('id', distinct=True))
+        )
 
-    # --------------------------------------------------
-    # 9. Pagination
-    # --------------------------------------------------
-    paginator = Paginator(queryset, RESULTS_PER_PAGE)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+        # Keyword facets (comma-separated field processed in Python)
+        all_keywords_raw = facet_qs.values_list('keywords', flat=True).distinct()
+        keyword_counter = Counter()
+        for k_str in all_keywords_raw:
+            if k_str:
+                parts = [k.strip() for k in k_str.split(',') if k.strip()]
+                keyword_counter.update(parts)
+        top_keywords = keyword_counter.most_common(20)
+        keyword_facets = dict(top_keywords)
 
-    # --------------------------------------------------
-    # 10. Build Context with Filter Choices & Facets
-    # --------------------------------------------------
-    platform_choices = list(platforms)
-    instrument_choices = list(instruments)
+        # --------------------------------------------------
+        # 8.1 Map Data Serialization
+        # --------------------------------------------------
+        map_data = list(queryset.filter(
+            west_longitude__isnull=False,
+            east_longitude__isnull=False,
+            south_latitude__isnull=False,
+            north_latitude__isnull=False
+        ).values(
+            'id', 'metadata_id', 'title',
+            'west_longitude', 'east_longitude',
+            'south_latitude', 'north_latitude'
+        ))
 
-    # Prepare options with facet counts for the template
-    expedition_options = []
-    for v, d in DatasetSubmission.EXPEDITION_TYPES:
-        expedition_options.append({'value': v, 'label': d, 'count': expedition_facets.get(v, 0)})
+        # --------------------------------------------------
+        # 9. Pagination
+        # --------------------------------------------------
+        paginator = Paginator(queryset, RESULTS_PER_PAGE)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
 
-    category_options = []
-    for v, d in DatasetSubmission.CATEGORY_CHOICES:
-        category_options.append({'value': v, 'label': d, 'count': category_facets.get(v, 0)})
+        # --------------------------------------------------
+        # 10. Build Context with Filter Choices & Facets
+        # --------------------------------------------------
+        platform_choices = list(platforms)
+        instrument_choices = list(instruments)
 
-    iso_options = []
-    for v, d in DatasetSubmission.ISO_TOPIC_CHOICES:
-        iso_options.append({'value': v, 'label': d, 'count': iso_facets.get(v, 0)})
+        # Prepare options with facet counts for the template
+        expedition_options = []
+        for v, d in DatasetSubmission.EXPEDITION_TYPES:
+            expedition_options.append({'value': v, 'label': d, 'count': expedition_facets.get(v, 0)})
 
-    year_options = []
-    for v, d in DatasetSubmission.get_expedition_year_choices():
-        year_options.append({'value': str(v), 'label': str(d), 'count': year_facets.get(v, 0)})
+        category_options = []
+        for v, d in DatasetSubmission.CATEGORY_CHOICES:
+            category_options.append({'value': v, 'label': d, 'count': category_facets.get(v, 0)})
 
-    keyword_options = []
-    for k, count in top_keywords:
-        keyword_options.append({'value': k, 'label': k, 'count': count})
+        iso_options = []
+        for v, d in DatasetSubmission.ISO_TOPIC_CHOICES:
+            iso_options.append({'value': v, 'label': d, 'count': iso_facets.get(v, 0)})
 
-    # Get selected values for checkboxes
-    expedition_selected = request.GET.getlist('expedition')
-    category_selected = request.GET.getlist('category')
-    iso_selected = request.GET.getlist('iso')
-    year_selected = request.GET.getlist('year')
+        year_options = []
+        for v, d in DatasetSubmission.get_expedition_year_choices():
+            year_options.append({'value': str(v), 'label': str(d), 'count': year_facets.get(v, 0)})
 
-    # --------------------------------------------------
-    # 10.1 Build Applied Filters List for UI badges
-    # --------------------------------------------------
-    applied_filters = []
+        keyword_options = []
+        for k, count in top_keywords:
+            keyword_options.append({'value': k, 'label': k, 'count': count})
 
-    exp_display = dict(DatasetSubmission.EXPEDITION_TYPES)
-    for val in expedition_selected:
-        if val:
-            applied_filters.append({
-                'type': 'expedition', 'value': val,
-                'label': f"Expedition: {exp_display.get(val, val)}",
-                'id': f"exp_{val}",
-            })
+        # Get selected values for checkboxes
+        expedition_selected = request.GET.getlist('expedition')
+        category_selected = request.GET.getlist('category')
+        iso_selected = request.GET.getlist('iso')
+        year_selected = request.GET.getlist('year')
 
-    cat_display = dict(DatasetSubmission.CATEGORY_CHOICES)
-    for val in category_selected:
-        if val:
-            applied_filters.append({
-                'type': 'category', 'value': val,
-                'label': f"Category: {cat_display.get(val, val)}",
-                'id': f"cat_{val}",
-            })
+        # --------------------------------------------------
+        # 10.1 Build Applied Filters List for UI badges
+        # --------------------------------------------------
+        applied_filters = []
 
-    iso_display = dict(DatasetSubmission.ISO_TOPIC_CHOICES)
-    for val in iso_selected:
-        if val:
-            applied_filters.append({
-                'type': 'iso', 'value': val,
-                'label': f"ISO: {iso_display.get(val, val)}",
-                'id': f"iso_{val}",
-            })
-
-    for val in keyword_selected:
-        if val:
-            applied_filters.append({
-                'type': 'keyword', 'value': val,
-                'label': f"Keyword: {val}",
-                'id': f"kw_{val}",
-            })
-
-    for val in year_selected:
-        if val:
-            applied_filters.append({
-                'type': 'year', 'value': val,
-                'label': f"Year: {val}",
-                'id': f"year_{val}",
-            })
-
-    if start_date or end_date:
-        label_parts = []
-        if start_date:
-            label_parts.append(f"From: {start_date}")
-        if end_date:
-            label_parts.append(f"To: {end_date}")
-        applied_filters.append({
-            'type': 'temporal', 'value': '',
-            'label': f"Date: {' — '.join(label_parts)}",
-            'id': '',
-        })
-
-    if adv_ops and adv_fields and adv_vals:
-        for i in range(min(len(adv_ops), len(adv_fields), len(adv_vals))):
-            val = adv_vals[i].strip() if adv_vals[i] else ''
+        exp_display = dict(DatasetSubmission.EXPEDITION_TYPES)
+        for val in expedition_selected:
             if val:
-                field_label = adv_fields[i].replace('_', ' ').title()
                 applied_filters.append({
-                    'type': 'advanced', 'value': str(i),
-                    'label': f"{field_label}: {val}",
-                    'id': '',
+                    'type': 'expedition', 'value': val,
+                    'label': f"Expedition: {exp_display.get(val, val)}",
+                    'id': f"exp_{val}",
                 })
 
-    context = {
-        "page_obj": page_obj,
-        "query": query,
-        "expedition": expedition,
-        "category": category,
-        "iso": iso,
-        "year": year,
-        "start_date": start_date,
-        "end_date": end_date,
-        "sort": sort,
-        # Selected values for checkboxes
-        "expedition_selected": expedition_selected,
-        "category_selected": category_selected,
-        "iso_selected": iso_selected,
-        "year_selected": year_selected,
-        "keyword_selected": keyword_selected,
-        # Bounding box parameters
-        "bbox_west": search_west or "",
-        "bbox_east": search_east or "",
-        "bbox_south": search_south or "",
-        "bbox_north": search_north or "",
-        # Filter dropdown choices (for advanced search JS)
-        "expedition_choices": DatasetSubmission.EXPEDITION_TYPES,
-        "category_choices": DatasetSubmission.CATEGORY_CHOICES,
-        "iso_choices": DatasetSubmission.ISO_TOPIC_CHOICES,
-        "year_choices": DatasetSubmission.get_expedition_year_choices(),
-        "platform_choices": platform_choices,
-        "instrument_choices": instrument_choices,
-        # Options with counts (for sidebar facets)
-        "expedition_options": expedition_options,
-        "category_options": category_options,
-        "iso_options": iso_options,
-        "year_options": year_options,
-        "keyword_options": keyword_options,
-        "sort_options": [
-            ("newest", "Newest First"),
-            ("oldest", "Oldest First"),
-            ("title_asc", "Title A-Z"),
-            ("title_desc", "Title Z-A"),
-        ],
-        "map_data": map_data,
-        "platforms": list(platforms),
-        "instruments": list(instruments),
-        "adv_ops": adv_ops,
-        "adv_fields": adv_fields,
-        "adv_vals": adv_vals,
-        "applied_filters": applied_filters,
-    }
+        cat_display = dict(DatasetSubmission.CATEGORY_CHOICES)
+        for val in category_selected:
+            if val:
+                applied_filters.append({
+                    'type': 'category', 'value': val,
+                    'label': f"Category: {cat_display.get(val, val)}",
+                    'id': f"cat_{val}",
+                })
 
-    # --------------------------------------------------
-    # Log Search for Analytics
-    # --------------------------------------------------
-    response_time_ms = int((time.time() - start_time) * 1000)
-    filters_dict = {
-        'expedition': expedition,
-        'category': category,
-        'iso': iso,
-        'year': year,
-        'keyword': keyword_selected,
-        'start_date': start_date,
-        'end_date': end_date,
-        'bbox_west': search_west,
-        'bbox_east': search_east,
-        'bbox_south': search_south,
-        'bbox_north': search_north,
-        'sort': sort,
-    }
-    filters_dict = {k: v for k, v in filters_dict.items() if v}
+        iso_display = dict(DatasetSubmission.ISO_TOPIC_CHOICES)
+        for val in iso_selected:
+            if val:
+                applied_filters.append({
+                    'type': 'iso', 'value': val,
+                    'label': f"ISO: {iso_display.get(val, val)}",
+                    'id': f"iso_{val}",
+                })
 
-    try:
-        SearchLog.log_search(
-            request=request,
-            query=query,
-            filters=filters_dict,
-            result_count=page_obj.paginator.count,
-            response_time_ms=response_time_ms
-        )
-    except Exception:
-        pass
+        for val in keyword_selected:
+            if val:
+                applied_filters.append({
+                    'type': 'keyword', 'value': val,
+                    'label': f"Keyword: {val}",
+                    'id': f"kw_{val}",
+                })
 
-    # --------------------------------------------------
-    # AJAX Response for Live Filtering
-    # --------------------------------------------------
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        results_html = render_to_string('search/_results.html', context, request=request)
-        pagination_html = render_to_string('search/_pagination.html', context, request=request)
-        applied_filters_html = render_to_string('search/_applied_filters.html', context, request=request)
+        for val in year_selected:
+            if val:
+                applied_filters.append({
+                    'type': 'year', 'value': val,
+                    'label': f"Year: {val}",
+                    'id': f"year_{val}",
+                })
 
-        return JsonResponse({
-            'results_html': results_html,
-            'pagination_html': pagination_html,
-            'applied_filters_html': applied_filters_html,
-            'count': page_obj.paginator.count,
-            'num_pages': page_obj.paginator.num_pages,
-            'current_page': page_obj.number,
-            'facets': {
-                'expedition': expedition_facets,
-                'category': category_facets,
-                'iso': iso_facets,
-                'year': year_facets,
-                'keyword': keyword_facets,
-            },
-            'map_data': map_data,
-        })
+        if start_date or end_date:
+            label_parts = []
+            if start_date:
+                label_parts.append(f"From: {start_date}")
+            if end_date:
+                label_parts.append(f"To: {end_date}")
+            applied_filters.append({
+                'type': 'temporal', 'value': '',
+                'label': f"Date: {' — '.join(label_parts)}",
+                'id': '',
+            })
 
-    return render(request, "search/search.html", context)
+        if adv_ops and adv_fields and adv_vals:
+            for i in range(min(len(adv_ops), len(adv_fields), len(adv_vals))):
+                val = adv_vals[i].strip() if adv_vals[i] else ''
+                if val:
+                    field_label = adv_fields[i].replace('_', ' ').title()
+                    applied_filters.append({
+                        'type': 'advanced', 'value': str(i),
+                        'label': f"{field_label}: {val}",
+                        'id': '',
+                    })
+
+
+        context = {
+            "page_obj": page_obj,
+            "query": query,
+            "expedition": expedition,
+            "category": category,
+            "iso": iso,
+            "year": year,
+            "start_date": start_date,
+            "end_date": end_date,
+            "sort": sort,
+            # Selected values for checkboxes
+            "expedition_selected": expedition_selected,
+            "category_selected": category_selected,
+            "iso_selected": iso_selected,
+            "year_selected": year_selected,
+            "keyword_selected": keyword_selected,
+            # Bounding box parameters
+            "bbox_west": search_west or "",
+            "bbox_east": search_east or "",
+            "bbox_south": search_south or "",
+            "bbox_north": search_north or "",
+            # Filter dropdown choices (for advanced search JS)
+            "expedition_choices": DatasetSubmission.EXPEDITION_TYPES,
+            "category_choices": DatasetSubmission.CATEGORY_CHOICES,
+            "iso_choices": DatasetSubmission.ISO_TOPIC_CHOICES,
+            "year_choices": DatasetSubmission.get_expedition_year_choices(),
+            "platform_choices": platform_choices,
+            "instrument_choices": instrument_choices,
+            # Options with counts (for sidebar facets)
+            "expedition_options": expedition_options,
+            "category_options": category_options,
+            "iso_options": iso_options,
+            "year_options": year_options,
+            "keyword_options": keyword_options,
+            "sort_options": [
+                ("newest", "Newest First"),
+                ("oldest", "Oldest First"),
+                ("title_asc", "Title A-Z"),
+                ("title_desc", "Title Z-A"),
+            ],
+            "map_data": map_data,
+            "platforms": list(platforms),
+            "instruments": list(instruments),
+            "adv_ops": adv_ops,
+            "adv_fields": adv_fields,
+            "adv_vals": adv_vals,
+            "applied_filters": applied_filters,
+        }
+
+        # --------------------------------------------------
+        # Log Search for Analytics
+        # --------------------------------------------------
+        response_time_ms = int((time.time() - start_time) * 1000)
+        filters_dict = {
+            'expedition': expedition,
+            'category': category,
+            'iso': iso,
+            'year': year,
+            'keyword': keyword_selected,
+            'start_date': start_date,
+            'end_date': end_date,
+            'bbox_west': search_west,
+            'bbox_east': search_east,
+            'bbox_south': search_south,
+            'bbox_north': search_north,
+            'sort': sort,
+        }
+        filters_dict = {k: v for k, v in filters_dict.items() if v}
+
+        try:
+            SearchLog.log_search(
+                request=request,
+                query=query,
+                filters=filters_dict,
+                result_count=page_obj.paginator.count,
+                response_time_ms=response_time_ms
+            )
+        except Exception:
+            pass
+
+        # --------------------------------------------------
+        # AJAX Response for Live Filtering
+        # --------------------------------------------------
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            results_html = render_to_string('search/_results.html', context, request=request)
+            pagination_html = render_to_string('search/_pagination.html', context, request=request)
+            applied_filters_html = render_to_string('search/_applied_filters.html', context, request=request)
+
+            return JsonResponse({
+                'results_html': results_html,
+                'pagination_html': pagination_html,
+                'applied_filters_html': applied_filters_html,
+                'count': page_obj.paginator.count,
+                'num_pages': page_obj.paginator.num_pages,
+                'current_page': page_obj.number,
+                'facets': {
+                    'expedition': expedition_facets,
+                    'category': category_facets,
+                    'iso': iso_facets,
+                    'year': year_facets,
+                    'keyword': keyword_facets,
+                },
+                'map_data': map_data,
+            })
+
+        return render(request, "search/search.html", context)
+        
+    except Exception as e:
+        logger.error(f"Search view error: {str(e)}", exc_info=True)
+        return render(request, "search/search.html", {
+            'error': f"Search error: {str(e)}",
+            'query': request.GET.get('query', ''),
+            'page_obj': None,
+            'expedition_options': [],
+            'category_options': [],
+            'iso_options': [],
+            'year_options': [],
+            'keyword_options': [],
+            'sort_options': [
+                ("newest", "Newest First"),
+                ("oldest", "Oldest First"),
+                ("title_asc", "Title A-Z"),
+                ("title_desc", "Title Z-A"),
+            ],
+            'applied_filters': [],
+        }, status=500)
 
 
 def simple_search_view(request):

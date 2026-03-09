@@ -600,7 +600,22 @@ def view_submission(request, metadata_id):
     """Read-only view for users to see submission details.
     Published datasets are visible to any logged-in user.
     Draft/submitted/under_review/revision only visible to owner or staff."""
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:view_submission', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
     
     # Published datasets are visible to everyone
     # Draft/submitted/under_review/revision only visible to owner or staff
@@ -618,7 +633,22 @@ def view_submission(request, metadata_id):
 
 def export_submission_xml(request, metadata_id):
     """View to export submission details as XML."""
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:export_submission_xml', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
     
     # Check permissions
     if submission.status != 'published':
@@ -640,7 +670,23 @@ def get_data_view(request, metadata_id):
     immediately email the user the dataset PDF (and optionally cc superusers).
     The previous approval/rejection flow has been removed.
     """
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:get_data', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
+    
     from .forms import DatasetRequestForm  # Import the form locally
 
     form = None
@@ -765,7 +811,22 @@ def send_dataset_request_email(dataset_request, request):
 
 def get_data_success_view(request, metadata_id):
     """View for the Get Data success message."""
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:get_data_success', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
     
     return render(
         request,
@@ -777,7 +838,23 @@ def get_data_success_view(request, metadata_id):
 
 @login_required
 def submission_success(request, metadata_id):
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id, submitter=request.user)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id, submitter=request.user)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id), submitter=request.user)
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:submission_success', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
+    
     return render(request, 'data_submission/submission_success.html', {'submission': submission})
 
 
@@ -980,7 +1057,22 @@ def all_submissions(request):
 @user_passes_test(lambda u: is_reviewer(u) or is_admin(u) or is_expedition_admin(u))
 @require_http_methods(["GET", "POST"])
 def review_submission_detail(request, metadata_id):
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:review_submission_detail', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
     
     # 🚨 PERMISSION CHECK: Child Admins can only review their type
     if not request.user.is_superuser:
@@ -1126,7 +1218,23 @@ def is_non_expedition_admin(user):
 @require_http_methods(["POST"])
 def admin_delete_dataset(request, metadata_id):
     """Only Super Admin and Normal Admin can delete. Expedition admins cannot."""
-    dataset = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        dataset = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                dataset = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:admin_delete_dataset', metadata_id=dataset.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
+    
     title = dataset.title
     dataset.delete()
     messages.success(request, f'Dataset "{title}" deleted successfully.')
@@ -1208,7 +1316,22 @@ def upload_dataset_files(request, metadata_id):
     """
     Step 2: Upload files for the dataset submission.
     """
-    dataset = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        dataset = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                dataset = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:upload_dataset_files', metadata_id=dataset.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
     
     # RBAC: Only submitter or admin can upload files
     if not (request.user == dataset.submitter or is_admin(request)):
@@ -1560,7 +1683,22 @@ def admin_edit_submission(request, metadata_id):
     """
     View for Admins (Super & Child) to edit a submission.
     """
-    submission = get_object_or_404(DatasetSubmission, metadata_id=metadata_id)
+    
+    # Try to get by metadata_id first
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        # If not found and metadata_id looks like a number, try to find by primary key
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                # Redirect to the correct URL with metadata_id
+                from django.shortcuts import redirect
+                return redirect('data_submission:admin_edit_submission', metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("No DatasetSubmission matches the given query.")
+        else:
+            raise Http404("No DatasetSubmission matches the given query.")
 
     # 🚨 PERMISSION CHECK: Child Admins can only edit their type
     if not request.user.is_superuser:
