@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}My Submissions - NPDC{% endblock %}
+{% block title %}Recent Submissions - NPDC{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -8,7 +8,7 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom border-secondary">
         <div>
-            <h2 class="mb-1 text-white fw-bold">My Submissions</h2>
+            <h2 class="mb-1 text-white fw-bold">Recent Submissions</h2>
             <p class="text-light mb-0 opacity-75">Manage your dataset submissions, drafts, and published data.</p>
         </div>
         <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary fw-bold shadow-sm px-4 rounded-pill" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none;">
@@ -21,10 +21,12 @@
         .container h2, .container h4 { color: #fff !important; }
     </style>
 
-    <!-- Saved and Incomplete Metadata -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TABLE 1: Saved / Draft Metadata            -->
+    <!-- ═══════════════════════════════════════════ -->
     <div class="mb-5">
         <h4 class="mb-4 text-white fw-bold d-flex align-items-center">
-            <i class="fas fa-pencil-alt text-warning me-3 opacity-75"></i> Saved & Incomplete Drafts
+            Saved Metadata (Drafts)
         </h4>
         
         <div class="rq-table-wrap">
@@ -107,14 +109,16 @@
         </div>
     </div>
 
-    <!-- Recently Submitted and Published Metadata -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TABLE 2: Submitted Metadata                -->
+    <!-- ═══════════════════════════════════════════ -->
     <div class="mb-5">
         <h4 class="mb-4 text-white fw-bold d-flex align-items-center">
-            <i class="fas fa-check-circle text-success me-3 opacity-75"></i> Submitted & Published
+            Submitted
         </h4>
         
         <div class="rq-table-wrap">
-            <div class="rq-scroll" style="max-height: 600px; overflow-y: auto;">
+            <div class="rq-scroll" style="max-height: 500px; overflow-y: auto;">
                 <table class="rq-table">
                     <thead>
                         <tr>
@@ -127,7 +131,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for submission in submitted_published_submissions %}
+                        {% for submission in submitted_submissions %}
                         <tr>
                             <td style="text-align: center;">
                                 <span class="rq-num">{{ forloop.counter }}</span>
@@ -155,7 +159,6 @@
                                 <span style="color: #cbd5e1;">—</span>
                                 {% endif %}
                             </td>
-
                             <td>
                                 <div class="rq-date">
                                     <i class="far fa-calendar-alt"></i>
@@ -163,10 +166,10 @@
                                 </div>
                             </td>
                             <td>
-                                {% if submission.status == 'published' %}
-                                <span class="rq-status rq-status-published"><i class="fas fa-check-double"></i> Published</span>
-                                {% elif submission.status == 'revision_requested' %}
+                                {% if submission.status == 'revision_requested' %}
                                 <span class="rq-status rq-status-submitted"><i class="fas fa-exclamation-circle"></i> Revise</span>
+                                {% elif submission.status == 'under_review' %}
+                                <span class="rq-status rq-status-draft"><i class="fas fa-search"></i> Under Review</span>
                                 {% else %}
                                 <span class="rq-status rq-status-draft"><i class="fas fa-paper-plane"></i> Submitted</span>
                                 {% endif %}
@@ -188,14 +191,108 @@
                             </td>
                         </tr>
                         {% empty %}
+                        <tr class="rq-empty-row">
+                            <td colspan="6" style="border-bottom: none;">
+                                <div class="rq-empty-state">
+                                    <div class="rq-empty-icon">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">No submitted datasets.</h5>
+                                    <p class="text-muted small mb-0">Datasets you submit for review will appear here.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TABLE 3: Published Metadata                -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="mb-5">
+        <h4 class="mb-4 text-white fw-bold d-flex align-items-center">
+            Published
+        </h4>
+        
+        <div class="rq-table-wrap">
+            <div class="rq-scroll" style="max-height: 600px; overflow-y: auto;">
+                <table class="rq-table">
+                    <thead>
                         <tr>
+                            <th style="width: 52px; text-align: center;">#</th>
+                            <th style="width: 45%;">Dataset Title</th>
+                            <th>Expedition</th>
+                            <th>Published</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in published_submissions %}
+                        <tr>
+                            <td style="text-align: center;">
+                                <span class="rq-num">{{ forloop.counter }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'data_submission:view_submission' submission.metadata_id %}" class="rq-title-link">
+                                    {{ submission.title|truncatechars:90 }}
+                                </a>
+                                <div style="margin-top: 3px;">
+                                    <span class="rq-meta-id">{{ submission.metadata_id }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if submission.expedition_type %}
+                                <span class="rq-exp-badge 
+                                    {% if submission.expedition_type == 'antarctic' %}rq-exp-ant
+                                    {% elif submission.expedition_type == 'arctic' %}rq-exp-arc
+                                    {% elif submission.expedition_type == 'himalayan' %}rq-exp-him
+                                    {% elif submission.expedition_type == 'southern_ocean' %}rq-exp-soe
+                                    {% else %}rq-exp-default{% endif %}">
+                                    <i class="fas fa-globe-americas" style="font-size: 0.65rem;"></i>
+                                    {{ submission.get_expedition_type_display }}
+                                </span>
+                                {% else %}
+                                <span style="color: #cbd5e1;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="rq-date">
+                                    <i class="far fa-calendar-alt"></i>
+                                    {{ submission.submission_date|date:"M d, Y" }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="rq-status rq-status-published"><i class="fas fa-check-double"></i> Published</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'data_submission:view_submission' submission.metadata_id %}"
+                                        class="rq-action-btn rq-action-view" title="View Submission">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                    
+                                    {% if submission.can_be_updated %}
+                                    <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.pk }}"
+                                        class="rq-action-btn rq-action-edit" title="Update Submission">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="rq-empty-row">
                             <td colspan="6" style="border-bottom: none;">
                                 <div class="rq-empty-state">
                                     <div class="rq-empty-icon">
                                         <i class="fas fa-box-open"></i>
                                     </div>
-                                    <h5 class="fw-bold mb-2">No active submissions.</h5>
-                                    <p class="text-muted small mb-0">Datasets you submit will appear here along with their review status.</p>
+                                    <h5 class="fw-bold mb-2">No published datasets.</h5>
+                                    <p class="text-muted small mb-0">Datasets that have been approved and published will appear here.</p>
                                 </div>
                             </td>
                         </tr>
@@ -240,15 +337,10 @@
     .rq-table thead th:first-child { border-radius: 0; }
     .rq-table thead th:last-child { border-radius: 0; }
     .rq-table tbody tr {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         border-bottom: 1px solid #f1f5f9;
         background: #ffffff;
     }
     .rq-table tbody tr:last-child { border-bottom: none; }
-    .rq-table tbody tr:hover {
-        background: linear-gradient(90deg, #f0f9ff 0%, #faf5ff 100%) !important;
-        transform: scale(1.002);
-    }
     .rq-table tbody tr:nth-child(even) { background: #edf2f7; }
     .rq-table tbody td {
         padding: 0.9rem 1.1rem;
@@ -309,27 +401,6 @@
     .rq-exp-him { background: #fef3c7; color: #92400e; }
     .rq-exp-soe { background: #ecfdf5; color: #047857; }
     .rq-exp-default { background: #f1f5f9; color: #475569; }
-
-    /* Submitter avatar */
-    .rq-avatar {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        color: #fff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 0.7rem;
-        flex-shrink: 0;
-        box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
-    }
-    .rq-submitter-name {
-        font-size: 0.82rem;
-        color: #334155;
-        font-weight: 500;
-    }
 
     /* Date */
     .rq-date {

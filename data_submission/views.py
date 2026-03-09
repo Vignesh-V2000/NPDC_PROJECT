@@ -623,6 +623,9 @@ def view_submission(request, metadata_id):
     Published datasets are visible to any logged-in user.
     Draft/submitted/under_review/revision only visible to owner or staff."""
     
+    from django.shortcuts import redirect
+    from django.contrib import messages
+
     # Try to get by metadata_id first
     try:
         submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
@@ -631,19 +634,20 @@ def view_submission(request, metadata_id):
         if metadata_id.isdigit():
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id))
-                # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
                 return redirect('data_submission:view_submission', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
-                raise Http404("No DatasetSubmission matches the given query.")
+                messages.error(request, "The requested dataset could not be found.")
+                return redirect('users:home')
         else:
-            raise Http404("No DatasetSubmission matches the given query.")
+            messages.error(request, "The requested dataset could not be found.")
+            return redirect('users:home')
     
     # Published datasets are visible to everyone
     # Draft/submitted/under_review/revision only visible to owner or staff
     if submission.status != 'published':
         if not (request.user == submission.submitter or request.user.is_staff):
-            raise Http404("No DatasetSubmission matches the given query.")
+            messages.error(request, "You do not have permission to view this dataset.")
+            return redirect('users:home')
     
     return render(
         request,
@@ -882,21 +886,28 @@ def submission_success(request, metadata_id):
 
 @login_required
 def my_submissions(request):
-    # Incomplete (Draft) Submissions
-    incomplete_submissions = DatasetSubmission.objects.filter(
+    # 1. Saved / Draft Metadata
+    draft_submissions = DatasetSubmission.objects.filter(
         submitter=request.user,
         status='draft'
     ).order_by('-submission_date')
 
-    # Submitted & Published Submissions
-    submitted_published_submissions = DatasetSubmission.objects.filter(
+    # 2. Submitted (includes under_review, revision_requested)
+    submitted_submissions = DatasetSubmission.objects.filter(
         submitter=request.user,
-        status__in=['submitted', 'under_review', 'published', 'revision_requested']
+        status__in=['submitted', 'under_review', 'revision_requested']
+    ).order_by('-submission_date')
+
+    # 3. Published
+    published_submissions = DatasetSubmission.objects.filter(
+        submitter=request.user,
+        status='published'
     ).order_by('-submission_date')
 
     context = {
-        'incomplete_submissions': incomplete_submissions,
-        'submitted_published_submissions': submitted_published_submissions,
+        'incomplete_submissions': draft_submissions,
+        'submitted_submissions': submitted_submissions,
+        'published_submissions': published_submissions,
     }
 
     return render(request, 'data_submission/my_submissions.html', context)
@@ -1348,7 +1359,6 @@ def upload_dataset_files(request, metadata_id):
             try:
                 dataset = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
                 return redirect('data_submission:upload_dataset_files', metadata_id=dataset.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")

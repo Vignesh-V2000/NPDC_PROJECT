@@ -59,7 +59,7 @@
                                 <span class="count-badge">{{ loc.count }}</span>
                             </td>
                             <td class="td-action">
-                                <a href="{% url 'search:search' %}?query={{ loc.name|urlencode }}" class="view-link">
+                                <a href="{% url 'search:search' %}?query={{ loc.name|urlencode }}&ref=browse_location&region={{ region.key }}" class="view-link">
                                     Explore <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
                             </td>

@@ -215,9 +215,16 @@ class DatasetUploadForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['data_file'].widget.attrs.update({'class': 'form-control'})
+        if not self.instance or not self.instance.data_file:
+            self.fields['data_file'].required = True
 
     def clean_data_file(self):
         file = self.cleaned_data.get('data_file')
+        
+        # Enforce compulsory file upload
+        if not file and not self.instance.data_file:
+            raise ValidationError("You must upload a dataset file to complete your submission.")
+
         if file:
             # Security: Validate file extension
             try:

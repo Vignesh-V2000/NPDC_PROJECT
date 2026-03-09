@@ -654,8 +654,162 @@
     .adv-add-btn:hover {
         color: #93c5fd;
     }
+
+    /* Breadcrumb Navigation */
+    .search-breadcrumb {
+        padding: 0.75rem 0;
+    }
+    .search-breadcrumb ol {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+        gap: 0.25rem;
+    }
+    .search-breadcrumb li {
+        font-size: 0.88rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    .search-breadcrumb li + li::before {
+        content: '/';
+        margin-right: 0.4rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+    .search-breadcrumb a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+    .search-breadcrumb a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+    .search-breadcrumb li.active {
+        color: #0f172a;
+        font-weight: 700;
+    }
 </style>
 <div class="search-page-wrapper">
+
+<!-- Breadcrumb Navigation -->
+<div class="container-fluid px-4 pt-3">
+    <nav class="search-breadcrumb" aria-label="breadcrumb" id="searchBreadcrumb">
+        <ol id="breadcrumbList"></ol>
+    </nav>
+</div>
+<script>
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    const region = params.get('region');
+    const query = params.get('query');
+    const expedition = params.getAll('expedition').filter(Boolean);
+    const category = params.getAll('category').filter(Boolean);
+    const iso = params.getAll('iso').filter(Boolean);
+    const keyword = params.getAll('keyword').filter(Boolean);
+    const year = params.getAll('year').filter(Boolean);
+    const startDate = params.get('start_date');
+    const endDate = params.get('end_date');
+    const crumbs = [];
+
+    const regionLabels = {
+        'antarctic': 'Antarctic', 'arctic': 'Arctic',
+        'southern_ocean': 'Southern Ocean', 'himalaya': 'Himalaya',
+    };
+
+    const categoryLabels = {
+        'agriculture': 'Agriculture', 'atmosphere': 'Atmosphere',
+        'biological_classification': 'Biological Classification', 'biosphere': 'Biosphere',
+        'climate_indicators': 'Climate Indicators', 'cryosphere': 'Cryosphere',
+        'human_dimensions': 'Human Dimensions', 'land_surface': 'Land Surface',
+        'oceans': 'Oceans', 'paleoclimate': 'Paleoclimate',
+        'solid_earth': 'Solid Earth', 'spectral_engineering': 'Spectral/Engineering',
+        'sun_earth_interactions': 'Sun-Earth Interactions',
+        'terrestrial_hydrosphere': 'Terrestrial Hydrosphere',
+        'marine_science': 'Marine Science', 'terrestrial_science': 'Terrestrial Science',
+        'wind_profiler_radar': 'Wind Profiler Radar',
+        'geotectonic_studies': 'Geotectonic Studies', 'audio_signals': 'Audio Signals',
+    };
+
+    // Always start with Home
+    crumbs.push({label: 'Home', href: '/'});
+
+    if (ref === 'browse_location') {
+        crumbs.push({label: 'Browse by Location', href: '{% url "search:browse_by_location" %}'});
+        if (region && regionLabels[region]) {
+            crumbs.push({label: regionLabels[region], href: '{% url "search:browse_by_location" %}?region=' + region});
+        }
+        if (query) {
+            crumbs.push({label: query, href: null});
+        }
+    } else if (ref === 'browse_keyword') {
+        crumbs.push({label: 'Browse by Keyword', href: '{% url "search:browse_by_keyword" %}'});
+        if (query) {
+            crumbs.push({label: query, href: null});
+        }
+    } else if (ref === 'simple_search') {
+        crumbs.push({label: 'Simple Search', href: '{% url "search:simple_search" %}'});
+        if (query) {
+            crumbs.push({label: query, href: null});
+        }
+    } else {
+        // Default breadcrumb
+        crumbs.push({label: 'Search Datasets', href: null});
+        if (query) {
+            crumbs.push({label: '"' + query + '"', href: null});
+        }
+    }
+
+    // Append all active filters to the breadcrumb
+    if (expedition.length > 0) {
+        const labels = expedition.map(function(e) { return regionLabels[e] || e; }).join(', ');
+        crumbs.push({label: 'Expedition: ' + labels, href: null});
+    }
+    if (category.length > 0) {
+        const labels = category.map(function(c) { return categoryLabels[c] || c; }).join(', ');
+        crumbs.push({label: 'Category: ' + labels, href: null});
+    }
+    if (iso.length > 0) {
+        const labels = iso.join(', ');
+        crumbs.push({label: 'ISO: ' + labels, href: null});
+    }
+    if (keyword.length > 0) {
+        crumbs.push({label: 'Keyword: ' + keyword.join(', '), href: null});
+    }
+    if (year.length > 0) {
+        crumbs.push({label: 'Year: ' + year.join(', '), href: null});
+    }
+    if (startDate || endDate) {
+        var dateLabel = 'Date: ';
+        if (startDate) dateLabel += 'From ' + startDate;
+        if (startDate && endDate) dateLabel += ' ';
+        if (endDate) dateLabel += 'To ' + endDate;
+        crumbs.push({label: dateLabel, href: null});
+    }
+
+    const ol = document.getElementById('breadcrumbList');
+    crumbs.forEach(function(c, i) {
+        const li = document.createElement('li');
+        if (i === crumbs.length - 1) {
+            li.className = 'active';
+            li.textContent = c.label;
+        } else if (c.href) {
+            const a = document.createElement('a');
+            a.href = c.href;
+            a.textContent = c.label;
+            li.appendChild(a);
+        } else {
+            li.textContent = c.label;
+        }
+        ol.appendChild(li);
+    });
+})();
+</script>
 
 <!-- Hero Search Header -->
 <div class="search-hero">

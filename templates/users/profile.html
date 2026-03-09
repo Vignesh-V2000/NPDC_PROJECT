@@ -138,10 +138,13 @@
                             </div>
                         </div>
                         
-                        <div class="mt-4 pt-3 border-top">
+                        <div class="mt-4 pt-3 border-top d-flex flex-wrap gap-2">
                             <button type="button" class="btn btn-primary px-4 py-2 shadow-sm rounded-3 fw-bold" onclick="toggleProfileEdit()">
                                 <i class="fas fa-edit me-2"></i> Update Profile
                             </button>
+                            <a href="{% url 'users:forgot_password' %}" class="btn btn-primary px-4 py-2 shadow-sm rounded-3 fw-bold">
+                                <i class="fas fa-key me-2"></i> Update Password
+                            </a>
                         </div>
                     </div>
 
@@ -330,18 +333,18 @@
                             <a href="{% url 'data_submission:my_submissions' %}" class="action-item d-flex align-items-center p-3 border-bottom text-decoration-none">
                                 <div class="action-icon me-3 text-emerald"><i class="fas fa-folder-open"></i></div>
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-0 text-dark fw-semibold">My Submissions</h6>
+                                    <h6 class="mb-0 text-dark fw-semibold">Recent Submissions</h6>
                                     <small class="text-muted">Track dataset status</small>
                                 </div>
                                 <i class="fas fa-chevron-right text-muted fs-7"></i>
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'password_change' %}" class="action-item d-flex align-items-center p-3 text-decoration-none">
+                            <a href="{% url 'users:forgot_password' %}" class="action-item d-flex align-items-center p-3 text-decoration-none">
                                 <div class="action-icon me-3 text-purple"><i class="fas fa-key"></i></div>
                                 <div class="flex-grow-1">
                                     <h6 class="mb-0 text-dark fw-semibold">Security</h6>
-                                    <small class="text-muted">Change your password</small>
+                                    <small class="text-muted">Change your password (Forgot Password)</small>
                                 </div>
                                 <i class="fas fa-chevron-right text-muted fs-7"></i>
                             </a>

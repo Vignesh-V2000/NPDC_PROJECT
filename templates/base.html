@@ -289,8 +289,8 @@
 
         .navbar-nav .nav-link:hover {
             color: #FFFFFF !important;
-            border-color: rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(96, 165, 250, 0.4);
+            background: rgba(96, 165, 250, 0.25);
             text-decoration: none;
         }
 
@@ -352,6 +352,12 @@
             overflow: visible;
         }
 
+        .dropdown-menu .dropdown-divider {
+            margin: 0 0.5rem;
+            border-top: 2px solid rgba(0, 0, 0, 0.15);
+            opacity: 1;
+        }
+
         .dropdown-menu::before {
             content: '';
             position: absolute;
@@ -361,13 +367,45 @@
             border-radius: 16px 16px 0 0;
         }
 
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            border-color: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-glass-primary {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-glass-primary:hover {
+            background: rgba(59, 130, 246, 0.95);
+            color: #ffffff;
+            border-color: rgba(59, 130, 246, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
         @keyframes dropdownSlideIn {
             from { opacity: 0; transform: translateY(-8px) scale(0.96); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .dropdown-item {
-            padding: 0.65rem 0.9rem;
+            padding: 0.35rem 0.9rem;
             color: #475569;
             font-size: 0.87rem;
             font-weight: 500;
@@ -396,9 +434,10 @@
         }
 
         .dropdown-item:hover {
-            background: linear-gradient(135deg, #eff6ff, #f0f4ff);
-            color: #1e40af;
-            transform: translateX(2px);
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e3a8a;
+            transform: translateX(3px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
         }
 
         .dropdown-item:hover i {
@@ -842,6 +881,7 @@
                                 <i class="fas fa-upload me-2"></i>Data Submission
                             </a>
                             {% if user.is_authenticated %}
+                            <hr class="dropdown-divider">
                             <a class="dropdown-item" href="{% url 'data_submission:my_submissions' %}">
                                 <i class="fas fa-history me-2"></i>Recent Submission
                             </a>
@@ -857,15 +897,19 @@
                             <a class="dropdown-item" href="{% url 'search:browse_by_keyword' %}">
                                 <i class="fas fa-tags me-2"></i>Browse by Keyword
                             </a>
+                            <hr class="dropdown-divider">
                             <a class="dropdown-item" href="{% url 'search:browse_by_location' %}">
                                 <i class="fas fa-map-marker-alt me-2"></i>Browse by Location
                             </a>
+                            <hr class="dropdown-divider">
                             <a class="dropdown-item" href="{% url 'search:simple_search' %}">
                                 <i class="fas fa-search me-2"></i>Simple Search
                             </a>
+                            <hr class="dropdown-divider">
                             <a class="dropdown-item" href="{% url 'search:search' %}">
                                 <i class="fas fa-search-plus me-2"></i>Advanced Search
                             </a>
+                            <hr class="dropdown-divider">
                             <a class="dropdown-item" href="{% url 'search:ai_search' %}">
                                 🐧Penguin Search <span class="badge bg-warning text-dark ms-1"
                                     style="font-size:0.65em;vertical-align:super;">alpha</span>
@@ -946,11 +990,11 @@
                         <i class="fas fa-columns me-2"></i>Dashboard
                     </a>
                     {% endif %}
-                    <a class="btn btn-outline-secondary ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
+                    <a class="btn btn-glass ms-2" href="{% static 'pdf/National_Polar_Data_Center.pdf' %}"
                         target="_blank">
-                        <i class="fas fa-file-pdf me-2"></i>User Manual
+                        <i class="fas fa-book-open text-info me-2"></i>User Manual
                     </a>
-                    <a class="btn btn-outline-secondary ms-2" href="{% url 'users:contact_us' %}">
+                    <a class="btn btn-glass-primary ms-2" href="{% url 'users:contact_us' %}">
                         <i class="fas fa-envelope me-2"></i>Contact Us
                     </a>
                     <div class="dropdown ms-2">
@@ -980,7 +1024,7 @@
                                 <i class="fas fa-user-circle me-2"></i>Profile
                             </a>
                             <a class="dropdown-item" href="{% url 'data_submission:my_submissions' %}">
-                                <i class="fas fa-folder-open me-2"></i>My Submissions
+                                <i class="fas fa-folder-open me-2"></i>Recent Submissions
                             </a>
                             <div class="dropdown-divider"></div>
                             <form method="post" action="{% url 'logout' %}" class="mb-0">
