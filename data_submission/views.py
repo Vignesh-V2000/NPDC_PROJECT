@@ -160,6 +160,17 @@ def submit_dataset(request):
         # 🚨 ALLOW EDITING FOR ALL STATUSES PER USER REQUEST
         # Previously locked published datasets, now allowed.
 
+    # Dynamically define formsets to prevent empty "extra" forms when editing
+    scientist_extra = 0 if (dataset and dataset.scientists.exists()) else 1
+    instrument_extra = 0 if (dataset and dataset.instruments.exists()) else 1
+
+    LocalScientistFormSet = inlineformset_factory(
+        DatasetSubmission, ScientistDetail, form=ScientistDetailForm, extra=scientist_extra, can_delete=True
+    )
+    LocalInstrumentFormSet = inlineformset_factory(
+        DatasetSubmission, InstrumentMetadata, form=InstrumentMetadataForm, extra=instrument_extra, can_delete=True
+    )
+
     
     if request.method == "POST":
         # 🚀 REUSE EXISTING INSTANCES FOR UPDATES, NOT CREATE NEW
@@ -184,8 +195,8 @@ def submit_dataset(request):
             else:
                 paleo_form = PaleoTemporalCoverageForm(request.POST)
                 
-            scientist_formset = ScientistFormSet(request.POST, instance=dataset)
-            instrument_formset = InstrumentFormSet(request.POST, instance=dataset)
+            scientist_formset = LocalScientistFormSet(request.POST, instance=dataset)
+            instrument_formset = LocalInstrumentFormSet(request.POST, instance=dataset)
         else:
             dataset_form = DatasetSubmissionForm(request.POST, request.FILES)
             citation_form = DatasetCitationForm(request.POST)
@@ -194,8 +205,8 @@ def submit_dataset(request):
             location_form = LocationMetadataForm(request.POST)
             resolution_form = DataResolutionMetadataForm(request.POST)
             paleo_form = PaleoTemporalCoverageForm(request.POST)
-            scientist_formset = ScientistFormSet(request.POST)
-            instrument_formset = InstrumentFormSet(request.POST)
+            scientist_formset = LocalScientistFormSet(request.POST)
+            instrument_formset = LocalInstrumentFormSet(request.POST)
 
         # Determine the action early
         action = request.POST.get("save")
@@ -281,6 +292,7 @@ def submit_dataset(request):
                 # Try to save related forms even if not fully valid (draft mode)
                 # Citation
                 try:
+                    for f in citation_form.fields.values(): f.required = False
                     if citation_form.is_valid():
                         citation = citation_form.save(commit=False)
                         citation.dataset = dataset
@@ -289,6 +301,7 @@ def submit_dataset(request):
                     print(f"Draft: Citation save skipped: {e}")
                 # Platform
                 try:
+                    for f in platform_form.fields.values(): f.required = False
                     if platform_form.is_valid():
                         platform = platform_form.save(commit=False)
                         platform.dataset = dataset
@@ -297,6 +310,7 @@ def submit_dataset(request):
                     print(f"Draft: Platform save skipped: {e}")
                 # GPS
                 try:
+                    for f in gps_form.fields.values(): f.required = False
                     if gps_form.is_valid():
                         gps = gps_form.save(commit=False)
                         gps.dataset = dataset
@@ -305,28 +319,31 @@ def submit_dataset(request):
                     print(f"Draft: GPS save skipped: {e}")
                 # Location
                 try:
-                    location = location_form.save(commit=False)
-                    # Auto-set category from expedition type
-                    expedition_map = {
-                        "antarctic": ("region", "Antarctica"),
-                        "arctic": ("region", "Arctic"),
-                        "southern_ocean": ("ocean", "Southern Ocean"),
-                        "himalaya": ("region", "Himalaya"),
-                    }
-                    exp_type = request.POST.get('expedition_type', '')
-                    if exp_type in expedition_map:
-                        cat, loc_type = expedition_map[exp_type]
-                        location.location_category = cat
-                        location.location_type = loc_type
-                    else:
-                        location.location_category = request.POST.get('location_category', 'region')
-                        location.location_type = request.POST.get('location-location_type', '')
-                    location.dataset = dataset
-                    location.save()
+                    for f in location_form.fields.values(): f.required = False
+                    if location_form.is_valid():
+                        location = location_form.save(commit=False)
+                        # Auto-set category from expedition type
+                        expedition_map = {
+                            "antarctic": ("region", "Antarctica"),
+                            "arctic": ("region", "Arctic"),
+                            "southern_ocean": ("ocean", "Southern Ocean"),
+                            "himalaya": ("region", "Himalaya"),
+                        }
+                        exp_type = request.POST.get('expedition_type', '')
+                        if exp_type in expedition_map:
+                            cat, loc_type = expedition_map[exp_type]
+                            location.location_category = cat
+                            location.location_type = loc_type
+                        else:
+                            location.location_category = request.POST.get('location_category', 'region')
+                            location.location_type = request.POST.get('location-location_type', '')
+                        location.dataset = dataset
+                        location.save()
                 except Exception as e:
                     print(f"Draft: Location save skipped: {e}")
                 # Resolution
                 try:
+                    for f in resolution_form.fields.values(): f.required = False
                     if resolution_form.is_valid():
                         resolution = resolution_form.save(commit=False)
                         resolution.dataset = dataset
@@ -335,6 +352,7 @@ def submit_dataset(request):
                     print(f"Draft: Resolution save skipped: {e}")
                 # Paleo
                 try:
+                    for f in paleo_form.fields.values(): f.required = False
                     if paleo_form.is_valid() and any(paleo_form.cleaned_data.values()):
                         paleo = paleo_form.save(commit=False)
                         paleo.dataset = dataset
@@ -343,6 +361,8 @@ def submit_dataset(request):
                     print(f"Draft: Paleo save skipped: {e}")
                 # Scientists
                 try:
+                    for form in scientist_formset.forms:
+                        for f in form.fields.values(): f.required = False
                     if scientist_formset.is_valid():
                         scientist_formset.instance = dataset
                         scientist_formset.save()
@@ -350,6 +370,8 @@ def submit_dataset(request):
                     print(f"Draft: Scientist save skipped: {e}")
                 # Instruments
                 try:
+                    for form in instrument_formset.forms:
+                        for f in form.fields.values(): f.required = False
                     if instrument_formset.is_valid():
                         instrument_formset.instance = dataset
                         instrument_formset.save()
@@ -565,8 +587,8 @@ def submit_dataset(request):
             else:
                 paleo_form = PaleoTemporalCoverageForm()
                 
-            scientist_formset = ScientistFormSet(instance=dataset)
-            instrument_formset = InstrumentFormSet(instance=dataset)
+            scientist_formset = LocalScientistFormSet(instance=dataset)
+            instrument_formset = LocalInstrumentFormSet(instance=dataset)
         else:
             dataset_form = DatasetSubmissionForm()
             citation_form = DatasetCitationForm()
@@ -575,8 +597,8 @@ def submit_dataset(request):
             location_form = LocationMetadataForm()
             resolution_form = DataResolutionMetadataForm()
             paleo_form = PaleoTemporalCoverageForm()
-            scientist_formset = ScientistFormSet()
-            instrument_formset = InstrumentFormSet()
+            scientist_formset = LocalScientistFormSet()
+            instrument_formset = LocalInstrumentFormSet()
 
     return render(
         request,

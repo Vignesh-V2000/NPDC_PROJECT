@@ -1213,8 +1213,6 @@ def admin_change_user_password(request, user_id):
 def about(request):
     return render(request, 'about.html')
 
-def field_data(request):
-    return render(request, 'field_data.html')
 
 def contact_us(request):
     return render(request, 'contact_us.html')

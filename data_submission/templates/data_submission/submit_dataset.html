@@ -5,6 +5,8 @@
 {% block title %}Submit New Dataset - NPDC{% endblock %}
 
 {% block content %}
+<!-- intl-tel-input CSS for country code dropdown -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css" />
 <style>
     .submission-container {
         color: #333333;
@@ -444,6 +446,14 @@
     .floating-progress-panel .progress-circle::before {
         background: rgba(0,82,204,0.95) !important;
     }
+
+    /* ═══ intl-tel-input Overrides ═══ */
+    .iti { width: 100%; display: block; }
+    .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/img/flags.png");}
+    @media (min-resolution: 2x) {
+      .iti__flag {background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/img/flags@2x.png");}
+    }
+    .iti__country-list { z-index: 1050; }
 </style>
 <div class="container submission-container py-4">
     <!-- ═══ Hero Banner ═══ -->
@@ -1120,6 +1130,9 @@
         </div>
     </div>
 </div>
+
+<!-- intl-tel-input JS for country code formatting and dropdown -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
 
 <!-- 🐧 AI Form Completion Progress Indicator (Floating - Outside Form) -->
 <div id="ai-progress-panel" class="floating-progress-panel collapsed">
@@ -2414,6 +2427,29 @@
         if (newCountrySelect) {
             initCountryDropdown(newCountrySelect);
         }
+
+        // Initialize intl-tel-input for new phone/mobile fields
+        const utilsScript = "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js";
+        const phoneInput = newForm.querySelector('input[name*="phone"]');
+        const mobileInput = newForm.querySelector('input[name*="mobile"]');
+        
+        if (phoneInput && window.intlTelInput) {
+            let iti = window.intlTelInput(phoneInput, {
+                initialCountry: "in",
+                separateDialCode: true,
+                utilsScript: utilsScript,
+            });
+            phoneInput.iti = iti; // store instance to use on submit
+        }
+        
+        if (mobileInput && window.intlTelInput) {
+            let iti = window.intlTelInput(mobileInput, {
+                initialCountry: "in",
+                separateDialCode: true,
+                utilsScript: utilsScript,
+            });
+            mobileInput.iti = iti; // store instance to use on submit
+        }
     };
 
     window.removeScientistForm = function (btn) {
@@ -2494,6 +2530,81 @@
             // Initial update if needed (kept hidden)
             updateCounter();
         });
+    });
+</script>
+
+<script>
+    // Real-time Email Validation
+    document.addEventListener("DOMContentLoaded", function() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        function validateEmailField(input) {
+            const val = input.value.trim();
+            // Remove existing alert if any
+            const existingAlert = input.parentNode.querySelector('.email-invalid-alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            if (val !== '' && !emailRegex.test(val)) {
+                input.classList.add('is-invalid');
+                const alertHtml = `<div class="email-invalid-alert text-danger small mt-1 fw-bold"><i class="fas fa-exclamation-triangle"></i> Invalid email format. Use e.g. user@domain.com</div>`;
+                input.insertAdjacentHTML('afterend', alertHtml);
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        }
+
+        // Attach to existing and dynamically added email inputs on blur
+        document.body.addEventListener('blur', function(e) {
+            if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'email') {
+                validateEmailField(e.target);
+            }
+        }, true); // use capture phase for blur events
+        
+        // Also validate on input (while typing) to clear error quickly once corrected
+        document.body.addEventListener('input', function(e) {
+            if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'email' && e.target.classList.contains('is-invalid')) {
+                validateEmailField(e.target);
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const utilsScript = "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js";
+
+        function attachIntlTelInput(selector) {
+            const inputs = document.querySelectorAll(selector);
+            inputs.forEach(input => {
+                if (window.intlTelInput && !input.iti) {
+                    let iti = window.intlTelInput(input, {
+                        initialCountry: "in",
+                        separateDialCode: true,
+                        utilsScript: utilsScript,
+                    });
+                    input.iti = iti; // store instance to retrieve full number on submit
+                }
+            });
+        }
+
+        // Initial attachment
+        attachIntlTelInput('input[name$="-phone"], input[name$="-mobile"]');
+
+        // Form Submission hook to append country code back to input value before sending
+        const form = document.getElementById('datasetForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const phoneMobileInputs = form.querySelectorAll('input[name$="-phone"], input[name$="-mobile"]');
+                phoneMobileInputs.forEach(input => {
+                    if (input.iti && input.value.trim() !== '') {
+                        // get the fully formatted number (+91 9999999999)
+                        input.value = input.iti.getNumber();
+                    }
+                });
+            });
+        }
     });
 </script>
 

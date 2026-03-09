@@ -190,7 +190,7 @@
         color: #475569;
     }
 
-    /* Checkbox Styling */
+    /* Radio Button Styling */
     .filter-group .form-check {
         padding: 0.3rem 0.5rem 0.3rem 1.75rem;
         margin: 0;
@@ -206,7 +206,7 @@
         width: 1.1em;
         height: 1.1em;
         border: 2px solid #cbd5e1;
-        border-radius: 4px;
+        border-radius: 50%;
         transition: all 0.2s ease;
         cursor: pointer;
     }
@@ -740,7 +740,7 @@
                         {% for opt in expedition_options %}
                             {% if forloop.counter <= 5 %}
                                 <div class="form-check">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="expedition"
+                                    <input class="form-check-input filter-radio" type="radio" name="expedition"
                                         value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="exp_{{ opt.value }}">
                                         {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
@@ -755,7 +755,7 @@
                             {% for opt in expedition_options %}
                                 {% if forloop.counter > 5 %}
                                     <div class="form-check">
-                                        <input class="form-check-input filter-checkbox" type="checkbox" name="expedition"
+                                        <input class="form-check-input filter-radio" type="radio" name="expedition"
                                             value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                         <label class="form-check-label small" for="exp_{{ opt.value }}">
                                             {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
@@ -781,7 +781,7 @@
                     {% for opt in category_options %}
                         {% if forloop.counter <= 5 %}
                             <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="category"
+                                <input class="form-check-input filter-radio" type="radio" name="category"
                                     value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="cat_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
@@ -796,7 +796,7 @@
                         {% for opt in category_options %}
                             {% if forloop.counter > 5 %}
                                 <div class="form-check">
-                                    <input class="form-check-input filter-checkbox" type="checkbox" name="category"
+                                    <input class="form-check-input filter-radio" type="radio" name="category"
                                         value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="cat_{{ opt.value }}">
                                         {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
@@ -822,7 +822,7 @@
                 {% for opt in iso_options %}
                     {% if forloop.counter <= 5 %}
                         <div class="form-check">
-                            <input class="form-check-input filter-checkbox" type="checkbox" name="iso" value="{{ opt.value }}"
+                            <input class="form-check-input filter-radio" type="radio" name="iso" value="{{ opt.value }}"
                                 id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="iso_{{ opt.value }}">
                                 {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
@@ -837,7 +837,7 @@
                     {% for opt in iso_options %}
                         {% if forloop.counter > 5 %}
                             <div class="form-check">
-                                <input class="form-check-input filter-checkbox" type="checkbox" name="iso" value="{{ opt.value }}"
+                                <input class="form-check-input filter-radio" type="radio" name="iso" value="{{ opt.value }}"
                                     id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
@@ -879,7 +879,7 @@
             {% for opt in keyword_options %}
                 {% if forloop.counter <= 5 %}
                     <div class="form-check">
-                        <input class="form-check-input filter-checkbox" type="checkbox" name="keyword" value="{{ opt.value }}"
+                        <input class="form-check-input filter-radio" type="radio" name="keyword" value="{{ opt.value }}"
                             id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                         <label class="form-check-label small" for="kw_{{ opt.value }}">
                             {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
@@ -894,7 +894,7 @@
                 {% for opt in keyword_options %}
                     {% if forloop.counter > 5 %}
                         <div class="form-check">
-                            <input class="form-check-input filter-checkbox" type="checkbox" name="keyword" value="{{ opt.value }}"
+                            <input class="form-check-input filter-radio" type="radio" name="keyword" value="{{ opt.value }}"
                                 id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="kw_{{ opt.value }}">
                                 {{ opt.label }} <span class="facet-count text-muted" data-facet="keyword"
@@ -1195,10 +1195,18 @@
 
     /* ---- helpers ---- */
     function getFilterParams() {
-        const expeditions = Array.from(document.querySelectorAll('input[name="expedition"]:checked')).map(cb => cb.value);
-        const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-        const isos = Array.from(document.querySelectorAll('input[name="iso"]:checked')).map(cb => cb.value);
-        const keywords = Array.from(document.querySelectorAll('input[name="keyword"]:checked')).map(cb => cb.value);
+        const expeditionRadio = document.querySelector('input[name="expedition"]:checked');
+        const expeditions = expeditionRadio ? [expeditionRadio.value] : [];
+        
+        const categoryRadio = document.querySelector('input[name="category"]:checked');
+        const categories = categoryRadio ? [categoryRadio.value] : [];
+        
+        const isoRadio = document.querySelector('input[name="iso"]:checked');
+        const isos = isoRadio ? [isoRadio.value] : [];
+        
+        const keywordRadio = document.querySelector('input[name="keyword"]:checked');
+        const keywords = keywordRadio ? [keywordRadio.value] : [];
+        
         const yearEl = document.getElementById('filterYear');
         const years = yearEl && yearEl.value ? [yearEl.value] : [];
 
@@ -1535,9 +1543,9 @@
     // Expose removeFilter and clearAllFilters to global scope
     window.removeFilter = function (type, value, id) {
         if (['expedition', 'category', 'iso', 'keyword'].includes(type)) {
-            const checkbox = document.getElementById(id);
-            if (checkbox) {
-                checkbox.checked = false;
+            const radio = document.getElementById(id);
+            if (radio) {
+                radio.checked = false;
                 triggerSearch();
             }
         } else if (type === 'year') {
@@ -1561,7 +1569,8 @@
     };
 
     window.clearAllFilters = function () {
-        document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
+        // Clear radio buttons by unchecking all in each group
+        document.querySelectorAll('.filter-radio').forEach(rb => rb.checked = false);
         document.querySelectorAll('.filter-control').forEach(el => el.value = '');
         document.getElementById('searchQuery').value = '';
         document.getElementById('queryBuilder').innerHTML = '';
@@ -1584,7 +1593,7 @@
 
     /* ---- Event listeners (Using Event Delegation for Dynamically Loaded Content) ---- */
     document.body.addEventListener('change', function(e) {
-        if (e.target.matches('.filter-control') || e.target.matches('.filter-checkbox')) {
+        if (e.target.matches('.filter-control') || e.target.matches('.filter-radio')) {
             console.log('Filter change detected:', e.target.name, e.target.value, e.target.checked);
             const params = getFilterParams();
             console.log('Current filter params:', params);
@@ -1628,29 +1637,33 @@
         const params = new URLSearchParams(window.location.search);
         if (params.get('query')) document.getElementById('searchQuery').value = params.get('query');
 
-        // Restore expedition checkboxes
-        const expeditions = params.getAll('expedition');
-        document.querySelectorAll('input[name="expedition"]').forEach(cb => {
-            cb.checked = expeditions.includes(cb.value);
-        });
+        // Restore expedition radio button
+        const expedition = params.get('expedition');
+        if (expedition) {
+            const radio = document.querySelector(`input[name="expedition"][value="${expedition}"]`);
+            if (radio) radio.checked = true;
+        }
 
-        // Restore category checkboxes
-        const categories = params.getAll('category');
-        document.querySelectorAll('input[name="category"]').forEach(cb => {
-            cb.checked = categories.includes(cb.value);
-        });
+        // Restore category radio button
+        const category = params.get('category');
+        if (category) {
+            const radio = document.querySelector(`input[name="category"][value="${category}"]`);
+            if (radio) radio.checked = true;
+        }
 
-        // Restore ISO topic checkboxes
-        const isos = params.getAll('iso');
-        document.querySelectorAll('input[name="iso"]').forEach(cb => {
-            cb.checked = isos.includes(cb.value);
-        });
+        // Restore ISO topic radio button
+        const iso = params.get('iso');
+        if (iso) {
+            const radio = document.querySelector(`input[name="iso"][value="${iso}"]`);
+            if (radio) radio.checked = true;
+        }
 
-        // Restore keyword checkboxes
-        const keywords = params.getAll('keyword');
-        document.querySelectorAll('input[name="keyword"]').forEach(cb => {
-            cb.checked = keywords.includes(cb.value);
-        });
+        // Restore keyword radio button
+        const keyword = params.get('keyword');
+        if (keyword) {
+            const radio = document.querySelector(`input[name="keyword"][value="${keyword}"]`);
+            if (radio) radio.checked = true;
+        }
 
         // Restore year
         const yearEl = document.getElementById('filterYear');

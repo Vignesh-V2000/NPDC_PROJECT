@@ -307,9 +307,9 @@ class ScientistDetailForm(forms.ModelForm):
             'address': forms.TextInput(),
             'country': forms.Select(attrs={'id': 'id_country', 'class': 'country-select form-select'}),
             'state': forms.Select(attrs={'id': 'id_state', 'class': 'state-select form-select'}),
-            'phone': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9+\-\s\(\)]+$', 'title': 'Enter valid phone number', 'oninput': "this.value = this.value.replace(/[^0-9+\-\\s()]/g, '')", 'maxlength': '20'}),
-            'mobile': forms.TextInput(attrs={'type': 'tel', 'pattern': r'^[0-9]+$', 'title': 'Enter valid mobile number (digits only)', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')", 'maxlength': '15'}),
-            'postal_code': forms.TextInput(attrs={'pattern': r'^\d{4,10}$', 'title': 'Enter valid postal code (4-10 digits)', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '')", 'maxlength': '10'}),
+            'phone': forms.TextInput(attrs={'type': 'tel', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);", 'maxlength': '25'}),
+            'mobile': forms.TextInput(attrs={'type': 'tel', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);", 'maxlength': '25'}),
+            'postal_code': forms.TextInput(attrs={'pattern': r'^\d{6}$', 'title': 'Enter exactly 6 digits', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);", 'maxlength': '6'}),
         }
 
 

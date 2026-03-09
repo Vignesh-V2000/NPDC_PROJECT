@@ -21,12 +21,12 @@ letter_validator = RegexValidator(
 
 phone_validator = RegexValidator(
     r'^[0-9+\-\s\(\)]+$',
-    'Enter valid phone number'
+    'Enter valid phone number with country code'
 )
 
 postal_code_validator = RegexValidator(
-    r'^\d{4,10}$',
-    'Enter valid postal code (4-10 digits)'
+    r'^\d{6}$',
+    'Enter valid 6-digit PIN code'
 )
 
 
@@ -389,7 +389,7 @@ class DatasetCitation(models.Model):
     editor = models.CharField(max_length=500, validators=[letter_validator])
     title = models.CharField(max_length=500)
     series_name = models.CharField(max_length=500)
-    release_date = models.DateField()
+    release_date = models.DateField(null=True, blank=True)
     release_place = models.CharField(max_length=500)
     version = models.CharField(max_length=50, blank=True)
     online_resource = models.URLField(blank=True, max_length=500)
@@ -422,8 +422,8 @@ class ScientistDetail(models.Model):
     )
 
     mobile = models.CharField(
-        max_length=20,
-        validators=[RegexValidator(r'^[0-9]+$', 'Enter valid mobile number')]
+        max_length=25,
+        validators=[RegexValidator(r'^[0-9+\-\s]+$', 'Enter valid mobile number with country code')]
     )
 
     institute = models.CharField(max_length=500)

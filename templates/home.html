@@ -151,7 +151,7 @@
                                 <h6><i class="fas fa-globe-americas"></i> Expedition Type</h6>
                                     {% for opt in expedition_options %}
                                     {% if forloop.counter <= 5 %} <div class="form-check">
-                                        <input class="form-check-input home-filter-checkbox" type="checkbox"
+                                        <input class="form-check-input home-filter-radio" type="radio"
                                             name="expedition" value="{{ opt.value }}" id="home_exp_{{ opt.value }}">
                                         <label class="form-check-label small" for="home_exp_{{ opt.value }}">
                                             {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -165,7 +165,7 @@
                                     {% for opt in expedition_options %}
                                     {% if forloop.counter > 5 %}
                                     <div class="form-check">
-                                        <input class="form-check-input home-filter-checkbox" type="checkbox"
+                                        <input class="form-check-input home-filter-radio" type="radio"
                                             name="expedition" value="{{ opt.value }}" id="home_exp_{{ opt.value }}">
                                         <label class="form-check-label small" for="home_exp_{{ opt.value }}">
                                             {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -188,7 +188,7 @@
                             <h6><i class="fas fa-folder"></i> Category</h6>
                                 {% for opt in category_options %}
                                 {% if forloop.counter <= 5 %} <div class="form-check">
-                                    <input class="form-check-input home-filter-checkbox" type="checkbox" name="category"
+                                    <input class="form-check-input home-filter-radio" type="radio" name="category"
                                         value="{{ opt.value }}" id="home_cat_{{ opt.value }}">
                                     <label class="form-check-label small" for="home_cat_{{ opt.value }}">
                                         {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -202,7 +202,7 @@
                                 {% for opt in category_options %}
                                 {% if forloop.counter > 5 %}
                                 <div class="form-check">
-                                    <input class="form-check-input home-filter-checkbox" type="checkbox" name="category"
+                                    <input class="form-check-input home-filter-radio" type="radio" name="category"
                                         value="{{ opt.value }}" id="home_cat_{{ opt.value }}">
                                     <label class="form-check-label small" for="home_cat_{{ opt.value }}">
                                         {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -225,7 +225,7 @@
                         <h6><i class="fas fa-tags"></i> ISO Topic</h6>
                             {% for opt in iso_options %}
                             {% if forloop.counter <= 5 %} <div class="form-check">
-                                <input class="form-check-input home-filter-checkbox" type="checkbox" name="iso"
+                                <input class="form-check-input home-filter-radio" type="radio" name="iso"
                                     value="{{ opt.value }}" id="home_iso_{{ opt.value }}">
                                 <label class="form-check-label small" for="home_iso_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -239,7 +239,7 @@
                             {% for opt in iso_options %}
                             {% if forloop.counter > 5 %}
                             <div class="form-check">
-                                <input class="form-check-input home-filter-checkbox" type="checkbox" name="iso"
+                                <input class="form-check-input home-filter-radio" type="radio" name="iso"
                                     value="{{ opt.value }}" id="home_iso_{{ opt.value }}">
                                 <label class="form-check-label small" for="home_iso_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -261,7 +261,7 @@
                     <h6><i class="fas fa-tags"></i> Keywords</h6>
                         {% for opt in keyword_options %}
                         {% if forloop.counter <= 5 %} <div class="form-check">
-                            <input class="form-check-input home-filter-checkbox" type="checkbox" name="keyword"
+                            <input class="form-check-input home-filter-radio" type="radio" name="keyword"
                                 value="{{ opt.value }}" id="home_kw_{{ forloop.counter }}">
                             <label class="form-check-label small" for="home_kw_{{ forloop.counter }}">
                                 {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -275,7 +275,7 @@
                         {% for opt in keyword_options %}
                         {% if forloop.counter > 5 %}
                         <div class="form-check">
-                            <input class="form-check-input home-filter-checkbox" type="checkbox" name="keyword"
+                            <input class="form-check-input home-filter-radio" type="radio" name="keyword"
                                 value="{{ opt.value }}" id="home_kw_{{ forloop.counter }}">
                             <label class="form-check-label small" for="home_kw_{{ forloop.counter }}">
                                 {{ opt.label }} <span class="facet-count text-muted">({{ opt.count }})</span>
@@ -335,9 +335,15 @@
     <div class="col-lg-9 col-md-8">
         <!-- Interactive Map -->
         <div class="home-search-map-card">
-            <div class="home-search-map-header">
-                <h6 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Dataset Locations</h6>
-                <span class="badge bg-primary bg-opacity-10 text-primary" id="homeMapCount">0 datasets</span>
+            <div class="home-search-map-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <h6 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Dataset Locations</h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary" id="homeMapCount">0 datasets</span>
+                </div>
+                <!-- View All Button (Hidden by default) -->
+                <button type="button" id="homeViewAllBtn" class="btn btn-sm btn-outline-primary d-none" onclick="document.getElementById('homeSearchForm').submit();">
+                    <i class="fas fa-list me-1"></i>View All
+                </button>
             </div>
             <div id="homeSearchMap" class="home-search-map"></div>
         </div>
@@ -979,10 +985,11 @@
                     keyword: Array.from(document.querySelectorAll('input[name="keyword"]:checked')).map(cb => cb.value)
                 };
 
-                // If no filters are selected, show 0 markers
+                // If no filters are selected, show 0 markers and hide View All button
                 var hasAnyFilter = Object.values(selectedFilters).some(arr => arr.length > 0);
                 if (!hasAnyFilter) {
                     document.getElementById('homeMapCount').textContent = '0 datasets';
+                    document.getElementById('homeViewAllBtn').classList.add('d-none');
                     return;
                 }
 
@@ -1046,14 +1053,21 @@
                 });
 
                 document.getElementById('homeMapCount').textContent = count + ' dataset' + (count !== 1 ? 's' : '');
+                
+                // Show View All button if there are matching datasets
+                if (count > 0) {
+                    document.getElementById('homeViewAllBtn').classList.remove('d-none');
+                } else {
+                    document.getElementById('homeViewAllBtn').classList.add('d-none');
+                }
 
                 if (markersGroup.getLayers().length > 0) {
                     homeMap.fitBounds(markersGroup.getBounds(), { padding: [20, 20], maxZoom: 5 });
                 }
             };
 
-            // Show markers when any filter checkbox or select changes
-            document.querySelectorAll('.home-filter-checkbox, #homeSearchForm select').forEach(function (el) {
+            // Show markers when any filter radio or select changes
+            document.querySelectorAll('.home-filter-radio, #homeSearchForm select').forEach(function (el) {
                 el.addEventListener('change', function () {
                     window.showHomeMapMarkers();
                 });
@@ -1418,6 +1432,49 @@
 </div>
 <!-- Home Page Specific Styles -->
 <style>
+    /* Radio Button Styling */
+    .filter-group .form-check {
+        padding: 0.3rem 0.5rem 0.3rem 1.75rem;
+        margin: 0;
+        border-radius: 0.4rem;
+        transition: all 0.15s ease;
+    }
+
+    .filter-group .form-check:hover {
+        background: #f8fafc;
+    }
+
+    .filter-group .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        border: 2px solid #cbd5e1;
+        border-radius: 50% !important;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .filter-group .form-check-input:hover {
+        border-color: #3b82f6;
+    }
+
+    .filter-group .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+    }
+
+    .filter-group .form-check-label {
+        color: #334155;
+        font-size: 0.88rem;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .filter-group .form-check:hover .form-check-label {
+        color: #0f172a;
+    }
+
     :root {
         --nsidc-bg: #f1f5f9;
         --nsidc-surface: #ffffff;
