@@ -155,14 +155,7 @@
                 <div class="station-card h-100">
                     <h3 class="detail-header">About the Station</h3>
 
-                    <div class="info-label">Description</div>
-                    <p class="info-data">{{ station.description }}</p>
-
-                    <div class="info-label">Facilities</div>
-                    <p class="info-data"><i class="fas fa-flask me-2 text-primary"></i> {{ station.facilities }}</p>
-
-                    <div class="info-label">Location Data</div>
-                    <p class="info-data"><i class="fas fa-globe me-2 text-primary"></i> {{ station.location }}</p>
+                    <p class="info-data">{{ station.description|safe }}</p>
                 </div>
             </div>
 

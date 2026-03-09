@@ -1207,6 +1207,12 @@
         const advFields = Array.from(document.querySelectorAll('select[name="adv_field"]')).map(el => el.value);
         const advVals = Array.from(document.querySelectorAll('[name="adv_val"]')).map(el => el.value);
 
+        // Helper to safely get element value
+        const getElementValue = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.value : '';
+        };
+
         return {
             query: document.getElementById('searchQuery').value,
             expedition: expeditions,
@@ -1214,13 +1220,13 @@
             iso: isos,
             keyword: keywords,
             year: years,
-            start: document.getElementById('filterStart').value,
-            end: document.getElementById('filterEnd').value,
-            bbox_west: document.getElementById('filterBboxWest').value,
-            bbox_east: document.getElementById('filterBboxEast').value,
-            bbox_south: document.getElementById('filterBboxSouth').value,
-            bbox_north: document.getElementById('filterBboxNorth').value,
-            sort: document.getElementById('filterSort').value,
+            start: getElementValue('filterStart'),
+            end: getElementValue('filterEnd'),
+            bbox_west: getElementValue('filterBboxWest'),
+            bbox_east: getElementValue('filterBboxEast'),
+            bbox_south: getElementValue('filterBboxSouth'),
+            bbox_north: getElementValue('filterBboxNorth'),
+            sort: getElementValue('filterSort'),
             adv_op: advOps,
             adv_field: advFields,
             adv_val: advVals,
@@ -1539,8 +1545,10 @@
             if (yearEl) yearEl.value = '';
             triggerSearch();
         } else if (type === 'temporal') {
-            document.getElementById('filterStart').value = '';
-            document.getElementById('filterEnd').value = '';
+            const startEl = document.getElementById('filterStart');
+            const endEl = document.getElementById('filterEnd');
+            if (startEl) startEl.value = '';
+            if (endEl) endEl.value = '';
             triggerSearch();
         } else if (type === 'advanced') {
             const index = parseInt(value);
@@ -1562,76 +1570,36 @@
     };
 
     function bindPaginationLinks() {
+        // Re-attach click listeners to newly loaded pagination links via event delegation
+        // This is called after AJAX updates pagination HTML
         document.querySelectorAll('.pagination-link').forEach(link => {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
-                triggerSearch(this.dataset.page);
+                if (this.dataset.page) {
+                    triggerSearch(this.dataset.page);
+                }
             });
         });
     }
 
-    function initFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('query')) document.getElementById('searchQuery').value = params.get('query');
-
-        // Restore advanced search rows
-        const advOps = params.getAll('adv_op');
-        const advFields = params.getAll('adv_field');
-        const advVals = params.getAll('adv_val');
-        const container = document.getElementById('queryBuilder');
-        container.innerHTML = '';
-
-        if (advOps.length > 0 && advOps.length === advFields.length) {
-            const collapseEl = document.getElementById('advancedSearch');
-            if (collapseEl) collapseEl.classList.add('show');
-
-            advOps.forEach((op, index) => {
-                const field = advFields[index];
-                const val = advVals[index];
-                container.appendChild(createQueryRow(index, { op, field, val, id: `adv_row_${index}` }));
-            });
+    /* ---- Event listeners (Using Event Delegation for Dynamically Loaded Content) ---- */
+    document.body.addEventListener('change', function(e) {
+        if (e.target.matches('.filter-control') || e.target.matches('.filter-checkbox')) {
+            console.log('Filter change detected:', e.target.name, e.target.value, e.target.checked);
+            const params = getFilterParams();
+            console.log('Current filter params:', params);
+            triggerSearch();
         }
-
-        // Restore checkboxes
-        params.getAll('expedition').forEach(val => {
-            const cb = document.getElementById('exp_' + val);
-            if (cb) cb.checked = true;
-        });
-        params.getAll('category').forEach(val => {
-            const cb = document.getElementById('cat_' + val);
-            if (cb) cb.checked = true;
-        });
-        params.getAll('iso').forEach(val => {
-            const cb = document.getElementById('iso_' + val);
-            if (cb) cb.checked = true;
-        });
-        params.getAll('keyword').forEach(val => {
-            const cb = document.getElementById('kw_' + val);
-            if (cb) cb.checked = true;
-        });
-        params.getAll('year').forEach(val => {
-            const yearEl = document.getElementById('filterYear');
-            if (yearEl) yearEl.value = val;
-        });
-
-        if (params.get('start')) document.getElementById('filterStart').value = params.get('start');
-        if (params.get('end')) document.getElementById('filterEnd').value = params.get('end');
-        if (params.get('bbox_west')) document.getElementById('filterBboxWest').value = params.get('bbox_west');
-        if (params.get('bbox_east')) document.getElementById('filterBboxEast').value = params.get('bbox_east');
-        if (params.get('bbox_south')) document.getElementById('filterBboxSouth').value = params.get('bbox_south');
-        if (params.get('bbox_north')) document.getElementById('filterBboxNorth').value = params.get('bbox_north');
-        if (params.get('sort')) document.getElementById('filterSort').value = params.get('sort');
-
-        highlightMatches(document.getElementById('resultsContainer'), params.get('query'));
-    }
-
-    /* ---- Event listeners ---- */
-    document.querySelectorAll('.filter-control').forEach(el => {
-        el.addEventListener('change', () => triggerSearch());
     });
 
-    document.querySelectorAll('.filter-checkbox').forEach(el => {
-        el.addEventListener('change', () => triggerSearch());
+    document.body.addEventListener('click', function(e) {
+        if (e.target.matches('.pagination-link') || e.target.closest('.pagination-link')) {
+            e.preventDefault();
+            const link = e.target.matches('.pagination-link') ? e.target : e.target.closest('.pagination-link');
+            if (link.dataset.page) {
+                triggerSearch(link.dataset.page);
+            }
+        }
     });
 
     document.getElementById('searchForm').addEventListener('submit', function (e) {
@@ -1655,6 +1623,79 @@
             fetchResults(e.state);
         }
     });
+
+    function initFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('query')) document.getElementById('searchQuery').value = params.get('query');
+
+        // Restore expedition checkboxes
+        const expeditions = params.getAll('expedition');
+        document.querySelectorAll('input[name="expedition"]').forEach(cb => {
+            cb.checked = expeditions.includes(cb.value);
+        });
+
+        // Restore category checkboxes
+        const categories = params.getAll('category');
+        document.querySelectorAll('input[name="category"]').forEach(cb => {
+            cb.checked = categories.includes(cb.value);
+        });
+
+        // Restore ISO topic checkboxes
+        const isos = params.getAll('iso');
+        document.querySelectorAll('input[name="iso"]').forEach(cb => {
+            cb.checked = isos.includes(cb.value);
+        });
+
+        // Restore keyword checkboxes
+        const keywords = params.getAll('keyword');
+        document.querySelectorAll('input[name="keyword"]').forEach(cb => {
+            cb.checked = keywords.includes(cb.value);
+        });
+
+        // Restore year
+        const yearEl = document.getElementById('filterYear');
+        if (yearEl && params.get('year')) {
+            yearEl.value = params.get('year');
+        }
+
+        // Restore date range
+        const startEl = document.getElementById('filterStart');
+        if (startEl && params.get('start')) {
+            startEl.value = params.get('start');
+        }
+
+        const endEl = document.getElementById('filterEnd');
+        if (endEl && params.get('end')) {
+            endEl.value = params.get('end');
+        }
+
+        // Restore sort
+        const sortEl = document.getElementById('filterSort');
+        if (sortEl && params.get('sort')) {
+            sortEl.value = params.get('sort');
+        }
+
+        // Restore advanced search rows
+        const advOps = params.getAll('adv_op');
+        const advFields = params.getAll('adv_field');
+        const advVals = params.getAll('adv_val');
+        const container = document.getElementById('queryBuilder');
+        if (container) {
+            container.innerHTML = '';
+
+            if (advOps.length > 0 && advOps.length === advFields.length) {
+                const collapseEl = document.getElementById('advancedSearch');
+                if (collapseEl) collapseEl.classList.add('show');
+
+                advOps.forEach((op, index) => {
+                    const field = advFields[index];
+                    const val = advVals[index];
+                    const row = createQueryRow(index, { op, field, val });
+                    container.appendChild(row);
+                });
+            }
+        }
+    }
 
     initFromURL();
     bindPaginationLinks();
