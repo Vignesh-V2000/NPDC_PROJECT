@@ -1222,6 +1222,9 @@
                 const formFields = document.querySelectorAll('input, textarea, select');
 
                 formFields.forEach(field => {
+                    // Skip chatbot widget's own input fields
+                    if (field.closest('#npdc-chatbot-widget')) return;
+
                     // Track focus events
                     field.addEventListener('focus', (e) => {
                         this.handleFieldFocus(e.target);
