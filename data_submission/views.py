@@ -888,11 +888,12 @@ def submission_success(request, metadata_id):
 
 @login_required
 def my_submissions(request):
-    # 1. Saved / Draft Metadata (exclude legacy datasets which have metadata_id)
+    # 1. Saved / Draft Metadata (exclude legacy datasets tagged in keywords)
     draft_submissions = DatasetSubmission.objects.filter(
-        Q(metadata_id__isnull=True) | Q(metadata_id=''),
         submitter=request.user,
         status='draft'
+    ).exclude(
+        keywords__contains='legacy_id:'
     ).order_by('-submission_date')
 
     # 2. Submitted (includes under_review, revision_requested)
