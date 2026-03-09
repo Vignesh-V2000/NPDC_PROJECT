@@ -506,10 +506,35 @@ RULES:
                                 ai_response = re.sub(r'#+\s*', '', ai_response)
                                 ai_response = re.sub(r'^\s*[\*\-]\s+', '• ', ai_response, flags=re.MULTILINE)
 
+                                # Convert markdown numbered lists (1. text) to <ol><li> HTML
+                                lines = ai_response.split('\n')
+                                new_lines = []
+                                in_list = False
+                                for line in lines:
+                                    m = re.match(r'^\s*\d+\.\s+(.+)$', line)
+                                    if m:
+                                        if not in_list:
+                                            new_lines.append('<ol>')
+                                            in_list = True
+                                        new_lines.append(f'<li>{m.group(1)}</li>')
+                                    else:
+                                        if in_list:
+                                            new_lines.append('</ol>')
+                                            in_list = False
+                                        new_lines.append(line)
+                                if in_list:
+                                    new_lines.append('</ol>')
+                                ai_response = '\n'.join(new_lines)
+
                                 if '<br>' not in ai_response and '\n\n' in ai_response:
                                     ai_response = ai_response.replace('\n\n', '<br><br>')
                                 if '<br>' not in ai_response and '\n' in ai_response:
                                     ai_response = ai_response.replace('\n', '<br>')
+
+                                # Remove stray <br> tags inside ol/li structure
+                                ai_response = re.sub(r'<ol>\s*(?:<br>)*\s*<li>', '<ol><li>', ai_response)
+                                ai_response = re.sub(r'</li>\s*(?:<br>)*\s*<li>', '</li><li>', ai_response)
+                                ai_response = re.sub(r'</li>\s*(?:<br>)*\s*</ol>', '</li></ol>', ai_response)
                             except Exception as post_err:
                                 print(f"⚠️ Response post-processing error ({provider['name']}): {post_err}")
                                 # Return raw response rather than skipping to next provider
