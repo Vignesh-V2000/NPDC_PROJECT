@@ -3753,10 +3753,15 @@
         const form = document.getElementById('datasetForm');
         if (!form) return;
 
-        const STORAGE_KEY = 'npdc_dataset_autosave';
+        const STORAGE_KEY = 'npdc_dataset_autosave_{{ dataset_id|default:"new" }}';
+        const isEditMode = {% if is_edit_mode %}true{% else %}false{% endif %};
 
         // 1. Restore data on load
         function restoreFormData() {
+            // Do not restore browser cache if we are loading an explicitly edited dataset from the server
+            // to prevent wiping out the actual database values.
+            if (isEditMode) return;
+            
             const savedDataBytes = sessionStorage.getItem(STORAGE_KEY);
             if (savedDataBytes) {
                 try {

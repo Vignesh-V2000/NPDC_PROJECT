@@ -418,11 +418,13 @@ class ScientistDetail(models.Model):
 
     phone = models.CharField(
         max_length=20,
+        blank=True,
         validators=[phone_validator]
     )
 
     mobile = models.CharField(
         max_length=25,
+        blank=True,
         validators=[RegexValidator(r'^[0-9+\-\s]+$', 'Enter valid mobile number with country code')]
     )
 
