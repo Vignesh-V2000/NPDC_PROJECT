@@ -439,8 +439,15 @@ def submit_dataset(request):
 
                 previous_status = dataset.status
 
-                if action == "SAVE":
-                    dataset.status = "draft"
+                if action == "SAVE" or action == "PREVIEW" or not action:
+                    # If it's a new dataset or already a draft/revision, it stays draft.
+                    # BUT if it's already submitted, under_review, or published, 
+                    # we should NOT downgrade it to draft just because they clicked "Save & Next".
+                    if not previous_status or previous_status in ["draft", "revision_requested", "revision"]:
+                        dataset.status = "draft"
+                    else:
+                        # Keep the existing status
+                        dataset.status = previous_status
                 elif action == "SUBMIT":
                     # Allow re-submission from draft, submitted, revision_requested, AND published
                     if previous_status not in ["draft", "submitted", "revision_requested", "published"]:
@@ -452,11 +459,6 @@ def submit_dataset(request):
                     
                     messages.success(request, "Dataset submitted successfully!")
                     return redirect("data_submission:my_submissions")
-                    dataset.status = "submitted"
-                elif action == "PREVIEW":
-                    dataset.status = "draft" # Save as draft for preview
-                else:
-                    dataset.status = "draft"
 
                 if previous_status != dataset.status:
                     dataset.status_updated_at = timezone.now()
