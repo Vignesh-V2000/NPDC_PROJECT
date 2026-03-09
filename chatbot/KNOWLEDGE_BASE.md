@@ -7,6 +7,8 @@
 - **Organization**: National Centre for Polar and Ocean Research (NCPOR)
 - **Ministry**: Ministry of Earth Sciences, Government of India
 - **Location**: Goa, India
+- **Email**: npdc@ncpor.res.in
+- **Website**: https://www.npdc.ncpor.res.in/
 
 ### Purpose
 NPDC manages and archives scientific datasets from polar and Himalayan research expeditions. It provides standardized metadata management, DOI assignment, and controlled access to research data.
@@ -20,7 +22,6 @@ NPDC manages and archives scientific datasets from polar and Himalayan research 
 - **📍 Address**: Headland Sada, Vasco-da-Gama, Goa, INDIA - 403 804
 - **📞 Phone**: 0091-832-2525515
 - **✉️ Email**: npdc@ncpor.res.in
-- **🕐 Hours**: Mon-Fri: 9:00 AM - 5:00 PM IST
 
 ---
 

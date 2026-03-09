@@ -83,14 +83,14 @@ class NPDCChatbot:
         """Load NPDC knowledge base"""
         return {
             'portal': {
-                'name': 'National Polar Data Center',
-                'full_name': 'National Polar Data Center (NPDC)',
-                'organizer': 'National Centre for Polar and Ocean Research (NCPOR)',
+                'name': 'NPDC',
+                'full_name': 'National Polar Data Center',
+                'organizer': 'National Centre for Polar and Ocean Research',
                 'ministry': 'Ministry of Earth Sciences, Government of India',
                 'location': 'Goa, India',
                 'email': 'npdc@ncpor.res.in',
-                'website': 'https://www.ncpor.res.in/',
-                'purpose': 'Managing and archiving scientific datasets from polar and Himalayan expeditions to support research and data sharing.',
+                'website': 'https://www.npdc.ncpor.res.in/',
+                'purpose': 'Managing and archiving scientific datasets from Polar regions and Himalaya to support research and data sharing.',
             },
             'expedition_types': [
                 {'type': 'antarctic', 'name': 'Antarctic Expeditions', 'description': 'Scientific expeditions to Antarctica for research on climate, glaciology, marine biology, and more.'},
@@ -120,19 +120,18 @@ class NPDCChatbot:
                 'Audio Signals',
             ],
             'submission_steps': [
-                'Log in to your NPDC account (account must be approved by NPDC staff first)',
+                'Log in to your NPDC account (account must be verified and approved by NPDC)',
                 'Read the submission instructions at /data/submit/instructions/',
                 'Fill in the metadata form: title, abstract, keywords, expedition type, project details, temporal and spatial coverage',
-                'On the next step, upload your data file, metadata file, and README',
-                'Submit for review — an NPDC reviewer will evaluate and publish or request revisions',
+                'On the next step, upload datasets (raw / actual data)',
+                'Submitted metadata will be reviewed prior to publish at NPDC',
             ],
             'contact': {
-                'name': 'National Polar Data Center (NPDC)',
+                'name': 'National Polar Data Center',
                 'email': 'npdc@ncpor.res.in',
                 'phone': '0091-832-2525515',
                 'address': 'Headland Sada, Vasco-da-Gama, Goa, INDIA - 403 804',
-                'hours': 'Mon-Fri: 9:00 AM - 5:00 PM IST',
-            },
+                },
             'ai_features': [
                 "🐧 Auto-Fill Form (in Quick Start Panel)",
                 "Generate Title and Purpose from abstract",
@@ -445,7 +444,7 @@ RULES:
 • Off-topic: brief answer + redirect to NPDC
 • Valid URLs ONLY: / (Home), /register/, /login/, /forgot-password/, /data/submit/, /data/submit/instructions/, /data/my-submissions/, /profile/, /search/, /search/ai-search/, /search/browse/keyword/, /search/browse/location/, /polar-directory/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515
 • NCPOR website link only when specifically asked about NCPOR
-• Contact: NCPOR, Headland Sada, Vasco-da-Gama, Goa 403804 | 0091-832-2525515 | npdc@ncpor.res.in | Mon-Fri 9AM-5PM IST
+• Contact: NCPOR, Headland Sada, Vasco-da-Gama, Goa 403804 | 0091-832-2525515 | npdc@ncpor.res.in
 • Keep responses focused, HTML formatted
 • For numbered steps: ALWAYS use <ol><li>short text</li></ol> tags. Keep each step to ONE short line — no long sentences, no sub-bullets inside steps
 • Never use plain "1. 2. 3." for steps — always use <ol><li> tags"""
