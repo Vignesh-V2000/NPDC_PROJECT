@@ -1,5 +1,37 @@
 <!-- NPDC AI Chatbot Widget -->
 <div id="npdc-chatbot-widget">
+    <!-- Dropdown Menu (outside panel to avoid overflow:hidden clipping) -->
+    <div class="chatbot-dropdown" id="chatbot-dropdown">
+        <!-- Sound Toggle -->
+        <button id="chatbot-sound-toggle" class="chatbot-dropdown-item" aria-label="Toggle Sound">
+            <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <svg id="sound-off-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+            <span id="sound-label">Mute notifications</span>
+        </button>
+        <!-- Clear Chat -->
+        <button id="chatbot-clear" class="chatbot-dropdown-item chatbot-dropdown-item--danger" aria-label="Clear Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            </svg>
+            <span>Clear chat</span>
+        </button>
+    </div>
+
     <!-- Chat Toggle Button -->
     <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open Chat">
         <span style="font-size: 32px; line-height: 1;">🐧</span>
@@ -44,22 +76,16 @@
                     <p class="chatbot-subtitle">Your NPDC Assistant</p>
                 </div>
             </div>
-            <!-- Sound Toggle Button -->
-            <button id="chatbot-sound-toggle" class="chatbot-sound-toggle" aria-label="Toggle Sound"
-                title="Toggle Notifications">
-                <svg id="sound-on-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                </svg>
-                <svg id="sound-off-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <line x1="23" y1="9" x2="17" y2="15"></line>
-                    <line x1="17" y1="9" x2="23" y2="15"></line>
-                </svg>
-            </button>
+            <!-- Three-dot Menu -->
+            <div class="chatbot-menu-wrapper" id="chatbot-menu-wrapper">
+                <button id="chatbot-menu-btn" class="chatbot-sound-toggle" aria-label="More options" title="More options">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="1.5"></circle>
+                        <circle cx="12" cy="12" r="1.5"></circle>
+                        <circle cx="12" cy="19" r="1.5"></circle>
+                    </svg>
+                </button>
+            </div>
             <button id="chatbot-close" class="chatbot-close" aria-label="Close Chat">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2">
@@ -97,6 +123,7 @@
                     </svg>
                 </button>
             </form>
+            <p class="chatbot-disclaimer">🐧 Penguin's responses are AI-generated. Results are tentative and may not always be accurate.</p>
         </div>
     </div>
 </div>
@@ -290,7 +317,13 @@
         opacity: 0.8;
     }
 
-    /* Sound Toggle Button */
+    /* Three-dot menu wrapper */
+    .chatbot-menu-wrapper {
+        position: relative;
+        margin-right: 8px;
+    }
+
+    /* Three-dot trigger button (reuses sound-toggle style) */
     .chatbot-sound-toggle {
         background: rgba(255, 255, 255, 0.1);
         border: none;
@@ -302,7 +335,6 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
-        margin-right: 8px;
     }
 
     .chatbot-sound-toggle:hover {
@@ -310,6 +342,59 @@
     }
 
     .chatbot-sound-toggle .hidden {
+        display: none;
+    }
+
+    /* Dropdown panel */
+    .chatbot-dropdown {
+        display: none;
+        position: fixed;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        min-width: 180px;
+        z-index: 99999;
+        overflow: hidden;
+        animation: dropdownFadeIn 0.15s ease;
+    }
+
+    .chatbot-dropdown.open {
+        display: block;
+    }
+
+    @keyframes dropdownFadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .chatbot-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 14px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        color: #374151;
+        transition: background 0.15s;
+        text-align: left;
+    }
+
+    .chatbot-dropdown-item:hover {
+        background: #f3f4f6;
+    }
+
+    .chatbot-dropdown-item--danger {
+        color: #dc2626;
+    }
+
+    .chatbot-dropdown-item--danger:hover {
+        background: #fff1f1;
+    }
+
+    .chatbot-dropdown-item .hidden {
         display: none;
     }
 
@@ -485,7 +570,15 @@
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-top: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 16px 20px;
+        padding: 16px 20px 10px;
+    }
+
+    .chatbot-disclaimer {
+        margin: 8px 0 0;
+        font-size: 10.5px;
+        color: #9ca3af;
+        text-align: center;
+        line-height: 1.4;
     }
 
     .chatbot-form {
@@ -891,8 +984,14 @@
                 this.tipAction = document.getElementById('proactive-tip-action');
                 // Sound toggle elements
                 this.soundToggle = document.getElementById('chatbot-sound-toggle');
+                this.clearBtn = document.getElementById('chatbot-clear');
+                this.clearBtn.addEventListener('click', () => { this.clearChat(); this.closeMenu(); });
                 this.soundOnIcon = document.getElementById('sound-on-icon');
                 this.soundOffIcon = document.getElementById('sound-off-icon');
+                this.soundLabel = document.getElementById('sound-label');
+                // Three-dot menu
+                this.menuBtn = document.getElementById('chatbot-menu-btn');
+                this.menuDropdown = document.getElementById('chatbot-dropdown');
             },
 
             attachEventListeners() {
@@ -906,6 +1005,27 @@
 
                 // Sound toggle event listener
                 this.soundToggle.addEventListener('click', () => this.handleSoundToggle());
+
+                // Three-dot menu toggle
+                this.menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = this.menuDropdown.classList.contains('open');
+                    if (isOpen) {
+                        this.menuDropdown.classList.remove('open');
+                    } else {
+                        // Position dropdown below the button using fixed coordinates
+                        const rect = this.menuBtn.getBoundingClientRect();
+                        this.menuDropdown.style.top = (rect.bottom + 6) + 'px';
+                        this.menuDropdown.style.right = (window.innerWidth - rect.right) + 'px';
+                        this.menuDropdown.classList.add('open');
+                    }
+                });
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!this.menuDropdown.contains(e.target) && e.target !== this.menuBtn) {
+                        this.menuDropdown.classList.remove('open');
+                    }
+                });
 
                 // Drag functionality
                 this.initDrag();
@@ -1565,6 +1685,10 @@
                 return this.soundSettings.enabled;
             },
 
+            closeMenu() {
+                this.menuDropdown.classList.remove('open');
+            },
+
             handleSoundToggle() {
                 const isEnabled = this.toggleSound();
 
@@ -1572,10 +1696,13 @@
                 if (isEnabled) {
                     this.soundOnIcon.classList.remove('hidden');
                     this.soundOffIcon.classList.add('hidden');
+                    if (this.soundLabel) this.soundLabel.textContent = 'Mute notifications';
                 } else {
                     this.soundOnIcon.classList.add('hidden');
                     this.soundOffIcon.classList.remove('hidden');
+                    if (this.soundLabel) this.soundLabel.textContent = 'Unmute notifications';
                 }
+                this.closeMenu();
             },
 
             getFieldHelp(fieldId, reason, errorMessage = null) {
@@ -2162,6 +2289,15 @@
                     this.faqPopup.classList.add('hidden');
                     this.faqPopup.style.display = 'none';
                 }
+            },
+
+            clearChat() {
+                // Clear messages and conversation history
+                this.messagesContainer.innerHTML = '';
+                this.conversationHistory = [];
+                this.hideQuickReplies();
+                // Reinitialize with greeting
+                this.initializeChat();
             },
 
             async initializeChat() {
