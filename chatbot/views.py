@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
+import re
 import requests
 import difflib
 from datetime import datetime
@@ -271,27 +272,6 @@ class NPDCChatbot:
             page_type = getattr(self, 'page_type', 'home')
             message_lower = user_message.lower()
             
-            # Smart fallback check - bypass AI for specific questions
-            if any(phrase in message_lower for phrase in ['who are you', 'what is your name', 'introduce yourself']):
-                return self.generate_response(user_message)
-            
-            if any(phrase in message_lower for phrase in ['which page', 'what page', 'current page', 'where am i']):
-                return self.generate_response(user_message)
-            
-            if any(phrase in message_lower for phrase in ['link for', 'give me link', 'go to', 'take me to']):
-                return self.generate_response(user_message)
-            
-            if any(phrase in message_lower for phrase in ['become user', 'become a user', 'register', 'sign up', 'create account', 'new account']):
-                return self.generate_response(user_message)
-            
-            if any(phrase in message_lower for phrase in ['reset password', 'forgot password', 'change password', 'recover password', 'reset my password']):
-                return self.generate_response(user_message)
-            
-            if any(phrase in message_lower for phrase in ['edit profile', 'update profile', 'change profile', 'how to edit profile', 'update my profile']):
-                return self.generate_response(user_message)
-            
-            if any(phrase in message_lower for phrase in ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data']):
-                return self.generate_response(user_message)
             
             # Build page context
             page_context_info = ""
@@ -391,7 +371,7 @@ Statuses: draft → submitted → under_review → revision (Needs Revision) or 
 
 REGISTRATION: Fill form at /register/ (title, name, email, password, organisation, org URL, designation). After submit, account is INACTIVE - pending NPDC staff approval. No email activation link. User CANNOT log in until admin approves. Confirmation email sent on approval.
 PASSWORD RESET: Go to /forgot-password/ → enter email → receive an email containing a secure reset link (max 10 requests/hour per network) → click the link to open the reset page and choose a new password. Password must be min 8 chars with uppercase, lowercase, number, and special char (@$!%*?&).PROFILE EDIT: Go to /profile/ → edit name/organisation/designation/contact details → Save Changes. Two forms are shown at once (personal info + profile details).
-SUBMISSION STEPS: 1) Log in (account must be staff-approved first), 2) Read instructions at /data/submit/instructions/, 3) Fill metadata form (title, abstract max 1000, purpose max 1000, keywords, expedition type/year, project, category, ISO topic, temporal dates, spatial bounding box in DMS), 4) Upload files on next page (data file + metadata file + README, all required), 5) Submit for review.
+SUBMISSION STEPS: 1) Log in (account must be staff-approved), 2) Read instructions at /data/submit/instructions/, 3) Fill metadata form (title, abstract, keywords, expedition type/year, category, dates, coordinates), 4) Upload files (data file + metadata file + README), 5) Submit for review.
 
 Data access requests for restricted datasets: /data/get-data/<id>/
 Dataset XML export: /data/export/xml/<id>/
@@ -466,7 +446,8 @@ RULES:
 • Valid URLs ONLY: / (Home), /register/, /login/, /forgot-password/, /data/submit/, /data/submit/instructions/, /data/my-submissions/, /profile/, /search/, /search/ai-search/, /search/browse/keyword/, /search/browse/location/, /polar-directory/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515
 • NCPOR website link only when specifically asked about NCPOR
 • Contact: NCPOR, Headland Sada, Vasco-da-Gama, Goa 403804 | 0091-832-2525515 | npdc@ncpor.res.in | Mon-Fri 9AM-5PM IST
-• Keep responses focused, 2-4 paragraphs, HTML formatted"""
+• Keep responses focused, 2-4 paragraphs, HTML formatted
+• For numbered steps: keep each step to ONE short line — no sub-bullets inside steps"""
 
             # --- Build messages array with proper OpenAI roles ---
             messages = [
@@ -519,16 +500,19 @@ RULES:
                         ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
                         
                         if ai_response:
-                            import re
-                            ai_response = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', ai_response)
-                            ai_response = re.sub(r'#+\s*', '', ai_response)
-                            ai_response = re.sub(r'^\s*[\*\-]\s+', '• ', ai_response, flags=re.MULTILINE)
-                            
-                            if '<br>' not in ai_response and '\n\n' in ai_response:
-                                ai_response = ai_response.replace('\n\n', '<br><br>')
-                            if '<br>' not in ai_response and '\n' in ai_response:
-                                ai_response = ai_response.replace('\n', '<br>')
-                            
+                            try:
+                                ai_response = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', ai_response)
+                                ai_response = re.sub(r'#+\s*', '', ai_response)
+                                ai_response = re.sub(r'^\s*[\*\-]\s+', '• ', ai_response, flags=re.MULTILINE)
+
+                                if '<br>' not in ai_response and '\n\n' in ai_response:
+                                    ai_response = ai_response.replace('\n\n', '<br><br>')
+                                if '<br>' not in ai_response and '\n' in ai_response:
+                                    ai_response = ai_response.replace('\n', '<br>')
+                            except Exception as post_err:
+                                print(f"⚠️ Response post-processing error ({provider['name']}): {post_err}")
+                                # Return raw response rather than skipping to next provider
+
                             print(f"✅ Response from {provider['name']} ({provider['model']})")
                             return ai_response
                         else:
@@ -687,20 +671,13 @@ RULES:
         # How to submit / submission steps (must come before generic navigation link check)
         if self.fuzzy_match(message_lower, ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data', 'how do i submit', 'how to submit metadata', 'submit the metadata', 'submit metadata']):
             return (
-                "<strong>📤 How to Submit a Dataset</strong><br><br>"
-                "<strong>Steps:</strong><br>"
-                "1. <strong>Log in</strong> — your account must be approved by NPDC staff first<br>"
+                "<strong>📤 Submit a Dataset</strong><br><br>"
+                "1. <a href='/login/' style='color: #00A3A1;'>Log in</a> — account must be approved by NPDC staff<br>"
                 "2. Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a><br>"
-                "3. Fill in the <strong>metadata form</strong>:<br>"
-                "&nbsp;&nbsp;• Title, Abstract (max 1000 chars), Purpose (max 1000 chars), Keywords<br>"
-                "&nbsp;&nbsp;• Expedition Type, Expedition Year, Project Name &amp; Number<br>"
-                "&nbsp;&nbsp;• Category, ISO Topic, Data Progress<br>"
-                "&nbsp;&nbsp;• Temporal coverage (Start &amp; End dates)<br>"
-                "&nbsp;&nbsp;• Spatial coverage (bounding box in Degrees/Minutes/Seconds)<br>"
-                "4. On the next page, <strong>upload files</strong>: Data file, Metadata file, README (all required)<br>"
-                "5. Click <strong>Submit</strong> — your dataset enters the review queue<br><br>"
-                "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Start Submission</a><br><br>"
-                "<em>Use the 9 AI tools on the form to auto-fill fields, generate keywords, check abstract quality, and more.</em>"
+                "3. Fill the <strong>metadata form</strong> (title, abstract, keywords, expedition, dates, location)<br>"
+                "4. <strong>Upload files</strong> — data file, metadata file &amp; README<br>"
+                "5. Click <strong>Submit</strong> to send for review<br><br>"
+                "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Start Submission</a>"
             )
 
         # Navigation links
@@ -716,47 +693,30 @@ RULES:
         # Password reset
         if self.fuzzy_match(message_lower, ['reset password', 'forgot password', 'change password', 'recover password', 'lost password', 'password reset']):
             return (
-                "<strong>🔑 Password Reset</strong><br><br>"
-                "<strong>Steps:</strong><br>"
-                "1. Go to <a href='/forgot-password/' style='color: #00A3A1; font-weight: bold;'>Forgot Password</a> and enter your registered email<br>"
-                "2. You will receive an email containing a secure reset link (check spam) — the link expires after a short time<br>"
-                "3. Click the link to open the reset page and choose a new password<br><br>"
-                "<strong>Password requirements:</strong><br>"
-                "• Minimum 8 characters<br>"
-                "• At least one uppercase and one lowercase letter<br>"
-                "• At least one number<br>"
-                "• At least one special character: @$!%*?&<br><br>"
-                "<em>Max 10 reset requests per hour per network.</em>"
+                "<strong>🔑 Reset Password</strong><br><br>"
+                "1. Go to <a href='/forgot-password/' style='color: #00A3A1; font-weight: bold;'>Forgot Password</a><br>"
+                "2. Enter your registered email — a reset link will be sent (check spam)<br>"
+                "3. Click the link and choose a new password<br><br>"
+                "<em>Password: min 8 chars, upper+lower+number+special (@$!%*?&)</em>"
             )
 
         if self.fuzzy_match(message_lower, ['profile', 'my account', 'account settings', 'edit profile', 'update profile']):
             return (
-                "<strong>👤 Your Profile</strong><br><br>"
-                "To view or edit your profile, go to: <a href='/profile/' style='color: #00A3A1; font-weight: bold;'>→ Profile Page</a><br><br>"
-                "<strong>You can update:</strong><br>"
-                "• Name and preferred name<br>"
-                "• Organisation name and website URL<br>"
-                "• Designation and contact details (phone, WhatsApp, address)<br>"
-                "• Alternate email and personal profile link<br><br>"
-                "<strong>Steps:</strong><br>"
-                "1. Go to your <a href='/profile/' style='color: #00A3A1;'>Profile Page</a><br>"
-                "2. Edit the fields you want to change<br>"
-                "3. Click <strong>Save Changes</strong> to update your profile"
+                "<strong>👤 Edit Profile</strong><br><br>"
+                "1. Go to <a href='/profile/' style='color: #00A3A1; font-weight: bold;'>Profile Page</a><br>"
+                "2. Update name, organisation, designation, or contact details<br>"
+                "3. Click <strong>Save Changes</strong>"
             )
         
         # Registration and account creation
         if self.fuzzy_match(message_lower, ['register', 'sign up', 'create account', 'become user', 'new account', 'how to become']):
             return (
                 "<strong>📝 Register for NPDC</strong><br><br>"
-                "<strong>Steps:</strong><br>"
-                "1. Go to <a href='/register/' style='color: #00A3A1; font-weight: bold;'>Register</a> and fill in the form<br>"
-                "2. Required: Title, Full Name, Email (used as username), Password, Organisation name, Organisation website URL, Designation<br>"
-                "3. Optional: Phone, WhatsApp, Address, Alternate email, Personal profile link<br>"
-                "4. Solve the captcha and submit<br><br>"
-                "<strong>⚠️ Important:</strong> After registration, your account is <strong>pending NPDC staff approval</strong>. "
-                "You <strong>cannot log in</strong> until an admin approves your account.<br><br>"
-                "You will receive a confirmation email when approved. For queries contact "
-                "<a href='mailto:npdc@ncpor.res.in' style='color: #00A3A1;'>npdc@ncpor.res.in</a>."
+                "1. Go to <a href='/register/' style='color: #00A3A1; font-weight: bold;'>Register</a><br>"
+                "2. Fill in: name, email, password, organisation &amp; designation<br>"
+                "3. Solve the captcha and submit<br><br>"
+                "<strong>⚠️ Note:</strong> Account is <strong>inactive until approved</strong> by NPDC staff — you cannot log in until then.<br>"
+                "You'll receive a confirmation email once approved."
             )
         
         if self.fuzzy_match(message_lower, ['login', 'sign in', 'log in', 'how to login']):
@@ -1089,6 +1049,9 @@ RULES:
         """Main method to get chatbot response"""
         if self.ai_enabled and self.providers:
             response = self.generate_ai_response(message)
+            if not response:
+                print(f"⚠️ AI returned empty response, using keyword fallback")
+                response = self.generate_response(message)
         else:
             response = self.generate_response(message)
         
