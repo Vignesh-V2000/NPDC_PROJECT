@@ -2375,13 +2375,23 @@
         const firstForm = container ? container.children[0] : null;
         if (!firstForm) return;
 
-        // Get current count from management form
-        const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+        // Get current count from scientist management form specifically
+        const totalFormsInput = document.querySelector('input[name="scientists-TOTAL_FORMS"]');
         if (!totalFormsInput) return;
 
         const formIdx = parseInt(totalFormsInput.value);
 
         const newForm = firstForm.cloneNode(true);
+
+        // Remove cloned intl-tel-input wrappers to avoid nested/broken widgets
+        newForm.querySelectorAll('.iti').forEach(itiWrapper => {
+            const input = itiWrapper.querySelector('input[type="tel"], input[name*="phone"], input[name*="mobile"]');
+            if (input) {
+                input.removeAttribute('data-intl-tel-input-id');
+                delete input.iti;
+                itiWrapper.replaceWith(input);
+            }
+        });
 
         // Update all name and id attributes
         newForm.querySelectorAll('[name], [id]').forEach(el => {
@@ -2439,7 +2449,7 @@
                 separateDialCode: true,
                 utilsScript: utilsScript,
             });
-            phoneInput.iti = iti; // store instance to use on submit
+            phoneInput.iti = iti;
         }
         
         if (mobileInput && window.intlTelInput) {
@@ -2448,7 +2458,7 @@
                 separateDialCode: true,
                 utilsScript: utilsScript,
             });
-            mobileInput.iti = iti; // store instance to use on submit
+            mobileInput.iti = iti;
         }
     };
 
@@ -2460,7 +2470,7 @@
 
             // Re-index all forms
             const forms = container.children;
-            const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+            const totalFormsInput = document.querySelector('input[name="scientists-TOTAL_FORMS"]');
             totalFormsInput.value = forms.length;
 
             Array.from(forms).forEach((form, index) => {
