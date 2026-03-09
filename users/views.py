@@ -1440,51 +1440,61 @@ def station_detail(request, station_name):
     # Static lookup for station mock details
     station_details = {
         'maitri': {
-            'name': 'Maitri (Friendship Research Centre)',
+            'name': 'Maitri',
             'location': 'Schirmacher Oasis, Queen Maud Land, East Antarctica',
             'description': 'Established in 1989, Maitri is India\'s second permanent research station in Antarctica. Situated on an ice-free rocky plateau, it serves as a self-sustaining base capable of year-round operations. Water is supplied by the nearby Lake Priyadarshini. The station facilitates research in geology, glaciology, atmospheric sciences, and microbiology.',
             'facilities': 'Living quarters for 25-70 personnel, scientific laboratories, satellite communication center, medical facilities, snow vehicles, and a water filtration system.',
-            'name': 'Maitri (Friendship Research Centre)',
-            'location': 'Schirmacher Oasis, Queen Maud Land, East Antarctica',
-            'description': 'Established in 1989, Maitri is India\'s second permanent research station in Antarctica. Situated on an ice-free rocky plateau, it serves as a self-sustaining base capable of year-round operations. Water is supplied by the nearby Lake Priyadarshini. The station facilitates research in geology, glaciology, atmospheric sciences, and microbiology.',
-            'facilities': 'Living quarters for 25-70 personnel, scientific laboratories, satellite communication center, medical facilities, snow vehicles, and a water filtration system.',
-            'image': 'images/stations/Maitri.jpg'
+            'image': 'images/stations/Maitri.jpg',
+            'gallery': [
+                'images/Polar_stations/Maitri/IMG_2.jpg',
+                'images/Polar_stations/Maitri/IMG_4.jpg',
+                'images/Polar_stations/Maitri/IMG_5.jpg',
+            ]
         },
         'bharati': {
             'name': 'Bharati',
             'location': 'Larsemann Hills, East Antarctica',
             'description': 'Commissioned in 2012, Bharati is India\'s third Antarctic research facility. It is a state-of-the-art station constructed using 134 recycled shipping containers designed to withstand extreme coastal Antarctic conditions. It focuses on oceanographic studies and understanding the geological history of the Indian subcontinent\'s continental breakup.',
             'facilities': 'Accommodates 47-72 personnel, oceanography and continental physics labs, automated heating/AC, satellite communication modules, and the Antarctica Ground Station for Earth Observation Satellites (AGEOS).',
-            'location': 'Larsemann Hills, East Antarctica',
-            'description': 'Commissioned in 2012, Bharati is India\'s third Antarctic research facility. It is a state-of-the-art station constructed using 134 recycled shipping containers designed to withstand extreme coastal Antarctic conditions. It focuses on oceanographic studies and understanding the geological history of the Indian subcontinent\'s continental breakup.',
-            'facilities': 'Accommodates 47-72 personnel, oceanography and continental physics labs, automated heating/AC, satellite communication modules, and the Antarctica Ground Station for Earth Observation Satellites (AGEOS).',
-            'image': 'images/stations/Bharati.jpg'
+            'image': 'images/stations/Bharati.jpg',
+            'gallery': [
+                'images/Polar_stations/Bharati/IMG_(1).jpg',
+                'images/Polar_stations/Bharati/IMG_(14).jpg',
+                'images/Polar_stations/Bharati/IMG_(20).jpg',
+                'images/Polar_stations/Bharati/IMG_(4).jpg',
+                'images/Polar_stations/Bharati/IMG_(8).jpg',
+                'images/Polar_stations/Bharati/IMG_(9).jpg',
+            ]
         },
         'svalbard': {
             'name': 'Himadri',
             'location': 'Ny-Ålesund, Spitsbergen, Svalbard, Norway',
             'description': 'Inaugurated in 2008, Himadri is India\'s first permanent Arctic research station. Located near the North Pole, it shifted to year-round operations in 2023-2024 to study phenomena during the polar nights. Research focuses on aerosol radiation, space weather, fjord dynamics, microbial communities, and glaciology.',
             'facilities': 'Accommodates up to eight scientists, offering living space, workspaces, computer rooms, and access to the nearby Gruvebadet Observatory for atmospheric data collection.',
-            'name': 'Himadri',
-            'location': 'Ny-Ålesund, Spitsbergen, Svalbard, Norway',
-            'description': 'Inaugurated in 2008, Himadri is India\'s first permanent Arctic research station. Located near the North Pole, it shifted to year-round operations in 2023-2024 to study phenomena during the polar nights. Research focuses on aerosol radiation, space weather, fjord dynamics, microbial communities, and glaciology.',
-            'facilities': 'Accommodates up to eight scientists, offering living space, workspaces, computer rooms, and access to the nearby Gruvebadet Observatory for atmospheric data collection.',
-            'image': 'images/stations/Svalbard.jpg'
+            'image': 'images/Polar_stations/Himadri/IMG_1.jpg',
+            'gallery': [
+                'images/Polar_stations/Himadri/IMG_1.jpg',
+                'images/Polar_stations/Himadri/IMG_2.jpg',
+                'images/Polar_stations/Himadri/IMG_5.jpg',
+                'images/Polar_stations/Himadri/IMG_6 (1).jpg',
+            ]
         },
         'himansh': {
             'name': 'Himansh',
             'location': 'Sutri Dhaka, Chandra Basin, Spiti Valley, Himachal Pradesh (Altitude: 4,080m)',
             'description': 'Unveiled in 2016, Himansh is India\'s high-altitude remote research station in the Himalayas ("Water Tower of Asia"). Its primary objective is to monitor and study the dynamics and mass balance of Himalayan glaciers, which impact the hydrology and sustainable water supply for major river systems.',
             'facilities': 'Accommodation for eight people, laboratory unit, automatic weather stations, water level recorders, ground-penetrating radars, geodetic GPS, and satellite phone terminals.',
-            'location': 'Sutri Dhaka, Chandra Basin, Spiti Valley, Himachal Pradesh (Altitude: 4,080m)',
-            'description': 'Unveiled in 2016, Himansh is India\'s high-altitude remote research station in the Himalayas ("Water Tower of Asia"). Its primary objective is to monitor and study the dynamics and mass balance of Himalayan glaciers, which impact the hydrology and sustainable water supply for major river systems.',
-            'facilities': 'Accommodation for eight people, laboratory unit, automatic weather stations, water level recorders, ground-penetrating radars, geodetic GPS, and satellite phone terminals.',
-            'image': 'images/stations/Himansh.jpg'
+            'image': 'images/Polar_stations/Himansh/IMG_2.jpg',
+            'gallery': [
+                'images/Polar_stations/Himansh/IMG_2.jpg',
+                'images/Polar_stations/Himansh/IMG_3.jpg',
+                'images/Polar_stations/Himansh/IMG_4.jpg',
+                'images/Polar_stations/Himansh/IMG_6.jpg',
+            ]
         },
         'sagar-nidhi': {
             'name': 'Sagar Nidhi',
             'location': 'Southern Ocean',
-            'description': 'Sagar Nidhi is an oceanographic research vessel playing a critical role in India\'s polar and marine science programs.',
             'description': 'Sagar Nidhi is an oceanographic research vessel playing a critical role in India\'s polar and marine science programs.',
             'facilities': 'Ocean monitoring, remote sensing, and underwater robotics.',
             'image': 'images/stations/Sagar_Nidhi.jpg'

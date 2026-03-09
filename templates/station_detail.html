@@ -99,6 +99,39 @@
         background: #e2e2e2;
         color: #000;
     }
+
+    /* Carousel Styles */
+    #stationCarousel {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    #stationCarousel .carousel-item img {
+        transition: transform 0.5s ease;
+    }
+
+    #stationCarousel .carousel-indicators button {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        opacity: 0.5;
+        border: 2px solid #fff;
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    #stationCarousel .carousel-indicators button.active {
+        opacity: 1;
+        background-color: #E8734A;
+        border-color: #E8734A;
+    }
+
+    #stationCarousel .carousel-control-prev-icon,
+    #stationCarousel .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 50%;
+        padding: 1.2rem;
+        background-size: 50%;
+    }
 </style>
 
 <section class="station-hero">
@@ -133,53 +166,49 @@
                 </div>
             </div>
 
-            <!-- Image Column -->
+            <!-- Image Carousel Column -->
             <div class="col-lg-6">
                 <div class="station-card h-100 p-0 overflow-hidden" style="border:none;">
-                    <img src="{% static station.image %}" class="w-100 h-100" style="object-fit: cover;"
-                        alt="Image of {{ station.name }}">
-                </div>
-            </div>
-        </div>
+                    {% if station.gallery %}
+                    <div id="stationCarousel" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="4000">
+                        <!-- Indicators -->
+                        <div class="carousel-indicators">
+                            {% for img in station.gallery %}
+                            <button type="button" data-bs-target="#stationCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                                {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                                aria-label="Slide {{ forloop.counter }}"></button>
+                            {% endfor %}
+                        </div>
 
-        <!-- Related Datasets -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="station-card">
-                    <h3 class="detail-header"><i class="fas fa-database me-2"></i> Recent Datasets</h3>
+                        <!-- Slides -->
+                        <div class="carousel-inner h-100">
+                            {% for img in station.gallery %}
+                            <div class="carousel-item h-100 {% if forloop.first %}active{% endif %}">
+                                <img src="{% static img %}" class="d-block w-100 h-100"
+                                    style="object-fit: cover; min-height: 350px;"
+                                    alt="{{ station.name }} - Image {{ forloop.counter }}">
+                            </div>
+                            {% endfor %}
+                        </div>
 
-                    {% if related_datasets %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Category</th>
-                                    <th>Year</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ds in related_datasets %}
-                                <tr>
-                                    <td>{{ ds.title }}</td>
-                                    <td><span class="badge bg-secondary">{{ ds.get_category_display }}</span></td>
-                                    <td>{{ ds.expedition_year }}</td>
-                                    <td>
-                                        <a href="{% url 'data_submission:view_submission' ds.metadata_id %}"
-                                            class="btn btn-sm btn-outline-primary">View</a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <!-- Controls -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#stationCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#stationCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
                     {% else %}
-                    <p class="text-muted text-center py-4">No recent datasets available for this location yet.</p>
+                    <img src="{% static station.image %}" class="w-100 h-100" style="object-fit: cover;"
+                        alt="Image of {{ station.name }}">
                     {% endif %}
                 </div>
             </div>
         </div>
+
 
     </div>
 </section>

@@ -1271,7 +1271,7 @@
                     
                     <div class="weather-info text-center mt-4 pt-2">
                         <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset">
+                            <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Antarctica - Maitri:
                             </a>
                         </h5>
@@ -1319,7 +1319,7 @@
                     
                     <div class="weather-info text-center mt-4 pt-2">
                         <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset">
+                            <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Antarctica - Bharati:
                             </a>
                         </h5>
@@ -1359,7 +1359,7 @@
                     
                     <div class="weather-info text-center mt-4 pt-2">
                         <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset">
+                            <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Himalaya - Himansh:
                             </a>
                         </h5>
@@ -1399,7 +1399,7 @@
                     
                     <div class="weather-info text-center mt-4 pt-2">
                         <h5 class="station-name">
-                            <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset">
+                            <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Arctic - Himadri:
                             </a>
                         </h5>
@@ -2001,6 +2001,7 @@
         background: #ffffff; border-radius: 1rem; padding: 1rem; height: 100%;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0;
         transition: transform 0.3s ease, box-shadow 0.3s ease; color: #0f172a;
+        position: relative; cursor: pointer;
     }
     .weather-card:hover {
         transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); border-color: #cbd5e1;

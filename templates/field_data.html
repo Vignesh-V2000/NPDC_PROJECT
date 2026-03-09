@@ -101,6 +101,8 @@
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
         border: 1px solid #e2e8f0;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        cursor: pointer;
     }
 
     .weather-card:hover {
@@ -277,7 +279,7 @@
                         </div>
                         <div class="weather-info text-center mt-4 pt-2">
                             <h5 class="station-name">
-                                <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset">
+                                <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                     Antarctica - Maitri:
                                 </a>
                             </h5>
@@ -324,7 +326,7 @@
                         </div>
                         <div class="weather-info text-center mt-4 pt-2">
                             <h5 class="station-name">
-                                <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset">
+                                <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                     Antarctica - Bharati:
                                 </a>
                             </h5>
@@ -363,7 +365,7 @@
                         </div>
                         <div class="weather-info text-center mt-4 pt-2">
                             <h5 class="station-name">
-                                <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset">
+                                <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                     Himalaya - Himansh:
                                 </a>
                             </h5>
@@ -402,7 +404,7 @@
                         </div>
                         <div class="weather-info text-center mt-4 pt-2">
                             <h5 class="station-name">
-                                <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset">
+                                <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                     Arctic - Himadri:
                                 </a>
                             </h5>
@@ -441,7 +443,7 @@
                 <div class="station-info-body">
                     <div class="info-row"><span class="info-label">Region</span><span class="info-value">Antarctica</span></div>
                     <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">69°24'S</span></div>
-                    <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">76°12'E</span></div>
+                    <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">76°11'E</span></div>
                     <div class="info-row"><span class="info-label">Established</span><span class="info-value">2012</span></div>
                     <div class="info-row"><span class="info-label">Location</span><span class="info-value">Larsemann Hills</span></div>
                 </div>
@@ -454,9 +456,10 @@
                 </div>
                 <div class="station-info-body">
                     <div class="info-row"><span class="info-label">Region</span><span class="info-value">Himalaya</span></div>
-                    <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">32°23'N</span></div>
+                    <div class="info-row"><span class="info-label">Latitude</span><span class="info-value">32°24'N</span></div>
                     <div class="info-row"><span class="info-label">Longitude</span><span class="info-value">77°37'E</span></div>
-                    <div class="info-row"><span class="info-label">Altitude</span><span class="info-value">~4,000 m</span></div>
+                    <div class="info-row"><span class="info-label">Altitude</span><span class="info-value">4,080 m</span></div>
+                    <div class="info-row"><span class="info-label">Established</span><span class="info-value">2016</span></div>
                     <div class="info-row"><span class="info-label">Location</span><span class="info-value">Spiti Valley, HP</span></div>
                 </div>
             </div>
