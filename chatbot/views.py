@@ -446,8 +446,9 @@ RULES:
 • Valid URLs ONLY: / (Home), /register/, /login/, /forgot-password/, /data/submit/, /data/submit/instructions/, /data/my-submissions/, /profile/, /search/, /search/ai-search/, /search/browse/keyword/, /search/browse/location/, /polar-directory/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515
 • NCPOR website link only when specifically asked about NCPOR
 • Contact: NCPOR, Headland Sada, Vasco-da-Gama, Goa 403804 | 0091-832-2525515 | npdc@ncpor.res.in | Mon-Fri 9AM-5PM IST
-• Keep responses focused, 2-4 paragraphs, HTML formatted
-• For numbered steps: keep each step to ONE short line — no sub-bullets inside steps"""
+• Keep responses focused, HTML formatted
+• For numbered steps: ALWAYS use <ol><li>short text</li></ol> tags. Keep each step to ONE short line — no long sentences, no sub-bullets inside steps
+• Never use plain "1. 2. 3." for steps — always use <ol><li> tags"""
 
             # --- Build messages array with proper OpenAI roles ---
             messages = [
@@ -672,11 +673,13 @@ RULES:
         if self.fuzzy_match(message_lower, ['how to submit', 'steps to submit', 'submission steps', 'submit dataset steps', 'submit my data', 'how do i submit', 'how to submit metadata', 'submit the metadata', 'submit metadata']):
             return (
                 "<strong>📤 Submit a Dataset</strong><br><br>"
-                "1. <a href='/login/' style='color: #00A3A1;'>Log in</a> — account must be approved by NPDC staff<br>"
-                "2. Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a><br>"
-                "3. Fill the <strong>metadata form</strong> (title, abstract, keywords, expedition, dates, location)<br>"
-                "4. <strong>Upload files</strong> — data file, metadata file &amp; README<br>"
-                "5. Click <strong>Submit</strong> to send for review<br><br>"
+                "<ol>"
+                "<li><a href='/login/' style='color: #00A3A1;'>Log in</a> — account must be NPDC-staff approved</li>"
+                "<li>Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a></li>"
+                "<li>Fill the <strong>metadata form</strong> (title, abstract, keywords, expedition, dates, location)</li>"
+                "<li><strong>Upload files</strong> — data file, metadata file &amp; README</li>"
+                "<li>Click <strong>Submit</strong> to send for review</li>"
+                "</ol><br>"
                 "<a href='/data/submit/' style='color: #00A3A1; font-weight: bold;'>→ Start Submission</a>"
             )
 
@@ -694,28 +697,34 @@ RULES:
         if self.fuzzy_match(message_lower, ['reset password', 'forgot password', 'change password', 'recover password', 'lost password', 'password reset']):
             return (
                 "<strong>🔑 Reset Password</strong><br><br>"
-                "1. Go to <a href='/forgot-password/' style='color: #00A3A1; font-weight: bold;'>Forgot Password</a><br>"
-                "2. Enter your registered email — a reset link will be sent (check spam)<br>"
-                "3. Click the link and choose a new password<br><br>"
+                "<ol>"
+                "<li>Go to <a href='/forgot-password/' style='color: #00A3A1;'>Forgot Password</a></li>"
+                "<li>Enter your registered email — a reset link will be sent (check spam)</li>"
+                "<li>Click the link and choose a new password</li>"
+                "</ol><br>"
                 "<em>Password: min 8 chars, upper+lower+number+special (@$!%*?&)</em>"
             )
 
         if self.fuzzy_match(message_lower, ['profile', 'my account', 'account settings', 'edit profile', 'update profile']):
             return (
                 "<strong>👤 Edit Profile</strong><br><br>"
-                "1. Go to <a href='/profile/' style='color: #00A3A1; font-weight: bold;'>Profile Page</a><br>"
-                "2. Update name, organisation, designation, or contact details<br>"
-                "3. Click <strong>Save Changes</strong>"
+                "<ol>"
+                "<li>Go to <a href='/profile/' style='color: #00A3A1;'>Profile Page</a></li>"
+                "<li>Update name, organisation, designation, or contact details</li>"
+                "<li>Click <strong>Save Changes</strong></li>"
+                "</ol>"
             )
         
         # Registration and account creation
         if self.fuzzy_match(message_lower, ['register', 'sign up', 'create account', 'become user', 'new account', 'how to become']):
             return (
                 "<strong>📝 Register for NPDC</strong><br><br>"
-                "1. Go to <a href='/register/' style='color: #00A3A1; font-weight: bold;'>Register</a><br>"
-                "2. Fill in: name, email, password, organisation &amp; designation<br>"
-                "3. Solve the captcha and submit<br><br>"
-                "<strong>⚠️ Note:</strong> Account is <strong>inactive until approved</strong> by NPDC staff — you cannot log in until then.<br>"
+                "<ol>"
+                "<li>Go to <a href='/register/' style='color: #00A3A1;'>Register</a></li>"
+                "<li>Fill in: name, email, password, organisation &amp; designation</li>"
+                "<li>Solve the captcha and submit</li>"
+                "</ol><br>"
+                "<strong>⚠️ Note:</strong> Account is <strong>inactive until approved</strong> by NPDC staff.<br>"
                 "You'll receive a confirmation email once approved."
             )
         
