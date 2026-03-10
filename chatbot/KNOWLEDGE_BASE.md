@@ -72,7 +72,7 @@ NPDC manages and archives scientific datasets from polar and Himalayan research 
 ## Dataset Submission Process
 
 ### Required Steps
-1. Log in to your NPDC account (account must be approved by NPDC staff)
+1. Log in to your NPDC account (account must be approved by NPDC)
 2. Read submission instructions at `/data/submit/instructions/`
 3. Fill in the metadata form: title, abstract, keywords, expedition details, temporal and spatial coverage
 4. Upload data files, metadata file, and README on the file upload step
@@ -198,18 +198,125 @@ Note: "Approved" and "Rejected" are not statuses in this system. The terminal po
 
 ## User Accounts & Registration
 
-- Register at `/register/` — requires name, organisation, organisation URL, and designation
-- New accounts are **pending by default** and must be approved by NPDC staff before login is allowed
-- Staff manage approvals at `/staff/user-approval/`
+- Register at `/register/` — requires name, email, organisation, organisation URL, and designation
+- Additional optional fields: title (Mr/Ms/Dr/Prof), preferred name, profile URL, phone, WhatsApp number, alternate email, address
+- New accounts are **pending by default** and must be approved by NPDC before login is allowed
+- NPDC manages approvals at `/staff/user-approval/`
 - Forgot password: `/forgot-password/` → reset via emailed link at `/reset-password/`
+
+---
+
+## User Dashboard
+
+After login, users see their personal dashboard at `/dashboard/`:
+
+### For Regular Users (Participants)
+- View total submitted datasets and published count
+- Recent submission activity (latest 5 non-draft submissions)
+- Quick links to submit new data or view existing submissions
+
+### My Submissions (`/data/my-submissions/`)
+- View all your own dataset submissions
+- Track status of each submission (Draft, Submitted, Under Review, Published, etc.)
+
+---
+
+## Admin Roles & Access Control (RBAC)
+
+NPDC uses a role-based access control system with three admin types:
+
+### 1. Super Admin
+- Django superuser (`is_superuser=True`)
+- **Full access** to every feature: dashboard, all datasets, review queue, data requests, user approvals, create users/admins, system logs, system reports, dataset deletion, and Django admin panel (`/admin/`)
+
+### 2. Normal Admin
+- Staff user (`is_staff=True`) with no expedition type assigned
+- Same access as Super Admin **except** no access to the Django admin panel (`/admin/`)
+- Can delete datasets, manage users, view system logs
+
+### 3. Expedition Admin (Child Admin)
+- Staff user with a specific expedition type assigned (Antarctic, Arctic, Southern Ocean, or Himalaya)
+- Can **only** see and review datasets matching their assigned expedition type
+- **Cannot** access: user approvals, create users, system logs, system reports, or delete datasets
+- Sees a filtered view of the dashboard, review queue, all datasets, and data requests — limited to their expedition type
+
+---
+
+## Admin Panel & Navigation
+
+Staff users access the admin panel via `/data/admin/dashboard/`. The admin sidebar includes:
+
+### All Admin Types
+1. **Dashboard** (`/data/admin/dashboard/`) — Overview with stats: pending reviews, total submissions, active users, published datasets, and recent activity feed
+2. **All Datasets** (`/data/admin/all/`) — Browse every dataset (Published, Draft, Submitted, etc.) with search, status filter, expedition filter, category filter, and date range filter. Paginated (10 per page)
+3. **Review Queue** (`/data/admin/review/`) — Shows datasets with status "Submitted" or "Under Review", with search and filters. Expedition Admins only see their expedition type
+4. **Data Requests** (`/data/admin/data-requests/`) — View all data download requests from researchers including requester details, dataset info, expedition type, request location/IP, and purpose
+
+### Super Admin & Normal Admin Only
+5. **User Approvals** (`/staff/user-approval/`) — Manage pending registrations; approve, reject, or view/edit user details
+6. **Create Admin** (`/staff/create-user/`) — Create new standard users (pre-approved) or new admin users with optional expedition type
+7. **System Log** (`/logs/system-logs/`) — View all system activity logs with filtering by action type, user, and date range. Supports CSV export
+8. **System Report** (`/logs/system-report/`) — Download a system metrics CSV with user and dataset statistics
+
+---
+
+## Admin: Dataset Review Workflow
+
+### Reviewing a Submission
+1. Navigate to **Review Queue** → click on a submission
+2. Review detail page (`/data/admin/review/<metadata_id>/`) shows full metadata, spatial coverage, temporal coverage, files, and scientist details
+3. Admin can add **reviewer notes** and change the status
+
+### Status Transitions (Admin Actions)
+- `Submitted` → `Published` (approve and publish the dataset)
+- Published datasets cannot be changed back
+
+### Automatic Notifications
+- When a dataset is published, the submitter receives an email with dataset ID, title, publication date, and a link to view their submissions
+
+### Audit Trail
+- Every review action records who reviewed it (`reviewed_by`) and when (`reviewed_at`, `status_updated_at`)
+
+---
+
+## Admin: User Management
+
+### User Approval Dashboard (`/staff/user-approval/`)
+Shows four tabs:
+- **Pending Users** — New registrations awaiting approval (`is_active=False`, not rejected)
+- **Approved Users** — Active standard users (non-staff)
+- **Admin Users** — Active staff users
+- **Rejected Users** — Users marked as rejected
+
+### Actions on Users
+- **View Details** (`/staff/user/<id>/`) — See full registration information
+- **Edit Details** (`/staff/user/<id>/edit/`) — Modify user data; includes three actions:
+  - **Approve** — Activates the user account, sets `is_approved=True`
+  - **Reject** — Marks the user as rejected (does not delete the record)
+  - **Request Info** — Sends a custom email to the user asking for additional information
+- **Change Password** (`/staff/user/<id>/change-password/`) — Admin can reset any user's password
+
+### Creating Users
+At `/staff/create-user/`, admins can create:
+- **Standard User** — A regular researcher account, auto-approved on creation
+- **Admin User** — A staff account with optional expedition type assignment (Antarctic, Arctic, Southern Ocean, or Himalaya)
+
+---
+
+## Admin: Dataset Management
+
+- **Edit Dataset** (`/data/admin/edit/<metadata_id>/`) — Admin can edit any dataset's metadata
+- **Delete Dataset** (`/data/admin/delete/<metadata_id>/`) — Permanently delete a dataset. **Only Super Admins and Normal Admins** can delete; Expedition Admins cannot
 
 ---
 
 ## Data Access Requests
 
-- Restricted or embargoed datasets can be requested by logged-in users via `/data/get-data/<id>/`
-- NPDC staff review and approve/reject requests at `/data/admin/data-requests/`
-- Requester is notified by email on approval or rejection
+- Published datasets can be requested by logged-in users via `/data/get-data/<id>/`
+- The requester fills out a form with their name, email, institute, country, research area, and purpose
+- Upon submission, the dataset is **emailed directly** to the requester (no approval/rejection workflow)
+- All requests are **logged** and visible to admins at `/data/admin/data-requests/` for monitoring purposes
+- Request details tracked: requester info, dataset, request date, IP address, and geo-location
 
 ---
 
@@ -223,6 +330,23 @@ Note: "Approved" and "Rejected" are not statuses in this system. The terminal po
 
 - `/polar-directory/` — lists polar research stations and associated researchers/data
 - `/station/<station_name>/` — detailed page for an individual station
+
+---
+
+## Activity Logs & System Monitoring
+
+### System Logs (`/logs/system-logs/`)
+- Tracks all system activity: user logins, dataset submissions, review actions, etc.
+- Filterable by action type, user, and date range
+- Supports CSV export for offline analysis
+- Available to Super Admins and Normal Admins only
+
+### System Report (`/logs/system-report/`)
+- Generates a CSV report with key system metrics:
+  - Total/active/staff/superuser counts
+  - New users in last 30 days
+  - Dataset submission counts by status
+  - Activity log counts (total and last 30 days)
 
 ---
 

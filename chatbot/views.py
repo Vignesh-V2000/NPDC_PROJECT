@@ -147,7 +147,7 @@ class NPDCChatbot:
                 'horizontal': "Ranges like '< 1 meter', '30m-100m', '1km-10km'",
                 'vertical': "Descriptive text like '1 meter', '10 cm', 'Point'",
                 'temporal': "Frequency: 'Hourly', 'Daily', 'One-time', 'Annually'"
-            }
+            },
         }
     
     def get_greeting(self):
@@ -368,15 +368,32 @@ Data Categories: {categories}
 NPDC manages scientific datasets from polar and Himalayan research. We provide dataset submission/archival, DOI assignment, and metadata standardization (ISO topics).
 Statuses: draft → submitted → under_review → revision (Needs Revision) or published (final approved state). There is NO 'approved' or 'rejected' status.
 
-REGISTRATION: Fill form at /register/ (title, name, email, password, organisation, org URL, designation). After submit, account is INACTIVE - pending NPDC staff approval. No email activation link. User CANNOT log in until admin approves. Confirmation email sent on approval.
+REGISTRATION: Fill form at /register/ (title, name, email, password, organisation, org URL, designation). After submit, account is INACTIVE - pending NPDC approval. No email activation link. User CANNOT log in until NPDC approves. Confirmation email sent on approval.
 PASSWORD RESET: Go to /forgot-password/ → enter email → receive an email containing a secure reset link (max 10 requests/hour per network) → click the link to open the reset page and choose a new password. Password must be min 8 chars with uppercase, lowercase, number, and special char (@$!%*?&).PROFILE EDIT: Go to /profile/ → edit name/organisation/designation/contact details → Save Changes. Two forms are shown at once (personal info + profile details).
-SUBMISSION STEPS: 1) Log in (account must be staff-approved), 2) Read instructions at /data/submit/instructions/, 3) Fill metadata form (title, abstract, keywords, expedition type/year, category, dates, coordinates), 4) Upload files (data file + metadata file + README), 5) Submit for review.
+SUBMISSION STEPS: 1) Log in (account must be NPDC-approved), 2) Read instructions at /data/submit/instructions/, 3) Fill metadata form (title, abstract, keywords, expedition type/year, category, dates, coordinates), 4) Upload files (data file + metadata file + README), 5) Submit for review.
 
-Data access requests for restricted datasets: /data/get-data/<id>/
+Data access requests: /data/get-data/<id>/ — requester fills form, dataset emailed directly (no approval workflow).
 Dataset XML export: /data/export/xml/<id>/
 Polar directory: /polar-directory/ | Station detail: /station/<name>/
 Browse datasets: /search/browse/keyword/ and /search/browse/location/
 Dedicated AI search: /search/ai-search/ (RAG-based)"""
+
+            # --- Conditional admin knowledge (only for admin users to save tokens) ---
+            if user_type == 'admin':
+                system_prompt += """
+
+ADMIN ROLES (RBAC):
+• Super Admin (is_superuser): Full access — all features + Django admin (/admin/) + dataset deletion
+• Normal Admin (is_staff, no expedition type): Same minus Django admin. Can delete datasets, manage users, view logs
+• Expedition Admin (is_staff + expedition type): ONLY see/review own expedition's datasets. NO user mgmt, logs, or deletion
+
+ADMIN PANEL (/data/admin/dashboard/):
+All: Dashboard, All Datasets (/data/admin/all/), Review Queue (/data/admin/review/), Data Requests (/data/admin/data-requests/)
+Super+Normal: User Approvals (/staff/user-approval/), Create Admin (/staff/create-user/), System Log (/logs/system-logs/), System Report (/logs/system-report/)
+
+REVIEW: Submitted → Published (direct). Email sent to submitter. Audit: reviewed_by + reviewed_at.
+USERS: Approve/reject at /staff/user-approval/. View/Edit/Change Password. Request Info (email). Create users at /staff/create-user/.
+DATASETS: Edit at /data/admin/edit/<id>/. Delete at /data/admin/delete/<id>/ (Super+Normal only)."""
 
             # --- Conditional AI features (only for relevant pages) ---
             if page_type == 'search':
@@ -436,13 +453,17 @@ REGISTRATION FIELDS:
             system_prompt += stats_context
 
             # --- Compact rules (always included) ---
-            system_prompt += """
+            base_urls = "/ (Home), /register/, /login/, /forgot-password/, /data/submit/, /data/submit/instructions/, /data/my-submissions/, /profile/, /search/, /search/ai-search/, /search/browse/keyword/, /search/browse/location/, /polar-directory/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515"
+            if user_type == 'admin':
+                base_urls += ", /data/admin/dashboard/, /data/admin/all/, /data/admin/review/, /data/admin/data-requests/, /staff/user-approval/, /staff/create-user/, /logs/system-logs/, /logs/system-report/"
+
+            system_prompt += f"""
 
 RULES:
 • HTML only: <strong>, <br>, • for lists, <a href='URL' style='color: #00A3A1;'>. NO markdown (**, ##, *)
 • Never self-introduce unless asked "who are you"/"what is your name". Answer directly
 • Off-topic: brief answer + redirect to NPDC
-• Valid URLs ONLY: / (Home), /register/, /login/, /forgot-password/, /data/submit/, /data/submit/instructions/, /data/my-submissions/, /profile/, /search/, /search/ai-search/, /search/browse/keyword/, /search/browse/location/, /polar-directory/, https://www.ncpor.res.in/, mailto:npdc@ncpor.res.in, tel:0091-832-2525515
+• Valid URLs ONLY: {base_urls}
 • NCPOR website link only when specifically asked about NCPOR
 • Contact: NCPOR, Headland Sada, Vasco-da-Gama, Goa 403804 | 0091-832-2525515 | npdc@ncpor.res.in
 • Keep responses focused, HTML formatted
@@ -698,7 +719,7 @@ RULES:
             return (
                 "<strong>📤 Submit a Dataset</strong><br><br>"
                 "<ol>"
-                "<li><a href='/login/' style='color: #00A3A1;'>Log in</a> — account must be NPDC-staff approved</li>"
+                "<li><a href='/login/' style='color: #00A3A1;'>Log in</a> — account must be NPDC approved</li>"
                 "<li>Read the <a href='/data/submit/instructions/' style='color: #00A3A1;'>Submission Instructions</a></li>"
                 "<li>Fill the <strong>metadata form</strong> (title, abstract, keywords, expedition, dates, location)</li>"
                 "<li><strong>Upload files</strong> — data file, metadata file &amp; README</li>"
@@ -748,7 +769,7 @@ RULES:
                 "<li>Fill in: name, email, password, organisation &amp; designation</li>"
                 "<li>Solve the captcha and submit</li>"
                 "</ol><br>"
-                "<strong>⚠️ Note:</strong> Account is <strong>inactive until approved</strong> by NPDC staff.<br>"
+                "<strong>⚠️ Note:</strong> Account is <strong>inactive until approved</strong> by NPDC.<br>"
                 "You'll receive a confirmation email once approved."
             )
         
@@ -756,7 +777,7 @@ RULES:
             return (
                 "<strong>🔐 Login</strong><br><br>"
                 "Go to the <a href='/login/' style='color: #00A3A1; font-weight: bold;'>Login Page</a> and enter your registered email and password.<br><br>"
-                "<strong>⚠️ Note:</strong> Your account must be <strong>approved by NPDC staff</strong> before you can log in. "
+                "<strong>⚠️ Note:</strong> Your account must be <strong>approved by NPDC</strong> before you can log in. "
                 "New registrations are reviewed before access is granted.<br><br>"
                 "<strong>Forgot your password?</strong> Use <a href='/forgot-password/' style='color: #00A3A1;'>Forgot Password</a> to receive a reset link by email.<br><br>"
                 "Don't have an account? <a href='/register/' style='color: #00A3A1;'>Register here</a>"
@@ -890,20 +911,22 @@ RULES:
                 "<em>Tip: Use the <strong>AI Resolution Suggester</strong> on the submission form to auto-recommend values.</em>"
             )
 
-        # Data access requests (restricted datasets)
+        # Data access requests
         if self.fuzzy_match(message_lower, ['access request', 'restricted dataset', 'request data', 'embargoed',
                                              'get data', 'data request', 'request access', 'how to access']):
             return (
-                "<strong>🔒 Data Access Requests</strong><br><br>"
-                "Some datasets are <strong>restricted or embargoed</strong> and require a formal request.<br><br>"
-                "<strong>How to Request Access:</strong><br>"
-                "1. Log in to your NPDC account<br>"
-                "2. Open the dataset detail page<br>"
-                "3. Click the <strong>Request Access</strong> button<br>"
-                "4. Submit your request via <a href='/data/get-data/&lt;id&gt;/' style='color:#00A3A1;'>/data/get-data/&lt;id&gt;/</a><br><br>"
-                "<strong>After Submission:</strong><br>"
-                "• NPDC staff review and approve / reject requests<br>"
-                "• You will receive an <strong>email notification</strong> with the decision<br><br>"
+                "<strong>📥 Data Access Requests</strong><br><br>"
+                "Published datasets can be requested by logged-in users.<br><br>"
+                "<strong>How to Request Data:</strong><br>"
+                "<ol>"
+                "<li>Log in to your NPDC account</li>"
+                "<li>Open the dataset detail page</li>"
+                "<li>Click the <strong>Get Data</strong> button</li>"
+                "<li>Fill in the request form (name, email, institute, country, research area, purpose)</li>"
+                "<li>Submit — the dataset will be <strong>emailed directly</strong> to you</li>"
+                "</ol><br>"
+                "<strong>Note:</strong> All requests are logged and visible to NPDC admins for monitoring at "
+                "<code>/data/admin/data-requests/</code><br><br>"
                 "For queries contact <a href='mailto:npdc@ncpor.res.in' style='color:#00A3A1;'>npdc@ncpor.res.in</a>"
             )
 
@@ -929,6 +952,96 @@ RULES:
                 "<strong>Station Detail</strong> — detailed page for an individual station:<br>"
                 "<a href='/station/&lt;name&gt;/' style='color:#00A3A1;'>/station/&lt;name&gt;/</a><br><br>"
                 "Browse stations to find datasets linked to specific research locations."
+            )
+
+        # Admin panel / admin dashboard
+        if user_type == 'admin' and self.fuzzy_match(message_lower, ['admin panel', 'admin dashboard', 'admin menu', 'admin sidebar',
+                                                                      'admin navigation', 'admin pages', 'admin features']):
+            return (
+                "<strong>🛡️ Admin Panel Overview</strong><br><br>"
+                "Access the admin panel at <a href='/data/admin/dashboard/' style='color:#00A3A1; font-weight:bold;'>/data/admin/dashboard/</a><br><br>"
+                "<strong>Available to All Admins:</strong><br>"
+                "• <a href='/data/admin/dashboard/' style='color:#00A3A1;'>Dashboard</a> — Stats overview (pending, total, users, published)<br>"
+                "• <a href='/data/admin/all/' style='color:#00A3A1;'>All Datasets</a> — Browse/filter all datasets<br>"
+                "• <a href='/data/admin/review/' style='color:#00A3A1;'>Review Queue</a> — Submissions pending review<br>"
+                "• <a href='/data/admin/data-requests/' style='color:#00A3A1;'>Data Requests</a> — Monitor download requests<br><br>"
+                "<strong>Super Admin & Normal Admin Only:</strong><br>"
+                "• <a href='/staff/user-approval/' style='color:#00A3A1;'>User Approvals</a> — Approve/reject registrations<br>"
+                "• <a href='/staff/create-user/' style='color:#00A3A1;'>Create Admin/User</a> — Create new accounts<br>"
+                "• <a href='/logs/system-logs/' style='color:#00A3A1;'>System Log</a> — Activity logs with CSV export<br>"
+                "• <a href='/logs/system-report/' style='color:#00A3A1;'>System Report</a> — Download metrics CSV"
+            )
+
+        # Admin roles
+        if self.fuzzy_match(message_lower, ['admin role', 'admin type', 'super admin', 'normal admin', 'expedition admin',
+                                             'child admin', 'rbac', 'access control', 'admin permission', 'who can']):
+            return (
+                "<strong>🔐 Admin Roles & Access Control</strong><br><br>"
+                "NPDC has <strong>3 admin types</strong>:<br><br>"
+                "<strong>1. Super Admin</strong><br>"
+                "• Full access to everything including Django admin (/admin/)<br>"
+                "• Can delete datasets, manage all users, view system logs<br><br>"
+                "<strong>2. Normal Admin</strong><br>"
+                "• Same as Super Admin except no Django admin panel<br>"
+                "• Can delete datasets, manage users, view system logs<br><br>"
+                "<strong>3. Expedition Admin (Child Admin)</strong><br>"
+                "• Assigned to one expedition type (Antarctic/Arctic/Southern Ocean/Himalaya)<br>"
+                "• Can <strong>only</strong> see/review datasets of their type<br>"
+                "• <strong>Cannot</strong> access user management, system logs, or delete datasets"
+            )
+
+        # User management / user approval
+        if user_type == 'admin' and self.fuzzy_match(message_lower, ['user management', 'manage user', 'user approval', 'approve user',
+                                                                      'reject user', 'pending user', 'create user', 'create admin',
+                                                                      'new user', 'new admin', 'change user password']):
+            return (
+                "<strong>👥 User Management</strong><br><br>"
+                "<strong>User Approval Dashboard</strong> (<a href='/staff/user-approval/' style='color:#00A3A1;'>/staff/user-approval/</a>):<br>"
+                "• <strong>Pending</strong> — New registrations awaiting approval<br>"
+                "• <strong>Approved</strong> — Active standard users<br>"
+                "• <strong>Admin</strong> — Active staff users<br>"
+                "• <strong>Rejected</strong> — Rejected registrations<br><br>"
+                "<strong>Actions:</strong><br>"
+                "• View/Edit user details<br>"
+                "• Approve or Reject registrations<br>"
+                "• Request Info — send email asking for more details<br>"
+                "• Change user password<br><br>"
+                "<strong>Create Users</strong> (<a href='/staff/create-user/' style='color:#00A3A1;'>/staff/create-user/</a>):<br>"
+                "• Standard User — auto-approved researcher account<br>"
+                "• Admin User — with optional expedition type assignment<br><br>"
+                "<em>Only Super Admins and Normal Admins can access user management.</em>"
+            )
+
+        # System logs
+        if user_type == 'admin' and self.fuzzy_match(message_lower, ['system log', 'activity log', 'audit log', 'system report',
+                                                                      'system monitor', 'log export', 'csv export logs']):
+            return (
+                "<strong>📋 System Logs & Reports</strong><br><br>"
+                "<strong>System Log</strong> (<a href='/logs/system-logs/' style='color:#00A3A1;'>/logs/system-logs/</a>):<br>"
+                "• Tracks all system activity (logins, submissions, reviews, etc.)<br>"
+                "• Filter by action type, user, and date range<br>"
+                "• Export to CSV for offline analysis<br><br>"
+                "<strong>System Report</strong> (<a href='/logs/system-report/' style='color:#00A3A1;'>/logs/system-report/</a>):<br>"
+                "• Downloads a CSV with key metrics:<br>"
+                "  - Total/active/staff/superuser counts<br>"
+                "  - New users in last 30 days<br>"
+                "  - Dataset counts by status<br>"
+                "  - Activity log totals<br><br>"
+                "<em>Only Super Admins and Normal Admins can access system logs.</em>"
+            )
+
+        # Delete dataset
+        if user_type == 'admin' and self.fuzzy_match(message_lower, ['delete dataset', 'remove dataset', 'delete submission']):
+            return (
+                "<strong>🗑️ Delete a Dataset</strong><br><br>"
+                "Datasets can be permanently deleted from the <strong>All Datasets</strong> page.<br><br>"
+                "<strong>Who can delete:</strong><br>"
+                "• ✅ Super Admin<br>"
+                "• ✅ Normal Admin<br>"
+                "• ❌ Expedition Admin (cannot delete)<br><br>"
+                "<strong>How:</strong> Go to <a href='/data/admin/all/' style='color:#00A3A1;'>All Datasets</a> → "
+                "find the dataset → click <strong>Delete</strong> (POST action).<br><br>"
+                "<em>⚠️ This action is permanent and cannot be undone.</em>"
             )
 
         # DOI questions
@@ -1045,8 +1158,7 @@ RULES:
                 f"<strong>{kb['contact']['name']}</strong><br><br>"
                 f"<strong>📍 Address:</strong><br>{kb['contact']['address']}<br><br>"
                 f"<strong>📞 Phone:</strong> <a href='tel:{kb['contact']['phone']}' style='color: #00A3A1;'>{kb['contact']['phone']}</a><br><br>"
-                f"<strong>✉️ Email:</strong> <a href='mailto:{kb['contact']['email']}' style='color: #00A3A1;'>{kb['contact']['email']}</a><br><br>"
-                f"<strong>🕐 Hours:</strong> {kb['contact']['hours']}"
+                f"<strong>✉️ Email:</strong> <a href='mailto:{kb['contact']['email']}' style='color: #00A3A1;'>{kb['contact']['email']}</a>"
             )
         
         # Status/Review
@@ -1064,17 +1176,26 @@ RULES:
             )
         
         # Default response
-        return (
-            "<strong>Welcome to NPDC Portal!</strong><br><br>"
-            "I can help you with:<br>"
+        default_items = (
             "• 📤 Submitting datasets<br>"
             "• 🤖 AI submission tools (auto-classify, smart keywords, etc.)<br>"
             "• 🔍 Searching &amp; filtering datasets<br>"
             "• 🧊 Expedition information<br>"
             "• 📋 Metadata requirements &amp; data resolution<br>"
             "• 📊 Submission status<br>"
-            "• 🔒 Data access requests<br>"
-            "• 📧 Contact information<br><br>"
+            "• � Data access requests<br>"
+            "• 📧 Contact information<br>"
+        )
+        if user_type == 'admin':
+            default_items += (
+                "• 🛡️ Admin panel &amp; navigation<br>"
+                "• 🔐 Admin roles &amp; permissions<br>"
+                "• 👥 User management<br>"
+                "• 📋 System logs &amp; reports<br>"
+            )
+        return (
+            "<strong>Welcome to NPDC Portal!</strong><br><br>"
+            f"I can help you with:<br>{default_items}<br>"
             "What would you like to know?"
         )
     
