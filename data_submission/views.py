@@ -625,7 +625,7 @@ def view_submission(request, metadata_id):
     Published datasets are visible to any logged-in user.
     Draft/submitted/under_review/revision only visible to owner or staff."""
     
-    from django.shortcuts import redirect
+
     from django.contrib import messages
 
     # Try to get by metadata_id first
@@ -671,7 +671,7 @@ def export_submission_xml(request, metadata_id):
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
+
                 return redirect('data_submission:export_submission_xml', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")
@@ -698,7 +698,6 @@ def get_data_view(request, metadata_id):
     immediately email the user the dataset PDF (and optionally cc superusers).
     The previous approval/rejection flow has been removed.
     """
-    
     # Try to get by metadata_id first
     try:
         submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
@@ -708,7 +707,6 @@ def get_data_view(request, metadata_id):
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
                 return redirect('data_submission:get_data', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")
@@ -849,7 +847,7 @@ def get_data_success_view(request, metadata_id):
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
+
                 return redirect('data_submission:get_data_success', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")
@@ -876,7 +874,7 @@ def submission_success(request, metadata_id):
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id), submitter=request.user)
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
+
                 return redirect('data_submission:submission_success', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")
@@ -1104,7 +1102,7 @@ def review_submission_detail(request, metadata_id):
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
+
                 return redirect('data_submission:review_submission_detail', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")

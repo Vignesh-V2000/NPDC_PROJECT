@@ -63,7 +63,7 @@ def get_weather_data_priority(model_class, date_field, temp_field, humidity_fiel
         result = {
             'temperature': round(temp_value, 1) if temp_value is not None else None,
             'date': date_value.isoformat() if date_value else None,
-            'formatted_date': date_value.strftime("%d %b %Y") + ", 11:00 PM" if date_value else 'No Date',
+            'formatted_date': date_value.strftime("%d %b %Y") + " 11:00 PM" if date_value else 'No Date',
         }
 
         if humidity_field:

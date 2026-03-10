@@ -725,7 +725,7 @@
 </section>
 
 <!-- Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/chart.js' %}"></script>
 
 <style>
     .custom-legend-list {
@@ -1022,10 +1022,10 @@
 </section>
 
 <!-- Wordcloud Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
+<script src="{% static 'js/wordcloud2.min.js' %}"></script>
 <!-- Leaflet Map Library -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="{% static 'css/leaflet.css' %}" />
+<script src="{% static 'js/leaflet.js' %}"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -1494,10 +1494,10 @@
                             <a href="{% url 'users:station_detail' 'maitri' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Antarctica - Maitri:
                             </a>
+                            <div class="temperature-display my-1">
+                                <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="maitri">--&deg; C</span>
+                            </div>
                         </h5>
-                        <div class="temperature-display my-1">
-                            <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="maitri">--&deg; C</span>
-                        </div>
                         <div class="weather-date fw-datetime" data-station="maitri">Loading...</div>
                     </div>
                 </div>
@@ -2427,8 +2427,9 @@
     
     .temperature-display {
         font-size: 1.8rem; font-weight: 800; color: #dc2626;
-        border-bottom: 2px solid #fee2e2; padding-bottom: 0.75rem;
-        display: inline-flex; align-items: center;
+        border-bottom: 3px solid #ff6600; padding: 0 1.5rem 0.75rem 1.5rem;
+        display: inline-flex; align-items: center; justify-content: center;
+        margin-bottom: 0.5rem;
     }
     .temperature-display i { color: #3b82f6; margin-right: 0.5rem; }
     
