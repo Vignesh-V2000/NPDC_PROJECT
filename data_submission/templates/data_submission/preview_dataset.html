@@ -218,6 +218,26 @@
         white-space: nowrap;
         position: relative;
         padding-left: 2rem;
+    }
+    
+    @media (max-width: 1024px) {
+        .kpdc-metadata-table td:first-child {
+            width: 200px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .kpdc-metadata-table td:first-child {
+            width: 160px;
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .kpdc-metadata-table td:first-child {
+            width: 100%;
+            min-width: 100px;
+        }
         font-size: 0.95rem;
     }
 
@@ -290,6 +310,23 @@
         position: relative;
         border: 2px solid #5ba3d9;
     }
+    
+    @media (max-width: 1200px) {
+        .kpdc-map-container {
+            height: 350px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .kpdc-map-container {
+            height: 300px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .kpdc-map-container {
+            height: 250px;
+        }
 
     .kpdc-map-container #map {
         width: 100%;
@@ -905,10 +942,7 @@
         if (mapEl) { mapEl.setAttribute('tabindex', '-1'); }
         map.getContainer().setAttribute('tabindex', '-1');
 
-        // Force scroll to top
-        window.scrollTo(0, 0);
-        setTimeout(function() { window.scrollTo(0, 0); }, 50);
-        setTimeout(function() { window.scrollTo(0, 0); }, 200);
+        // Allow default browser scroll restoration behavior
     });
 </script>
 {% endblock %}

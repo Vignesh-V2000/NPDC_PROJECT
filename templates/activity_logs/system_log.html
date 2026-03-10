@@ -197,7 +197,229 @@
                     white-space: nowrap;
                 }
 
-                /* Pagination */
+                /* Responsive Design - Tablet (768px - 1199px) */
+                @media (max-width: 1199px) {
+                    .syslog-hero {
+                        padding: 1.75rem 1.5rem 1.4rem;
+                        margin-bottom: 1.25rem;
+                    }
+
+                    .syslog-hero-title {
+                        font-size: 2rem;
+                    }
+
+                    .syslog-hero-sub {
+                        font-size: 0.85rem;
+                    }
+
+                    .syslog-hero-orb-1 { width: 250px; height: 250px; top: -80px; left: -40px; }
+                    .syslog-hero-orb-2 { width: 180px; height: 180px; top: -30px; right: 5%; }
+                    .syslog-hero-orb-3 { width: 200px; height: 200px; bottom: -70px; right: 20%; }
+
+                    .syslog-table-scroll {
+                        max-height: 500px;
+                    }
+                }
+
+                /* Responsive Design - Mobile (480px - 767px) */
+                @media (max-width: 767px) {
+                    .syslog-hero {
+                        padding: 1.5rem 1rem 1.2rem;
+                        margin-bottom: 1rem;
+                        border-radius: 0.75rem;
+                    }
+
+                    .syslog-hero-title {
+                        font-size: 1.35rem;
+                        letter-spacing: -0.02em;
+                    }
+
+                    .syslog-hero-title i {
+                        display: block;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .syslog-hero-sub {
+                        font-size: 0.8rem;
+                        line-height: 1.4;
+                    }
+
+                    .syslog-hero-orb {
+                        filter: blur(50px);
+                        opacity: 0.1;
+                    }
+
+                    .syslog-hero-orb-1 { width: 200px; height: 200px; top: -70px; left: -50px; }
+                    .syslog-hero-orb-2 { width: 150px; height: 150px; top: -40px; right: 0%; }
+                    .syslog-hero-orb-3 { width: 150px; height: 150px; bottom: -60px; right: 10%; }
+
+                    .syslog-count-pill {
+                        font-size: 0.7rem;
+                        padding: 0.25rem 0.6rem;
+                    }
+
+                    .syslog-count-dot {
+                        width: 5px;
+                        height: 5px;
+                    }
+
+                    .syslog-table-card {
+                        border-radius: 0.75rem;
+                    }
+
+                    .syslog-table-scroll {
+                        max-height: 350px;
+                        overflow-x: auto;
+                    }
+
+                    .syslog-table thead th {
+                        font-size: 0.65rem;
+                        padding: 0.6rem 0.5rem;
+                        white-space: nowrap;
+                    }
+
+                    .syslog-table tbody td {
+                        padding: 0.5rem 0.6rem;
+                        font-size: 0.75rem;
+                    }
+
+                    .sl-action-badge {
+                        font-size: 0.65rem;
+                        padding: 0.2rem 0.5rem;
+                    }
+
+                    .sl-user-badge {
+                        font-size: 0.7rem;
+                        padding: 0.15rem 0.4rem;
+                    }
+
+                    .sl-status-success,
+                    .sl-status-failed {
+                        font-size: 0.7rem;
+                    }
+
+                    .sl-details-text {
+                        font-size: 0.7rem;
+                    }
+
+                    .sl-path-text {
+                        font-size: 0.65rem;
+                    }
+
+                    .sl-time-text {
+                        font-size: 0.75rem;
+                    }
+                }
+
+                /* Responsive Design - Extra Small (<480px) */
+                @media (max-width: 479px) {
+                    .container-fluid {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                    }
+
+                    .syslog-hero {
+                        padding: 1.25rem 0.75rem 1rem;
+                        margin-bottom: 0.75rem;
+                        border-radius: 0.5rem;
+                    }
+
+                    .syslog-hero-title {
+                        font-size: 1.1rem;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .syslog-hero-title i {
+                        display: block;
+                        margin-bottom: 0.25rem;
+                        font-size: 1rem;
+                    }
+
+                    .syslog-hero-sub {
+                        font-size: 0.75rem;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .syslog-hero-orb {
+                        filter: blur(40px);
+                        opacity: 0.08;
+                    }
+
+                    .syslog-hero-orb-1 { width: 150px; height: 150px; top: -60px; left: -60px; }
+                    .syslog-hero-orb-2 { width: 120px; height: 120px; top: -50px; right: -30px; }
+                    .syslog-hero-orb-3 { width: 100px; height: 100px; bottom: -50px; right: 0%; }
+
+                    .syslog-count-pill {
+                        font-size: 0.6rem;
+                        padding: 0.15rem 0.4rem;
+                    }
+
+                    .syslog-count-dot {
+                        width: 4px;
+                        height: 4px;
+                    }
+
+                    .syslog-table-card {
+                        border-radius: 0.5rem;
+                        border: 1px solid #e2e8f0;
+                    }
+
+                    .syslog-table-scroll {
+                        max-height: 300px;
+                        overflow-x: auto;
+                    }
+
+                    .syslog-table thead th {
+                        font-size: 0.6rem;
+                        padding: 0.4rem 0.35rem;
+                        white-space: nowrap;
+                    }
+
+                    .syslog-table tbody td {
+                        padding: 0.35rem 0.4rem;
+                        font-size: 0.65rem;
+                    }
+
+                    .sl-action-badge {
+                        font-size: 0.6rem;
+                        padding: 0.15rem 0.4rem;
+                        gap: 0.15rem;
+                    }
+
+                    .sl-user-badge {
+                        font-size: 0.65rem;
+                        padding: 0.12rem 0.3rem;
+                    }
+
+                    .sl-status-success,
+                    .sl-status-failed {
+                        font-size: 0.65rem;
+                    }
+
+                    .sl-details-text {
+                        font-size: 0.65rem;
+                        line-height: 1.3;
+                    }
+
+                    .sl-path-text {
+                        font-size: 0.6rem;
+                    }
+
+                    .sl-time-text {
+                        font-size: 0.7rem;
+                    }
+
+                    .col-xl-2,
+                    .col-lg-3,
+                    .col-xl-10,
+                    .col-lg-9 {
+                        width: 100%;
+                    }
+
+                    .mb-4.mb-lg-0 {
+                        margin-bottom: 1rem !important;
+                    }
+                }
                 .syslog-pagination .page-link {
                     border: 1px solid #e2e8f0;
                     color: #475569;
@@ -223,6 +445,119 @@
                 .syslog-pagination .page-item.disabled .page-link {
                     color: #cbd5e1;
                     background: #f8fafc;
+                }
+                
+                /* ========= RESPONSIVE MEDIA QUERIES ========= */
+                @media (max-width: 1199px) {
+                    .syslog-hero-title {
+                        font-size: 2.2rem;
+                    }
+                    
+                    .syslog-table-scroll {
+                        max-height: 500px;
+                    }
+                }
+                
+                @media (max-width: 767px) {
+                    .syslog-hero {
+                        padding: 1.5rem 1rem;
+                    }
+                    
+                    .syslog-hero-title {
+                        font-size: 1.5rem;
+                        margin-bottom: 0.4rem;
+                    }
+                    
+                    .syslog-table-scroll {
+                        max-height: 350px;
+                        overflow-x: auto;
+                    }
+                    
+                    .syslog-table {
+                        font-size: 0.75rem;
+                    }
+                    
+                    .syslog-table thead th {
+                        font-size: 0.6rem;
+                        padding: 0.5rem 0.35rem;
+                    }
+                    
+                    .syslog-table tbody td {
+                        padding: 0.5rem 0.35rem;
+                        font-size: 0.7rem;
+                    }
+                }
+                
+                @media (max-width: 479px) {
+                    .container-fluid {
+                        padding: 0.5rem;
+                    }
+                    
+                    .syslog-hero {
+                        padding: 1rem 0.75rem;
+                        margin-bottom: 1rem;
+                        border-radius: 0.5rem;
+                    }
+                    
+                    .syslog-hero-title {
+                        font-size: 1.2rem;
+                        letter-spacing: -0.01em;
+                        margin-bottom: 0.25rem;
+                    }
+                    
+                    .syslog-hero-sub {
+                        font-size: 0.75rem;
+                    }
+                    
+                    .syslog-count-pill {
+                        font-size: 0.55rem;
+                        padding: 0.1rem 0.3rem;
+                    }
+                    
+                    .syslog-table-scroll {
+                        max-height: 250px;
+                        overflow-x: auto;
+                    }
+                    
+                    .syslog-table {
+                        font-size: 0.65rem;
+                    }
+                    
+                    .syslog-table thead th {
+                        font-size: 0.55rem;
+                        padding: 0.3rem 0.2rem;
+                        white-space: nowrap;
+                    }
+                    
+                    .syslog-table tbody td {
+                        padding: 0.3rem 0.2rem;
+                        font-size: 0.6rem;
+                        word-break: break-word;
+                    }
+                    
+                    .sl-action-badge {
+                        font-size: 0.55rem;
+                        padding: 0.1rem 0.3rem;
+                        gap: 0.1rem;
+                    }
+                    
+                    .sl-user-badge {
+                        font-size: 0.6rem;
+                        padding: 0.08rem 0.2rem;
+                    }
+                    
+                    .syslog-pagination {
+                        font-size: 0.7rem;
+                    }
+                    
+                    .page-link {
+                        padding: 0.2rem 0.4rem;
+                    }
+                    
+                    .btn {
+                        font-size: 0.7rem;
+                        padding: 0.25rem 0.5rem;
+                    }
                 }
             </style>
 
@@ -278,11 +613,11 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-secondary w-50" style="height: 1.8125rem !important;" onclick="clearFilters()">
+                        <div class="col-md-3 d-flex flex-column flex-sm-row gap-2 mt-3 mt-md-0">
+                            <button class="btn btn-sm btn-outline-secondary w-100 w-sm-auto flex-grow-1 text-nowrap" style="height: 1.8125rem !important;" onclick="clearFilters()">
                                 <i class="fas fa-refresh me-1"></i>Clear
                             </button>
-                            <a href="?{% if selected_action %}action_type={{ selected_action }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}&{% endif %}{% if selected_user %}user={{ selected_user }}&{% endif %}export=csv" class="btn btn-sm btn-success w-50" style="height: 1.8125rem !important;">
+                            <a href="?{% if selected_action %}action_type={{ selected_action }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}&{% endif %}{% if selected_user %}user={{ selected_user }}&{% endif %}export=csv" class="btn btn-sm btn-success w-100 w-sm-auto flex-grow-1 text-nowrap" style="height: 1.8125rem !important;">
                                 <i class="fas fa-download me-1"></i>CSV Export
                             </a>
                         </div>

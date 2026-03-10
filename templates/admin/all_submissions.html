@@ -221,6 +221,415 @@
                     background: rgba(255,255,255,0.15);
                     color: #fff;
                 }
+
+                /* Responsive Design - Tablet (768px - 1199px) */
+                @media (max-width: 1199px) {
+                    .datasets-hero {
+                        padding: 1.75rem 1.5rem 1.4rem;
+                        margin-bottom: 1.25rem;
+                    }
+
+                    .datasets-hero-title {
+                        font-size: 2rem;
+                    }
+
+                    .datasets-hero-sub {
+                        font-size: 0.85rem;
+                    }
+
+                    .datasets-hero-orb-1 { width: 250px; height: 250px; top: -80px; left: -40px; }
+                    .datasets-hero-orb-2 { width: 180px; height: 180px; top: -30px; right: 5%; }
+                    .datasets-hero-orb-3 { width: 200px; height: 200px; bottom: -70px; right: 20%; }
+
+                    .adv-filters-panel {
+                        padding: 1rem;
+                    }
+
+                    .result-card {
+                        margin-bottom: 1.25rem;
+                    }
+
+                    .card-body {
+                        padding: 1.5rem !important;
+                    }
+
+                    .badge {
+                        font-size: 0.75rem !important;
+                    }
+                }
+
+                /* Responsive Design - Mobile (480px - 767px) */
+                @media (max-width: 767px) {
+                    .datasets-hero {
+                        padding: 1.5rem 1rem 1.2rem;
+                        margin-bottom: 1rem;
+                        border-radius: 0.75rem;
+                    }
+
+                    .datasets-hero-title {
+                        font-size: 1.35rem;
+                        letter-spacing: -0.02em;
+                    }
+
+                    .datasets-hero-title-icon {
+                        display: block;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .datasets-hero-sub {
+                        font-size: 0.8rem;
+                        line-height: 1.4;
+                    }
+
+                    .datasets-hero-orb {
+                        filter: blur(50px);
+                        opacity: 0.1;
+                    }
+
+                    .datasets-hero-orb-1 { width: 200px; height: 200px; top: -70px; left: -50px; }
+                    .datasets-hero-orb-2 { width: 150px; height: 150px; top: -40px; right: 0%; }
+                    .datasets-hero-orb-3 { width: 150px; height: 150px; bottom: -60px; right: 10%; }
+
+                    .datasets-hero-bar-inner {
+                        flex-wrap: wrap;
+                        gap: 0.5rem;
+                        padding: 0.5rem;
+                    }
+
+                    .datasets-search-icon {
+                        font-size: 0.95rem;
+                        margin-right: 0.5rem;
+                    }
+
+                    .datasets-hero-input {
+                        font-size: 0.9rem;
+                        padding: 0.5rem 0;
+                        flex: 1;
+                        min-width: 100%;
+                    }
+
+                    .datasets-hero-btn {
+                        padding: 0.6rem 1.2rem;
+                        font-size: 0.8rem;
+                        white-space: nowrap;
+                    }
+
+                    .d-flex.align-items-center.justify-content-between {
+                        flex-wrap: wrap;
+                        gap: 0.75rem;
+                    }
+
+                    .datasets-count-pill {
+                        font-size: 0.7rem;
+                        padding: 0.25rem 0.6rem;
+                    }
+
+                    .adv-filters-toggle {
+                        font-size: 0.8rem;
+                    }
+
+                    .adv-filters-panel {
+                        padding: 0.75rem;
+                        border-radius: 0.5rem;
+                    }
+
+                    .adv-filters-panel .form-label {
+                        font-size: 0.65rem;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .adv-filters-panel .form-select,
+                    .adv-filters-panel .form-control {
+                        font-size: 0.8rem;
+                        padding: 0.35rem 0.5rem;
+                    }
+
+                    .adv-filters-panel .row {
+                        gap: 0.5rem;
+                    }
+
+                    .adv-filters-panel .col-lg-3,
+                    .adv-filters-panel .col-md-6 {
+                        min-width: 100%;
+                    }
+
+                    .input-group-text {
+                        font-size: 0.75rem;
+                        padding: 0.35rem 0.5rem !important;
+                    }
+
+                    .adv-filters-panel .btn-apply-adv,
+                    .adv-filters-panel .btn-clear-adv {
+                        padding: 0.45rem 1rem;
+                        font-size: 0.75rem;
+                    }
+
+                    .d-flex.justify-content-end.gap-2 {
+                        flex-wrap: wrap;
+                        gap: 0.5rem !important;
+                    }
+
+                    .result-card {
+                        margin-bottom: 1rem;
+                        border-radius: 0.75rem;
+                    }
+
+                    .card-body {
+                        padding: 1rem !important;
+                    }
+
+                    .card-title {
+                        font-size: 1rem;
+                    }
+
+                    .badge {
+                        font-size: 0.7rem !important;
+                        padding: 0.25rem 0.5rem !important;
+                    }
+
+                    .abstract-preview {
+                        font-size: 0.85rem !important;
+                    }
+
+                    .abstract-toggle {
+                        font-size: 0.75rem;
+                    }
+
+                    .d-flex.flex-wrap.gap-2 {
+                        gap: 0.5rem !important;
+                    }
+
+                    .row.g-3 {
+                        gap: 0.5rem !important;
+                    }
+
+                    .row.g-3 > * {
+                        padding-left: 0.25rem;
+                        padding-right: 0.25rem;
+                    }
+
+                    .text-muted.small {
+                        font-size: 0.7rem;
+                    }
+
+                    .border-top {
+                        margin-top: 0.75rem;
+                        padding-top: 0.75rem;
+                    }
+
+                    .shrink-0 {
+                        margin-left: 0.5rem;
+                    }
+                }
+
+                /* Responsive Design - Extra Small (<480px) */
+                @media (max-width: 479px) {
+                    .container-fluid {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                    }
+
+                    .datasets-hero {
+                        padding: 1.25rem 0.75rem 1rem;
+                        margin-bottom: 0.75rem;
+                        border-radius: 0.5rem;
+                    }
+
+                    .datasets-hero-title {
+                        font-size: 1.1rem;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .datasets-hero-title i {
+                        display: block;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .datasets-hero-sub {
+                        font-size: 0.75rem;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .datasets-hero-orb {
+                        filter: blur(40px);
+                        opacity: 0.08;
+                    }
+
+                    .datasets-hero-orb-1 { width: 150px; height: 150px; top: -60px; left: -60px; }
+                    .datasets-hero-orb-2 { width: 120px; height: 120px; top: -50px; right: -30px; }
+                    .datasets-hero-orb-3 { width: 100px; height: 100px; bottom: -50px; right: 0%; }
+
+                    .datasets-hero-bar-inner {
+                        flex-direction: column;
+                        padding: 0.4rem;
+                        gap: 0.35rem;
+                    }
+
+                    .datasets-search-icon {
+                        font-size: 0.85rem;
+                        margin-right: 0;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .datasets-hero-input {
+                        font-size: 0.8rem;
+                        padding: 0.35rem;
+                        width: 100%;
+                    }
+
+                    .datasets-hero-btn {
+                        padding: 0.5rem 1rem;
+                        font-size: 0.7rem;
+                        width: 100%;
+                    }
+
+                    .datasets-hero-bar {
+                        margin-bottom: 0.75rem;
+                    }
+
+                    .d-flex.align-items-center.justify-content-between {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.5rem;
+                    }
+
+                    .datasets-count-pill {
+                        font-size: 0.65rem;
+                        padding: 0.2rem 0.5rem;
+                    }
+
+                    .datasets-count-dot {
+                        width: 5px;
+                        height: 5px;
+                    }
+
+                    .adv-filters-toggle {
+                        font-size: 0.75rem;
+                        align-self: flex-end;
+                    }
+
+                    .adv-filters-panel {
+                        padding: 0.6rem;
+                        border-radius: 0.4rem;
+                    }
+
+                    .adv-filters-panel .form-label {
+                        font-size: 0.6rem;
+                        margin-bottom: 0.2rem;
+                    }
+
+                    .adv-filters-panel .form-select,
+                    .adv-filters-panel .form-control {
+                        font-size: 0.75rem;
+                        padding: 0.3rem 0.4rem;
+                        height: auto;
+                    }
+
+                    .adv-filters-panel .row {
+                        gap: 0.35rem;
+                    }
+
+                    .adv-filters-panel .col-lg-3,
+                    .adv-filters-panel .col-md-6 {
+                        width: 100%;
+                    }
+
+                    .input-group-text {
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.4rem !important;
+                    }
+
+                    .adv-filters-panel .btn-apply-adv,
+                    .adv-filters-panel .btn-clear-adv {
+                        padding: 0.35rem 0.8rem;
+                        font-size: 0.7rem;
+                        flex: 1;
+                    }
+
+                    .d-flex.justify-content-end.gap-2 {
+                        gap: 0.35rem !important;
+                        margin-top: 0.75rem;
+                        padding-top: 0.75rem;
+                    }
+
+                    .result-card {
+                        margin-bottom: 0.75rem;
+                        border-radius: 0.5rem;
+                        border-top-width: 3px !important;
+                    }
+
+                    .card-body {
+                        padding: 0.75rem !important;
+                    }
+
+                    .card-title {
+                        font-size: 0.95rem;
+                        margin-bottom: 0.35rem;
+                    }
+
+                    .badge {
+                        font-size: 0.65rem !important;
+                        padding: 0.2rem 0.4rem !important;
+                    }
+
+                    .badge.font-monospace {
+                        font-size: 0.6rem !important;
+                    }
+
+                    .abstract-preview {
+                        font-size: 0.8rem !important;
+                        line-height: 1.4;
+                    }
+
+                    .abstract-toggle {
+                        font-size: 0.7rem;
+                    }
+
+                    .d-flex.flex-wrap.gap-2 {
+                        gap: 0.35rem !important;
+                    }
+
+                    .row.g-3 {
+                        gap: 0.35rem !important;
+                    }
+
+                    .row.g-3 > * {
+                        padding-left: 0.2rem;
+                        padding-right: 0.2rem;
+                    }
+
+                    .text-muted.small {
+                        font-size: 0.65rem;
+                    }
+
+                    .border-top {
+                        margin-top: 0.5rem;
+                        padding-top: 0.5rem;
+                    }
+
+                    .shrink-0 {
+                        margin-left: 0.25rem;
+                    }
+
+                    .status-badge {
+                        display: block;
+                        width: 100%;
+                        text-align: center;
+                        margin-bottom: 0.35rem;
+                    }
+
+                    /* Submission details on mobile */
+                    .d-flex.justify-content-between.align-items-start {
+                        flex-direction: column;
+                        gap: 0.5rem;
+                    }
+
+                    .text-end.shrink-0.ms-3 {
+                        text-align: left !important;
+                        margin-left: 0 !important;
+                        width: 100%;
+                    }
+                }
             </style>
 
             <div class="datasets-hero">

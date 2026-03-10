@@ -1,4 +1,118 @@
 {% for dataset in page_obj %}
+<style>
+    /* ========= RESPONSIVE STYLES ========= */
+    @media (max-width: 1024px) {
+        .result-card {
+            card-delay: calc(var(--card-delay) * 20ms);
+        }
+        
+        .result-title {
+            font-size: 1rem;
+        }
+        
+        .result-details-row .col-md-4 {
+            max-width: 50%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .result-scientist-badge {
+            font-size: 0.85rem;
+        }
+        
+        .result-title {
+            font-size: 0.95rem;
+        }
+        
+        .result-abstract {
+            font-size: 0.9rem;
+        }
+        
+        .result-badge {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.6rem;
+        }
+        
+        .result-details-row {
+            gap: 1rem;
+        }
+        
+        .result-details-row .col-md-4 {
+            max-width: 100%;
+        }
+        
+        .result-detail-icon {
+            width: 40px;
+            height: 40px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .result-card {
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1rem 0.75rem;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .result-title {
+            font-size: 0.85rem;
+        }
+        
+        .result-scientist-badge {
+            font-size: 0.75rem;
+            text-align: center;
+        }
+        
+        .result-abstract-preview,
+        .result-abstract {
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .result-badge {
+            font-size: 0.65rem;
+            padding: 0.25rem 0.4rem;
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+        
+        .result-detail-block {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .result-detail-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .result-detail-label {
+            font-size: 0.7rem;
+        }
+        
+        .result-detail-value {
+            font-size: 0.75rem;
+        }
+        
+        .result-toggle-link {
+            font-size: 0.75rem;
+        }
+    }
+</style>
 <div class="card mb-3 result-card border-0" style="--card-delay: {{ forloop.counter0 }}">
     <div class="result-card-accent"></div>
     <div class="result-card-shine"></div>

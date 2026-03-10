@@ -81,6 +81,24 @@
     .dsf-hero-orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; left: -50px; animation: dsfOrb1 8s ease-in-out infinite; }
     .dsf-hero-orb-2 { width: 200px; height: 200px; background: #8b5cf6; top: -50px; right: 10%; animation: dsfOrb2 10s ease-in-out infinite; }
     .dsf-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: dsfOrb1 12s ease-in-out infinite reverse; }
+    
+    @media (max-width: 1024px) {
+        .dsf-hero-orb-1 { width: 250px; height: 250px; top: -80px; left: -40px; }
+        .dsf-hero-orb-2 { width: 180px; height: 180px; top: -40px; }
+        .dsf-hero-orb-3 { width: 200px; height: 200px; bottom: -60px; }
+    }
+    
+    @media (max-width: 768px) {
+        .dsf-hero-orb-1 { width: 180px; height: 180px; top: -60px; left: -30px; }
+        .dsf-hero-orb-2 { width: 130px; height: 130px; top: -30px; }
+        .dsf-hero-orb-3 { width: 150px; height: 150px; bottom: -40px; right: 20%; }
+    }
+    
+    @media (max-width: 480px) {
+        .dsf-hero-orb-1 { width: 120px; height: 120px; top: -40px; left: -20px; }
+        .dsf-hero-orb-2 { width: 90px; height: 90px; top: -20px; }
+        .dsf-hero-orb-3 { width: 100px; height: 100px; bottom: -30px; right: 10%; }
+    }
     @keyframes dsfOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
     @keyframes dsfOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
     .dsf-hero-title { color:#E8734A; font-weight:800; font-size:3rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
@@ -3835,12 +3853,10 @@
         // Apply restore logic
         restoreFormData();
 
-        // Disable browser's built-in scroll restoration and force scroll to top
+        // Allow default browser scroll restoration behavior
         if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
+            history.scrollRestoration = 'auto';
         }
-        window.scrollTo(0, 0);
-        setTimeout(function() { window.scrollTo(0, 0); }, 100);
 
         // Attach listeners to save on change/input
         form.addEventListener('input', saveFormData);

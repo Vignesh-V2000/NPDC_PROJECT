@@ -26,7 +26,7 @@
         <div class="hero-steps-container">
             <div class="row g-4 justify-content-center align-items-center">
                 <!-- Step 1 -->
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="step-card">
                         <div class="step-number">Step 1</div>
                         <h4>Collect Data</h4>
@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- Step 2 -->
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="step-card">
                         <div class="step-number">Step 2</div>
                         <h4>Submit to NPDC</h4>
@@ -58,7 +58,7 @@
                 </div>
 
                 <!-- Step 3 -->
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                     <div class="step-card">
                         <div class="step-number">Step 3</div>
                         <h4>Discover & Analyze</h4>
@@ -635,8 +635,8 @@
         <div class="col-lg-6">
             <div class="chart-card h-100 p-3">
                 <h3 class="chart-title mb-3">Science keywords</h3>
-                <div class="d-flex align-items-center justify-content-between" style="height: 250px;">
-                    <div style="width: 50%; height: 100%; position: relative;">
+                <div class="row align-items-center" style="min-height: 250px;">
+                    <div class="col-12 col-sm-6 mb-3 mb-sm-0 position-relative" style="height: 250px;">
                         <canvas id="keywordsChart"></canvas>
                         <!-- Center text for Doughnut -->
                         <div
@@ -644,18 +644,18 @@
                             <!-- Optional: Total count or center text -->
                         </div>
                     </div>
-                    <div id="keywordsLegend" style="width: 50%; padding-left: 15px;"></div>
+                    <div class="col-12 col-sm-6" id="keywordsLegend"></div>
                 </div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="chart-card h-100 p-3">
                 <h3 class="chart-title mb-3">ISO Topics</h3>
-                <div class="d-flex align-items-center justify-content-between" style="height: 250px;">
-                    <div style="width: 50%; height: 100%; position: relative;">
+                <div class="row align-items-center" style="min-height: 250px;">
+                    <div class="col-12 col-sm-6 mb-3 mb-sm-0 position-relative" style="height: 250px;">
                         <canvas id="isoChart"></canvas>
                     </div>
-                    <div id="isoLegend" style="width: 50%; padding-left: 15px;"></div>
+                    <div class="col-12 col-sm-6" id="isoLegend"></div>
                 </div>
             </div>
         </div>
@@ -664,11 +664,11 @@
         <div class="col-lg-6">
             <div class="chart-card h-100 p-3">
                 <h3 class="chart-title mb-3">Location</h3>
-                <div class="d-flex align-items-center justify-content-between" style="height: 250px;">
-                    <div style="width: 50%; height: 100%; position: relative;">
+                <div class="row align-items-center" style="min-height: 250px;">
+                    <div class="col-12 col-sm-6 mb-3 mb-sm-0 position-relative" style="height: 250px;">
                         <canvas id="locationChart"></canvas>
                     </div>
-                    <div id="locationLegend" style="width: 50%; padding-left: 15px;"></div>
+                    <div class="col-12 col-sm-6" id="locationLegend"></div>
                 </div>
             </div>
         </div>
@@ -679,7 +679,7 @@
                 </h3>
 
                 <div class="row g-3" id="summaryCardsRow" style="margin-top: 6px;">
-                    <div class="col-6 col-md-6 col-lg-6">
+                    <div class="col-12 col-sm-6">
                         <div class="metric-card p-3">
                             <div class="metric-info">
                                 <span class="metric-label">Total Published Data</span>
@@ -689,7 +689,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-6 col-lg-6">
+                    <div class="col-12 col-sm-6">
                         <div class="metric-card p-3">
                             <div class="metric-info">
                                 <span class="metric-label">Total Users</span>
@@ -699,7 +699,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-6 col-lg-6">
+                    <div class="col-12 col-sm-6">
                         <div class="metric-card p-3">
                             <div class="metric-info">
                                 <span class="metric-label">Contributed By</span>
@@ -709,7 +709,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-6 col-lg-6">
+                    <div class="col-12 col-sm-6">
                         <div class="metric-card p-3">
                             <div class="metric-info">
                                 <span class="metric-label">Total Downloads</span>
@@ -1865,6 +1865,39 @@
         .step-card {
             background: #1e293b;
         }
+        
+        /* Responsive chart heights for mobile */
+        .chart-card [style*="height: 250px"],
+        .chart-card [style*="min-height: 250px"] {
+            height: 200px !important;
+            min-height: 200px !important;
+        }
+        
+        .chart-card .row[style*="min-height: 250px"] {
+            min-height: 200px !important;
+        }
+        
+        /* Responsive canvas heights on mobile */
+        canvas[style*="height: 300px"],
+        canvas[style*="height: 250px"] {
+            height: 200px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .chart-card [style*="height: 250px"],
+        .chart-card [style*="min-height: 250px"] {
+            height: 180px !important;
+            min-height: 180px !important;
+        }
+        
+        canvas[style*="height: 300px"],
+        canvas[style*="height: 250px"] {
+            height: 180px !important;
+        }
+        
+        .chart-card { padding: 1rem !important; }
+        .chart-title { font-size: 1rem; margin-bottom: 1rem; }
     }
 
     /* Feature Cards - Modernized */
@@ -2231,7 +2264,23 @@
         font-weight: 700; padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: #dbeafe !important; color: #1e40af !important;
     }
 
-    .home-search-map { height: 450px; width: 100%; z-index: 1; }
+    .home-search-map { min-height: 450px; width: 100%; z-index: 1; height: auto; }
+    
+    @media (max-width: 1199px) {
+        .home-search-map { min-height: 400px; }
+    }
+    
+    @media (max-width: 991px) {
+        .home-search-map { min-height: 350px; }
+    }
+    
+    @media (max-width: 768px) {
+        .home-search-map { min-height: 300px; }
+    }
+    
+    @media (max-width: 480px) {
+        .home-search-map { min-height: 250px; }
+    }
 
     /* Advanced Search Configurator */
     .home-search-adv-card {
@@ -2300,7 +2349,23 @@
 
     .viz-card { padding: 0; }
     .viz-card .viz-title { padding: 1.75rem 1.75rem 1rem; margin-bottom: 0; border-bottom: 1px solid #f1f5f9; }
-    .viz-container { padding: 1.5rem; height: 380px; width: 100%; }
+    .viz-container { padding: 1.5rem; min-height: 300px; width: 100%; height: auto; }
+    
+    @media (min-width: 1024px) {
+        .viz-container { height: 380px; }
+    }
+    
+    @media (max-width: 1023px) {
+        .viz-container { min-height: 350px; }
+    }
+    
+    @media (max-width: 768px) {
+        .viz-container { min-height: 280px; padding: 1rem; }
+    }
+    
+    @media (max-width: 480px) {
+        .viz-container { min-height: 250px; padding: 0.75rem; }
+    }
 
     /* Summary Metric Cards */
     .metric-card {
@@ -2392,14 +2457,288 @@
     .cta-section .btn-outline-primary { color: #0f172a; border: 2px solid #e2e8f0; font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 0.5rem; }
     .cta-section .btn-outline-primary:hover { background-color: #0f172a; color: #ffffff; border-color: #0f172a; transform: translateY(-2px); }
 
-    /* Adjustments */
-    @media (max-width: 992px) {
-        .cta-section { padding: 3rem; text-align: center; }
-        .cta-section .d-flex { justify-content: center; margin-top: 2rem; }
+    /* ========= RESPONSIVE ENHANCEMENTS FOR HOME PAGE ========= */
+    /* Preserve all original values – only adjust layout for smaller screens */
+
+    /* Extra small devices (phones, <576px) */
+    @media (max-width: 575.98px) {
+        .hero-section {
+            min-height: auto;
+            margin: 0 0 2rem 0;
+            width: 100%;
+            border-radius: 0;
+        }
+
+        .hero-steps-container {
+            position: relative;
+            bottom: auto;
+            padding: 2rem 1rem;
+            background: #0f172a;
+        }
+
+        .step-card {
+            background: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .step-arrow {
+            display: none;
+        }
+
+        .feature-card {
+            padding: 1.5rem !important;
+        }
+
+        .home-search-wrapper {
+            padding: 0.5rem !important;
+        }
+
+        .home-search-sidebar {
+            margin-bottom: 1rem;
+        }
+
+        .home-search-sidebar-body {
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .home-search-map {
+            height: 300px;
+        }
+
+        .home-search-map-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .data-list-item {
+            flex-direction: column;
+        }
+
+        .data-list-item .thumb {
+            width: 100%;
+            height: auto;
+            max-height: 160px;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-card .row.align-items-center {
+            flex-direction: column;
+        }
+
+        .chart-card .col-sm-6 {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .chart-card [style*="height: 250px"],
+        .chart-card [style*="min-height: 250px"] {
+            height: 200px !important;
+            min-height: 200px !important;
+        }
+
+        .metric-card {
+            padding: 1rem !important;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+        }
+
+        /* Enhanced mobile media query */
+        @media (max-width: 576px) {
+            .chart-card { 
+                padding: 0.75rem !important; 
+                margin-bottom: 1rem;
+            }
+            
+            .chart-card [style*="height"],
+            canvas[style*="height"] {
+                height: 180px !important;
+                min-height: 180px !important;
+            }
+            
+            .chart-title {
+                font-size: 0.9rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .viz-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        .weather-section .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .weather-card {
+            margin-bottom: 1rem;
+        }
+
+        .cta-section {
+            padding: 2rem 1.5rem !important;
+            text-align: center;
+        }
+
+        .cta-section .d-flex {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
     }
-    @media (max-width: 768px) {
-        .hero-section { min-height: 50vh; margin-bottom: 3rem; }
-        .home-search-map { height: 350px; }
+
+    /* Small devices (landscape phones, 576px and up) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .hero-section {
+            min-height: 45vh;
+        }
+
+        .hero-steps-container {
+            padding: 1.5rem 1rem;
+        }
+
+        .step-card {
+            padding: 1rem;
+        }
+
+        .feature-card {
+            padding: 2rem !important;
+        }
+
+        .home-search-sidebar {
+            margin-bottom: 1.5rem;
+        }
+
+        .home-search-map {
+            height: 350px;
+        }
+
+        .data-list-item {
+            flex-direction: row;
+        }
+
+        .data-list-item .thumb {
+            width: 80px;
+            height: 60px;
+            flex: 0 0 80px;
+        }
+
+        .chart-card .row.align-items-center {
+            flex-direction: column;
+        }
+
+        .chart-card .col-sm-6 {
+            width: 100%;
+        }
+
+        .chart-card [style*="height: 250px"] {
+            height: 220px !important;
+        }
+
+        .weather-card {
+            margin-bottom: 1rem;
+        }
+
+        .cta-section {
+            padding: 3rem 2rem !important;
+        }
+    }
+
+    /* Medium devices (tablets, 768px and up) */
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .home-search-sidebar {
+            margin-bottom: 1.5rem;
+        }
+
+        .home-search-map {
+            height: 400px;
+        }
+
+        .data-list-item .thumb {
+            width: 90px;
+            height: 65px;
+            flex: 0 0 90px;
+        }
+
+        .chart-card .row.align-items-center {
+            flex-direction: column;
+        }
+
+        .chart-card .col-sm-6 {
+            width: 100%;
+        }
+
+        .chart-card [style*="height: 250px"] {
+            height: 230px !important;
+        }
+    }
+
+    /* Ensure dropdowns and modals don't break */
+    @media (max-width: 991.98px) {
+        .home-search-adv-body .row {
+            flex-direction: column;
+        }
+
+        .home-search-adv-body .col-sm-2,
+        .home-search-adv-body .col-sm-3,
+        .home-search-adv-body .col-sm-6,
+        .home-search-adv-body .col-sm-1 {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .home-search-adv-body .btn-outline-danger {
+            width: auto !important;
+        }
+    }
+
+    /* Adjustments for very small devices */
+    @media (max-width: 360px) {
+        .hero-steps-container {
+            padding: 1rem 0.5rem;
+        }
+
+        .step-card h4 {
+            font-size: 0.9rem;
+        }
+
+        .step-card p {
+            font-size: 0.7rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1.2rem;
+        }
+
+        .feature-card p,
+        .feature-card li {
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+
+        .weather-info .station-name {
+            font-size: 0.95rem;
+        }
+
+        .temperature-display {
+            font-size: 1.5rem;
+        }
     }
 </style>
 {% endblock %}

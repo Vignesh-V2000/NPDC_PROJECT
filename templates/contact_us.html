@@ -143,6 +143,24 @@
         font-size: 2rem;
         letter-spacing: -0.025em;
     }
+    
+    @media (max-width: 1024px) {
+        .contact-page-title {
+            font-size: 1.75rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .contact-page-title {
+            font-size: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .contact-page-title {
+            font-size: 1.2rem;
+        }
+    }
 
     .contact-page-subtitle {
         color: #64748b;
@@ -176,6 +194,38 @@
 
     .contact-card-body {
         padding: 2.25rem;
+    }
+    
+    @media (max-width: 1024px) {
+        .contact-card-body {
+            padding: 2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .contact-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .contact-card-body {
+            padding: 1.5rem;
+        }
+        
+        .contact-card-header {
+            padding: 0.75rem 1.2rem;
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .contact-card-body {
+            padding: 1rem;
+        }
+        
+        .contact-card-header {
+            padding: 0.6rem 1rem;
+            font-size: 0.75rem;
+        }
     }
 
     /* Organisation Badge */
@@ -211,6 +261,27 @@
         gap: 1.25rem;
         padding: 1.25rem 0;
         border-bottom: 1px solid #f1f5f9;
+    }
+    
+    @media (max-width: 768px) {
+        .contact-detail-item {
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .contact-detail-item {
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            flex-direction: column;
+        }
+        
+        .contact-detail-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+        }
     }
 
     .contact-detail-item:last-child {

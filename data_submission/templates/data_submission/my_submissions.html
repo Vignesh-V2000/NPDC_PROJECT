@@ -494,10 +494,41 @@
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
     }
 
-    /* Scrollbar */
+    /* Scrollbar and Responsive Styles */
     .rq-scroll::-webkit-scrollbar { width: 6px; }
     .rq-scroll::-webkit-scrollbar-track { background: #f8fafc; }
     .rq-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     .rq-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    @media (max-width: 1200px) {
+        .rq-scroll[style*="max-height: 400px"] { max-height: 350px !important; }
+        .rq-scroll[style*="max-height: 500px"] { max-height: 400px !important; }
+        .rq-scroll[style*="max-height: 600px"] { max-height: 450px !important; }
+    }
+    
+    @media (max-width: 768px) {
+        .rq-scroll[style*="max-height: 400px"] { max-height: 280px !important; }
+        .rq-scroll[style*="max-height: 500px"] { max-height: 300px !important; }
+        .rq-scroll[style*="max-height: 600px"] { max-height: 320px !important; }
+        
+        .rq-table th,
+        .rq-table td {
+            padding: 0.5rem !important;
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .rq-scroll[style*="max-height"] { max-height: 200px !important; }
+        
+        .rq-table th,
+        .rq-table td {
+            padding: 0.35rem !important;
+            font-size: 0.75rem;
+        }
+        
+        .rq-table th[style*="width: 52px"] { width: 40px !important; }
+        .rq-table th[style*="width: 45%"] { width: 30% !important; }
+    }
 </style>
 {% endblock %}

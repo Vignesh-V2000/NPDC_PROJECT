@@ -506,6 +506,166 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
         background-repeat: no-repeat; background-position: right calc(0.375em + 0.1875rem) center; background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
     }
+    
+    /* ========= RESPONSIVE MEDIA QUERIES ========= */
+    @media (max-width: 1024px) {
+        .login-title {
+            font-size: 1.5rem;
+        }
+        
+        .npdc-logo-ring {
+            width: 90px;
+            height: 90px;
+        }
+        
+        .npdc-auth-logo {
+            width: 75px;
+            height: 75px;
+        }
+        
+        .login-content-inner {
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .modern-auth-container {
+            flex-direction: column;
+            border-radius: 1rem;
+        }
+        
+        .auth-form-section,
+        .auth-info-section {
+            width: 100%;
+        }
+        
+        .login-content-inner {
+            padding: 2rem !important;
+            max-width: 100%;
+        }
+        
+        .login-title {
+            font-size: 1.3rem;
+        }
+        
+        .login-subtitle {
+            font-size: 0.9rem;
+        }
+        
+        .login-icon-modern {
+            width: 48px;
+            height: 48px;
+            font-size: 1.2rem;
+        }
+        
+        .form-control-modern {
+            font-size: 0.95rem;
+        }
+        
+        .form-label {
+            font-size: 0.85rem;
+        }
+        
+        .auth-info-content {
+            padding: 2rem 1.5rem !important;
+            text-align: center;
+        }
+        
+        .npdc-logo-ring {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+        
+        .npdc-auth-logo {
+            width: 65px;
+            height: 65px;
+        }
+        
+        .btn-outline-light-modern {
+            width: 100%;
+            margin-top: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .login-page-wrapper {
+            padding: 1rem;
+        }
+        
+        .modern-auth-container {
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+        }
+        
+        .login-content-inner {
+            padding: 1.5rem !important;
+        }
+        
+        .login-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .login-subtitle {
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .login-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .login-icon-modern {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            font-size: 0.8rem;
+        }
+        
+        .form-control-modern {
+            padding-left: 2.5rem !important;
+            font-size: 0.9rem;
+            padding: 0.6rem 0.75rem 0.6rem 2.5rem !important;
+        }
+        
+        .btn-primary-modern {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .auth-info-content {
+            padding: 1.5rem 1rem !important;
+        }
+        
+        .npdc-logo-ring {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .npdc-auth-logo {
+            width: 55px;
+            height: 55px;
+        }
+        
+        .quick-links {
+            flex-direction: column;
+        }
+        
+        .quick-links a {
+            display: block;
+            padding: 0.5rem 0;
+            font-size: 0.8rem;
+        }
+    }
 </style>
 
 <script>

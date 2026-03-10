@@ -1,4 +1,57 @@
 {% if applied_filters %}
+<style>
+    /* ========= RESPONSIVE FILTER STYLES ========= */
+    @media (max-width: 768px) {
+        .d-flex.flex-wrap.gap-2 {
+            gap: 0.5rem !important;
+        }
+        
+        .badge {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem !important;
+        }
+        
+        .btn-close {
+            width: 0.45em !important;
+            height: 0.45em !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        
+        .d-flex.flex-wrap.gap-2 {
+            gap: 0.35rem !important;
+        }
+        
+        .small {
+            font-size: 0.75rem;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.5rem !important;
+            display: flex;
+            width: auto;
+            max-width: 100%;
+            word-break: break-word;
+        }
+        
+        .btn-close {
+            width: 0.4em !important;
+            height: 0.4em !important;
+            margin-left: 0.35rem !important;
+            flex-shrink: 0;
+        }
+        
+        .btn-link.btn-sm {
+            font-size: 0.725rem;
+            padding: 0.2rem 0.4rem;
+        }
+    }
+</style>
 <div class="mb-3">
     <div class="d-flex flex-wrap gap-2 align-items-center">
         <span class="small text-muted fw-bold me-2">Filters Applied:</span>

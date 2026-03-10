@@ -287,6 +287,120 @@
                     overflow: visible;
                     max-width: none;
                 }
+                
+                /* ========= RESPONSIVE MEDIA QUERIES ========= */
+                @media (max-width: 1199px) {
+                    .col-xl-2, .col-xl-10 {
+                        max-width: 100%;
+                    }
+                    
+                    .usermgmt-hero-title {
+                        font-size: 2rem;
+                    }
+                    
+                    .um-table-scroll {
+                        max-height: 400px;
+                    }
+                }
+                
+                @media (max-width: 991px) {
+                    .col-lg-3, .col-lg-9 {
+                        max-width: 100%;
+                    }
+                    
+                    .um-table thead th {
+                        padding: 0.75rem 0.85rem;
+                        font-size: 0.75rem;
+                    }
+                    
+                    .um-table tbody td {
+                        padding: 0.75rem 0.85rem;
+                        font-size: 0.8rem;
+                    }
+                }
+                
+                @media (max-width: 767px) {
+                    .usermgmt-hero-title {
+                        font-size: 1.5rem;
+                    }
+                    
+                    .usermgmt-hero {
+                        padding: 1.5rem 1rem;
+                    }
+                    
+                    .um-table-scroll {
+                        max-height: 300px;
+                    }
+                    
+                    .um-table thead th {
+                        padding: 0.6rem 0.5rem;
+                        font-size: 0.65rem;
+                    }
+                    
+                    .um-table tbody td {
+                        padding: 0.6rem 0.5rem;
+                        font-size: 0.7rem;
+                    }
+                    
+                    .um-action-btn {
+                        padding: 0.25rem 0.5rem;
+                        font-size: 0.65rem;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .container-fluid {
+                        padding: 0.5rem;
+                    }
+                    
+                    .usermgmt-hero-title {
+                        font-size: 1.2rem;
+                        letter-spacing: -0.01em;
+                    }
+                    
+                    .usermgmt-hero {
+                        padding: 1rem 0.75rem;
+                        margin-bottom: 1rem;
+                    }
+                    
+                    .um-table-scroll {
+                        max-height: 250px;
+                    }
+                    
+                    .um-table {
+                        font-size: 0.65rem;
+                    }
+                    
+                    .um-table thead th {
+                        padding: 0.5rem 0.3rem !important;
+                        font-size: 0.6rem;
+                        white-space: normal;
+                    }
+                    
+                    .um-table tbody td {
+                        padding: 0.5rem 0.3rem;
+                        font-size: 0.65rem;
+                        word-break: break-word;
+                    }
+                    
+                    .um-user-avatar {
+                        width: 28px;
+                        height: 28px;
+                        font-size: 0.65rem;
+                    }
+                    
+                    .um-action-btn {
+                        padding: 0.2rem 0.35rem;
+                        font-size: 0.6rem;
+                        display: flex;
+                        margin-bottom: 0.25rem;
+                    }
+                    
+                    .btn {
+                        font-size: 0.75rem;
+                        padding: 0.3rem 0.5rem;
+                    }
+                }
             </style>
 
             <!-- Hero Banner -->

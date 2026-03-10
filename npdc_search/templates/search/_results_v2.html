@@ -1,4 +1,88 @@
 {% for dataset in page_obj %}
+<style>
+    /* ========= RESPONSIVE STYLES FOR _results_v2 ========= */
+    @media (max-width: 1024px) {
+        .result-card {
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .card-title {
+            font-size: 0.95rem;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+            padding: 0.35rem 0.6rem;
+        }
+        
+        .card-text {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .result-card {
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            border-top: 3px solid #0d6efd !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .card-title {
+            font-size: 0.85rem;
+        }
+        
+        .card-title a {
+            word-break: break-word;
+        }
+        
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.35rem;
+            display: inline-block;
+            margin-bottom: 0.35rem;
+        }
+        
+        .d-flex.flex-wrap.gap-2 {
+            gap: 0.5rem !important;
+        }
+        
+        .card-text {
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .abstract-toggle {
+            font-size: 0.75rem;
+        }
+        
+        .mb-3 {
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+    }
+</style>
 <div class="card mb-3 shadow-sm result-card border-0" style="border-top: 4px solid #0d6efd !important;">
     <div class="card-body">
         <!-- Header: Title and Scientist Count -->

@@ -4,6 +4,39 @@
 {% block title %}Dataset Request Success - NPDC{% endblock %}
 
 {% block content %}
+<style>
+    .kpdc-content-card {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    @media (max-width: 1024px) {
+        .kpdc-content-card {
+            max-width: 90%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .kpdc-content-card {
+            max-width: 100%;
+            padding: 2rem 1.5rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .kpdc-content-card {
+            padding: 1.5rem 1rem !important;
+        }
+        
+        .kpdc-content-card h2 {
+            font-size: 1.5rem;
+        }
+        
+        .kpdc-content-card i {
+            font-size: 3rem !important;
+        }
+    }
+</style>
 <div class="kpdc-page pb-5">
     <div class="container mt-5 pt-3">
         <div class="kpdc-content-card" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 3rem 2rem; background-color: var(--kpdc-card-bg, #ffffff); border-radius: var(--border-radius-lg, 0.5rem); box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.1));">

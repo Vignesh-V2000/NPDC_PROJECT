@@ -274,6 +274,168 @@
     .keyword-card:hover .keyword-card-action span i {
         transform: translateX(4px);
     }
+    
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 1024px) {
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .kw-hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .kw-hero-sub {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .kw-page-wrapper {
+            padding: 1.5rem 0.75rem;
+        }
+        
+        .container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        .kw-hero {
+            margin-bottom: 1.5rem;
+        }
+        
+        .kw-hero-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .kw-hero-sub {
+            font-size: 0.95rem;
+        }
+        
+        .kw-category-tabs {
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+        
+        .kw-tab {
+            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .keyword-cards-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .keyword-card {
+            padding: 1rem;
+            border-radius: 0.75rem;
+        }
+        
+        .keyword-count {
+            font-size: 0.9rem;
+        }
+        
+        .keyword-card-action span {
+            font-size: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .kw-page-wrapper {
+            padding: 1rem 0.5rem;
+        }
+        
+        .container {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .py-4,
+        .py-md-5 {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        
+        .kw-hero {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .kw-hero-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kw-hero-sub {
+            font-size: 0.9rem;
+        }
+        
+        .kw-category-tabs {
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: nowrap;
+        }
+        
+        .kw-tab {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            border-radius: 0.4rem;
+        }
+        
+        .keyword-cards-grid {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+        
+        .keyword-card {
+            padding: 0.9rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .keyword-card h6 {
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+        
+        .keyword-desc {
+            font-size: 0.75rem;
+        }
+        
+        .keyword-count {
+            font-size: 0.85rem;
+            background: #dbeafe;
+            color: #0c4a6e;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .keyword-card-action {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+        }
+        
+        .keyword-card-action span {
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .keyword-card-action span i {
+            font-size: 0.7rem;
+        }
+    }
 </style>
 {% endblock %}
 

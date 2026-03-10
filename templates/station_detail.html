@@ -11,6 +11,24 @@
         position: relative;
         overflow: hidden;
     }
+    
+    @media (max-width: 1024px) {
+        .station-hero {
+            padding: 2.5rem 0;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .station-hero {
+            padding: 2rem 0;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .station-hero {
+            padding: 1.5rem 0;
+        }
+    }
 
     /* Simulated bg image behind gradient */
     .hero-bg {
@@ -40,6 +58,26 @@
         margin-bottom: 0.5rem;
         color: #E8734A;
     }
+    
+    @media (max-width: 1024px) {
+        .station-hero h1 {
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .station-hero h1 {
+            font-size: 1.8rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .station-hero h1 {
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+    }
 
     .station-hero p {
         color: rgba(255, 255, 255, 0.9);
@@ -60,6 +98,36 @@
         padding: 2rem;
         margin-bottom: 1.5rem;
         border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    @media (max-width: 1024px) {
+        .station-section {
+            padding: 2rem 0;
+        }
+        
+        .station-card {
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .station-section {
+            padding: 1.5rem 0;
+            min-height: auto;
+        }
+        
+        .station-card {
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            border-radius: 10px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .station-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
     }
 
     .detail-header {

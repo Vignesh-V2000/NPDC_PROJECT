@@ -4,13 +4,50 @@
 {% block title %}Data Policy & Guidelines - NPDC{% endblock %}
 
 {% block content %}
+<style>
+    .policy-card { 
+        border: none; 
+        border-radius: 6px; 
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    
+    .policy-card-body {
+        padding: 2rem 2.5rem;
+        color: #333;
+        line-height: 1.8;
+        font-size: 0.95rem;
+        text-align: justify;
+    }
+    
+    @media (max-width: 1024px) {
+        .policy-card-body {
+            padding: 1.8rem 2rem;
+            font-size: 0.93rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .policy-card-body {
+            padding: 1.5rem 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .policy-card-body {
+            padding: 1rem 1rem;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+    }
+</style>
 <div class="row justify-content-center">
     <div class="col-lg-11">
-        <h2 class="text-center mb-4" style="color: #FFFFFF; font-weight: 700;">Data Policy &amp; Guidelines</h2>
+        <h2 class="text-center mb-4" style="color: #FFFFFF; font-weight: 700; font-size: 1.8rem;">Data Policy &amp; Guidelines</h2>
 
-        <div class="card" style="border: none; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
-            <div class="card-body"
-                style="padding: 2rem 2.5rem; color: #333; line-height: 1.8; font-size: 0.95rem; text-align: justify;">
+        <div class="card policy-card">
+            <div class="card-body policy-card-body">
 
                 <p>Data Policy in general and that from the polar region is precious in particular. The true value of
                     scientific data is often realized long after it has been collected, and to ensure the lasting legacy
@@ -57,6 +94,21 @@
                     <p>Where data release may cause harm, specific aspects of the data may need to be kept protected
                         (for example, locations of nests of endangered birds or locations of sacred sites</p>
                 </div>
+                
+                <style>
+                    @media (max-width: 768px) {
+                        div[style*="padding-left: 2rem"] {
+                            padding-left: 1.5rem !important;
+                            margin-bottom: 0.8rem !important;
+                        }
+                    }
+                    
+                    @media (max-width: 480px) {
+                        div[style*="padding-left: 2rem"] {
+                            padding-left: 1rem !important;
+                        }
+                    }
+                </style>
 
             </div>
         </div>

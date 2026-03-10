@@ -215,9 +215,304 @@
                     color: #fff;
                 }
 
-                /* ═══ Premium Review Table ═══ */
-                .rq-table-wrap {
-                    background: #ffffff;
+                /* Responsive Design - Tablet (768px - 1199px) */
+                @media (max-width: 1199px) {
+                    .review-hero {
+                        padding: 1.75rem 1.5rem 1.4rem;
+                        margin-bottom: 1.25rem;
+                    }
+
+                    .review-hero-title {
+                        font-size: 2rem;
+                    }
+
+                    .review-hero-sub {
+                        font-size: 0.85rem;
+                    }
+
+                    .review-hero-orb-1 { width: 250px; height: 250px; top: -80px; left: -40px; }
+                    .review-hero-orb-2 { width: 180px; height: 180px; top: -30px; right: 5%; }
+                    .review-hero-orb-3 { width: 200px; height: 200px; bottom: -70px; right: 20%; }
+
+                    .review-adv-panel {
+                        padding: 1rem;
+                    }
+                }
+
+                /* Responsive Design - Mobile (480px - 767px) */
+                @media (max-width: 767px) {
+                    .review-hero {
+                        padding: 1.5rem 1rem 1.2rem;
+                        margin-bottom: 1rem;
+                        border-radius: 0.75rem;
+                    }
+
+                    .review-hero-title {
+                        font-size: 1.35rem;
+                        letter-spacing: -0.02em;
+                    }
+
+                    .review-hero-title-icon {
+                        display: block;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .review-hero-sub {
+                        font-size: 0.8rem;
+                        line-height: 1.4;
+                    }
+
+                    .review-hero-orb {
+                        filter: blur(50px);
+                        opacity: 0.1;
+                    }
+
+                    .review-hero-orb-1 { width: 200px; height: 200px; top: -70px; left: -50px; }
+                    .review-hero-orb-2 { width: 150px; height: 150px; top: -40px; right: 0%; }
+                    .review-hero-orb-3 { width: 150px; height: 150px; bottom: -60px; right: 10%; }
+
+                    .review-hero-bar-inner {
+                        flex-wrap: wrap;
+                        gap: 0.5rem;
+                        padding: 0.5rem;
+                    }
+
+                    .review-search-icon {
+                        font-size: 0.95rem;
+                        margin-right: 0.5rem;
+                    }
+
+                    .review-hero-input {
+                        font-size: 0.9rem;
+                        padding: 0.5rem 0;
+                        flex: 1;
+                        min-width: 100%;
+                    }
+
+                    .review-hero-btn {
+                        padding: 0.6rem 1.2rem;
+                        font-size: 0.8rem;
+                    }
+
+                    .d-flex.align-items-center.justify-content-between {
+                        flex-wrap: wrap;
+                        gap: 0.75rem;
+                    }
+
+                    .review-count-pill {
+                        font-size: 0.7rem;
+                        padding: 0.25rem 0.6rem;
+                    }
+
+                    .review-adv-toggle {
+                        font-size: 0.8rem;
+                    }
+
+                    .review-adv-panel {
+                        padding: 0.75rem;
+                        border-radius: 0.5rem;
+                    }
+
+                    .review-adv-panel .form-label {
+                        font-size: 0.65rem;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .review-adv-panel .form-select,
+                    .review-adv-panel .form-control {
+                        font-size: 0.8rem;
+                        padding: 0.35rem 0.5rem;
+                    }
+
+                    .review-adv-panel .row {
+                        gap: 0.5rem;
+                    }
+
+                    .review-adv-panel .col-lg-3,
+                    .review-adv-panel .col-md-6 {
+                        min-width: 100%;
+                    }
+
+                    .review-adv-panel .btn-apply-rv,
+                    .review-adv-panel .btn-clear-rv {
+                        padding: 0.45rem 1rem;
+                        font-size: 0.75rem;
+                    }
+
+                    .d-flex.justify-content-end.gap-2 {
+                        flex-wrap: wrap;
+                        gap: 0.5rem !important;
+                    }
+
+                    .rq-table-wrap {
+                        overflow-x: auto;
+                        font-size: 0.85rem;
+                    }
+
+                    .rq-table {
+                        font-size: 0.8rem !important;
+                    }
+
+                    .rq-tr th,
+                    .rq-tr td {
+                        padding: 0.6rem !important;
+                    }
+                }
+
+                /* Responsive Design - Extra Small (<480px) */
+                @media (max-width: 479px) {
+                    .container-fluid {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                    }
+
+                    .review-hero {
+                        padding: 1.25rem 0.75rem 1rem;
+                        margin-bottom: 0.75rem;
+                        border-radius: 0.5rem;
+                    }
+
+                    .review-hero-title {
+                        font-size: 1.1rem;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .review-hero-title i {
+                        display: block;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .review-hero-sub {
+                        font-size: 0.75rem;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .review-hero-orb {
+                        filter: blur(40px);
+                        opacity: 0.08;
+                    }
+
+                    .review-hero-orb-1 { width: 150px; height: 150px; top: -60px; left: -60px; }
+                    .review-hero-orb-2 { width: 120px; height: 120px; top: -50px; right: -30px; }
+                    .review-hero-orb-3 { width: 100px; height: 100px; bottom: -50px; right: 0%; }
+
+                    .review-hero-bar-inner {
+                        flex-direction: column;
+                        padding: 0.4rem;
+                        gap: 0.35rem;
+                    }
+
+                    .review-search-icon {
+                        font-size: 0.85rem;
+                        margin-right: 0;
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .review-hero-input {
+                        font-size: 0.8rem;
+                        padding: 0.35rem;
+                        width: 100%;
+                    }
+
+                    .review-hero-btn {
+                        padding: 0.5rem 1rem;
+                        font-size: 0.7rem;
+                        width: 100%;
+                    }
+
+                    .review-hero-bar {
+                        margin-bottom: 0.75rem;
+                    }
+
+                    .d-flex.align-items-center.justify-content-between {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.5rem;
+                    }
+
+                    .review-count-pill {
+                        font-size: 0.65rem;
+                        padding: 0.2rem 0.5rem;
+                    }
+
+                    .review-count-dot {
+                        width: 5px;
+                        height: 5px;
+                    }
+
+                    .review-adv-toggle {
+                        font-size: 0.75rem;
+                        align-self: flex-end;
+                    }
+
+                    .review-adv-panel {
+                        padding: 0.6rem;
+                        border-radius: 0.4rem;
+                    }
+
+                    .review-adv-panel .form-label {
+                        font-size: 0.6rem;
+                        margin-bottom: 0.2rem;
+                    }
+
+                    .review-adv-panel .form-select,
+                    .review-adv-panel .form-control {
+                        font-size: 0.75rem;
+                        padding: 0.3rem 0.4rem;
+                    }
+
+                    .review-adv-panel .row {
+                        gap: 0.35rem;
+                    }
+
+                    .review-adv-panel .col-lg-3,
+                    .review-adv-panel .col-md-6 {
+                        width: 100%;
+                    }
+
+                    .review-adv-panel .btn-apply-rv,
+                    .review-adv-panel .btn-clear-rv {
+                        padding: 0.35rem 0.8rem;
+                        font-size: 0.7rem;
+                        flex: 1;
+                    }
+
+                    .d-flex.justify-content-end.gap-2 {
+                        gap: 0.35rem !important;
+                        margin-top: 0.75rem;
+                    }
+
+                    .rq-table-wrap {
+                        overflow-x: auto;
+                        font-size: 0.7rem;
+                        margin-bottom: 1rem;
+                    }
+
+                    .rq-table {
+                        font-size: 0.7rem !important;
+                    }
+
+                    .rq-tr th,
+                    .rq-tr td {
+                        padding: 0.4rem 0.5rem !important;
+                    }
+
+                    .rq-tr th {
+                        white-space: nowrap;
+                    }
+
+                    .col-xl-2,
+                    .col-lg-3,
+                    .col-xl-10,
+                    .col-lg-9 {
+                        width: 100%;
+                    }
+
+                    .mb-4.mb-lg-0 {
+                        margin-bottom: 1rem !important;
+                    }
+                }
+            </style>
                     border-radius: 1rem;
                     overflow: hidden;
                     box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);

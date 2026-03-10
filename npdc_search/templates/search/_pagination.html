@@ -1,4 +1,39 @@
 {% if page_obj.paginator.num_pages > 1 %}
+<style>
+    /* ========= RESPONSIVE PAGINATION STYLES ========= */
+    @media (max-width: 768px) {
+        .pagination {
+            margin-top: 2rem;
+        }
+        
+        .page-link {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.7rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .pagination {
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .page-link {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.5rem;
+        }
+        
+        .page-item {
+            margin: 0.1rem;
+        }
+        
+        .fa-chevron-left,
+        .fa-chevron-right {
+            font-size: 0.75rem;
+        }
+    }
+</style>
 <nav class="mt-4">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}

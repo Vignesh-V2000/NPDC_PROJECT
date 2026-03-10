@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    @media (max-width: 600px) {
+        body { font-size: 14px; }
+        h3 { font-size: 18px; }
+        p { font-size: 13px; line-height: 1.5; }
+        a { font-size: 13px; }
+    }
+</style>
+</head>
+<body style="font-family: Arial; max-width: 600px; margin: 0 auto; padding: 15px;">
 
-<h3>NPDC Account Activated</h3>
+<h3 style="color: #004F87; margin-bottom: 20px;">NPDC Account Activated</h3>
 
 <p>Dear {{ first_name }},</p>
 

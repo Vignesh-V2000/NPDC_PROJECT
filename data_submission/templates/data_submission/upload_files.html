@@ -21,6 +21,93 @@
     .container label {
         color: #333333;
     }
+    
+    /* ========= RESPONSIVE MEDIA QUERIES ========= */
+    @media (max-width: 1024px) {
+        .col-lg-10 {
+            max-width: 95%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .col-lg-10 {
+            max-width: 100%;
+        }
+        
+        .py-5 {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .card-header h5 {
+            font-size: 1rem;
+        }
+        
+        .table th {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container-fluid {
+            padding: 0.5rem !important;
+        }
+        
+        .py-5 {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .table {
+            font-size: 0.75rem;
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            padding: 0.5rem 0.3rem;
+            font-size: 0.7rem;
+            background-color: #f8f9fa;
+        }
+        
+        .table td {
+            padding: 0.5rem 0.3rem;
+            font-size: 0.7rem;
+            word-break: break-word;
+        }
+        
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.6rem;
+            width: 100%;
+        }
+        
+        .text-end, .text-center {
+            text-align: center !important;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+            padding: 0.35rem 0.5rem;
+        }
+    }
 </style>
 <div class="container py-5">
     <div class="row justify-content-center">

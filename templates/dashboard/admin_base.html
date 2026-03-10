@@ -24,6 +24,96 @@
             margin-left: 260px;
         }
     }
+
+    /* Responsive Design - Tablet (768px - 1199px) */
+    @media (max-width: 1199px) {
+        .admin-main-wrapper {
+            margin-left: 0;
+        }
+
+        .flex-grow-1 {
+            padding: 2rem 1.5rem;
+        }
+
+        .flex-grow-1 > * {
+            max-width: 100%;
+        }
+    }
+
+    /* Responsive Design - Mobile (480px - 767px) */
+    @media (max-width: 767px) {
+        body {
+            overflow-x: hidden;
+        }
+
+        .d-flex {
+            flex-direction: column;
+        }
+
+        .d-none.d-lg-block {
+            display: none !important;
+        }
+
+        .flex-grow-1 {
+            padding: 1.5rem 1rem;
+            width: 100%;
+        }
+
+        .admin-main-wrapper {
+            margin-left: 0;
+        }
+
+        /* Container responsive */
+        .container,
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
+
+    /* Responsive Design - Extra Small (<480px) */
+    @media (max-width: 479px) {
+        body {
+            overflow-x: hidden;
+        }
+
+        .flex-grow-1 {
+            padding: 1rem 12px;
+            width: 100%;
+        }
+
+        .admin-main-wrapper {
+            margin-left: 0;
+            padding: 0;
+        }
+
+        .bg-light {
+            background: #f8f9fa !important;
+        }
+
+        /* Container responsive */
+        .container,
+        .container-fluid {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        /* Forms responsive */
+        .form-group,
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .btn {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .btn-lg {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 
     <div class="d-flex admin-main-wrapper">
