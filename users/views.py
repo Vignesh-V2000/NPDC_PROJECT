@@ -168,7 +168,7 @@ NPDC Portal System
                 request,
                 "Registration submitted successfully. Your account is under verification."
             )
-            return redirect('login')
+            return redirect('users:login')
 
     else:
         form = NPDCRegisterForm()
