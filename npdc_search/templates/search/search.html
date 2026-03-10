@@ -5,9 +5,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
-    /* Page Wrapper */
     .search-page-wrapper {
-        background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+        background-color: transparent;
         min-height: calc(100vh - 120px);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
@@ -646,6 +645,11 @@
     /* Breadcrumb Navigation */
     .search-breadcrumb {
         padding: 0.75rem 0;
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        margin: 0 -1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
     .search-breadcrumb ol {
         list-style: none;
@@ -658,7 +662,7 @@
     }
     .search-breadcrumb li {
         font-size: 0.88rem;
-        color: #94a3b8;
+        color: #64748b;
         font-weight: 500;
     }
     .search-breadcrumb li + li::before {
@@ -678,7 +682,7 @@
         text-decoration: underline;
     }
     .search-breadcrumb li.active {
-        color: #e2e8f0;
+        color: #0f172a;
         font-weight: 700;
     }
 
@@ -1969,8 +1973,6 @@
                 if (data.map_data) {
                     renderMap(data.map_data);
                 }
-
-                window.scrollTo({ top: 0, behavior: 'smooth' });
 
                 /* AI: trigger features based on results */
                 if (isAIEnabled() && params.query && params.query.length >= 3) {

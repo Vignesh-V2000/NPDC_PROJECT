@@ -1459,21 +1459,6 @@
         });
     </script>
 
-    <!-- Scroll Position Persistence -->
-    <script>
-        (function() {
-            const key = 'scrollPos_' + window.location.pathname;
-            window.addEventListener('beforeunload', function() {
-                sessionStorage.setItem(key, window.scrollY);
-            });
-            window.addEventListener('DOMContentLoaded', function() {
-                const saved = sessionStorage.getItem(key);
-                if (saved) {
-                    window.scrollTo(0, parseInt(saved));
-                }
-            });
-        })();
-    </script>
     {% block extra_js %}{% endblock %}
     <!-- Global Security Script -->
     <script>
