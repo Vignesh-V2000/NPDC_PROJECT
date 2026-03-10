@@ -14,7 +14,7 @@
 
         <div class="keyword-grid">
             {% for cat in categories %}
-            <a href="{% url 'search:search' %}?category={{ cat.value }}" class="keyword-card" style="--delay: {{ forloop.counter0 }}">
+            <a href="{% url 'search:search' %}?filter=category:{{ cat.value }}" class="keyword-card" style="--delay: {{ forloop.counter0 }}">
                 <div class="keyword-card-img" id="card-img-{{ forloop.counter }}" data-category="{{ cat.label }}">
                     <i class="fas fa-layer-group"></i>
                     <div class="keyword-card-overlay">

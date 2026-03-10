@@ -74,6 +74,213 @@
 
 {% block content %}
 
+<style>
+/* MASTER OVERRIDE: Force white theme for home page filters */
+/* Reset all Bootstrap defaults first */
+.home-search-sidebar,
+.home-search-sidebar.card,
+.home-search-sidebar-body,
+.home-search-sidebar .filter-group,
+.home-search-sidebar .filter-group.card,
+.home-search-sidebar .form-control,
+.home-search-sidebar .form-select,
+.home-search-sidebar .form-check,
+.home-search-sidebar input,
+.home-search-sidebar select {
+    --bs-body-bg: #ffffff !important;
+    --bs-body-color: #0f172a !important;
+    --bs-card-bg: #ffffff !important;
+    --bs-card-color: #0f172a !important;
+    --bs-form-control-bg: #ffffff !important;
+    --bs-form-control-color: #0f172a !important;
+}
+
+.home-search-sidebar {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-radius: 1rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.home-search-sidebar-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%) !important;
+    color: #0f172a !important;
+    padding: 1rem 1.15rem !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem 1rem 0 0 !important;
+}
+
+.home-search-sidebar-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4) !important;
+}
+
+.home-search-sidebar-header h5 {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 !important;
+}
+
+.home-search-sidebar-body {
+    background: #ffffff !important;
+    padding: 1rem 0.5rem !important;
+}
+
+.home-search-sidebar .filter-group {
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    margin-bottom: 0.65rem !important;
+    border: 1px solid #94a3b8 !important;
+    background-color: #eef2f7 !important;
+    background: #eef2f7 !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+}
+
+/* Override Bootstrap card styles on filter-group */
+.home-search-sidebar .filter-group.card,
+.home-search-sidebar .mb-3.filter-group {
+    background-color: #eef2f7 !important;
+    background: #eef2f7 !important;
+    border-color: #94a3b8 !important;
+}
+
+.home-search-sidebar .filter-group:last-child {
+    margin-bottom: 0 !important;
+}
+
+.home-search-sidebar .filter-group h6 {
+    color: #0f172a !important;
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    margin: 0 0 0.5rem 0 !important;
+}
+
+.home-search-sidebar .form-control,
+.home-search-sidebar input[type="text"] {
+    border: 1.5px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-radius: 0.5rem !important;
+    font-size: 1.05rem !important;
+}
+
+.home-search-sidebar .form-control::placeholder {
+    color: #94a3b8 !important;
+}
+
+.home-search-sidebar .form-control:focus,
+.home-search-sidebar input[type="text"]:focus {
+    border-color: #3b82f6 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+.home-search-sidebar .form-check {
+    padding: 0.3rem 0.5rem 0.3rem 1.75rem !important;
+    margin: 0 !important;
+    border-radius: 0.4rem !important;
+    transition: all 0.15s ease !important;
+}
+
+.home-search-sidebar .form-check:hover {
+    background: #e0f2fe !important;
+}
+
+.home-search-sidebar .form-check-input {
+    width: 1.1em !important;
+    height: 1.1em !important;
+    border: 2px solid #64748b !important;
+    background-color: transparent !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.home-search-sidebar .form-check-input:hover {
+    border-color: #60a5fa !important;
+}
+
+.home-search-sidebar .form-check-input:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.4) !important;
+}
+
+.home-search-sidebar .form-check-label {
+    color: #334155 !important;
+    font-size: 1.1rem !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.home-search-sidebar .form-check:hover .form-check-label {
+    color: #0f172a !important;
+}
+
+.home-search-sidebar .text-muted {
+    color: #64748b !important;
+}
+
+.home-search-sidebar .facet-count,
+.home-search-sidebar .facet-count.text-muted {
+    font-size: 0.9em !important;
+    color: #2563eb !important;
+    margin-left: 4px !important;
+    background: rgba(37, 99, 235, 0.12) !important;
+    padding: 2px 7px !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+}
+
+.home-search-sidebar .form-select {
+    border: 1.5px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 1.05rem !important;
+}
+
+.home-search-sidebar .form-select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+.home-search-sidebar .form-select:focus {
+    border-color: #3b82f6 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+.home-search-sidebar .collapse {
+    background: transparent !important;
+}
+
+.home-search-sidebar .toggle-more {
+    color: #3b82f6 !important;
+}
+</style>
+
 
 
 <!-- Features Grid -->
@@ -520,7 +727,6 @@
 <!-- Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
 <style>
     .custom-legend-list {
         list-style: none;
@@ -1336,10 +1542,10 @@
                             <a href="{% url 'users:station_detail' 'bharati' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Antarctica - Bharati:
                             </a>
-                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="bharati">--&deg; C</span>
                             </div>
+                        </h5>
                         <div class="weather-date fw-datetime" data-station="bharati">Loading...</div>
                     </div>
                 </div>
@@ -1376,10 +1582,10 @@
                             <a href="{% url 'users:station_detail' 'himansh' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Himalaya - Himansh:
                             </a>
-                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="himansh">--&deg; C</span>
                             </div>
+                        </h5>
                         <div class="weather-date fw-datetime" data-station="himansh">Loading...</div>
                     </div>
                 </div>
@@ -1416,10 +1622,10 @@
                             <a href="{% url 'users:station_detail' 'svalbard' %}" target="_blank" class="text-decoration-none text-reset stretched-link">
                                 Arctic - Himadri:
                             </a>
-                        </h5>
                             <div class="temperature-display my-1">
                                 <i class="fas fa-thermometer-half me-2"></i> <span class="temp-val fw-temp" data-station="himadri">--&deg; C</span>
                             </div>
+                        </h5>
                         <div class="weather-date fw-datetime" data-station="himadri">Loading...</div>
                     </div>
                 </div>
@@ -1473,6 +1679,51 @@
 
     .filter-group .form-check:hover .form-check-label {
         color: #0f172a;
+    }
+
+    /* OVERRIDE: Home page filter styling (white theme) */
+    .home-search-sidebar .filter-group .form-check {
+        padding: 0.3rem 0.5rem 0.3rem 1.75rem !important;
+        margin: 0 !important;
+        border-radius: 0.4rem !important;
+        transition: all 0.15s ease !important;
+    }
+
+    .home-search-sidebar .filter-group .form-check:hover {
+        background: #e0f2fe !important;
+    }
+
+    .home-search-sidebar .filter-group .form-check-input {
+        width: 1.1em !important;
+        height: 1.1em !important;
+        border: 2px solid #94a3b8 !important;
+        background-color: transparent !important;
+        border-radius: 50% !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+    }
+
+    .home-search-sidebar .filter-group .form-check-input:hover {
+        border-color: #3b82f6 !important;
+    }
+
+    .home-search-sidebar .filter-group .form-check-input:checked {
+        background-color: #3b82f6 !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.4) !important;
+    }
+
+    .home-search-sidebar .filter-group .form-check-label {
+        color: #334155 !important;
+        font-size: 1.1rem !important;
+        transition: all 0.15s ease !important;
+        cursor: pointer !important;
+        font-weight: 500 !important;
+        margin: 0 !important;
+    }
+
+    .home-search-sidebar .filter-group .form-check:hover .form-check-label {
+        color: #0f172a !important;
     }
 
     :root {
@@ -1706,19 +1957,22 @@
     }
 
     .home-search-sidebar {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        border-radius: 0.85rem;
-        overflow: hidden;
-        height: 100%;
-        box-shadow: 0 8px 32px rgba(15, 23, 42, 0.07);
+        background: #ffffff !important;
+        border-radius: 1rem;
+        padding: 0;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
 
     .home-search-sidebar-header {
-        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1d4ed8 100%);
-        color: #ffffff;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+        color: #0f172a;
+        border-radius: 1rem 1rem 0 0;
         padding: 1rem 1.15rem;
-        border-bottom: none;
+        font-size: 1.05rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         position: relative;
         overflow: hidden;
     }
@@ -1734,7 +1988,7 @@
     }
 
     .home-search-sidebar-header h5 {
-        font-size: 0.82rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; text-transform: uppercase;
+        font-size: 0.82rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; color: #0f172a;
     }
 
     .home-search-sidebar-body {
@@ -1799,12 +2053,38 @@
         color: #ea580c;
     }
 
+    /* OVERRIDE: Home page filter h6 styling (white theme) */
+    .home-search-sidebar .filter-group h6 {
+        color: #0f172a !important;
+        font-size: 0.9rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.6px !important;
+        display: flex !important;
+    }
+
+    .home-search-sidebar .filter-group h6 i {
+        width: 22px !important;
+        height: 22px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 5px !important;
+        font-size: 0.65rem !important;
+    }
+
     .filter-group {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: #eef2f7;
+        border: 1px solid #94a3b8;
         border-radius: 8px;
         padding: 0.75rem;
         margin-bottom: 0.65rem;
+    }
+
+    /* Override filter-group styling for home page */
+    .home-search-sidebar .filter-group {
+        background: #eef2f7 !important;
+        background-color: #eef2f7 !important;
+        border-color: #94a3b8 !important;
     }
 
     .filter-group .form-check {
@@ -1815,12 +2095,35 @@
     }
 
     .filter-group .form-check:hover {
-        background: #eff6ff;
+        background: #e0f2fe !important;
+    }
+
+    .filter-group .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        border: 2px solid #64748b;
+        background-color: transparent;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .filter-group .form-check-input:hover {
+        border-color: #60a5fa;
+    }
+
+    .filter-group .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.4);
     }
 
     .filter-group .form-check-label {
-        color: #334155; font-weight: 500; font-size: 0.88rem;
-        transition: all 0.15s ease; cursor: pointer;
+        color: #334155;
+        font-size: 1.1rem;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        font-weight: 500;
     }
 
     .filter-group .form-check:hover .form-check-label {
@@ -1828,32 +2131,13 @@
     }
 
     .filter-group .facet-count {
-        font-size: 0.72em;
-        color: #94a3b8;
+        font-size: 0.9em;
+        color: #2563eb !important;
         margin-left: 4px;
-        background: #f1f5f9;
-        padding: 1px 6px;
+        background: rgba(37, 99, 235, 0.12) !important;
+        padding: 2px 7px;
         border-radius: 8px;
-        font-weight: 600;
-    }
-
-    .filter-group .form-check-input {
-        width: 1.1em;
-        height: 1.1em;
-        border: 2px solid #cbd5e1;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-
-    .filter-group .form-check-input:hover {
-        border-color: #3b82f6;
-    }
-
-    .filter-group .form-check-input:checked {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+        font-weight: 700;
     }
 
     .filter-group .form-select,

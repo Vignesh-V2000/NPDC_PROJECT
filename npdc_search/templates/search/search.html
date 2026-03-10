@@ -90,22 +90,27 @@
 
     /* ====== Filter Panel ====== */
     .filter-card {
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        background-color: #0b0f19 !important; /* Very dark rich black/blue */
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #ffffff !important;
         overflow: hidden;
     }
 
     .filter-panel-header {
-        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1d4ed8 100%);
-        color: #ffffff;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+        color: #0f172a;
         padding: 1rem 1.15rem;
-        font-size: 0.82rem;
+        font-size: 1.05rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         position: relative;
         overflow: hidden;
+    }
+
+    .filter-panel-header h6 {
+        color: #0f172a !important;
+        margin: 0;
     }
 
     .filter-panel-header::after {
@@ -122,8 +127,8 @@
         border-radius: 8px;
         padding: 0.75rem;
         margin-bottom: 0.65rem;
-        border: 1px solid #1e293b;
-        background: #131b2f;
+        border: 1px solid #94a3b8;
+        background: #eef2f7;
     }
 
     .filter-group:last-child {
@@ -132,8 +137,8 @@
 
     /* Section Header */
     .filter-group h6 {
-        color: #f8fafc !important;
-        font-size: 0.72rem !important;
+        color: #0f172a !important;
+        font-size: 0.9rem !important;
         font-weight: 800 !important;
         letter-spacing: 0.6px;
         display: flex;
@@ -148,7 +153,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 5px;
-        font-size: 0.65rem;
+        font-size: 0.8rem;
     }
 
     .filter-group h6 .fa-compass { background: #1e3a8a; color: #60a5fa; }
@@ -169,7 +174,7 @@
     }
 
     .filter-group .form-check:hover {
-        background: #1e293b;
+        background: #e0f2fe !important;
     }
 
     .filter-group .form-check-input {
@@ -193,23 +198,23 @@
     }
 
     .filter-group .form-check-label {
-        color: #cbd5e1;
-        font-size: 0.88rem;
+        color: #334155;
+        font-size: 1.1rem;
         transition: all 0.15s ease;
         cursor: pointer;
         font-weight: 500;
     }
 
     .filter-group .form-check:hover .form-check-label {
-        color: #ffffff;
+        color: #0f172a;
     }
 
     /* Facet Counts */
     .facet-count {
-        font-size: 0.75em;
-        color: #60a5fa !important;
+        font-size: 0.9em;
+        color: #2563eb !important; /* Blue */
         margin-left: 4px;
-        background: rgba(59, 130, 246, 0.2) !important;
+        background: rgba(37, 99, 235, 0.12) !important; /* Light blue background */
         padding: 2px 7px;
         border-radius: 8px;
         font-weight: 700;
@@ -218,23 +223,23 @@
     /* Filter Inputs */
     .filter-group .form-select,
     .filter-group .form-control {
-        border: 1.5px solid #334155 !important;
-        background-color: #0f172a !important;
-        color: #f8fafc !important;
+        border: 1.5px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
         border-radius: 0.5rem;
-        font-size: 0.85rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        font-size: 1.05rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         transition: all 0.2s;
-        color-scheme: dark; /* Makes the date picker calendar icon light */
+        color-scheme: light;
     }
 
     .filter-group .form-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f8fafc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230f172a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
     }
 
     .filter-group .form-select option {
-        background-color: #0f172a;
-        color: #f8fafc;
+        background-color: #ffffff;
+        color: #0f172a;
     }
 
     .filter-group .form-select:hover,
@@ -246,8 +251,8 @@
     .filter-group .form-control:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        background-color: #0f172a;
-        color: #ffffff !important;
+        background-color: #ffffff;
+        color: #0f172a !important;
     }
 
     /* Toggle More */
@@ -877,8 +882,8 @@
                         {% for opt in expedition_options %}
                             {% if forloop.counter <= 5 %}
                                 <div class="form-check">
-                                    <input class="form-check-input filter-radio" type="radio" name="expedition"
-                                        value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
+                                    <input class="form-check-input filter-radio" type="radio" name="filter"
+                                        value="expedition:{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="exp_{{ opt.value }}">
                                         {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
                                             data-value="{{ opt.value }}">({{ opt.count }})</span>
@@ -892,8 +897,8 @@
                             {% for opt in expedition_options %}
                                 {% if forloop.counter > 5 %}
                                     <div class="form-check">
-                                        <input class="form-check-input filter-radio" type="radio" name="expedition"
-                                            value="{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
+                                        <input class="form-check-input filter-radio" type="radio" name="filter"
+                                            value="expedition:{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                         <label class="form-check-label small" for="exp_{{ opt.value }}">
                                             {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
                                                 data-value="{{ opt.value }}">({{ opt.count }})</span>
@@ -918,8 +923,8 @@
                     {% for opt in category_options %}
                         {% if forloop.counter <= 5 %}
                             <div class="form-check">
-                                <input class="form-check-input filter-radio" type="radio" name="category"
-                                    value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
+                                <input class="form-check-input filter-radio" type="radio" name="filter"
+                                    value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="cat_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
                                         data-value="{{ opt.value }}">({{ opt.count }})</span>
@@ -933,8 +938,8 @@
                         {% for opt in category_options %}
                             {% if forloop.counter > 5 %}
                                 <div class="form-check">
-                                    <input class="form-check-input filter-radio" type="radio" name="category"
-                                        value="{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
+                                    <input class="form-check-input filter-radio" type="radio" name="filter"
+                                        value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="cat_{{ opt.value }}">
                                         {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
                                             data-value="{{ opt.value }}">({{ opt.count }})</span>
@@ -959,7 +964,7 @@
                 {% for opt in iso_options %}
                     {% if forloop.counter <= 5 %}
                         <div class="form-check">
-                            <input class="form-check-input filter-radio" type="radio" name="iso" value="{{ opt.value }}"
+                            <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                 id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="iso_{{ opt.value }}">
                                 {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
@@ -974,7 +979,7 @@
                     {% for opt in iso_options %}
                         {% if forloop.counter > 5 %}
                             <div class="form-check">
-                                <input class="form-check-input filter-radio" type="radio" name="iso" value="{{ opt.value }}"
+                                <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                     id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
                                     {{ opt.label }} <span class="facet-count" data-facet="iso"
@@ -1016,7 +1021,7 @@
             {% for opt in keyword_options %}
                 {% if forloop.counter <= 5 %}
                     <div class="form-check">
-                        <input class="form-check-input filter-radio" type="radio" name="keyword" value="{{ opt.value }}"
+                        <input class="form-check-input filter-radio" type="radio" name="filter" value="keyword:{{ opt.value }}"
                             id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                         <label class="form-check-label small" for="kw_{{ opt.value }}">
                             {{ opt.label }} <span class="facet-count" data-facet="keyword"
@@ -1031,7 +1036,7 @@
                 {% for opt in keyword_options %}
                     {% if forloop.counter > 5 %}
                         <div class="form-check">
-                            <input class="form-check-input filter-radio" type="radio" name="keyword" value="{{ opt.value }}"
+                            <input class="form-check-input filter-radio" type="radio" name="filter" value="keyword:{{ opt.value }}"
                                 id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="kw_{{ opt.value }}">
                                 {{ opt.label }} <span class="facet-count" data-facet="keyword"
@@ -1332,17 +1337,8 @@
 
     /* ---- helpers ---- */
     function getFilterParams() {
-        const expeditionRadio = document.querySelector('input[name="expedition"]:checked');
-        const expeditions = expeditionRadio ? [expeditionRadio.value] : [];
-        
-        const categoryRadio = document.querySelector('input[name="category"]:checked');
-        const categories = categoryRadio ? [categoryRadio.value] : [];
-        
-        const isoRadio = document.querySelector('input[name="iso"]:checked');
-        const isos = isoRadio ? [isoRadio.value] : [];
-        
-        const keywordRadio = document.querySelector('input[name="keyword"]:checked');
-        const keywords = keywordRadio ? [keywordRadio.value] : [];
+        const filterRadio = document.querySelector('input[name="filter"]:checked');
+        const filter = filterRadio ? filterRadio.value : '';
         
         const yearEl = document.getElementById('filterYear');
         const years = yearEl && yearEl.value ? [yearEl.value] : [];
@@ -1360,11 +1356,7 @@
 
         return {
             query: document.getElementById('searchQuery').value,
-            expedition: expeditions,
-            category: categories,
-            iso: isos,
-            keyword: keywords,
-            year: years,
+            filter: filter,
             start: getElementValue('filterStart'),
             end: getElementValue('filterEnd'),
             bbox_west: getElementValue('filterBboxWest'),

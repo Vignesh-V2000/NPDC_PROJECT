@@ -59,14 +59,27 @@ def search_view(request):
         # 2. Get & Sanitize Parameters (Security Hardening)
         # --------------------------------------------------
         query = sanitize_query(request.GET.get("query", ""))
-        expedition = sanitize_filter_value(request.GET.get("expedition", ""))
-        category = sanitize_filter_value(request.GET.get("category", ""))
-        iso = sanitize_filter_value(request.GET.get("iso", ""))
+        
+        # Parse the single filter parameter (format: "type:value")
+        filter_param = request.GET.get("filter", "")
+        expedition = ""
+        category = ""
+        iso = ""
+        keyword_selected = []
+        
+        if filter_param and ":" in filter_param:
+            filter_type, filter_value = filter_param.split(":", 1)
+            filter_value = sanitize_filter_value(filter_value)
+            if filter_type == "expedition":
+                expedition = filter_value
+            elif filter_type == "category":
+                category = filter_value
+            elif filter_type == "iso":
+                iso = filter_value
+            elif filter_type == "keyword":
+                keyword_selected = [filter_value]
+        
         year = sanitize_filter_value(request.GET.get("year", ""))
-
-        # Keyword filter (from NPDC_With_Chatbot)
-        keyword_selected = request.GET.getlist('keyword')
-        keyword_selected = [sanitize_filter_value(k) for k in keyword_selected if k]
 
         start_date = validate_date(request.GET.get("start", ""))
         end_date = validate_date(request.GET.get("end", ""))
@@ -202,24 +215,15 @@ def search_view(request):
         # 4. Apply Filters
         # --------------------------------------------------
         if expedition:
-            expedition_list = request.GET.getlist('expedition')
-            expedition_list = [sanitize_filter_value(e) for e in expedition_list if e]
-            if expedition_list:
-                queryset = queryset.filter(expedition_type__in=expedition_list)
+            queryset = queryset.filter(expedition_type=expedition)
 
         if category:
-            category_list = request.GET.getlist('category')
-            category_list = [sanitize_filter_value(c) for c in category_list if c]
-            if category_list:
-                queryset = queryset.filter(category__in=category_list)
+            queryset = queryset.filter(category=category)
 
         if iso:
-            iso_list = request.GET.getlist('iso')
-            iso_list = [sanitize_filter_value(i) for i in iso_list if i]
-            if iso_list:
-                queryset = queryset.filter(iso_topic__in=iso_list)
+            queryset = queryset.filter(iso_topic=iso)
 
-        # Keyword filter (OR logic within keywords)
+        # Keyword filter
         if keyword_selected:
             keyword_q = Q()
             for k in keyword_selected:
@@ -362,10 +366,10 @@ def search_view(request):
         for k, count in top_keywords:
             keyword_options.append({'value': k, 'label': k, 'count': count})
 
-        # Get selected values for checkboxes
-        expedition_selected = request.GET.getlist('expedition')
-        category_selected = request.GET.getlist('category')
-        iso_selected = request.GET.getlist('iso')
+        # Get selected values for checkboxes (now single values instead of lists)
+        expedition_selected = [expedition] if expedition else []
+        category_selected = [category] if category else []
+        iso_selected = [iso] if iso else []
         year_selected = request.GET.getlist('year')
 
         # --------------------------------------------------
