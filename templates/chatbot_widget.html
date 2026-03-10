@@ -628,19 +628,81 @@
         cursor: not-allowed;
     }
 
-    /* Mobile Responsive */
-    @media (max-width: 480px) {
+    /* ===== MOBILE RESPONSIVE ===== */
+    @media (max-width: 600px) {
+        /* Stretch panel edge-to-edge, pinned to very bottom of visible area */
         .chatbot-panel {
-            bottom: 90px;
-            right: 12px;
-            left: 12px;
-            width: auto;
-            max-width: none;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            top: auto !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            /* Use dvh for accurate mobile viewport; fallback with --chatbot-vh */
+            height: 92dvh;
+            height: calc(var(--chatbot-vh, 1vh) * 92);
+            max-height: 100%;
+            border-radius: 20px 20px 0 0;
+            /* add room for iOS home indicator */
+            padding-bottom: env(safe-area-inset-bottom, 0px);
         }
 
+        /* Hide the drag grip — dragging a full-width panel is meaningless */
+        .chatbot-drag-indicator {
+            display: none;
+        }
+
+        /* Prevent the grab cursor on mobile header */
+        .chatbot-header {
+            cursor: default !important;
+        }
+
+        /* Prevent the header from stealing multi-touch scrolling */
+        .chatbot-header:active {
+            cursor: default !important;
+        }
+
+        /* Fix iOS auto-zoom: font-size must be >= 16 px */
+        .chatbot-input {
+            font-size: 16px;
+        }
+
+        /* Bump up the send button for easier tapping */
+        .chatbot-send {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        /* Add bottom safe-area to input container */
+        .chatbot-input-container {
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        }
+
+        /* Widget toggle button */
         #npdc-chatbot-widget {
-            bottom: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
             right: 16px;
+        }
+
+        /* Proactive tip: keep it fully on-screen */
+        .proactive-tip {
+            right: 12px;
+            left: 12px;
+            max-width: calc(100vw - 24px);
+            bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+        }
+
+        /* Quick reply buttons: allow them to scroll horizontally rather than wrap awkwardly */
+        .chatbot-quick-replies {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .chatbot-quick-replies::-webkit-scrollbar {
+            display: none;
         }
     }
 
@@ -869,6 +931,32 @@
                 this.initStuckDetection(); // Initialize stuck detection
                 this.initSoundSystem(); // Initialize sound notifications
                 this.initPenguinHelpIcons(); // Initialize Ask Penguin help icons
+                this.initMobileViewport(); // Handle virtual keyboard & --chatbot-vh
+            },
+
+            // ===== MOBILE VIEWPORT / VIRTUAL KEYBOARD HANDLER =====
+            initMobileViewport() {
+                const setChatbotVh = () => {
+                    // Use visualViewport when available (shrinks when keyboard opens)
+                    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+                    document.documentElement.style.setProperty('--chatbot-vh', `${vh}px`);
+                };
+
+                setChatbotVh();
+                window.addEventListener('resize', setChatbotVh);
+
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', setChatbotVh);
+                    // When keyboard opens, scroll the messages to the bottom so input stays visible
+                    window.visualViewport.addEventListener('resize', () => {
+                        if (this.isOpen) {
+                            setTimeout(() => {
+                                const msgs = this.messagesContainer;
+                                if (msgs) msgs.scrollTop = msgs.scrollHeight;
+                            }, 100);
+                        }
+                    });
+                }
             },
 
             getCurrentPageContext() {
@@ -2136,16 +2224,17 @@
                 let isDragging = false;
                 let startX, startY, initialX, initialY;
 
-                header.style.cursor = 'grab';
+                // On mobile the panel is full-width — disable drag entirely
+                const isMobile = () => window.innerWidth <= 600;
+
+                if (!isMobile()) {
+                    header.style.cursor = 'grab';
+                }
 
                 header.addEventListener('mousedown', (e) => {
-                    // Don't drag if clicking the close button
+                    // Don't drag if clicking the close button or on mobile
                     if (e.target.closest('.chatbot-close')) return;
-
-                    isDragging = true;
-                    header.style.cursor = 'grabbing';
-
-                    startX = e.clientX;
+                    if (isMobile()) return;
                     startY = e.clientY;
 
                     const rect = this.panel.getBoundingClientRect();
@@ -2189,9 +2278,10 @@
                     }
                 });
 
-                // Touch support for mobile
+                // Touch drag — disabled on full-width mobile panel
                 header.addEventListener('touchstart', (e) => {
                     if (e.target.closest('.chatbot-close')) return;
+                    if (isMobile()) return;   // no drag when panel is full-width
 
                     isDragging = true;
                     const touch = e.touches[0];
