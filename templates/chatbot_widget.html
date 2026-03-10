@@ -2235,6 +2235,11 @@
                     // Don't drag if clicking the close button or on mobile
                     if (e.target.closest('.chatbot-close')) return;
                     if (isMobile()) return;
+
+                    isDragging = true;
+                    header.style.cursor = 'grabbing';
+
+                    startX = e.clientX;
                     startY = e.clientY;
 
                     const rect = this.panel.getBoundingClientRect();
