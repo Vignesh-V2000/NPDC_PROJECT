@@ -30,31 +30,57 @@
             padding: 1rem !important;
         }
     }
+
+    /* Validation Styles */
+    .form-control.is-valid {
+        border-color: #10b981;
+    }
+    .form-control.is-invalid {
+        border-color: #ef4444;
+    }
+    .invalid-feedback {
+        display: none;
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    .form-control.is-invalid ~ .invalid-feedback {
+        display: block;
+    }
 </style>
 <div class="kpdc-page pb-5">
     <div class="container mt-5">
         <div class="card shadow-sm border-0" style="max-width: 900px; margin: 0 auto;">
             <div class="card-body p-3 p-md-5">
-                <form id="getDataDummyForm" method="POST" action="{% url 'data_submission:get_data' submission.metadata_id %}">
+                <form id="getDataDummyForm" method="POST" action="{% url 'data_submission:get_data' submission.metadata_id %}" novalidate>
                     {% csrf_token %}
                     <!-- Row 1 -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="First Name" id="reqFirstName" name="first_name" value="{{ form.first_name.value|default_if_none:'' }}">
+                            <label class="form-label" for="reqFirstName">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="First Name" id="reqFirstName" name="first_name" required pattern="[A-Za-z\s]+" title="Please enter valid First Name" value="{{ form.first_name.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter valid First Name</div>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="Last Name" id="reqLastName" name="last_name" value="{{ form.last_name.value|default_if_none:'' }}">
+                            <label class="form-label" for="reqLastName">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Last Name" id="reqLastName" name="last_name" required pattern="[A-Za-z\s]+" title="Please enter valid Last Name" value="{{ form.last_name.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter valid Last Name</div>
                         </div>
                         <div class="col-md-4">
-                            <input type="email" class="form-control" placeholder="Email Address" id="reqEmail" name="email" value="{{ form.email.value|default_if_none:'' }}">
+                            <label class="form-label" for="reqEmail">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" placeholder="Email Address" id="reqEmail" name="email" required pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" title="Please enter valid Email ID" value="{{ form.email.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter valid Email ID (e.g. test@gmail.com)</div>
                         </div>
                     </div>
                     <!-- Row 2 -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Institute Name" id="reqInstitute" name="institute" value="{{ form.institute.value|default_if_none:'' }}">
+                            <label class="form-label" for="reqInstitute">Institute Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Institute Name" id="reqInstitute" name="institute" required pattern="[A-Za-z\s]+" title="Please enter valid Institute Name" value="{{ form.institute.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter valid Institute Name</div>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label" for="reqCountry">Country <span class="text-danger">*</span></label>
                             <select class="form-select" id="reqCountry" name="country">
                                 <option value="India" {% if form.country.value == 'India' %}selected{% endif %}>India</option>
                                 <option value="United States" {% if form.country.value == 'United States' %}selected{% endif %}>United States</option>
@@ -66,10 +92,14 @@
                     <!-- Row 3 -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Research Area" id="reqResearch" name="research_area" value="{{ form.research_area.value|default_if_none:'' }}">
+                            <label class="form-label" for="reqResearch">Research Area <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Research Area" id="reqResearch" name="research_area" required pattern="[A-Za-z0-9\s]+" title="Please enter valid Research Area" value="{{ form.research_area.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter valid Research Area</div>
                         </div>
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Purpose" id="reqPurpose" name="purpose" value="{{ form.purpose.value|default_if_none:'' }}">
+                            <label class="form-label" for="reqPurpose">Purpose <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Purpose" id="reqPurpose" name="purpose" required pattern="[A-Za-z\s]+" title="Please enter valid Purpose" value="{{ form.purpose.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter valid Purpose</div>
                         </div>
                     </div>
                     <div class="mb-4 captcha-group">
@@ -105,6 +135,10 @@
                                 The datasets should not be shared with others, however, the NPDC URL (<a href="https://npdc.ncpor.res.in/" target="_blank">https://npdc.ncpor.res.in/</a>) may be shared for the purpose of downloading the datasets.
                             </label>
                         </div>
+                    </div>
+                    <!-- Error alert -->
+                    <div id="form-error-alert" class="alert alert-danger d-none mb-3" role="alert" style="font-weight: 600; font-size: 0.9rem;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Please put correct information
                     </div>
                     <!-- Row 6 Download Button -->
                     <div class="text-center">
@@ -149,13 +183,80 @@
         // Select all required inputs and checkboxes
         const textInputs = form.querySelectorAll('input[type="text"], input[type="email"]');
         const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+
+        // Restrict text-only fields (first name, last name, institute, purpose)
+        const textOnlyFields = form.querySelectorAll('input[name="first_name"], input[name="last_name"], input[name="institute"], input[name="purpose"]');
+        textOnlyFields.forEach(field => {
+            field.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey || [8, 9, 13, 27, 37, 38, 39, 40, 46].includes(e.keyCode)) return;
+                if (!/^[a-zA-Z\s]$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            field.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            });
+        });
+
+        // Restrict research area to text + numbers only
+        const researchField = form.querySelector('input[name="research_area"]');
+        if (researchField) {
+            researchField.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey || [8, 9, 13, 27, 37, 38, 39, 40, 46].includes(e.keyCode)) return;
+                if (!/^[a-zA-Z0-9\s]$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            researchField.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
+            });
+        }
+
+        // Real-time validation on blur
+        textInputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (!input.value.trim()) {
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    const fb = input.nextElementSibling;
+                    if (fb && fb.classList.contains('invalid-feedback')) {
+                        fb.textContent = "This field is required.";
+                    }
+                } else if (!input.checkValidity()) {
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    const fb = input.nextElementSibling;
+                    if (fb && fb.classList.contains('invalid-feedback')) {
+                        fb.textContent = input.title || "Please enter valid " + input.placeholder;
+                    }
+                } else {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                }
+                // Hide the form-level error alert if all fields are now valid
+                const errorAlert = document.getElementById('form-error-alert');
+                if (errorAlert && !errorAlert.classList.contains('d-none')) {
+                    let allValid = true;
+                    textInputs.forEach(inp => { if (inp.classList.contains('is-invalid')) allValid = false; });
+                    if (allValid) errorAlert.classList.add('d-none');
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (input.classList.contains('is-invalid') && input.checkValidity() && input.value.trim()) {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                }
+                checkFormValidity();
+            });
+        });
         
         function checkFormValidity() {
             let isValid = true;
             
-            // Check if all text/email inputs are not empty
+            // Check if all text/email inputs are not empty and valid
             textInputs.forEach(input => {
-                if (input.value.trim() === '') {
+                if (input.value.trim() === '' || !input.checkValidity()) {
                     isValid = false;
                 }
             });
@@ -171,13 +272,29 @@
             downloadBtn.disabled = !isValid;
         }
 
-        // Add event listeners to trigger check when users type or click
-        textInputs.forEach(input => {
-            input.addEventListener('input', checkFormValidity);
-        });
-        
+        // Add event listeners to trigger check when users click checkboxes
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', checkFormValidity);
+        });
+
+        // Form submission validation
+        form.addEventListener('submit', function(event) {
+            let hasErrors = false;
+            textInputs.forEach(input => {
+                if (!input.value.trim() || !input.checkValidity()) {
+                    input.classList.add('is-invalid');
+                    hasErrors = true;
+                }
+            });
+            if (hasErrors) {
+                event.preventDefault();
+                event.stopPropagation();
+                const errorAlert = document.getElementById('form-error-alert');
+                if (errorAlert) {
+                    errorAlert.classList.remove('d-none');
+                    errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
         });
     });
 </script>
