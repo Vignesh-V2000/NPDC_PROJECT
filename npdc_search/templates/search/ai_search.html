@@ -45,6 +45,9 @@
         </div>
     </aside>
 
+    <!-- Sidebar overlay (mobile) — tap to close sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebarMobile()"></div>
+
     <!-- Main Chat Area -->
     <main class="chat-main initial-center" id="chat-main">
         <!-- Toggle sidebar (mobile) -->
@@ -135,7 +138,8 @@
         display: flex;
         height: calc(100vh - 70px);
         overflow: hidden;
-        background:#002C4B;
+        background: #002C4B;
+        position: relative;
     }
 
     /* ===== LEFT SIDEBAR ===== */
@@ -1251,21 +1255,47 @@
         border-radius: 10px;
     }
 
-    /* ===== RESPONSIVE ===== */
+    /* ===== SIDEBAR OVERLAY (mobile backdrop) ===== */
+    .sidebar-overlay {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 15;
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
+        cursor: pointer;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* ===== RESPONSIVE — tablets & phones ===== */
     @media (max-width: 768px) {
+
+        .chat-app {
+            height: 100dvh;
+            /* fallback for browsers without dvh */
+            height: calc(var(--vh, 1vh) * 100);
+        }
+
         .chat-sidebar {
             position: absolute;
             left: 0;
             top: 0;
             bottom: 0;
+            height: 100%;
             transform: translateX(-100%);
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 20;
         }
 
         .chat-sidebar.open {
             transform: translateX(0);
         }
 
+        /* keep full width when collapsed is toggled on mobile */
         .chat-sidebar.collapsed {
             width: 260px !important;
             min-width: 260px !important;
@@ -1275,13 +1305,23 @@
             display: block;
         }
 
+        /* push message content below the floating toggle button */
+        .chat-messages {
+            padding-top: 3.75rem;
+        }
+
         .scroll-nav {
             bottom: 80px;
             right: 8px;
         }
 
+        .scroll-nav-btn {
+            width: 36px;
+            height: 36px;
+        }
+
         .message-row {
-            padding: 0 1rem;
+            padding: 0 0.75rem;
         }
 
         .message-row.message-ai,
@@ -1290,24 +1330,94 @@
             margin-right: 0;
         }
 
+        .message-ai {
+            padding: 14px 16px;
+        }
+
+        .message-user .bubble {
+            max-width: 88%;
+        }
+
+        /* reduce horizontal padding on the input bar */
         .chat-input-area {
-            padding: 0 1rem 1rem;
+            padding: 0 0.75rem 0.75rem;
+            /* respect iOS home-bar / Android nav-bar */
+            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
         }
 
         .welcome-chips {
             grid-template-columns: 1fr;
         }
 
+        .welcome-state {
+            padding: 1.25rem 1rem;
+        }
+
+        .welcome-state h2 {
+            font-size: 1.3rem;
+        }
+
+        /* remove left-indent on all AI content so nothing clips */
         .ai-answer-text,
         .source-pills,
         .ai-actions,
-        .related-research {
+        .related-research,
+        .typing-indicator,
+        .response-time-label {
             padding-left: 0;
+        }
+
+        /* allow action buttons to wrap on narrow screens */
+        .ai-actions {
+            flex-wrap: wrap;
+            gap: 4px 2px;
         }
 
         .related-research-header {
             flex-wrap: wrap;
             gap: 6px;
+        }
+
+        /* message divider padding */
+        .message-divider {
+            padding: 0 0.75rem;
+        }
+    }
+
+    /* ===== RESPONSIVE — small phones (≤480 px) ===== */
+    @media (max-width: 480px) {
+
+        .chat-input-wrapper {
+            border-radius: 20px;
+        }
+
+        .welcome-state h2 {
+            font-size: 1.1rem;
+        }
+
+        .welcome-state p {
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* on very small screens hide action button text, keep icons */
+        .ai-action-btn .action-label {
+            display: none;
+        }
+
+        .ai-action-btn {
+            padding: 5px 6px;
+        }
+
+        /* allow research titles to wrap */
+        .research-item-title {
+            white-space: normal;
+            font-size: 0.78rem;
+        }
+
+        .scroll-nav-btn {
+            width: 32px;
+            height: 32px;
         }
     }
 </style>
@@ -2079,10 +2189,25 @@
     }
 
     function toggleSidebarMobile() {
-        document.getElementById('chat-sidebar').classList.toggle('open');
+        const sidebar = document.getElementById('chat-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const isOpen = sidebar.classList.toggle('open');
+        overlay.classList.toggle('active', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
+
+    function closeSidebarMobile() {
+        document.getElementById('chat-sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('active');
+        document.body.style.overflow = '';
     }
 
     function toggleSidebarCollapse() {
+        // On mobile the sidebar is an overlay — the button should close it entirely
+        if (window.innerWidth <= 768) {
+            closeSidebarMobile();
+            return;
+        }
         const sidebar = document.getElementById('chat-sidebar');
         const collapsed = sidebar.classList.toggle('collapsed');
         // Flip the arrow direction when collapsed
@@ -2129,10 +2254,20 @@
         if (e.key === 'Escape') {
             const sidebar = document.getElementById('chat-sidebar');
             if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
+                closeSidebarMobile();
             }
         }
     });
+
+    // ===== MOBILE VIEWPORT HEIGHT FIX =====
+    // Fixes the 100vh issue on mobile browsers where the address bar changes the
+    // available height, causing layout jumps. Sets a --vh CSS variable used in
+    // the @media (max-width: 768px) rule above.
+    function setVh() {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    }
+    setVh();
+    window.addEventListener('resize', setVh);
 </script>
 
 {% endblock %}
