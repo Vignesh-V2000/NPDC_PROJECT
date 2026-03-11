@@ -34,7 +34,7 @@ OPENROUTER_API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions'
 # Run: ollama serve  |  ollama pull llama3.2
 OLLAMA_ENABLED = True
 OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', 'llama3.2')
-OLLAMA_API_ENDPOINT = 'http://localhost:11434/v1/chat/completions'
+OLLAMA_API_ENDPOINT = os.environ.get('OLLAMA_API_ENDPOINT', 'http://localhost:11434/v1/chat/completions')
 
 # Shared settings
 OPENROUTER_TEMPERATURE = 0.7

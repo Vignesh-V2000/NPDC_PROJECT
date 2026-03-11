@@ -5,9 +5,12 @@ import json
 import re
 import requests
 import difflib
+import logging
 from datetime import datetime
 from django.db.models import Count
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 
 class NPDCChatbot:
@@ -65,17 +68,15 @@ class NPDCChatbot:
             self.model = ''
             self.api_url = ''
         
-        # Print provider info
+        # Log provider info
         if self.providers:
             primary = self.providers[0]
-            print(f"✅ AI Initialized: {primary['name']} (primary)")
-            print(f"   Model: {primary['model']}")
-            print(f"   API Key: {'***' + primary['api_key'][-4:] if primary['api_key'] else '❌ NOT SET!'}")
+            logger.info(f"AI Initialized: {primary['name']} (primary), model={primary['model']}")
             if len(self.providers) > 1:
                 fallback = self.providers[1]
-                print(f"   Fallback: {fallback['name']} ({fallback['model']})")
+                logger.info(f"AI Fallback: {fallback['name']} ({fallback['model']})")
         else:
-            print(f"❌ No AI providers configured!")
+            logger.error("No AI providers configured!")
         
         self.knowledge_base = self.load_knowledge_base()
     
@@ -191,7 +192,7 @@ class NPDCChatbot:
                 'category_counts': {item['category']: item['count'] for item in category_counts},
             }
         except Exception as e:
-            print(f"Error fetching stats: {e}")
+            logger.warning(f"Error fetching stats: {e}")
             return None
     
     def get_user_specific_stats(self, user_type='guest'):
@@ -265,7 +266,7 @@ class NPDCChatbot:
     def generate_ai_response(self, user_message, page_context=''):
         """Generate response using OpenRouter API"""
         try:
-            print(f"🤖 Generating AI response...")
+            logger.debug("Generating AI response...")
             
             kb = self.knowledge_base
             page_type = getattr(self, 'page_type', 'home')
@@ -556,39 +557,39 @@ RULES:
                                 ai_response = re.sub(r'</li>\s*(?:<br>)*\s*<li>', '</li><li>', ai_response)
                                 ai_response = re.sub(r'</li>\s*(?:<br>)*\s*</ol>', '</li></ol>', ai_response)
                             except Exception as post_err:
-                                print(f"⚠️ Response post-processing error ({provider['name']}): {post_err}")
+                                logger.warning(f"Response post-processing error ({provider['name']}): {post_err}")
                                 # Return raw response rather than skipping to next provider
 
-                            print(f"✅ Response from {provider['name']} ({provider['model']})")
+                            logger.info(f"Response from {provider['name']} ({provider['model']})")
                             return ai_response
                         else:
-                            print(f"⚠️ {provider['name']} returned empty response, trying next...")
+                            logger.warning(f"{provider['name']} returned empty response, trying next...")
                             continue
                     elif response.status_code == 429:
-                        print(f"⚠️ {provider['name']} rate limited (429), trying next provider...")
+                        logger.warning(f"{provider['name']} rate limited (429), trying next provider...")
                         continue
                     else:
-                        print(f"❌ {provider['name']} error: HTTP {response.status_code}")
+                        logger.error(f"{provider['name']} error: HTTP {response.status_code}")
                         continue
                 
                 except requests.exceptions.ConnectionError:
-                    print(f"❌ Cannot connect to {provider['name']}, trying next...")
+                    logger.error(f"Cannot connect to {provider['name']}, trying next...")
                     continue
                 
                 except requests.exceptions.Timeout:
-                    print(f"❌ {provider['name']} timed out, trying next...")
+                    logger.error(f"{provider['name']} timed out, trying next...")
                     continue
                 
                 except Exception as e:
-                    print(f"❌ {provider['name']} error: {str(e)}, trying next...")
+                    logger.error(f"{provider['name']} error: {str(e)}, trying next...")
                     continue
             
             # All providers failed, use keyword fallback
-            print(f"⚠️ All AI providers failed, using keyword fallback")
+            logger.warning("All AI providers failed, using keyword fallback")
             return self.generate_response(user_message)
         
         except Exception as e:
-            print(f"❌ AI generation error: {str(e)}")
+            logger.error(f"AI generation error: {str(e)}")
             return self.generate_response(user_message)
     
     def generate_response(self, user_message):
@@ -1204,7 +1205,7 @@ RULES:
         if self.ai_enabled and self.providers:
             response = self.generate_ai_response(message)
             if not response:
-                print(f"⚠️ AI returned empty response, using keyword fallback")
+                logger.warning("AI returned empty response, using keyword fallback")
                 response = self.generate_response(message)
         else:
             response = self.generate_response(message)
@@ -1227,7 +1228,7 @@ def chatbot_init(request):
             'quick_replies': chatbot.get_quick_replies()
         })
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"chatbot_init error: {e}")
         return JsonResponse({
             'greeting': 'Welcome to National Polar Data Center!',
             'quick_replies': []
@@ -1299,5 +1300,5 @@ def chatbot_message(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
-        print(f"Error: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+        logger.error(f"chatbot_message error: {e}")
+        return JsonResponse({'error': 'An error occurred processing your message.'}, status=500)
