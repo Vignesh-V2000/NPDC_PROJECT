@@ -1083,7 +1083,7 @@ def reset_password_confirm(request, uidb64=None, token=None):
 
         messages.success(
             request,
-            "✅ Your password has been reset successfully. You can now log in."
+            "Your password has been reset successfully. You can now log in."
         )
         return redirect('users:login')
 
