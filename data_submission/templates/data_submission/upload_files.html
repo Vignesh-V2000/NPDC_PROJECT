@@ -21,6 +21,52 @@
     .container label {
         color: #333333;
     }
+
+    /* Custom File Upload Styles */
+    .file-upload-area {
+        position: relative;
+    }
+    .file-display {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 1rem;
+        background: #f0fdf4;
+        border: 1.5px solid #86efac;
+        border-radius: 0.5rem;
+    }
+    .file-display .file-icon {
+        color: #16a34a;
+        font-size: 1.2rem;
+    }
+    .file-display .file-name {
+        flex: 1;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #166534;
+        word-break: break-all;
+    }
+    .file-display .file-remove-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: #fecaca;
+        color: #dc2626;
+        border-radius: 50%;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        line-height: 1;
+    }
+    .file-display .file-remove-btn:hover {
+        background: #ef4444;
+        color: #fff;
+        transform: scale(1.1);
+    }
     
     /* ========= RESPONSIVE MEDIA QUERIES ========= */
     @media (max-width: 1024px) {
@@ -118,7 +164,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <form method="post" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data" id="uploadForm">
                             {% csrf_token %}
                             <table class="table table-bordered mb-0">
                                 <tbody>
@@ -133,7 +179,32 @@
                                     <tr>
                                         <th class="bg-light align-middle">Add Actual\Processed Dataset:</th>
                                         <td>
-                                            {{ form.data_file }}
+                                            <div class="file-upload-area" id="fileUploadArea">
+                                                {% if dataset.data_file %}
+                                                <!-- Existing file display with cross button -->
+                                                <div class="file-display" id="existingFileDisplay">
+                                                    <i class="fas fa-file-alt file-icon"></i>
+                                                    <span class="file-name">{{ dataset.data_file.name }}</span>
+                                                    <button type="button" class="file-remove-btn" id="removeExistingBtn" title="Remove file">&#10005;</button>
+                                                </div>
+                                                <input type="hidden" name="data_file-clear" id="fileClearInput" value="">
+                                                <!-- Hidden file input shown after removal -->
+                                                <div id="newFileInput" style="display: none; margin-top: 0.5rem;">
+                                                    <input type="file" name="data_file" class="form-control" id="dataFileInput">
+                                                </div>
+                                                {% else %}
+                                                <!-- No existing file, show file input directly -->
+                                                <div id="newFileInput">
+                                                    <input type="file" name="data_file" class="form-control" id="dataFileInput">
+                                                </div>
+                                                {% endif %}
+                                                <!-- Display for newly selected file with cross button -->
+                                                <div class="file-display" id="newFileDisplay" style="display: none; margin-top: 0.5rem;">
+                                                    <i class="fas fa-file-alt file-icon"></i>
+                                                    <span class="file-name" id="newFileName"></span>
+                                                    <button type="button" class="file-remove-btn" id="removeNewBtn" title="Remove file">&#10005;</button>
+                                                </div>
+                                            </div>
                                             {% if form.data_file.errors %}
                                             <div class="text-danger small mt-1">
                                                 {{ form.data_file.errors }}
@@ -160,6 +231,9 @@
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="text-end p-3 bg-white border-top-0">
+                                            <div id="upload-error-alert" class="alert alert-danger d-none mb-2 text-start" role="alert" style="font-weight: 600; font-size: 0.88rem;">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>You must upload a dataset file before submitting.
+                                            </div>
                                             <button type="submit" class="btn btn-light border">Upload and Submit</button>
                                         </td>
                                     </tr>
@@ -172,4 +246,71 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('dataFileInput');
+    const newFileDisplay = document.getElementById('newFileDisplay');
+    const newFileName = document.getElementById('newFileName');
+    const removeNewBtn = document.getElementById('removeNewBtn');
+    const newFileInputWrapper = document.getElementById('newFileInput');
+    const existingFileDisplay = document.getElementById('existingFileDisplay');
+    const removeExistingBtn = document.getElementById('removeExistingBtn');
+    const fileClearInput = document.getElementById('fileClearInput');
+    const uploadForm = document.getElementById('uploadForm');
+    const errorAlert = document.getElementById('upload-error-alert');
+
+    // When a new file is selected, show the file name with cross button
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                const file = this.files[0];
+                if (newFileName) newFileName.textContent = file.name;
+                if (newFileDisplay) newFileDisplay.style.display = 'flex';
+                // Hide the raw file input after selection
+                if (newFileInputWrapper) newFileInputWrapper.style.display = 'none';
+                // Reset the clear flag since we're uploading a new file
+                if (fileClearInput) fileClearInput.value = '';
+                // Hide error if shown
+                if (errorAlert) errorAlert.classList.add('d-none');
+            }
+        });
+    }
+
+    // Remove newly selected file — show the file input again
+    if (removeNewBtn) {
+        removeNewBtn.addEventListener('click', function() {
+            if (fileInput) fileInput.value = '';
+            if (newFileDisplay) newFileDisplay.style.display = 'none';
+            if (newFileInputWrapper) newFileInputWrapper.style.display = 'block';
+        });
+    }
+
+    // Remove existing uploaded file — mark for clearing and show file input
+    if (removeExistingBtn) {
+        removeExistingBtn.addEventListener('click', function() {
+            if (existingFileDisplay) existingFileDisplay.style.display = 'none';
+            if (fileClearInput) fileClearInput.value = 'on';
+            if (newFileInputWrapper) newFileInputWrapper.style.display = 'block';
+        });
+    }
+
+    // Validate on form submit — must have a file
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            const hasExistingFile = existingFileDisplay && existingFileDisplay.style.display !== 'none';
+            const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+            if (!hasExistingFile && !hasNewFile) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (errorAlert) {
+                    errorAlert.classList.remove('d-none');
+                    errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

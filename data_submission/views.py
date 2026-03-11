@@ -867,19 +867,21 @@ def submission_success(request, metadata_id):
     
     # Try to get by metadata_id first
     try:
-        submission = DatasetSubmission.objects.get(metadata_id=metadata_id, submitter=request.user)
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
     except DatasetSubmission.DoesNotExist:
         # If not found and metadata_id looks like a number, try to find by primary key
         if metadata_id.isdigit():
             try:
-                submission = DatasetSubmission.objects.get(id=int(metadata_id), submitter=request.user)
-                # Redirect to the correct URL with metadata_id
-
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
                 return redirect('data_submission:submission_success', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")
         else:
             raise Http404("No DatasetSubmission matches the given query.")
+    
+    # Only submitter or admin can view success page
+    if not (request.user == submission.submitter or is_admin(request.user)):
+        raise Http404("No DatasetSubmission matches the given query.")
     
     return render(request, 'data_submission/submission_success.html', {'submission': submission})
 
@@ -1193,12 +1195,19 @@ National Polar Data Center
         
         return redirect('data_submission:review_submissions')
 
+    # Safe check if user is super admin (not a limited expedition admin)
+    is_super_admin = request.user.is_superuser
+    if not is_super_admin and request.user.is_staff:
+        profile = getattr(request.user, 'profile', None)
+        is_super_admin = not (profile and profile.expedition_admin_type)
+
     return render(
         request,
         'admin/review_submission_detail.html',
         {
             'submission': submission,
-            'status_transitions': STATUS_TRANSITIONS.get(submission.status, [])
+            'status_transitions': STATUS_TRANSITIONS.get(submission.status, []),
+            'is_super_admin': is_super_admin
         }
     )
 
@@ -1368,7 +1377,7 @@ def upload_dataset_files(request, metadata_id):
             raise Http404("No DatasetSubmission matches the given query.")
     
     # RBAC: Only submitter or admin can upload files
-    if not (request.user == dataset.submitter or is_admin(request)):
+    if not (request.user == dataset.submitter or is_admin(request.user)):
         messages.error(request, "You do not have permission to edit this dataset.")
         return redirect('data_submission:my_submissions')
         
@@ -1459,6 +1468,9 @@ National Polar Data Center
 
             
             messages.success(request, "Dataset submitted successfully with files!")
+            # Admins go back to review detail; regular users see success page
+            if is_admin(request.user):
+                return redirect('data_submission:review_submission_detail', metadata_id=dataset.metadata_id)
             return redirect('data_submission:submission_success', metadata_id=dataset.metadata_id)
     else:
         from .forms import DatasetUploadForm
@@ -1727,7 +1739,6 @@ def admin_edit_submission(request, metadata_id):
             try:
                 submission = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
                 return redirect('data_submission:admin_edit_submission', metadata_id=submission.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")

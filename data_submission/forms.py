@@ -215,15 +215,23 @@ class DatasetUploadForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['data_file'].widget.attrs.update({'class': 'form-control'})
-        if not self.instance or not self.instance.data_file:
-            self.fields['data_file'].required = True
+        self.fields['data_file'].required = False  # We handle required check in clean
 
     def clean_data_file(self):
         file = self.cleaned_data.get('data_file')
         
-        # Enforce compulsory file upload
-        if not file and not self.instance.data_file:
+        # Check if the user clicked the cross/clear button
+        is_clearing = self.data.get('data_file-clear') == 'on'
+        
+        # If clearing existing file and no new file uploaded, block submission
+        if is_clearing and not file:
             raise ValidationError("You must upload a dataset file to complete your submission.")
+        
+        # If no file uploaded and no existing file, block submission
+        if not file and (not self.instance or not self.instance.data_file):
+            raise ValidationError("You must upload a dataset file to complete your submission.")
+        
+        # If clearing but also uploading a new file, that's fine — file will replace
 
         if file:
             # Security: Validate file extension
