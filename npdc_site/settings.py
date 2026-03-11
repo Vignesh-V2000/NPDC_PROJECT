@@ -148,10 +148,11 @@ LOGOUT_REDIRECT_URL = 'users:login'
 
 if DEBUG:
     # Development settings
-    pass
+    # Squid reverse proxy prefix — download URLs go through Squid for caching
+    SQUID_CACHE_URL_PREFIX = 'http://localhost:3128'
 else:
-    # Production settings
-    pass
+    # Production settings (Nginx handles caching)
+    SQUID_CACHE_URL_PREFIX = ''
 
 
 # Secure Mathematical Captcha Settings
