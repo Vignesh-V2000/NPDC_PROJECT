@@ -177,8 +177,19 @@ def submit_dataset(request):
         dataset = get_object_or_404(DatasetSubmission, pk=submission_id, submitter=request.user)
         is_edit_mode = True
         
-        # 🚨 ALLOW EDITING FOR ALL STATUSES PER USER REQUEST
-        # Previously locked published datasets, now allowed.
+        # Block participants from editing published metadata, but allow Admins
+        # Check if user is admin
+        user_is_admin = False
+        if request.user.is_superuser or (hasattr(request.user, 'profile') and request.user.profile.user_type == 'admin'):
+            user_is_admin = True
+            
+        user_is_expedition_admin = hasattr(request.user, 'profile') and bool(request.user.profile.expedition_admin_type)
+        
+        can_edit_published = user_is_admin or (user_is_expedition_admin and dataset.expedition_type == request.user.profile.expedition_admin_type)
+
+        if dataset.status == 'published' and not can_edit_published:
+            messages.error(request, "Published datasets cannot be edited by participants in this section.")
+            return redirect('data_submission:view_submission', metadata_id=dataset.metadata_id)
 
     # Dynamically define formsets to prevent empty "extra" forms when editing
     scientist_extra = 0 if (dataset and dataset.scientists.exists()) else 1
@@ -469,8 +480,8 @@ def submit_dataset(request):
                         # Keep the existing status
                         dataset.status = previous_status
                 elif action == "SUBMIT":
-                    # Allow re-submission from draft, submitted, revision_requested, AND published
-                    if previous_status not in ["draft", "submitted", "revision_requested", "published"]:
+                    # Allow re-submission from draft, submitted, and revision_requested
+                    if previous_status not in ["draft", "submitted", "revision_requested"]:
                         messages.error(request, "Invalid status transition.")
                         return redirect("data_submission:submit_dataset")
                     

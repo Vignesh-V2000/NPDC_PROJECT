@@ -275,7 +275,7 @@
                                         <i class="fas fa-eye me-1"></i> View
                                     </a>
                                     
-                                    {% if submission.can_be_updated %}
+                                    {% if submission.can_be_updated and submission.status != 'published' %}
                                     <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.pk }}"
                                         class="rq-action-btn rq-action-edit" title="Update Submission">
                                         <i class="fas fa-edit me-1"></i> Edit

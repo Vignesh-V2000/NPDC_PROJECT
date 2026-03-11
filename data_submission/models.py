@@ -334,9 +334,13 @@ class DatasetSubmission(models.Model):
         
         # Auto-generate metadata_id for new datasets if not already set
         if not self.metadata_id:
-            raw = f"{self.title}-{datetime.datetime.now().isoformat()}"
-            hash_val = hashlib.md5(raw.encode()).hexdigest()[:10]
-            self.metadata_id = f"MF{hash_val}"
+            import random
+            while True:
+                random_digits = ''.join([str(random.randint(0, 9)) for _ in range(10)])
+                new_id = f"MF-{random_digits}"
+                if not DatasetSubmission.objects.filter(metadata_id=new_id).exists():
+                    self.metadata_id = new_id
+                    break
         
         super().save(*args, **kwargs)
 

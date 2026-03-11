@@ -148,7 +148,45 @@ class DatasetSubmissionForm(forms.ModelForm):
         self.fields['category'].choices = [('', 'Select Category')] + DatasetSubmission.CATEGORY_CHOICES
         self.fields['iso_topic'].choices = [('', 'Select ISO Topic')] + DatasetSubmission.ISO_TOPIC_CHOICES
         self.fields['data_set_progress'].choices = [('', 'Select Progress')] + DatasetSubmission.DATA_PROGRESS_CHOICES
-        self.fields['data_set_progress'].choices = [('', 'Select Progress')] + DatasetSubmission.DATA_PROGRESS_CHOICES
+
+        # All possible topic values (must match JS categoryTopics in submit_dataset.html)
+        ALL_TOPICS = sorted(set([
+            "Aerosols", "Air Quality", "Albedo", "Atmospheric Chemistry",
+            "Atmospheric Electricity", "Atmospheric Pressure", "Atmospheric Radiation",
+            "Atmospheric Temperature", "Atmospheric Water Vapor", "Atmospheric Winds",
+            "Clouds", "Precipitation", "Weather Events/Weather Models",
+            "Animals/Invertebrates", "Animals/Vertebrates", "Bacteria/Archaea",
+            "Fungi", "Plants", "Protists", "Viruses",
+            "Aquatic Ecosystems", "Ecological Dynamics", "Terrestrial Ecosystems",
+            "Vegetation", "Ocean/Lake Records",
+            "Air Temperature Indices", "Drought/Precipitation Indices",
+            "Humidity Indices", "Hydrologic/Ocean Indices", "Ocean/Sst Indices", "Teleconnections",
+            "Cryosphere", "Frozen Ground", "Glaciers/Ice Sheets", "Sea Ice", "Snow/Ice",
+            "Attitudes/Preferences/Behavior", "Boundaries", "Economic Resources",
+            "Environmental Impacts", "Habitat Conversion/Fragmentation", "Human Health",
+            "Infrastructure", "Land Use/Land Cover", "Natural Hazards", "Population",
+            "Erosion/Sedimentation", "Geomorphology", "Land Temperature", "Landscape",
+            "Soils", "Surface Radiative Properties", "Topography", "Neo-tectonics",
+            "Ice Core Records", "Land Records",
+            "Paleoclimate Reconstructions", "Nutrients", "Hydrography", "Marine Biology",
+            "Chlorophyll A", "Ocean Acoustics", "Marine Environment Monitoring",
+            "Ocean Chemistry", "Marine Sediments", "Aquatic Sciences", "Biogeochemistry",
+            "Geodetics/Gravity", "Geomagnetism", "Geothermal", "Natural Resources",
+            "Rocks/Minerals", "Seismology", "Tectonics", "Volcanoes", "Geo-Chemistry", "Paleo",
+            "Gamma Ray", "Infrared Wavelengths", "Lidar", "Microwave",
+            "Platform Characteristics", "Radar", "Radio Wave", "Sensor Characteristics",
+            "Ultraviolet Wavelengths", "Visible Wavelengths", "X-Ray", "GPS",
+            "Ionosphere/Magnetosphere Dynamics", "Solar Activity",
+            "Solar Energetic Particle Flux", "Solar Energetic Particle Properties",
+            "Ground Water", "Surface Water", "Water Quality/Water Chemistry", "Polar Ionosphere",
+            "Bathymetry/Seafloor Topography", "Coastal Processes",
+            "Marine Geophysics", "Marine Volcanism", "Ocean Circulation",
+            "Ocean Heat Budget", "Ocean Optics", "Ocean Pressure",
+            "Ocean Temperature", "Ocean Waves", "Ocean Winds", "Salinity/Density",
+            "Sea Surface Topography", "Tides", "Water Quality", "Earth Science Test",
+            "Atmospheric Science", "Surveying & Mapping", "Physical data",
+        ]))
+        self.fields['topic'].choices = [('', 'Select Topic')] + [(t, t) for t in ALL_TOPICS]
         
         # Expedition Year
         year_choices = DatasetSubmission.get_expedition_year_choices()
@@ -295,7 +333,7 @@ class ScientistDetailForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['country'].widget.attrs.update({'id': 'id_country', 'class': 'country-select form-select'})
-        self.fields['state'].widget.attrs.update({'id': 'id_state', 'class': 'state-select form-select'})
+        self.fields['state'].widget.attrs.update({'id': 'id_state', 'class': 'state-select form-control'})
         self.fields['city'].widget.attrs.update({'class': 'city-select'})
 
         if self.instance and self.instance.pk:
@@ -324,7 +362,7 @@ class ScientistDetailForm(forms.ModelForm):
             'institute': forms.TextInput(),
             'address': forms.TextInput(),
             'country': forms.Select(attrs={'id': 'id_country', 'class': 'country-select form-select'}),
-            'state': forms.Select(attrs={'id': 'id_state', 'class': 'state-select form-select'}),
+            'state': forms.TextInput(attrs={'id': 'id_state', 'class': 'state-select form-control', 'placeholder': 'Select or type state'}),
             'phone': forms.TextInput(attrs={'type': 'tel', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);", 'maxlength': '25'}),
             'mobile': forms.TextInput(attrs={'type': 'tel', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);", 'maxlength': '25'}),
             'postal_code': forms.TextInput(attrs={'pattern': r'^\d{6}$', 'title': 'Enter exactly 6 digits', 'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);", 'maxlength': '6'}),
