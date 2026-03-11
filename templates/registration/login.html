@@ -49,10 +49,14 @@
                                 <form method="post" class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     {% if form.non_field_errors %}
-                                    <div class="alert alert-danger border-0 shadow-sm rounded-3">
+                                    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
                                         <div class="d-flex align-items-center">
-                                            <i class="fas fa-exclamation-triangle fs-5 me-2 text-danger"></i>
-                                            <div>{{ form.non_field_errors }}</div>
+                                            <i class="fas fa-exclamation-triangle fs-5 me-2 text-danger align-self-start mt-1"></i>
+                                            <div>
+                                                {% for error in form.non_field_errors %}
+                                                    <div class="mb-1">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                     {% endif %}
