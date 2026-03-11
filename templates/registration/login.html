@@ -5,6 +5,7 @@
 {% block title %}Login - NPDC{% endblock %}
 
 {% block content %}
+{% block page_messages %}{% endblock %}
 <div class="login-page-wrapper">
     <div class="container py-4 py-md-5">
         <div class="row justify-content-center">
@@ -48,10 +49,14 @@
                                 <form method="post" class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     {% if form.non_field_errors %}
-                                    <div class="alert alert-danger border-0 shadow-sm rounded-3">
+                                    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
                                         <div class="d-flex align-items-center">
-                                            <i class="fas fa-exclamation-triangle fs-5 me-2 text-danger"></i>
-                                            <div>{{ form.non_field_errors }}</div>
+                                            <i class="fas fa-exclamation-triangle fs-5 me-2 text-danger align-self-start mt-1"></i>
+                                            <div>
+                                                {% for error in form.non_field_errors %}
+                                                    <div class="mb-1">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -133,7 +138,7 @@
                                     <div class="form-group mb-4">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <label class="form-label mb-0 d-flex align-items-center">
-                                                <i class="fas fa-shield-alt me-2 text-secondary"></i>Security Check
+                                                <i class="fas fa-user-check me-2 text-secondary"></i>CAPTCHA Verification
                                             </label>
                                             <button type="button" class="btn btn-sm btn-link js-captcha-refresh auth-text-link p-0 fw-semibold">
                                                 <i class="fas fa-sync-alt me-1"></i>Refresh Image
@@ -144,7 +149,9 @@
                                         </div>
                                         {% if form.captcha.errors %}
                                         <div class="text-danger small mt-2 fw-medium">
-                                            <i class="fas fa-exclamation-circle me-1"></i>{{ form.captcha.errors }}
+                                            {% for error in form.captcha.errors %}
+                                                <div class="mb-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}
                                     </div>
@@ -160,9 +167,9 @@
                                     <!-- Quick Access -->
                                     <div class="quick-links mt-4 pt-4 d-flex justify-content-center gap-3 flex-wrap">
                                         <a href="{% url 'users:home' %}"><i class="fas fa-home me-1"></i>Home</a>
-                                        <a href="#"><i class="fas fa-question-circle me-1"></i>Help</a>
-                                        <a href="#"><i class="fas fa-phone me-1"></i>Support</a>
-                                        <a href="#"><i class="fas fa-file-alt me-1"></i>Docs</a>
+                                        <a href="{% url 'users:about' %}"><i class="fas fa-info-circle me-1"></i>About</a>
+                                        <a href="{% url 'users:contact_us' %}"><i class="fas fa-envelope me-1"></i>Contact Us</a>
+                                        <a href="{% url 'users:data_policy' %}"><i class="fas fa-file-alt me-1"></i>Data Policy</a>
                                     </div>
                                 </form>
                             </div>

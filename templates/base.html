@@ -1274,6 +1274,7 @@
         {% block container_wrapper %}
         <div class="container py-5">
         {% endblock container_wrapper %}
+            {% block page_messages %}
             {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}
@@ -1293,6 +1294,7 @@
                 {% endfor %}
             </div>
             {% endif %}
+            {% endblock page_messages %}
 
             {% block content %}{% endblock %}
         {% block container_wrapper_end %}

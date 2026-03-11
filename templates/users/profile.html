@@ -239,14 +239,14 @@
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="tel" name="phone" class="form-control" id="id_phone"
-                                        value="{{ profile_form.phone.value|default:'' }}" placeholder=" ">
+                                        value="{{ profile_form.phone.value|default:'' }}" pattern="[0-9]{10}" minlength="10" maxlength="10" title="Please enter a valid 10-digit Mobile Number" placeholder=" ">
                                     <label for="id_phone">Mobile Number</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="tel" name="whatsapp_number" class="form-control" id="id_whatsapp_number"
-                                        value="{{ profile_form.whatsapp_number.value|default:'' }}" placeholder=" ">
+                                        value="{{ profile_form.whatsapp_number.value|default:'' }}" pattern="[0-9]{10}" minlength="10" maxlength="10" title="Please enter a valid 10-digit WhatsApp Number" placeholder=" ">
                                     <label for="id_whatsapp_number">WhatsApp Number</label>
                                 </div>
                             </div>
