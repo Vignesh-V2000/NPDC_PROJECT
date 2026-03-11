@@ -227,3 +227,12 @@ CACHES = {
 
 SEARCH_CACHE_ENABLED = os.environ.get('SEARCH_CACHE_ENABLED', 'True') == 'True'
 SEARCH_RATE_LIMIT = int(os.environ.get('SEARCH_RATE_LIMIT', '60'))
+
+# =============================================================================
+# DOWNLOAD CACHING CONFIGURATION
+# =============================================================================
+# Cache timeout for downloaded dataset files (in seconds). Default: 1 hour.
+DOWNLOAD_CACHE_TIMEOUT = int(os.environ.get('DOWNLOAD_CACHE_TIMEOUT', '43200'))  # 12 hours
+# Max file size (in MB) to cache. Files larger than this are served directly
+# from disk to avoid filling the cache. Default: 50 MB.
+DOWNLOAD_CACHE_MAX_SIZE_MB = int(os.environ.get('DOWNLOAD_CACHE_MAX_SIZE_MB', '50'))

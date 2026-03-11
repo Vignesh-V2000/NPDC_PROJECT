@@ -14,6 +14,7 @@ urlpatterns = [
     path('export/xml/<str:metadata_id>/', views.export_submission_xml, name='export_submission_xml'),
     path('get-data/<str:metadata_id>/', views.get_data_view, name='get_data'),
     path('get-data/<str:metadata_id>/success/', views.get_data_success_view, name='get_data_success'),
+    path('download/<str:metadata_id>/', views.download_dataset, name='download_dataset'),
 
     # AJAX endpoints
     path('ajax/load-states/', views.load_states, name='ajax_load_states'),

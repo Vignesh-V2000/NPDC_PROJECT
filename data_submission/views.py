@@ -7,14 +7,17 @@ from django.contrib.auth.models import User, Group
 from django.forms import inlineformset_factory
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, FileResponse, HttpResponse
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.cache import cache
 from django.db.models import Q
+import hashlib
 import json
 import logging
+import mimetypes
 import os
 
 from .forms import PaleoTemporalCoverageForm
@@ -792,7 +795,10 @@ def send_dataset_request_email(dataset_request, request):
     download_url = None
     if submission.data_file:
         file_name = os.path.basename(submission.data_file.name)
-        download_url = request.build_absolute_uri(submission.data_file.url)
+        # Use the cached download view URL instead of direct media URL
+        from django.urls import reverse
+        cached_download_path = reverse('data_submission:download_dataset', args=[submission.metadata_id])
+        download_url = request.build_absolute_uri(cached_download_path)
     else:
         try:
             if hasattr(submission, 'citation') and submission.citation and submission.citation.online_resource:
@@ -857,6 +863,98 @@ def send_dataset_request_email(dataset_request, request):
 
     # helper does not render anything; the caller handles responses
     # return value intentionally omitted
+
+
+def download_dataset(request, metadata_id):
+    """Cached download view for dataset files.
+
+    Instead of serving files directly from /media/ (which reads from disk
+    every single time), this view caches the file content using Django's
+    cache framework.  On subsequent requests for the same file, the
+    cached bytes are served immediately — saving disk I/O and speeding
+    up downloads for popular datasets.
+
+    Flow:
+      1st request → read from disk → store in cache → serve to user
+      2nd request → serve from cache (disk never touched)
+    """
+    # ── Look up the dataset ──────────────────────────────────────────
+    try:
+        submission = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        if metadata_id.isdigit():
+            try:
+                submission = DatasetSubmission.objects.get(id=int(metadata_id))
+                return redirect('data_submission:download_dataset',
+                                metadata_id=submission.metadata_id)
+            except (DatasetSubmission.DoesNotExist, ValueError):
+                raise Http404("Dataset not found.")
+        raise Http404("Dataset not found.")
+
+    # ── Make sure there is a file to download ────────────────────────
+    if not submission.data_file:
+        raise Http404("No data file attached to this dataset.")
+
+    # ── Build a unique cache key for this file ───────────────────────
+    file_path = submission.data_file.path
+    file_name = os.path.basename(submission.data_file.name)
+
+    # Include file modification time so the cache auto-invalidates
+    # when the file is replaced with a new upload.
+    try:
+        mtime = os.path.getmtime(file_path)
+    except OSError:
+        raise Http404("Data file not found on disk.")
+
+    cache_key = f"download_{metadata_id}_{mtime}"
+
+    # ── Try the cache first ──────────────────────────────────────────
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        # Cache HIT — serve from cache, skip disk entirely
+        file_bytes, content_type, etag = cached_data
+        logger.info(f"CACHE HIT for dataset {metadata_id}")
+    else:
+        # Cache MISS — read from disk and store in cache
+        try:
+            with open(file_path, 'rb') as f:
+                file_bytes = f.read()
+        except OSError:
+            raise Http404("Data file not found on disk.")
+
+        content_type, _ = mimetypes.guess_type(file_name)
+        content_type = content_type or 'application/octet-stream'
+
+        # Generate an ETag for browser-side caching
+        etag = hashlib.md5(f"{metadata_id}:{mtime}".encode()).hexdigest()
+
+        # Cache timeout: 1 hour (3600 seconds)
+        # For large files (>50 MB), skip caching to avoid memory pressure
+        file_size_mb = len(file_bytes) / (1024 * 1024)
+        cache_timeout = getattr(settings, 'DOWNLOAD_CACHE_TIMEOUT', 3600)
+        max_cacheable_mb = getattr(settings, 'DOWNLOAD_CACHE_MAX_SIZE_MB', 50)
+
+        if file_size_mb <= max_cacheable_mb:
+            cache.set(cache_key, (file_bytes, content_type, etag), cache_timeout)
+            logger.info(f"CACHE MISS → cached dataset {metadata_id} ({file_size_mb:.1f} MB)")
+        else:
+            logger.info(f"CACHE SKIP — dataset {metadata_id} too large ({file_size_mb:.1f} MB)")
+
+    # ── Check ETag for 304 Not Modified (browser already has it) ─────
+    if_none_match = request.META.get('HTTP_IF_NONE_MATCH', '')
+    if if_none_match and if_none_match.strip('"') == etag:
+        response = HttpResponse(status=304)
+        response['ETag'] = f'"{etag}"'
+        return response
+
+    # ── Serve the file ───────────────────────────────────────────────
+    response = HttpResponse(file_bytes, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    response['Content-Length'] = len(file_bytes)
+    response['ETag'] = f'"{etag}"'
+    response['Cache-Control'] = 'public, max-age=3600'  # Browser caches for 1 hour
+    return response
 
 def get_data_success_view(request, metadata_id):
     """View for the Get Data success message."""
