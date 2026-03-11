@@ -1500,8 +1500,8 @@ def admin_delete_dataset(request, metadata_id):
             try:
                 dataset = DatasetSubmission.objects.get(id=int(metadata_id))
                 # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect
-                return redirect('data_submission:admin_delete_dataset', metadata_id=dataset.metadata_id)
+                from django.shortcuts import redirect as _redirect
+                return _redirect('data_submission:admin_delete_dataset', metadata_id=dataset.metadata_id)
             except (DatasetSubmission.DoesNotExist, ValueError):
                 raise Http404("No DatasetSubmission matches the given query.")
         else:
