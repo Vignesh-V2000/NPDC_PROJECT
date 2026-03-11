@@ -130,6 +130,22 @@ InstrumentFormSet = inlineformset_factory(
     can_delete=True
 )
 
+ScientistFormSetEdit = inlineformset_factory(
+    DatasetSubmission,
+    ScientistDetail,
+    form=ScientistDetailForm,
+    extra=0,
+    can_delete=True
+)
+
+InstrumentFormSetEdit = inlineformset_factory(
+    DatasetSubmission,
+    InstrumentMetadata,
+    form=InstrumentMetadataForm,
+    extra=0,
+    can_delete=True
+)
+
 # =====================================================
 # SUBMISSION VIEW
 # =====================================================
@@ -1776,8 +1792,8 @@ def admin_edit_submission(request, metadata_id):
         else:
             paleo_form = PaleoTemporalCoverageForm(request.POST, instance=paleo_instance)
             
-        scientist_formset = ScientistFormSet(request.POST, instance=submission)
-        instrument_formset = InstrumentFormSet(request.POST, instance=submission)
+        scientist_formset = ScientistFormSetEdit(request.POST, instance=submission)
+        instrument_formset = InstrumentFormSetEdit(request.POST, instance=submission)
 
         if action == "PREVIEW":
             # For Admins: Preview the current form data WITHOUT saving to DB or requiring strict validation
@@ -1865,8 +1881,8 @@ def admin_edit_submission(request, metadata_id):
         resolution_form = DataResolutionMetadataForm(instance=getattr(submission, 'resolution', None))
         paleo_form = PaleoTemporalCoverageForm(instance=getattr(submission, 'paleo_temporal', None))
         
-        scientist_formset = ScientistFormSet(instance=submission)
-        instrument_formset = InstrumentFormSet(instance=submission)
+        scientist_formset = ScientistFormSetEdit(instance=submission)
+        instrument_formset = InstrumentFormSetEdit(instance=submission)
 
     return render(
         request,
