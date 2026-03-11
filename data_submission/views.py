@@ -179,13 +179,14 @@ def submit_dataset(request):
         
         # Block participants from editing published metadata, but allow Admins
         # Check if user is admin
-        user_is_admin = False
-        if request.user.is_superuser or (hasattr(request.user, 'profile') and request.user.profile.user_type == 'admin'):
-            user_is_admin = True
+        user_is_admin = is_admin(request.user)
             
         user_is_expedition_admin = hasattr(request.user, 'profile') and bool(request.user.profile.expedition_admin_type)
         
         can_edit_published = user_is_admin or (user_is_expedition_admin and dataset.expedition_type == request.user.profile.expedition_admin_type)
+        
+        # Uncomment the line below to allow all participants to edit their published data
+        # can_edit_published = True
 
         if dataset.status == 'published' and not can_edit_published:
             messages.error(request, "Published datasets cannot be edited by participants in this section.")

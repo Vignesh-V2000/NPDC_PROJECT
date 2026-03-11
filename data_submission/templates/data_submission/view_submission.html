@@ -468,7 +468,9 @@
         <div class="container">
             <div class="d-flex justify-content-end gap-2 mb-2">
                 <!-- Edit button logic: Always show if not published. If published, only show for Admins and matching Child Admins -->
-                {% if submission.status != 'published' or request.user.is_superuser or request.user.profile.user_type == 'admin' or request.user.profile.expedition_admin_type == submission.expedition_type %}
+                <!-- Edit button logic: Always show if not published. If published, only show for Admins and matching Child Admins -->
+                <!-- To allow all participants to edit published data, change the if condition to: {% if True %} -->
+                {% if submission.status != 'published' or request.user.is_superuser or request.user.is_staff or request.user.profile.expedition_admin_type == submission.expedition_type %}
                 <a href="{% url 'data_submission:submit_dataset' %}?edit={{ submission.pk }}" class="kpdc-action-btn btn-primary-filled m-0 py-1 px-2" style="font-size: 0.85rem;">
                     <i class="fas fa-edit"></i> Edit Metadata
                 </a>
