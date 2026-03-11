@@ -237,8 +237,8 @@
         .kpdc-metadata-table td:first-child {
             width: 100%;
             min-width: 100px;
+            font-size: 0.95rem;
         }
-        font-size: 0.95rem;
     }
 
     .kpdc-metadata-table td:first-child::before {
@@ -327,6 +327,7 @@
         .kpdc-map-container {
             height: 250px;
         }
+    }
 
     .kpdc-map-container #map {
         width: 100%;
@@ -355,6 +356,7 @@
     .kpdc-files-table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed; /* Ensures the table takes up the full width instead of squishing */
     }
 
     .kpdc-files-table thead th {
@@ -363,7 +365,7 @@
         font-size: 0.85rem;
         font-weight: 700;
         color: #fff;
-        text-align: center;
+        text-align: left; /* Better alignment for long filenames */
         border-bottom: none;
         font-family: 'Open Sans', sans-serif;
     }
@@ -374,9 +376,10 @@
         color: #444;
         border-bottom: 1px solid #d0dbe6;
         vertical-align: middle;
-        text-align: center;
+        text-align: left; /* Better alignment for long filenames */
         background: #fff;
         font-family: 'Open Sans', sans-serif;
+        word-break: break-all; /* Prevents long file names from breaking table width */
     }
 
     .kpdc-files-table tbody tr:hover td {
@@ -669,7 +672,9 @@
                         {% if submission.citation.series_name %}, {{ submission.citation.series_name }}{% endif %}
                         {% if submission.citation.version %}, v{{ submission.citation.version }}{% endif %}
                         {% if submission.citation.online_resource %}
-                        <br><a href="{{ submission.citation.online_resource }}" target="_blank" style="color: #004f87;">{{ submission.citation.online_resource }}</a>
+                        <div style="margin-top: 5px;">
+                            <strong>Online Resource:</strong> <a href="{% url 'data_submission:get_data' submission.metadata_id %}" target="_blank" style="color: #004f87;">{{ submission.citation.online_resource }}</a>
+                        </div>
                         {% endif %}
                     </td>
                 </tr>
@@ -699,19 +704,18 @@
         <div class="kpdc-content-card">
             <div class="kpdc-section-label">
                 <span>Raw Data</span>
-                {% if submission.data_file and submission.file_size_mb %}
+                {% if submission.data_file and submission.data_file.size %}
                 <span class="file-size-info">File Size</span>
-                <span class="file-size-value">{{ submission.file_size_mb }} MB</span>
+                <span class="file-size-value">{{ submission.data_file.size|filesizeformat }}</span>
                 {% endif %}
             </div>
             <table class="kpdc-files-table">
                 <thead>
                     <tr>
-                        <th>Category</th>
-                        <th>File Name</th>
-                        <th>Description</th>
-                        <th>Size</th>
-                        <th>Action</th>
+                        <th style="width: 15%;">Category</th>
+                        <th style="width: 50%;">File Name</th>
+                        <th style="width: 20%;">Type</th>
+                        <th style="width: 15%;">Size</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -719,27 +723,24 @@
                     <tr>
                         <td>Rawdata</td>
                         <td>{{ submission.data_file.name|truncatechars:80 }}</td>
-                        <td>&mdash;</td>
-                        <td>{% if submission.file_size_mb %}{{ submission.file_size_mb }} MB{% else %}&mdash;{% endif %}</td>
-                        <td><a href="{{ submission.data_file.url }}" class="kpdc-download-link" download>Download</a></td>
+                        <td>{% if submission.data_file %}{{ submission.data_file.name|slice:"-4:"|cut:"."|upper }}{% else %}&mdash;{% endif %}</td>
+                        <td>{% if submission.data_file.size %}{{ submission.data_file.size|filesizeformat }}{% else %}&mdash;{% endif %}</td>
                     </tr>
                     {% endif %}
                     {% if submission.metadata_file %}
                     <tr>
                         <td>Metadata</td>
                         <td>{{ submission.metadata_file.name|truncatechars:80 }}</td>
+                        <td>{% if submission.metadata_file %}{{ submission.metadata_file.name|slice:"-4:"|cut:"."|upper }}{% else %}&mdash;{% endif %}</td>
                         <td>&mdash;</td>
-                        <td>&mdash;</td>
-                        <td><a href="{{ submission.metadata_file.url }}" class="kpdc-download-link" download>Download</a></td>
                     </tr>
                     {% endif %}
                     {% if submission.readme_file %}
                     <tr>
                         <td>Readme</td>
                         <td>{{ submission.readme_file.name|truncatechars:80 }}</td>
+                        <td>{% if submission.readme_file %}{{ submission.readme_file.name|slice:"-4:"|cut:"."|upper }}{% else %}&mdash;{% endif %}</td>
                         <td>&mdash;</td>
-                        <td>&mdash;</td>
-                        <td><a href="{{ submission.readme_file.url }}" class="kpdc-download-link" download>Download</a></td>
                     </tr>
                     {% endif %}
                 </tbody>
