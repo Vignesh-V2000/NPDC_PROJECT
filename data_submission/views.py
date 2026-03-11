@@ -793,6 +793,13 @@ def send_dataset_request_email(dataset_request, request):
     if submission.data_file:
         file_name = os.path.basename(submission.data_file.name)
         download_url = request.build_absolute_uri(submission.data_file.url)
+    else:
+        try:
+            if hasattr(submission, 'citation') and submission.citation and submission.citation.online_resource:
+                file_name = "External Dataset Link"
+                download_url = submission.citation.online_resource
+        except Exception:
+            pass
 
     body_lines = [
         f"Dear {dataset_request.first_name} {dataset_request.last_name},",
