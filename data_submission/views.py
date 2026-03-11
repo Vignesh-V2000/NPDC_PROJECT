@@ -1491,21 +1491,43 @@ def is_non_expedition_admin(user):
 def admin_delete_dataset(request, metadata_id):
     """Only Super Admin and Normal Admin can delete. Expedition admins cannot."""
     
-    # Try to get by metadata_id first
+    # Try multiple lookup strategies to handle legacy ID formats
+    dataset = None
+    
+    # 1. Exact match
     try:
         dataset = DatasetSubmission.objects.get(metadata_id=metadata_id)
     except DatasetSubmission.DoesNotExist:
-        # If not found and metadata_id looks like a number, try to find by primary key
-        if metadata_id.isdigit():
-            try:
-                dataset = DatasetSubmission.objects.get(id=int(metadata_id))
-                # Redirect to the correct URL with metadata_id
-                from django.shortcuts import redirect as _redirect
-                return _redirect('data_submission:admin_delete_dataset', metadata_id=dataset.metadata_id)
-            except (DatasetSubmission.DoesNotExist, ValueError):
-                raise Http404("No DatasetSubmission matches the given query.")
+        pass
+    
+    # 2. Case-insensitive match
+    if not dataset:
+        try:
+            dataset = DatasetSubmission.objects.get(metadata_id__iexact=metadata_id)
+        except DatasetSubmission.DoesNotExist:
+            pass
+    
+    # 3. Try with/without hyphen (MF-xxx vs MFxxx)
+    if not dataset:
+        if '-' in metadata_id:
+            alt_id = metadata_id.replace('-', '')
         else:
-            raise Http404("No DatasetSubmission matches the given query.")
+            # Insert hyphen after first 2 characters (MF prefix)
+            alt_id = metadata_id[:2] + '-' + metadata_id[2:] if len(metadata_id) > 2 else metadata_id
+        try:
+            dataset = DatasetSubmission.objects.get(metadata_id__iexact=alt_id)
+        except DatasetSubmission.DoesNotExist:
+            pass
+    
+    # 4. Try by numeric PK as last resort
+    if not dataset and metadata_id.isdigit():
+        try:
+            dataset = DatasetSubmission.objects.get(id=int(metadata_id))
+        except (DatasetSubmission.DoesNotExist, ValueError):
+            pass
+    
+    if not dataset:
+        raise Http404("No DatasetSubmission matches the given query.")
     
     title = dataset.title
     dataset.delete()
