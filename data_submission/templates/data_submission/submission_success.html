@@ -191,10 +191,6 @@
                     <div><h6>Under Review</h6><small>Quality check</small></div>
                 </div>
                 <div class="sp-step">
-                    <div class="sp-dot"><i class="fas fa-search"></i></div>
-                    <div><h6>Metadata Check</h6><small>Validation</small></div>
-                </div>
-                <div class="sp-step">
                     <div class="sp-dot"><i class="fas fa-check-double"></i></div>
                     <div><h6>Published</h6><small>Live on NPDC</small></div>
                 </div>
@@ -210,26 +206,24 @@
         <div class="sp-card-body">
             <table class="sp-summary-table">
                 <tr>
-                    <td><i class="fas fa-heading me-1" style="opacity:.4"></i> Title</td>
+                    <td><i class="fas fa-fingerprint me-1" style="opacity:.4"></i> Metadata ID</td>
+                    <td>{{ submission.metadata_id|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-database me-1" style="opacity:.4"></i> Metadata Title</td>
                     <td>{{ submission.title|default:"—" }}</td>
                 </tr>
                 <tr>
-                    <td><i class="fas fa-globe-americas me-1" style="opacity:.4"></i> Expedition</td>
+                    <td><i class="fas fa-globe-americas me-1" style="opacity:.4"></i> Expedition to</td>
                     <td>{{ submission.get_expedition_type_display|default:"—" }}</td>
                 </tr>
                 <tr>
-                    <td><i class="fas fa-calendar me-1" style="opacity:.4"></i> Submitted</td>
+                    <td><i class="fas fa-calendar-check me-1" style="opacity:.4"></i> Submitted on</td>
                     <td>{{ submission.submission_date|date:"F d, Y" }}</td>
                 </tr>
-                {% if submission.data_type %}
                 <tr>
-                    <td><i class="fas fa-database me-1" style="opacity:.4"></i> Data Type</td>
-                    <td>{{ submission.get_data_type_display }}</td>
-                </tr>
-                {% endif %}
-                <tr>
-                    <td><i class="fas fa-info-circle me-1" style="opacity:.4"></i> Status</td>
-                    <td><span style="display:inline-block;padding:3px 14px;background:#FFF3CD;color:#856404;border-radius:20px;font-size:.82rem;font-weight:600;">Pending Review</span></td>
+                    <td><i class="fas fa-calendar-alt me-1" style="opacity:.4"></i> Data Release Date</td>
+                    <td>{{ submission.data_release_date|date:"F d, Y"|default:"—" }}</td>
                 </tr>
             </table>
         </div>
@@ -254,43 +248,13 @@
         </a>
     </div>
 
-    <!-- ── What Happens Next ── -->
-    <div class="sp-card">
-        <div class="sp-card-head">
-            <i class="fas fa-road"></i> What Happens Next?
-        </div>
-        <div class="sp-card-body">
-            <div class="sp-steps-grid">
-                <div class="sp-scard">
-                    <div class="sp-sicon"><i class="fas fa-clipboard-check"></i></div>
-                    <h5>Review Process</h5>
-                    <p>Our team will review your submission within 3-5 business days</p>
-                </div>
-                <div class="sp-scard">
-                    <div class="sp-sicon"><i class="fas fa-envelope-open-text"></i></div>
-                    <h5>Email Notification</h5>
-                    <p>You'll receive an email once your dataset is reviewed</p>
-                </div>
-                <div class="sp-scard">
-                    <div class="sp-sicon"><i class="fas fa-tasks"></i></div>
-                    <h5>Status Updates</h5>
-                    <p>Track your submission status in "My Submissions"</p>
-                </div>
-                <div class="sp-scard">
-                    <div class="sp-sicon"><i class="fas fa-database"></i></div>
-                    <h5>Data Publication</h5>
-                    <p>Approved datasets are published to NPDC repository</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- ── Support Strip ── -->
     <div class="sp-support">
-        <i class="fas fa-life-ring icon"></i>
         <div class="info">
-            <strong>Need help?</strong>
-            <span>Email <a href="mailto:npdc@ncpor.res.in" style="color:#004F87;font-weight:600;">npdc@ncpor.res.in</a> or call 0091-832-2525515 &nbsp;(Mon–Fri, 9 AM – 5:30 PM IST)</span>
+            <strong>For any query:</strong>
+            <span>please email us: <a href="mailto:npdc@ncpor.res.in" style="color:#004F87;font-weight:600;"> npdc@ncpor.res.in</a></span>
         </div>
     </div>
 
