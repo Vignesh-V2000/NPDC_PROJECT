@@ -236,3 +236,11 @@ DOWNLOAD_CACHE_TIMEOUT = int(os.environ.get('DOWNLOAD_CACHE_TIMEOUT', '43200')) 
 # Max file size (in MB) to cache. Files larger than this are served directly
 # from disk to avoid filling the cache. Default: 50 MB.
 DOWNLOAD_CACHE_MAX_SIZE_MB = int(os.environ.get('DOWNLOAD_CACHE_MAX_SIZE_MB', '50'))
+
+# =============================================================================
+# SMART PRE-CACHING CONFIGURATION
+# =============================================================================
+# Pre-cache top N popular datasets every Nth download request
+PRECACHE_TRIGGER_EVERY = int(os.environ.get('PRECACHE_TRIGGER_EVERY', '11'))
+PRECACHE_TOP_N = int(os.environ.get('PRECACHE_TOP_N', '10'))
+PRECACHE_LOOKBACK_DAYS = int(os.environ.get('PRECACHE_LOOKBACK_DAYS', '7'))

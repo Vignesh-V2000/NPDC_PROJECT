@@ -13,12 +13,13 @@ from datetime import timedelta, datetime
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Count
 import hashlib
 import json
 import logging
 import mimetypes
 import os
+import threading
 
 from .forms import PaleoTemporalCoverageForm
 from django.http import JsonResponse
@@ -749,6 +750,17 @@ def get_data_view(request, metadata_id):
             
             dataset_request.save()
 
+            # ── Auto-trigger: pre-cache popular datasets ──────────────
+            from .models import DatasetRequest
+            trigger_every = getattr(settings, 'PRECACHE_TRIGGER_EVERY', 20)
+            total_requests = DatasetRequest.objects.count()
+            if total_requests % trigger_every == 0:
+                threading.Thread(
+                    target=precache_popular_datasets,
+                    daemon=True
+                ).start()
+                logger.info(f"PRE-CACHE triggered at {total_requests} total downloads")
+
             # fire off email notifications (separate function makes testing easier)
             send_dataset_request_email(dataset_request, request)
 
@@ -955,6 +967,89 @@ def download_dataset(request, metadata_id):
     response['ETag'] = f'"{etag}"'
     response['Cache-Control'] = 'public, max-age=3600'  # Browser caches for 1 hour
     return response
+
+
+def precache_popular_datasets():
+    """Pre-cache the most frequently downloaded dataset files.
+
+    Runs in a background thread, triggered every Nth download request.
+    Finds the top N most-downloaded datasets in the last X days and
+    loads their files into the cache — so the next user to hit
+    /data/download/<id>/ gets an instant CACHE HIT.
+
+    Uses the SAME cache key pattern as download_dataset(), so hits are
+    seamless.
+    """
+    from .models import DatasetRequest
+
+    top_n = getattr(settings, 'PRECACHE_TOP_N', 10)
+    lookback_days = getattr(settings, 'PRECACHE_LOOKBACK_DAYS', 7)
+    cache_timeout = getattr(settings, 'DOWNLOAD_CACHE_TIMEOUT', 43200)
+    max_cacheable_mb = getattr(settings, 'DOWNLOAD_CACHE_MAX_SIZE_MB', 50)
+
+    cutoff = timezone.now() - timedelta(days=lookback_days)
+
+    # Find the top N most downloaded datasets in the lookback window
+    popular = (
+        DatasetRequest.objects
+        .filter(request_date__gte=cutoff)
+        .values('dataset__metadata_id', 'dataset_id')
+        .annotate(download_count=Count('id'))
+        .order_by('-download_count')[:top_n]
+    )
+
+    cached_count = 0
+    for entry in popular:
+        try:
+            dataset = DatasetSubmission.objects.get(id=entry['dataset_id'])
+            if not dataset.data_file:
+                continue
+
+            file_path = dataset.data_file.path
+            metadata_id = dataset.metadata_id
+
+            try:
+                mtime = os.path.getmtime(file_path)
+            except OSError:
+                continue
+
+            cache_key = f"download_{metadata_id}_{mtime}"
+
+            # Skip if already cached
+            if cache.get(cache_key) is not None:
+                continue
+
+            # Read and cache
+            try:
+                with open(file_path, 'rb') as f:
+                    file_bytes = f.read()
+            except OSError:
+                continue
+
+            file_size_mb = len(file_bytes) / (1024 * 1024)
+            if file_size_mb > max_cacheable_mb:
+                logger.info(f"PRE-CACHE SKIP — {metadata_id} too large ({file_size_mb:.1f} MB)")
+                continue
+
+            file_name = os.path.basename(dataset.data_file.name)
+            content_type, _ = mimetypes.guess_type(file_name)
+            content_type = content_type or 'application/octet-stream'
+            etag = hashlib.md5(f"{metadata_id}:{mtime}".encode()).hexdigest()
+
+            cache.set(cache_key, (file_bytes, content_type, etag), cache_timeout)
+            cached_count += 1
+            logger.info(
+                f"PRE-CACHED {metadata_id} ({file_size_mb:.1f} MB, "
+                f"{entry['download_count']} downloads in {lookback_days}d)"
+            )
+
+        except DatasetSubmission.DoesNotExist:
+            continue
+        except Exception as e:
+            logger.error(f"PRE-CACHE ERROR for dataset {entry.get('dataset_id')}: {e}")
+            continue
+
+    logger.info(f"PRE-CACHE complete: {cached_count} datasets pre-cached")
 
 def get_data_success_view(request, metadata_id):
     """View for the Get Data success message."""
