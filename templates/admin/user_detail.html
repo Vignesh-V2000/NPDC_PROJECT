@@ -1,277 +1,258 @@
-{% extends "dashboard/admin_base.html" %}
+{% extends "base.html" %}
 
-<style>
-    @media (max-width: 1024px) {
-        .col-md-6 {
-            max-width: 100%;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .d-flex {
-            flex-direction: column !important;
-        }
-        
-        .align-items-center {
-            align-items: flex-start !important;
-        }
-        
-        .mb-4 {
-            margin-bottom: 1.5rem !important;
-        }
-        
-        .card-header {
-            padding: 0.75rem 1rem;
-        }
-        
-        .card-header strong,
-        .card-header i {
-            font-size: 0.9rem;
-        }
-        
-        .table th {
-            font-size: 0.85rem;
-        }
-        
-        .table td {
-            font-size: 0.85rem;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .container-fluid {
-            padding: 0.5rem;
-        }
-        
-        .d-flex.justify-content-between {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        h3 {
-            font-size: 1.1rem;
-        }
-        
-        .btn {
-            font-size: 0.8rem;
-            padding: 0.35rem 0.6rem;
-            width: 100%;
-            margin-bottom: 0.4rem;
-        }
-        
-        .badge {
-            font-size: 0.75rem;
-        }
-        
-        .card {
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .table-responsive {
-            font-size: 0.8rem;
-        }
-    }
-</style>
+{% block title %}User Details - NPDC{% endblock %}
 
-{% block admin_content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="fas fa-user me-2"></i>User Details</h3>
-        <div>
-            <a href="{% url 'users:edit_user_details' viewed_user.id %}" class="btn btn-primary me-2">
-                <i class="fas fa-edit me-1"></i>Edit
-            </a>
-            <a href="{% url 'users:user_approval_dashboard' %}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
+{% block container_wrapper %}{% endblock %}
+{% block container_wrapper_end %}{% endblock %}
 
-    <!-- Status Badge -->
-    <div class="mb-4">
-        {% if viewed_user.is_active %}
-        <span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>Approved</span>
-        {% else %}
-        <span class="badge bg-warning fs-6"><i class="fas fa-clock me-1"></i>Pending Approval</span>
-        {% endif %}
-    </div>
-
+{% block content %}
+<div class="container-fluid py-4">
     <div class="row">
-        <!-- User Account Information -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-primary text-white">
-                    <strong><i class="fas fa-user-circle me-2"></i>Account Information</strong>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive border-0">
-                        <table class="table table-borderless mb-0">
-                            <tr>
-                                <th>Username/Email:</th>
-                                <td>{{ viewed_user.email }}</td>
-                            </tr>
-                            <tr>
-                                <th>First Name:</th>
-                                <td>{{ viewed_user.first_name|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Last Name:</th>
-                                <td>{{ viewed_user.last_name|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Date Joined:</th>
-                                <td>{{ viewed_user.date_joined|date:"F d, Y H:i" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Last Login:</th>
-                                <td>{{ viewed_user.last_login|date:"F d, Y H:i"|default:"Never" }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <!-- Admin Sidebar -->
+        <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
+            {% include 'admin/includes/admin_sidebar.html' %}
         </div>
 
-        <!-- Profile Information -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-info text-white">
-                    <strong><i class="fas fa-id-card me-2"></i>Profile Information</strong>
-                </div>
-                <div class="card-body">
-                    {% if profile %}
-                    <div class="table-responsive border-0">
-                        <table class="table table-borderless mb-0">
-                            <tr>
-                                <th>Title:</th>
-                                <td>{{ profile.title|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Preferred Name:</th>
-                                <td>{{ profile.preferred_name|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Designation:</th>
-                                <td>{{ profile.designation|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Registration Date:</th>
-                                <td>{{ profile.created_at|date:"F d, Y H:i" }}</td>
-                            </tr>
-                            {% if profile.approved_at %}
-                            <tr>
-                                <th>Approved At:</th>
-                                <td>{{ profile.approved_at|date:"F d, Y H:i" }}</td>
-                            </tr>
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9">
+
+            <style>
+                /* ═══ Hero Banner ═══ */
+                .ud-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2rem 2rem 1.6rem;
+                    border-radius: 1rem;
+                    position: relative;
+                    overflow: hidden;
+                    margin-bottom: 1.5rem;
+                }
+                .ud-hero-orb {
+                    position: absolute; border-radius: 50%;
+                    filter: blur(60px); opacity: 0.15; pointer-events: none;
+                }
+                .ud-hero-orb-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; left: -50px; animation: udOrb1 8s ease-in-out infinite; }
+                .ud-hero-orb-2 { width: 200px; height: 200px; background: #8b5cf6; top: -50px; right: 10%; animation: udOrb2 10s ease-in-out infinite; }
+                .ud-hero-orb-3 { width: 250px; height: 250px; background: #06b6d4; bottom: -80px; right: 30%; animation: udOrb1 12s ease-in-out infinite reverse; }
+                @keyframes udOrb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,15px)} }
+                @keyframes udOrb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-15px,20px)} }
+                .ud-hero-title { color:#60a5fa; font-weight:800; font-size:2.2rem; letter-spacing:-0.02em; margin-bottom:0.25rem; position:relative; z-index:2; }
+                .ud-hero-title i { color:#ffffff; }
+                .ud-hero-sub { color:#94a3b8; font-size:0.9rem; position:relative; z-index:2; margin-bottom:0; }
+                .ud-back-btn {
+                    position:relative; z-index:2;
+                    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+                    color:#94a3b8; padding:0.4rem 1rem; border-radius:0.5rem;
+                    font-size:0.82rem; font-weight:600; text-decoration:none; transition:all 0.2s ease;
+                }
+                .ud-back-btn:hover { background:rgba(255,255,255,0.15); color:#fff; }
+
+                /* Status Badge */
+                .ud-status-badge {
+                    display:inline-flex; align-items:center; gap:6px;
+                    padding:0.3rem 0.85rem; border-radius:2rem;
+                    font-size:0.78rem; font-weight:700; position:relative; z-index:2;
+                }
+                .ud-status-approved { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); }
+                .ud-status-pending { background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); }
+
+                /* ═══ Info Cards ═══ */
+                .ud-card { border-radius:0.85rem; border:1px solid rgba(0,0,0,0.04)!important; box-shadow:0 4px 16px rgba(15,23,42,0.06); overflow:hidden; height:100%; transition:all 0.25s ease; }
+                .ud-card:hover { box-shadow:0 6px 24px rgba(15,23,42,0.1); transform:translateY(-2px); }
+
+                /* Section Headers */
+                .ud-sec-title {
+                    font-size:0.82rem; font-weight:700; padding:0.75rem 1.25rem;
+                    display:flex; align-items:center; gap:0.5rem;
+                    border-bottom:1px solid #f1f5f9; margin:0;
+                }
+                .ud-sec-blue { color:#1d4ed8; background:#f8fafc; }
+                .ud-sec-teal { color:#0e7490; background:#f8fafc; }
+                .ud-sec-green { color:#166534; background:#f8fafc; }
+                .ud-sec-purple { color:#7c3aed; background:#f8fafc; }
+
+                .ud-card-body { padding:0; }
+
+                /* Info Rows */
+                .ud-info-row {
+                    display:flex; align-items:flex-start;
+                    padding:0.55rem 1.25rem;
+                    border-bottom:1px solid #f8fafc;
+                    font-size:0.85rem;
+                }
+                .ud-info-row:last-child { border-bottom:none; }
+                .ud-info-label { font-weight:600; color:#64748b; min-width:130px; flex-shrink:0; font-size:0.82rem; }
+                .ud-info-value { color:#1e293b; font-weight:500; word-break:break-word; }
+                .ud-info-value a { color:#3b82f6; text-decoration:none; }
+                .ud-info-value a:hover { color:#1d4ed8; text-decoration:underline; }
+                .ud-no-data { color:#94a3b8; font-style:italic; font-size:0.85rem; padding:1rem 1.25rem; margin:0; }
+
+                /* Action Buttons */
+                .ud-edit-btn {
+                    background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none;
+                    padding:0.4rem 1rem; border-radius:0.5rem; font-size:0.82rem; font-weight:600;
+                    text-decoration:none; transition:all 0.25s; box-shadow:0 2px 8px rgba(59,130,246,0.3);
+                }
+                .ud-edit-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(59,130,246,0.4); color:#fff; }
+
+                /* ═══ Actions Card ═══ */
+                .ud-actions-card { border-radius:0.85rem; border:1px solid rgba(0,0,0,0.04)!important; box-shadow:0 4px 16px rgba(15,23,42,0.06); overflow:hidden; margin-top:1.25rem; }
+                .ud-actions-header {
+                    padding:0.75rem 1.25rem;
+                    background:linear-gradient(135deg,#fef3c7,#fde68a);
+                    border-bottom:1px solid #fcd34d;
+                    font-weight:700; color:#92400e; font-size:0.85rem;
+                    display:flex; align-items:center; gap:8px;
+                }
+                .ud-actions-body { padding:1.25rem; display:flex; gap:12px; flex-wrap:wrap; }
+
+                .btn-ud-approve {
+                    display:inline-flex; align-items:center; gap:6px;
+                    padding:0.5rem 1.5rem; border-radius:0.6rem;
+                    font-weight:700; font-size:0.88rem; color:#fff;
+                    background:linear-gradient(135deg,#22c55e,#16a34a); border:none;
+                    box-shadow:0 4px 12px rgba(22,163,74,0.25); transition:all 0.25s; cursor:pointer;
+                }
+                .btn-ud-approve:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(22,163,74,0.35); }
+
+                .btn-ud-reject {
+                    display:inline-flex; align-items:center; gap:6px;
+                    padding:0.5rem 1.5rem; border-radius:0.6rem;
+                    font-weight:700; font-size:0.88rem; color:#fff;
+                    background:linear-gradient(135deg,#ef4444,#dc2626); border:none;
+                    box-shadow:0 4px 12px rgba(239,68,68,0.25); transition:all 0.25s; cursor:pointer;
+                }
+                .btn-ud-reject:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(239,68,68,0.35); }
+
+                @media(max-width:768px) {
+                    .ud-hero { padding:1.5rem; }
+                    .ud-hero-title { font-size:1.5rem; }
+                    .ud-info-row { flex-direction:column; gap:2px; }
+                    .ud-info-label { min-width:unset; }
+                    .ud-actions-body { flex-direction:column; }
+                    .btn-ud-approve, .btn-ud-reject { width:100%; justify-content:center; }
+                }
+            </style>
+
+            <!-- Hero Banner -->
+            <div class="ud-hero">
+                <div class="ud-hero-orb ud-hero-orb-1"></div>
+                <div class="ud-hero-orb ud-hero-orb-2"></div>
+                <div class="ud-hero-orb ud-hero-orb-3"></div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3" style="position:relative;z-index:2;">
+                    <div>
+                        <h3 class="ud-hero-title"><i class="fas fa-user-circle me-2"></i>User Details</h3>
+                        <p class="ud-hero-sub">
+                            {{ viewed_user.username }}
+                            {% if viewed_user.username != viewed_user.email %} &middot; {{ viewed_user.email }}{% endif %}
+                            &nbsp;
+                            {% if viewed_user.is_active %}
+                            <span class="ud-status-badge ud-status-approved"><i class="fas fa-check-circle"></i> Approved</span>
+                            {% else %}
+                            <span class="ud-status-badge ud-status-pending"><i class="fas fa-clock"></i> Pending</span>
                             {% endif %}
-                        </table>
+                        </p>
                     </div>
-                    {% else %}
-                    <p class="text-muted">No profile information available.</p>
-                    {% endif %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'users:edit_user_details' viewed_user.id %}" class="ud-edit-btn">
+                            <i class="fas fa-edit me-1"></i> Edit User
+                        </a>
+                        <a href="{% url 'users:user_approval_dashboard' %}" class="ud-back-btn">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Organisation Information -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-success text-white">
-                    <strong><i class="fas fa-building me-2"></i>Organisation Information</strong>
-                </div>
-                <div class="card-body">
-                    {% if profile %}
-                    <div class="table-responsive border-0">
-                        <table class="table table-borderless mb-0">
-                            <tr>
-                                <th>Organisation:</th>
-                                <td>{{ profile.organisation|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Organisation URL:</th>
-                                <td>
-                                    {% if profile.organisation_url %}
-                                    <a href="{{ profile.organisation_url }}" target="_blank">{{ profile.organisation_url
-                                        }}</a>
-                                    {% else %}
-                                    -
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Profile URL:</th>
-                                <td>
-                                    {% if profile.profile_url %}
-                                    <a href="{{ profile.profile_url }}" target="_blank">{{ profile.profile_url }}</a>
-                                    {% else %}
-                                    -
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        </table>
+            <div class="row g-3">
+                <!-- Account Information -->
+                <div class="col-md-6">
+                    <div class="card ud-card border-0">
+                        <h6 class="ud-sec-title ud-sec-blue"><i class="fas fa-user-circle"></i> Account Information</h6>
+                        <div class="ud-card-body">
+                            <div class="ud-info-row"><div class="ud-info-label">Username</div><div class="ud-info-value">{{ viewed_user.username }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Email</div><div class="ud-info-value">{{ viewed_user.email }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">First Name</div><div class="ud-info-value">{{ viewed_user.first_name|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Last Name</div><div class="ud-info-value">{{ viewed_user.last_name|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Date Joined</div><div class="ud-info-value">{{ viewed_user.date_joined|date:"F d, Y H:i" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Last Login</div><div class="ud-info-value">{{ viewed_user.last_login|date:"F d, Y H:i"|default:"Never" }}</div></div>
+                        </div>
                     </div>
-                    {% else %}
-                    <p class="text-muted">No organisation information available.</p>
-                    {% endif %}
                 </div>
-            </div>
-        </div>
 
-        <!-- Contact Information -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-secondary text-white">
-                    <strong><i class="fas fa-address-book me-2"></i>Contact Information</strong>
-                </div>
-                <div class="card-body">
-                    {% if profile %}
-                    <div class="table-responsive border-0">
-                        <table class="table table-borderless mb-0">
-                            <tr>
-                                <th>Phone:</th>
-                                <td>{{ profile.phone|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Alternate Email:</th>
-                                <td>{{ profile.alternate_email|default:"-" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Address:</th>
-                                <td>{{ profile.address|default:"-"|linebreaks }}</td>
-                            </tr>
-                        </table>
+                <!-- Profile Information -->
+                <div class="col-md-6">
+                    <div class="card ud-card border-0">
+                        <h6 class="ud-sec-title ud-sec-teal"><i class="fas fa-id-card"></i> Profile Information</h6>
+                        <div class="ud-card-body">
+                            {% if profile %}
+                            <div class="ud-info-row"><div class="ud-info-label">Title</div><div class="ud-info-value">{{ profile.title|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Preferred Name</div><div class="ud-info-value">{{ profile.preferred_name|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Designation</div><div class="ud-info-value">{{ profile.designation|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Registered</div><div class="ud-info-value">{{ profile.created_at|date:"F d, Y H:i" }}</div></div>
+                            {% if profile.approved_at %}
+                            <div class="ud-info-row"><div class="ud-info-label">Approved At</div><div class="ud-info-value">{{ profile.approved_at|date:"F d, Y H:i" }}</div></div>
+                            {% endif %}
+                            {% else %}
+                            <p class="ud-no-data">No profile information available.</p>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% else %}
-                    <p class="text-muted">No contact information available.</p>
-                    {% endif %}
+                </div>
+
+                <!-- Organisation Information -->
+                <div class="col-md-6">
+                    <div class="card ud-card border-0">
+                        <h6 class="ud-sec-title ud-sec-green"><i class="fas fa-building"></i> Organisation Information</h6>
+                        <div class="ud-card-body">
+                            {% if profile %}
+                            <div class="ud-info-row"><div class="ud-info-label">Organisation</div><div class="ud-info-value">{{ profile.organisation|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Organisation URL</div><div class="ud-info-value">{% if profile.organisation_url %}<a href="{{ profile.organisation_url }}" target="_blank"><i class="fas fa-external-link-alt me-1" style="font-size:0.7rem;"></i>{{ profile.organisation_url }}</a>{% else %}—{% endif %}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Profile URL</div><div class="ud-info-value">{% if profile.profile_url %}<a href="{{ profile.profile_url }}" target="_blank"><i class="fas fa-external-link-alt me-1" style="font-size:0.7rem;"></i>{{ profile.profile_url }}</a>{% else %}—{% endif %}</div></div>
+                            {% else %}
+                            <p class="ud-no-data">No organisation information available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="col-md-6">
+                    <div class="card ud-card border-0">
+                        <h6 class="ud-sec-title ud-sec-purple"><i class="fas fa-address-book"></i> Contact Information</h6>
+                        <div class="ud-card-body">
+                            {% if profile %}
+                            <div class="ud-info-row"><div class="ud-info-label">Phone</div><div class="ud-info-value">{{ profile.phone|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">WhatsApp</div><div class="ud-info-value">{{ profile.whatsapp_number|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Alternate Email</div><div class="ud-info-value">{{ profile.alternate_email|default:"—" }}</div></div>
+                            <div class="ud-info-row"><div class="ud-info-label">Address</div><div class="ud-info-value">{{ profile.address|default:"—"|linebreaks }}</div></div>
+                            {% else %}
+                            <p class="ud-no-data">No contact information available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Action Buttons for Pending Users -->
+            {% if not viewed_user.is_active %}
+            <div class="card ud-actions-card border-0">
+                <div class="ud-actions-header"><i class="fas fa-exclamation-triangle"></i> Pending Actions</div>
+                <div class="ud-actions-body">
+                    <form method="POST" action="{% url 'users:approve_user' viewed_user.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-ud-approve"><i class="fas fa-check-circle"></i> Approve User</button>
+                    </form>
+                    <form method="POST" action="{% url 'users:reject_user' viewed_user.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-ud-reject" onclick="return confirm('Are you sure you want to reject and delete this user?')">
+                            <i class="fas fa-times-circle"></i> Reject User
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
-
-    <!-- Action Buttons -->
-    {% if not viewed_user.is_active %}
-    <div class="card mt-4">
-        <div class="card-header bg-warning">
-            <strong>Actions</strong>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="{% url 'users:approve_user' viewed_user.id %}" style="display:inline;">
-                {% csrf_token %}
-                <button class="btn btn-success btn-lg me-3">
-                    <i class="fas fa-check me-2"></i>Approve User
-                </button>
-            </form>
-            <form method="POST" action="{% url 'users:reject_user' viewed_user.id %}" style="display:inline;">
-                {% csrf_token %}
-                <button class="btn btn-danger btn-lg"
-                    onclick="return confirm('Are you sure you want to reject and delete this user?')">
-                    <i class="fas fa-times me-2"></i>Reject User
-                </button>
-            </form>
-        </div>
-    </div>
-    {% endif %}
 </div>
-{% endblock admin_content %}
+{% endblock %}
