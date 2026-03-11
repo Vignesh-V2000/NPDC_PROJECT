@@ -1197,8 +1197,16 @@ def admin_change_user_password(request, user_id):
         from .forms import AdminSetPasswordForm
         form = AdminSetPasswordForm(target_user, request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, f"Password for {target_user.email} has been changed successfully.")
+            new_password = form.cleaned_data['new_password1']
+            # Explicitly set and save the password to guarantee it works
+            target_user.set_password(new_password)
+            target_user.save()
+            # Refresh from DB and verify
+            target_user.refresh_from_db()
+            if target_user.check_password(new_password):
+                messages.success(request, f"Password for {target_user.email} has been changed successfully.")
+            else:
+                messages.error(request, f"Password change failed for {target_user.email}. Please try again.")
             return redirect('users:user_approval_dashboard')
     else:
         from .forms import AdminSetPasswordForm
