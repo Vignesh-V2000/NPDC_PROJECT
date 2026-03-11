@@ -11,7 +11,7 @@ from django.core.validators import (
 )
 import datetime
 import hashlib
-
+import os
 
 # Create custom validators for letters-only fields
 letter_validator = RegexValidator(
@@ -28,6 +28,34 @@ postal_code_validator = RegexValidator(
     r'^\d{6}$',
     'Enter valid 6-digit PIN code'
 )
+
+
+def get_expedition_folder(exp_type):
+    mapping = {
+        'antarctic': 'ANT',
+        'arctic': 'ARC',
+        'southern_ocean': 'SOE',
+        'himalaya': 'HIM',
+    }
+    return mapping.get(exp_type, 'Others')
+
+def _get_custom_path(instance, filename, base_dir):
+    folder = get_expedition_folder(instance.expedition_type)
+    _, ext = os.path.splitext(filename)
+    # Ensure metadata_id exists; it should be created before saving in models.py or form logic
+    # but as a fallback, we just use title or something
+    file_prefix = instance.metadata_id if instance.metadata_id else 'dataset'
+    new_filename = f"{file_prefix}{ext}"
+    return f'{base_dir}/{folder}/{new_filename}'
+
+def get_data_file_path(instance, filename):
+    return _get_custom_path(instance, filename, 'datasets')
+
+def get_metadata_file_path(instance, filename):
+    return _get_custom_path(instance, filename, 'metadata')
+
+def get_readme_file_path(instance, filename):
+    return _get_custom_path(instance, filename, 'readme')
 
 
 class DatasetSubmission(models.Model):
@@ -226,9 +254,9 @@ class DatasetSubmission(models.Model):
     # FILES (NEW FEATURE, NOT IN JSP)
     # ===============================
 
-    data_file = models.FileField(upload_to='datasets/', blank=True)  # New in Django
-    metadata_file = models.FileField(upload_to='metadata/', blank=True)  # New in Django
-    readme_file = models.FileField(upload_to='readme/', blank=True)  # New in Django
+    data_file = models.FileField(upload_to=get_data_file_path, blank=True)  # New in Django
+    metadata_file = models.FileField(upload_to=get_metadata_file_path, blank=True)  # New in Django
+    readme_file = models.FileField(upload_to=get_readme_file_path, blank=True)  # New in Django
 
     file_size_mb = models.FloatField(default=0)  # New in Django
     number_of_files = models.IntegerField(default=1)  # New in Django
@@ -294,7 +322,10 @@ class DatasetSubmission(models.Model):
 
     def save(self, *args, **kwargs):
         if self.data_file:
-            self.file_size_mb = round(self.data_file.size / (1024 * 1024), 2)
+            try:
+                self.file_size_mb = round(self.data_file.size / (1024 * 1024), 2)
+            except (FileNotFoundError, ValueError):
+                pass
         
         # Set expedition year choices dynamically
         if not self.expedition_year:

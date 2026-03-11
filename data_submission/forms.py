@@ -246,8 +246,11 @@ class DatasetUploadForm(forms.ModelForm):
                 raise ValidationError("For security reasons, this file type is not allowed.")
             
             # Limit size (e.g., 500MB)
-            if file.size > 500 * 1024 * 1024:
-                raise ValidationError("File size too large (Max 500MB).")
+            try:
+                if file.size > 500 * 1024 * 1024:
+                    raise ValidationError("File size too large (Max 500MB).")
+            except (FileNotFoundError, ValueError):
+                pass
                 
         return file
 
@@ -548,8 +551,11 @@ class DatasetFilesForm(forms.ModelForm):
                 raise ValidationError(f"File type '{ext}' is not allowed for security reasons.")
             
             # Limit size (e.g., 500MB)
-            if file.size > 500 * 1024 * 1024:
-                raise ValidationError("File size too large (Max 500MB).")
+            try:
+                if file.size > 500 * 1024 * 1024:
+                    raise ValidationError("File size too large (Max 500MB).")
+            except (FileNotFoundError, ValueError):
+                pass
         return file
 
 from captcha.fields import CaptchaField

@@ -1405,6 +1405,16 @@ def upload_dataset_files(request, metadata_id):
             dataset.status = 'submitted' # Finalize submission
             dataset.save()
             
+            # 🚀 Auto-update Online Resource field with the download link
+            if hasattr(dataset, 'citation') and dataset.data_file:
+                try:
+                    from django.urls import reverse
+                    get_data_url = reverse('data_submission:get_data', args=[dataset.metadata_id])
+                    dataset.citation.online_resource = request.build_absolute_uri(get_data_url)
+                    dataset.citation.save()
+                except Exception as e:
+                    logger.error(f"Error updating online resource link: {str(e)}")
+            
             # 📧 EMAIL NOTIFICATION SYSTEM
             
             # 1. To ADMINS & REVIEWERS
