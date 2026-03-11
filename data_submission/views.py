@@ -25,7 +25,7 @@ from .forms import PaleoTemporalCoverageForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST as require_post_method
-from .models import DatasetSubmission, ScientistDetail, InstrumentMetadata, State
+from .models import DatasetSubmission, ScientistDetail, InstrumentMetadata, State, get_expedition_folder
 from .ai_helpers import (
     classify_dataset,
     suggest_keywords,
@@ -1608,9 +1608,11 @@ def upload_dataset_files(request, metadata_id):
             # 🚀 Auto-update Online Resource field with the download link
             if hasattr(dataset, 'citation') and dataset.data_file:
                 try:
-                    from django.urls import reverse
-                    get_data_url = reverse('data_submission:get_data', args=[dataset.metadata_id])
-                    dataset.citation.online_resource = request.build_absolute_uri(get_data_url)
+                    # Build URL like /datasets/ant/MF3939393939.docx
+                    _, ext = os.path.splitext(dataset.data_file.name)
+                    folder = get_expedition_folder(dataset.expedition_type).lower()
+                    resource_path = f'/datasets/{folder}/{dataset.metadata_id}{ext}'
+                    dataset.citation.online_resource = request.build_absolute_uri(resource_path)
                     dataset.citation.save()
                 except Exception as e:
                     logger.error(f"Error updating online resource link: {str(e)}")

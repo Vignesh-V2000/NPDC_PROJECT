@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% load static %}
 {% block title %}{{ submission.title }} - NPDC{% endblock %}
 {% block content %}
@@ -216,8 +216,19 @@
         font-weight: 700;
         color: #0f2844;
         white-space: nowrap;
-        padding-left: 1.5rem;
+        position: relative;
+        padding-left: 2rem;
         font-size: 0.95rem;
+    }
+
+    .kpdc-metadata-table td:first-child::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #132d48;
+        font-size: 1.2rem;
+        line-height: 1;
+        top: 1rem;
     }
 
     .kpdc-metadata-table td:last-child {
@@ -226,15 +237,25 @@
 
     /* Section label */
     .kpdc-section-label {
-        padding: 0.85rem 1.5rem;
+        padding: 0.85rem 1.5rem 0.85rem 2rem;
         font-size: 1rem;
         font-weight: 700;
         color: #1a3a5c;
+        position: relative;
         border-bottom: 1px solid #d0dbe6;
         display: flex;
         align-items: center;
         gap: 1rem;
         font-family: 'Open Sans', sans-serif;
+    }
+
+    .kpdc-section-label::before {
+        content: "\2022";
+        position: absolute;
+        left: 1rem;
+        color: #1a3a5c;
+        font-size: 1.2rem;
+        line-height: 1;
     }
 
     .kpdc-section-label .file-size-info {
@@ -319,7 +340,6 @@
         text-align: center;
         background: #fff;
         font-family: 'Open Sans', sans-serif;
-        word-break: break-all;
     }
 
     .kpdc-files-table tbody tr:hover td {
@@ -389,38 +409,6 @@
 
     .kpdc-version-table tbody tr:hover {
         background: #f5f8fc;
-    }
-
-    .btn-xml {
-        background-color: #f8f9fa;
-        color: #004f87;
-        border: 1px solid #004f87;
-        font-weight: 600;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    .btn-xml:hover {
-        background-color: #ffc107;
-        color: #000;
-        border-color: #ffc107;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .btn-get-data {
-        background-color: #f8f9fa;
-        color: #004f87;
-        border: 1px solid #004f87;
-        font-weight: 600;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    .btn-get-data:hover {
-        background-color: #198754;
-        color: #fff;
-        border-color: #198754;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
     /* Responsive */
@@ -521,6 +509,39 @@
                             <div><i class="fas fa-calendar me-1"></i> Submitted: {{ submission.submission_date|date:"M d, Y" }}</div>
                             <div><i class="fas fa-sync-alt me-1"></i> Last Updated: {{ submission.last_updated|date:"M d, Y" }}</div>
                             <div class="mt-3">
+                                <style>
+                                    .btn-xml {
+                                        background-color: #f8f9fa;
+                                        color: #004f87;
+                                        border: 1px solid #004f87;
+                                        font-weight: 600;
+                                        text-align: center;
+                                        transition: all 0.3s ease;
+                                    }
+                                    .btn-xml:hover {
+                                        background-color: #ffc107; /* Warning yellow */
+                                        color: #000;
+                                        border-color: #ffc107;
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                    }
+                                    
+                                    .btn-get-data {
+                                        background-color: #f8f9fa;
+                                        color: #004f87;
+                                        border: 1px solid #004f87;
+                                        font-weight: 600;
+                                        text-align: center;
+                                        transition: all 0.3s ease;
+                                    }
+                                    .btn-get-data:hover {
+                                        background-color: #198754; /* Bootstrap Success Green */
+                                        color: #fff;
+                                        border-color: #198754;
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                    }
+                                </style>
                                 <div class="d-flex flex-column gap-2 align-items-start">
                                     <a href="{% url 'data_submission:export_submission_xml' submission.metadata_id %}" target="_blank" class="kpdc-action-btn btn-xml text-decoration-none">
                                         View XML
@@ -544,7 +565,7 @@
         <div class="kpdc-content-card">
             <table class="kpdc-metadata-table">
                 <tr>
-                    <td>Metadata ID</td>
+                    <td>Entry ID</td>
                     <td>{{ submission.metadata_id }}</td>
                 </tr>
                 {% if submission.doi %}
@@ -554,97 +575,38 @@
                 </tr>
                 {% endif %}
                 <tr>
-                    <td>Science Keywords</td>
+                    <td>Science Keyword</td>
                     <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Category</span>
-                            <span>{{ submission.get_category_display|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Topic</span>
-                            <span>{{ submission.get_topic_display|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">ISO Topic</span>
-                            <span>{{ submission.get_iso_topic_display|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Expedition Type</span>
-                            <span>{{ submission.get_expedition_type_display|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Expedition Year</span>
-                            <span>{{ submission.expedition_year|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Expedition Number</span>
-                            <span>{{ submission.expedition_number|default:"-" }}</span>
-                        </div>
+                        {% for kw in submission.keyword_list %}
+                            {{ kw }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
                     </td>
                 </tr>
                 <tr>
-                    <td>Scientist Details</td>
+                    <td>ISO Topic</td>
+                    <td>{{ submission.get_iso_topic_display }}</td>
+                </tr>
+                <tr>
+                    <td>Personnel</td>
                     <td>
                         {% for scientist in submission.scientists.all %}
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 4px; column-gap: 16px; {% if not forloop.first %}margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;{% endif %}">
-                            <span style="color: #555; font-weight: 600;">Role</span>
-                            <span>{{ scientist.role|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Name</span>
-                            <span>{{ scientist.title }} {{ scientist.first_name }} {{ scientist.middle_name }} {{ scientist.last_name }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Email</span>
-                            <span class="kpdc-personnel-email">{{ scientist.email|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Phone</span>
-                            <span>{{ scientist.phone|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Mobile</span>
-                            <span>{{ scientist.mobile|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Institute</span>
-                            <span>{{ scientist.institute|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Address</span>
-                            <span>{{ scientist.address|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">City</span>
-                            <span>{{ scientist.city|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">State</span>
-                            <span>{{ scientist.state|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Postal Code</span>
-                            <span>{{ scientist.postal_code|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Country</span>
-                            <span>{{ scientist.country.name|default:"-" }}</span>
-                        </div>
+                            {% if not forloop.first %}<br>{% endif %}
+                            {{ scientist.first_name }} {{ scientist.last_name }}
+                            {% if scientist.email %} (<span class="kpdc-personnel-email">{{ scientist.email }}</span>){% endif %}
+                            {% if scientist.institute %}, {{ scientist.institute }}{% endif %}
                         {% endfor %}
                     </td>
                 </tr>
                 <tr>
                     <td>Project</td>
                     <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Project Number</span>
-                            <span>{{ submission.project_number|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Project Name</span>
-                            <span>{{ submission.project_name|default:"-" }}</span>
-                        </div>
+                        {% if submission.project_number %}<strong>{{ submission.project_number }}</strong>, {% endif %}
+                        {{ submission.project_name }}
                     </td>
                 </tr>
                 <tr>
                     <td>Research Period</td>
-                    <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Start Date</span>
-                            <span>{{ submission.temporal_start_date|date:"Y-m-d"|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">End Date</span>
-                            <span>{{ submission.temporal_end_date|date:"Y-m-d"|default:"-" }}</span>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Data Set Progress</td>
-                    <td>{{ submission.get_data_set_progress_display|default:"-" }}</td>
+                    <td>{{ submission.temporal_start_date|date:"Y-m-d" }} ~ {{ submission.temporal_end_date|date:"Y-m-d" }}</td>
                 </tr>
                 <tr>
                     <td>Create/Update Date</td>
@@ -654,21 +616,9 @@
                 <tr>
                     <td>Location</td>
                     <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Category</span>
-                            <span>{{ submission.location.location_category|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Type</span>
-                            <span>{{ submission.location.location_type|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Subregion</span>
-                            <span>{{ submission.location.location_subregion|default:"-" }}</span>
-
-                            {% if submission.location.other_subregion %}
-                            <span style="color: #555; font-weight: 600;">Other Subregion</span>
-                            <span>{{ submission.location.other_subregion }}</span>
-                            {% endif %}
-                        </div>
+                        {% if submission.location.location_category %}{{ submission.location.location_category }}{% endif %}
+                        {% if submission.location.location_type %} &gt; {{ submission.location.location_type }}{% endif %}
+                        {% if submission.location.location_subregion %} &gt; {{ submission.location.location_subregion }}{% endif %}
                     </td>
                 </tr>
                 {% endif %}
@@ -676,69 +626,25 @@
                 <tr>
                     <td>Citation</td>
                     <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Creator</span>
-                            <span>{{ submission.citation.creator }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Editor</span>
-                            <span>{{ submission.citation.editor }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Title</span>
-                            <span><em>{{ submission.citation.title }}</em></span>
-
-                            <span style="color: #555; font-weight: 600;">Series Name</span>
-                            <span>{{ submission.citation.series_name }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Release Date</span>
-                            <span>{{ submission.citation.release_date|date:"Y-m-d" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Release Place</span>
-                            <span>{{ submission.citation.release_place }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Version</span>
-                            <span>{{ submission.citation.version }}</span>
-                        </div>
-                    </td>
-                </tr>
-                {% if submission.citation.online_resource %}
-                <tr>
-                    <td>Online Resource</td>
-                    <td>
-                        <a href="{% url 'data_submission:get_data' submission.metadata_id %}" target="_blank" style="color: #004f87;">{{ submission.citation.online_resource }}</a>
-                    </td>
-                </tr>
-                {% endif %}
-                {% endif %}
-                {% if submission.platform %}
-                <tr>
-                    <td>Platform</td>
-                    <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Short Name</span>
-                            <span>{{ submission.platform.short_name|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Long Name</span>
-                            <span>{{ submission.platform.long_name|default:"-" }}</span>
-                        </div>
+                        {% if submission.citation.creator %}{{ submission.citation.creator }}{% endif %}
+                        {% if submission.citation.title %} - <em>{{ submission.citation.title }}</em>{% endif %}
+                        {% if submission.citation.release_date %} ({{ submission.citation.release_date }}){% endif %}
+                        {% if submission.citation.series_name %}, {{ submission.citation.series_name }}{% endif %}
+                        {% if submission.citation.version %}, v{{ submission.citation.version }}{% endif %}
+                        {% if submission.citation.online_resource %}
+                        <br><a href="{{ submission.citation.online_resource }}" target="_blank" style="color: #004f87;">{{ submission.citation.online_resource }}</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endif %}
                 <tr>
                     <td>Spatial Coverage</td>
                     <td>
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 6px; column-gap: 16px;">
-                            <span style="color: #555; font-weight: 600;">Southernmost Latitude</span>
-                            <span>{{ submission.south_latitude|default:"-" }}&deg;</span>
-
-                            <span style="color: #555; font-weight: 600;">Northernmost Latitude</span>
-                            <span>{{ submission.north_latitude|default:"-" }}&deg;</span>
-
-                            <span style="color: #555; font-weight: 600;">Westernmost Longitude</span>
-                            <span>{{ submission.west_longitude|default:"-" }}&deg;</span>
-
-                            <span style="color: #555; font-weight: 600;">Easternmost Longitude</span>
-                            <span>{{ submission.east_longitude|default:"-" }}&deg;</span>
-                        </div>
+                        <span class="kpdc-coords">
+                            lat: {{ submission.south_latitude }}&deg;, lon: {{ submission.west_longitude }}&deg;
+                            &nbsp;&ndash;&nbsp;
+                            lat: {{ submission.north_latitude }}&deg;, lon: {{ submission.east_longitude }}&deg;
+                        </span>
                     </td>
                 </tr>
             </table>
@@ -756,9 +662,9 @@
         <div class="kpdc-content-card">
             <div class="kpdc-section-label">
                 <span>Raw Data</span>
-                {% if submission.data_file and submission.data_file.size %}
+                {% if submission.data_file and submission.file_size_mb %}
                 <span class="file-size-info">File Size</span>
-                <span class="file-size-value">{{ submission.data_file.size|filesizeformat }}</span>
+                <span class="file-size-value">{{ submission.file_size_mb }} MB</span>
                 {% endif %}
             </div>
             <table class="kpdc-files-table">
@@ -766,33 +672,37 @@
                     <tr>
                         <th>Category</th>
                         <th>File Name</th>
-                        <th>Type</th>
+                        <th>Description</th>
                         <th>Size</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if submission.data_file %}
                     <tr>
                         <td>Rawdata</td>
-                        <td><a href="{% url 'data_submission:get_data' submission.metadata_id %}" target="_blank" style="color: #004f87;">{% if submission.citation and submission.citation.online_resource %}{{ submission.citation.online_resource }}{% else %}{{ submission.data_file.name|truncatechars:80 }}{% endif %}</a></td>
-                        <td>{% if submission.data_file %}{{ submission.data_file.name|slice:"-4:"|cut:"."|upper }}{% else %}&mdash;{% endif %}</td>
-                        <td>{% if submission.data_file.size %}{{ submission.data_file.size|filesizeformat }}{% else %}&mdash;{% endif %}</td>
+                        <td>{{ submission.data_file.name|truncatechars:80 }}</td>
+                        <td>&mdash;</td>
+                        <td>{% if submission.file_size_mb %}{{ submission.file_size_mb }} MB{% else %}&mdash;{% endif %}</td>
+                        <td><a href="{{ submission.data_file.url }}" class="kpdc-download-link" download>Download</a></td>
                     </tr>
                     {% endif %}
                     {% if submission.metadata_file %}
                     <tr>
                         <td>Metadata</td>
                         <td>{{ submission.metadata_file.name|truncatechars:80 }}</td>
-                        <td>{% if submission.metadata_file %}{{ submission.metadata_file.name|slice:"-4:"|cut:"."|upper }}{% else %}&mdash;{% endif %}</td>
                         <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td><a href="{{ submission.metadata_file.url }}" class="kpdc-download-link" download>Download</a></td>
                     </tr>
                     {% endif %}
                     {% if submission.readme_file %}
                     <tr>
                         <td>Readme</td>
                         <td>{{ submission.readme_file.name|truncatechars:80 }}</td>
-                        <td>{% if submission.readme_file %}{{ submission.readme_file.name|slice:"-4:"|cut:"."|upper }}{% else %}&mdash;{% endif %}</td>
                         <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td><a href="{{ submission.readme_file.url }}" class="kpdc-download-link" download>Download</a></td>
                     </tr>
                     {% endif %}
                 </tbody>
@@ -805,20 +715,12 @@
         <div class="kpdc-content-card">
             <div class="kpdc-section-label">Instruments</div>
             <table class="kpdc-metadata-table">
+                {% for instrument in submission.instruments.all %}
                 <tr>
-                    <td>Instrument Details</td>
-                    <td>
-                        {% for instrument in submission.instruments.all %}
-                        <div style="display: grid; grid-template-columns: 160px 1fr; row-gap: 4px; column-gap: 16px; {% if not forloop.first %}margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;{% endif %}">
-                            <span style="color: #555; font-weight: 600;">Short Name</span>
-                            <span>{{ instrument.short_name|default:"-" }}</span>
-
-                            <span style="color: #555; font-weight: 600;">Long Name</span>
-                            <span>{{ instrument.long_name|default:"-" }}</span>
-                        </div>
-                        {% endfor %}
-                    </td>
+                    <td>{{ instrument.short_name }}</td>
+                    <td>{{ instrument.long_name }}</td>
                 </tr>
+                {% endfor %}
             </table>
         </div>
         {% endif %}
@@ -919,6 +821,57 @@
         {% endwith %}
         {% endif %}
 
+        <!-- Full Citation Details (collapsible) -->
+        {% if submission.citation %}
+        <div class="kpdc-content-card">
+            <div class="kpdc-section-label" style="cursor:pointer;"
+                data-bs-toggle="collapse" data-bs-target="#citationDetails">
+                <span>Full Citation Details</span>
+                <i class="fas fa-chevron-down ms-auto" style="font-size:0.75rem; opacity:0.6;"></i>
+            </div>
+            <div class="collapse" id="citationDetails">
+                <table class="kpdc-metadata-table">
+                    <tr>
+                        <td>Creator</td>
+                        <td>{{ submission.citation.creator }}</td>
+                    </tr>
+                    <tr>
+                        <td>Editor</td>
+                        <td>{{ submission.citation.editor }}</td>
+                    </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>{{ submission.citation.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Series Name</td>
+                        <td>{{ submission.citation.series_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Release Date</td>
+                        <td>{{ submission.citation.release_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Release Place</td>
+                        <td>{{ submission.citation.release_place }}</td>
+                    </tr>
+                    <tr>
+                        <td>Version</td>
+                        <td>{{ submission.citation.version }}</td>
+                    </tr>
+                    <tr>
+                        <td>Online Resource</td>
+                        <td>
+                            {% if submission.citation.online_resource %}
+                            <a href="{{ submission.citation.online_resource }}" target="_blank" style="color: #004f87;">{{ submission.citation.online_resource }}</a>
+                            {% else %}&mdash;{% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Version History -->
         <div class="kpdc-version-section">
             <h2 class="kpdc-version-title">Version History</h2>
@@ -961,6 +914,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        /* FIX: correct Django template |default filter syntax — no space after colon */
         var north = {{ submission.north_latitude|default:"0" }};
         var south = {{ submission.south_latitude|default:"0" }};
         var east  = {{ submission.east_longitude|default:"0" }};
@@ -981,11 +935,15 @@
             maxZoom: 18
         }).addTo(map);
 
+        /* Marker at centre point */
         var marker = L.marker([centerLat, centerLng]).addTo(map);
         marker.bindPopup('<strong>{{ submission.title|truncatechars:80 }}</strong>');
         map.setView([centerLat, centerLng], 5, { animate: false });
-
-        // Allow default browser scroll restoration behavior
+        
+        // Force scroll to top to prevent jumping to map
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 10);
     });
 </script>
 {% endblock %}

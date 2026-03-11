@@ -365,7 +365,7 @@ class DatasetSubmission(models.Model):
 
     @property
     def keyword_list(self):
-        return [k.strip() for k in self.keywords.split(',') if k.strip()]
+        return [k.strip() for k in self.keywords.split(',') if k.strip() and not k.strip().startswith('legacy_id:')]
 
     class Meta:
         ordering = ['-submission_date']
