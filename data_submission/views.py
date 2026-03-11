@@ -1868,7 +1868,7 @@ def admin_edit_submission(request, metadata_id):
                 instrument_formset.save()
                 
                 messages.success(request, f"Submission {submission.metadata_id} updated successfully.")
-                return redirect("data_submission:review_submission_detail", metadata_id=submission.metadata_id)
+                return redirect("data_submission:upload_dataset_files", metadata_id=submission.metadata_id)
         else:
              messages.error(request, "Please correct the errors on the Main form, Scientists, or Instruments.")
     else:

@@ -243,8 +243,8 @@
                 <!-- Breadcrumb -->
                 <nav aria-label="breadcrumb" class="mb-3">
                     <ol class="breadcrumb" style="font-size: 0.85rem;">
-                        <li class="breadcrumb-item"><a href="{% url 'data_submission:review_submissions' %}" style="color:#004f87;">Review Queue</a></li>
-                        <li class="breadcrumb-item active">{{ submission.metadata_id }}</li>
+                        <li class="breadcrumb-item"><a href="{% url 'data_submission:review_submissions' %}" style="color:#60a5fa; text-decoration:none;"><i class="fas fa-arrow-left me-1"></i>Review Queue</a></li>
+                        <li class="breadcrumb-item active" style="color:#e2e8f0;">{{ submission.metadata_id }}</li>
                     </ol>
                 </nav>
 
