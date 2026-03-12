@@ -922,6 +922,7 @@
                 stuckAlertShown: false,
                 lastAlertTime: 0, // Timestamp of last alert — enforces cooldown
                 alertCooldown: 60000, // Minimum 60 seconds between consecutive stuck alerts
+                hasUserTyped: false, // True once the user has actually typed in any field
                 formErrorCount: 0,
                 scrollPattern: [],
             },
@@ -1442,8 +1443,9 @@
                         this.handleFieldFocus(e.target);
                     });
 
-                    // Reset on activity
+                    // Track that the user has actually typed in a field (guards idle detection)
                     field.addEventListener('input', () => {
+                        this.stuckDetection.hasUserTyped = true;
                         this.recordActivity();
                     });
                 });
@@ -1558,7 +1560,16 @@
 
             recordActivity() {
                 this.stuckDetection.lastActivity = Date.now();
-                this.stuckDetection.stuckAlertShown = false;
+                // If the stuck popup is currently showing, dismiss it — user is active again.
+                // Do NOT just reset the flag silently; that leaves the popup visible but
+                // stuckAlertShown=false, which allows the trigger to fire again immediately.
+                if (this.stuckDetection.stuckAlertShown) {
+                    this.hideProactiveTip();
+                    this.toggle.classList.remove('pulse-help');
+                    this.stuckDetection.stuckAlertShown = false;
+                    // Push the cooldown forward from now so no repeat for another 60s
+                    this.stuckDetection.lastAlertTime = Date.now();
+                }
             },
 
             startIdleChecker() {
@@ -1571,8 +1582,13 @@
 
                     const idleTime = Date.now() - this.stuckDetection.lastActivity;
 
-                    // Only trigger if user has actually focused a field
-                    if (idleTime > this.stuckDetection.idleThreshold && !this.stuckDetection.stuckAlertShown && this.stuckDetection.focusedField) {
+                    // Only trigger if user has actually typed something AND focused a field.
+                    // Without hasUserTyped, focusing a field and switching tabs (or
+                    // looking up credentials) would falsely trigger the stuck popup.
+                    if (idleTime > this.stuckDetection.idleThreshold &&
+                        !this.stuckDetection.stuckAlertShown &&
+                        this.stuckDetection.focusedField &&
+                        this.stuckDetection.hasUserTyped) {
                         this.triggerStuckHelp(this.stuckDetection.focusedField, 'idle');
                     }
                 }, 10000); // Check every 10 seconds
@@ -1717,18 +1733,13 @@
                 this.tipMessage.textContent = helpInfo.message;
                 this.tipAction.textContent = helpInfo.action;
 
-                // Store the action with error context for AI
-                if (errorMessage && reason === 'validation_error') {
-                    this.currentTipAction = `I'm getting this error on the ${fieldId} field: "${errorMessage}". Help me fix it.`;
-                } else {
-                    this.currentTipAction = helpInfo.action;
-                }
+                // Always use the field's predefined friendly action.
+                // Raw browser validation messages (e.g. "'f' is missing an '@'") are already
+                // shown natively by the browser tooltip — no need to echo them into the chat.
+                this.currentTipAction = helpInfo.action;
 
                 // Add pulse animation to chat toggle
                 this.toggle.classList.add('pulse-help');
-
-                // Play tip notification sound
-                this.playTipSound();
 
                 this.proactiveTip.classList.remove('hidden');
                 this.stuckDetection.stuckAlertShown = true;
