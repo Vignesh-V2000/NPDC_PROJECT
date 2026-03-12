@@ -915,11 +915,13 @@
             stuckDetection: {
                 enabled: true,
                 lastActivity: Date.now(),
-                idleThreshold: 45000, // 45 seconds idle triggers help
+                idleThreshold: 90000, // 90 seconds idle triggers help (users often pause to read/copy data)
                 focusedField: null,
                 fieldFocusCount: {},
-                fieldFocusThreshold: 3, // 3 focuses on same field = stuck
+                fieldFocusThreshold: 5, // 5 focuses on same field = stuck (3 was too sensitive for normal tab navigation)
                 stuckAlertShown: false,
+                lastAlertTime: 0, // Timestamp of last alert — enforces cooldown
+                alertCooldown: 60000, // Minimum 60 seconds between consecutive stuck alerts
                 formErrorCount: 0,
                 scrollPattern: [],
             },
@@ -1123,6 +1125,8 @@
                 setTimeout(() => {
                     if (!this.isOpen && !this.tipShown && this._tipCooledDown()) {
                         this.showPageTip();
+                        // Let stuck detection know a tip was just shown (prevents double-popup)
+                        this.stuckDetection.lastAlertTime = Date.now();
                     }
                 }, 5000);
 
@@ -1448,6 +1452,14 @@
             handleFieldFocus(field) {
                 // Better field identification - check multiple attributes
                 const fieldId = this.getFieldIdentifier(field);
+                const previousField = this.stuckDetection.focusedField;
+
+                // When user moves to a DIFFERENT field, decay the old field's count
+                // This prevents normal back-and-forth navigation from accumulating
+                if (previousField && previousField !== fieldId && this.stuckDetection.fieldFocusCount[previousField]) {
+                    this.stuckDetection.fieldFocusCount[previousField] = Math.max(0, this.stuckDetection.fieldFocusCount[previousField] - 1);
+                }
+
                 this.stuckDetection.focusedField = fieldId;
 
                 // Count focus on same field
@@ -1460,6 +1472,7 @@
                 if (this.stuckDetection.fieldFocusCount[fieldId] >= this.stuckDetection.fieldFocusThreshold) {
                     this.triggerStuckHelp(fieldId, 'repeated_focus');
                     this.stuckDetection.fieldFocusCount[fieldId] = 0; // Reset
+                    return; // Don't call recordActivity — it would reset stuckAlertShown
                 }
 
                 this.recordActivity();
@@ -1549,30 +1562,45 @@
             },
 
             startIdleChecker() {
-                setInterval(() => {
+                // Clear any previous interval to prevent leaks
+                if (this.stuckDetection._idleInterval) {
+                    clearInterval(this.stuckDetection._idleInterval);
+                }
+                this.stuckDetection._idleInterval = setInterval(() => {
                     if (!this.stuckDetection.enabled || this.isOpen) return;
 
                     const idleTime = Date.now() - this.stuckDetection.lastActivity;
 
-                    if (idleTime > this.stuckDetection.idleThreshold && !this.stuckDetection.stuckAlertShown) {
+                    // Only trigger if user has actually focused a field
+                    if (idleTime > this.stuckDetection.idleThreshold && !this.stuckDetection.stuckAlertShown && this.stuckDetection.focusedField) {
                         this.triggerStuckHelp(this.stuckDetection.focusedField, 'idle');
                     }
                 }, 10000); // Check every 10 seconds
             },
 
             trackFormErrors() {
-                // Watch for HTML5 validation errors
+                // Watch for HTML5 validation errors (per-field counts)
+                if (!this.stuckDetection.fieldErrorCount) {
+                    this.stuckDetection.fieldErrorCount = {};
+                }
                 document.addEventListener('invalid', (e) => {
-                    this.stuckDetection.formErrorCount++;
+                    // Skip chatbot's own fields
+                    if (e.target.closest('#npdc-chatbot-widget')) return;
 
                     // Get the actual error message
                     const field = e.target;
                     const fieldId = this.getFieldIdentifier(field);
                     const errorMessage = this.getFieldErrorMessage(field);
 
-                    if (this.stuckDetection.formErrorCount >= 2) {
+                    // Track per-field error count
+                    if (!this.stuckDetection.fieldErrorCount[fieldId]) {
+                        this.stuckDetection.fieldErrorCount[fieldId] = 0;
+                    }
+                    this.stuckDetection.fieldErrorCount[fieldId]++;
+
+                    if (this.stuckDetection.fieldErrorCount[fieldId] >= 2) {
                         this.triggerStuckHelp(fieldId, 'validation_error', errorMessage);
-                        this.stuckDetection.formErrorCount = 0;
+                        this.stuckDetection.fieldErrorCount[fieldId] = 0;
                     }
                 }, true);
 
@@ -1625,12 +1653,15 @@
                     mutations.forEach((mutation) => {
                         mutation.addedNodes.forEach((node) => {
                             if (node.nodeType === Node.ELEMENT_NODE) {
-                                // Check if it's an error message element
+                                // Skip chatbot widget's own nodes
+                                if (node.closest && node.closest('#npdc-chatbot-widget')) return;
+
+                                // Check if it's an error message element (class-based only, no text matching)
                                 const isError = node.classList?.contains('error') ||
                                     node.classList?.contains('errorlist') ||
                                     node.classList?.contains('invalid-feedback') ||
-                                    node.textContent?.toLowerCase().includes('error') ||
-                                    node.textContent?.toLowerCase().includes('required');
+                                    node.classList?.contains('field-error') ||
+                                    node.classList?.contains('help-block');
 
                                 if (isError && node.textContent?.trim()) {
                                     // Find the related field
@@ -1641,9 +1672,18 @@
                                             const fieldId = this.getFieldIdentifier(field);
                                             const errorMessage = node.textContent.trim();
 
-                                            // Only trigger if not already shown
-                                            if (!this.stuckDetection.stuckAlertShown) {
+                                            // Use the same per-field error counter (avoids instant popup on first error)
+                                            if (!this.stuckDetection.fieldErrorCount) {
+                                                this.stuckDetection.fieldErrorCount = {};
+                                            }
+                                            if (!this.stuckDetection.fieldErrorCount[fieldId]) {
+                                                this.stuckDetection.fieldErrorCount[fieldId] = 0;
+                                            }
+                                            this.stuckDetection.fieldErrorCount[fieldId]++;
+
+                                            if (this.stuckDetection.fieldErrorCount[fieldId] >= 2 && !this.stuckDetection.stuckAlertShown) {
                                                 this.triggerStuckHelp(fieldId, 'validation_error', errorMessage);
+                                                this.stuckDetection.fieldErrorCount[fieldId] = 0;
                                             }
                                         }
                                     }
@@ -1653,15 +1693,21 @@
                     });
                 });
 
-                // Observe the entire document for error messages
+                // Observe forms for error messages (exclude chatbot form)
                 const forms = document.querySelectorAll('form');
                 forms.forEach(form => {
-                    observer.observe(form, { childList: true, subtree: true });
+                    if (!form.closest('#npdc-chatbot-widget')) {
+                        observer.observe(form, { childList: true, subtree: true });
+                    }
                 });
             },
 
             triggerStuckHelp(fieldId, reason, errorMessage = null) {
                 if (this.stuckDetection.stuckAlertShown || this.isOpen) return;
+
+                // Enforce cooldown between consecutive alerts to avoid overwhelming the user
+                const now = Date.now();
+                if (now - this.stuckDetection.lastAlertTime < this.stuckDetection.alertCooldown) return;
 
                 const helpInfo = this.getFieldHelp(fieldId, reason, errorMessage);
 
@@ -1686,12 +1732,15 @@
 
                 this.proactiveTip.classList.remove('hidden');
                 this.stuckDetection.stuckAlertShown = true;
+                this.stuckDetection.lastAlertTime = Date.now();
 
-                // Auto-hide after 20 seconds
+                // Auto-hide after 15 seconds
                 setTimeout(() => {
                     this.hideProactiveTip();
                     this.toggle.classList.remove('pulse-help');
-                }, 20000);
+                    // Reset so future stuck events can trigger again
+                    this.stuckDetection.stuckAlertShown = false;
+                }, 15000);
             },
 
             // ===== SOUND NOTIFICATION SYSTEM =====
@@ -2195,7 +2244,7 @@
                 };
 
                 // Default help based on reason - include field name for context
-                const fieldLabel = fieldId.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim();
+                const fieldLabel = fieldId ? fieldId.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim() : 'form';
                 const defaultHelp = {
                     'idle': {
                         icon: '🤔',
