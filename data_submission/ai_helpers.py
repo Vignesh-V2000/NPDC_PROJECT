@@ -69,11 +69,9 @@ VALID_ISO_TOPICS = [
 ]
 
 CATEGORY_TOPIC_MAP = {
-    "agriculture": ["Agriculture", "Atmosphere", "Biological Classification", "Biosphere",
-        "Climate Indicators", "Cryosphere", "Human Dimensions", "Land Surface",
-        "Oceans", "Paleoclimate", "Solid Earth", "Spectral/Engineering",
-        "Sun-Earth Interactions", "Terrestrial Hydrosphere", "Marine Science",
-        "Terrestrial Science", "Wind Profiler Radar", "Geotectonic Studies", "Audio Signals"],
+    "agriculture": ["Agricultural Aquatic Sciences", "Agricultural Engineering", "Agricultural Plant Science",
+        "Animal Commodities", "Animal Science", "Cryosphere", "Feed Products", "Food Science",
+        "Forest Science", "Plant Commodities", "Soils", "Agricultural Chemicals", "Agriculture"],
     "atmosphere": ["Aerosols", "Air Quality", "Altitude", "Atmospheric Chemistry",
         "Atmospheric Electricity", "Atmospheric Phenomena", "Atmospheric Pressure",
         "Atmospheric Radiation", "Atmospheric Temperature", "Atmospheric Water Vapor",
