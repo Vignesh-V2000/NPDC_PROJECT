@@ -213,14 +213,15 @@ LOGGING = {
 # =============================================================================
 # CACHING CONFIGURATION (Phase 12)
 # =============================================================================
-# Using database cache (works without Redis, production-ready)
+# Using file-based cache (best for split web/DB server architecture)
+# Stores large cached datasets on the local web server disk, avoiding DB network transfer
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache_table',
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': BASE_DIR / 'django_cache',
         'TIMEOUT': 300,
         'OPTIONS': {
-            'MAX_ENTRIES': 1000
+            'MAX_ENTRIES': 500  # Number of files to keep before deleting oldest
         }
     }
 }
