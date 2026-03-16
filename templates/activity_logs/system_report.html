@@ -1,0 +1,593 @@
+{% extends "base.html" %}
+
+{% block title %}System Report - NPDC{% endblock %}
+
+{% block container_wrapper %}{% endblock %}
+{% block container_wrapper_end %}{% endblock %}
+{% block page_messages %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Admin Sidebar -->
+        <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
+            {% include 'admin/includes/admin_sidebar.html' %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-xl-10 col-lg-9">
+
+            <style>
+                /* ═══ Report Page Styles ═══ */
+                .rpt-hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                    padding: 2rem 2rem 1.6rem; border-radius: 1rem;
+                    position: relative; overflow: hidden; margin-bottom: 1.5rem;
+                }
+                .rpt-hero-orb { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.12; }
+                .rpt-hero-orb-1 { width:200px; height:200px; background:#10b981; top:-40px; right:80px; }
+                .rpt-hero-orb-2 { width:150px; height:150px; background:#3b82f6; bottom:-30px; left:60px; }
+                .rpt-hero h2 { color:#fff; font-weight:800; font-size:1.6rem; margin:0; position:relative; z-index:2; }
+                .rpt-hero p { color:#94a3b8; font-size:0.9rem; margin:0.3rem 0 0; position:relative; z-index:2; }
+
+                /* Filter bar */
+                .rpt-filter-bar {
+                    background: #fff; border-radius: 0.75rem; padding: 1rem 1.25rem;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 1.5rem;
+                    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+                }
+                .rpt-filter-bar label { font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 0; white-space: nowrap; }
+                .rpt-filter-bar input[type="date"],
+                .rpt-filter-bar select {
+                    border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.4rem 0.6rem;
+                    font-size: 0.85rem; color: #334155;
+                }
+                .rpt-btn { border-radius: 0.5rem; font-size: 0.82rem; font-weight: 600; padding: 0.45rem 1rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer; }
+                .rpt-btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; border: none; }
+                .rpt-btn-primary:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
+                .rpt-btn-outline { background: #fff; color: #64748b; border: 1px solid #e2e8f0; }
+                .rpt-btn-outline:hover { background: #f8fafc; color: #334155; }
+                .rpt-btn-export { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; }
+                .rpt-btn-export:hover { background: linear-gradient(135deg, #059669, #047857); color: #fff; }
+                .rpt-btn-sm { font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:0.4rem; }
+
+                /* Export button colors per section */
+                .rpt-btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; border: none; }
+                .rpt-btn-blue:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
+                .rpt-btn-green { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; }
+                .rpt-btn-green:hover { background: linear-gradient(135deg, #059669, #047857); color: #fff; }
+                .rpt-btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; }
+                .rpt-btn-amber:hover { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
+                .rpt-btn-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; border: none; }
+                .rpt-btn-purple:hover { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; }
+                .rpt-btn-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; border: none; }
+                .rpt-btn-teal:hover { background: linear-gradient(135deg, #0d9488, #0f766e); color: #fff; }
+                .rpt-btn-slate { background: linear-gradient(135deg, #64748b, #475569); color: #fff; border: none; }
+                .rpt-btn-slate:hover { background: linear-gradient(135deg, #475569, #334155); color: #fff; }
+
+                /* Summary cards */
+                .rpt-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+                .rpt-card {
+                    background: #fff; border-radius: 0.85rem; padding: 1.25rem;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+                    border-left: 4px solid transparent;
+                }
+                .rpt-card-blue { border-left-color: #3b82f6; }
+                .rpt-card-green { border-left-color: #10b981; }
+                .rpt-card-amber { border-left-color: #f59e0b; }
+                .rpt-card-purple { border-left-color: #8b5cf6; }
+                .rpt-card-red { border-left-color: #ef4444; }
+                .rpt-card-teal { border-left-color: #14b8a6; }
+                .rpt-card .rpt-card-icon {
+                    width: 40px; height: 40px; border-radius: 10px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 1rem; margin-bottom: 0.75rem;
+                }
+                .rpt-card-blue .rpt-card-icon { background: #eff6ff; color: #3b82f6; }
+                .rpt-card-green .rpt-card-icon { background: #ecfdf5; color: #10b981; }
+                .rpt-card-amber .rpt-card-icon { background: #fffbeb; color: #f59e0b; }
+                .rpt-card-purple .rpt-card-icon { background: #f5f3ff; color: #8b5cf6; }
+                .rpt-card-red .rpt-card-icon { background: #fef2f2; color: #ef4444; }
+                .rpt-card-teal .rpt-card-icon { background: #f0fdfa; color: #14b8a6; }
+                .rpt-card .rpt-card-value { font-size: 1.5rem; font-weight: 800; color: #0f172a; line-height: 1; }
+                .rpt-card .rpt-card-label { font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.25rem; }
+
+                /* Section panels */
+                .rpt-section {
+                    background: #fff; border-radius: 0.85rem; padding: 1.5rem;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem;
+                }
+                .rpt-section-header {
+                    display: flex; align-items: center; justify-content: space-between;
+                    margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f1f5f9;
+                    flex-wrap: wrap; gap: 0.5rem;
+                }
+                .rpt-section-title {
+                    font-size: 1rem; font-weight: 700; color: #0f172a;
+                    display: flex; align-items: center; gap: 0.5rem; margin: 0;
+                }
+                .rpt-section-title i { font-size: 1.1rem; }
+                .rpt-section-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+                /* Tables */
+                .rpt-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
+                .rpt-table th {
+                    background: #f8fafc; color: #475569; font-weight: 700; font-size: 0.75rem;
+                    text-transform: uppercase; letter-spacing: 0.05em; padding: 0.7rem 1rem;
+                    border-bottom: 2px solid #e2e8f0;
+                }
+                .rpt-table td { padding: 0.65rem 1rem; border-bottom: 1px solid #f1f5f9; color: #334155; }
+                .rpt-table tr:hover td { background: #f8fafc; }
+                .rpt-table .rpt-count {
+                    font-weight: 700; color: #0f172a;
+                    background: #f1f5f9; border-radius: 6px; padding: 2px 10px; display: inline-block;
+                }
+
+                /* Status badges */
+                .rpt-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+                .rpt-badge-draft { background: #f1f5f9; color: #64748b; }
+                .rpt-badge-submitted { background: #eff6ff; color: #2563eb; }
+                .rpt-badge-under_review { background: #fffbeb; color: #d97706; }
+                .rpt-badge-revision { background: #fef2f2; color: #dc2626; }
+                .rpt-badge-published { background: #ecfdf5; color: #059669; }
+                .rpt-badge-pending { background: #fffbeb; color: #d97706; }
+                .rpt-badge-approved { background: #ecfdf5; color: #059669; }
+                .rpt-badge-rejected { background: #fef2f2; color: #dc2626; }
+
+                /* Bar chart CSS-only */
+                .rpt-bar-container { display: flex; align-items: center; gap: 0.5rem; }
+                .rpt-bar-track { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+                .rpt-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+                .rpt-bar-blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+                .rpt-bar-green { background: linear-gradient(90deg, #10b981, #34d399); }
+                .rpt-bar-amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+                .rpt-bar-purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+                .rpt-bar-teal { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
+
+                /* Grid layout */
+                .rpt-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+                @media (max-width: 992px) { .rpt-grid-2 { grid-template-columns: 1fr; } }
+                @media (max-width: 768px) { .rpt-cards { grid-template-columns: 1fr 1fr; } }
+
+                /* Expedition filter pills */
+                .exp-filter-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+                .exp-filter-pill {
+                    padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+                    border: 1px solid #e2e8f0; background: #f8fafc; color: #475569;
+                    text-decoration: none; transition: all 0.2s;
+                }
+                .exp-filter-pill:hover { background: #e2e8f0; color: #1e293b; }
+                .exp-filter-pill.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+            </style>
+
+            <!-- Hero Banner -->
+            <div class="rpt-hero">
+                <div class="rpt-hero-orb rpt-hero-orb-1"></div>
+                <div class="rpt-hero-orb rpt-hero-orb-2"></div>
+                <h2><i class="fas fa-chart-bar me-2"></i>System Report Generation</h2>
+                <p>Generate and export detailed reports for different sections of the NPDC platform</p>
+            </div>
+
+            <!-- Filter Bar -->
+            <form method="GET" class="rpt-filter-bar">
+                <label><i class="fas fa-calendar-alt me-1"></i> From</label>
+                <input type="date" name="date_from" value="{{ date_from }}">
+                <label>To</label>
+                <input type="date" name="date_to" value="{{ date_to }}">
+                <button type="submit" class="btn rpt-btn rpt-btn-primary">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <a href="{% url 'activity_logs:system_report' %}" class="btn rpt-btn rpt-btn-outline">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+                <a href="{% url 'activity_logs:system_report' %}?export=full{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                   class="btn rpt-btn rpt-btn-slate ms-auto">
+                    <i class="fas fa-file-csv"></i> Export Full Report
+                </a>
+            </form>
+
+            <!-- Summary Cards -->
+            <div class="rpt-cards">
+                <div class="rpt-card rpt-card-blue">
+                    <div class="rpt-card-icon"><i class="fas fa-users"></i></div>
+                    <div class="rpt-card-value">{{ total_users }}</div>
+                    <div class="rpt-card-label">Total Users</div>
+                </div>
+                <div class="rpt-card rpt-card-green">
+                    <div class="rpt-card-icon"><i class="fas fa-database"></i></div>
+                    <div class="rpt-card-value">{{ total_datasets }}</div>
+                    <div class="rpt-card-label">Total Datasets</div>
+                </div>
+                <div class="rpt-card rpt-card-amber">
+                    <div class="rpt-card-icon"><i class="fas fa-file-download"></i></div>
+                    <div class="rpt-card-value">{{ total_requests }}</div>
+                    <div class="rpt-card-label">Data Requests</div>
+                </div>
+                <div class="rpt-card rpt-card-purple">
+                    <div class="rpt-card-icon"><i class="fas fa-list-alt"></i></div>
+                    <div class="rpt-card-value">{{ total_logs }}</div>
+                    <div class="rpt-card-label">Activity Logs</div>
+                </div>
+                <div class="rpt-card rpt-card-teal">
+                    <div class="rpt-card-icon"><i class="fas fa-hdd"></i></div>
+                    <div class="rpt-card-value">{{ storage_total }} MB</div>
+                    <div class="rpt-card-label">Total Storage</div>
+                </div>
+                <div class="rpt-card rpt-card-red">
+                    <div class="rpt-card-icon"><i class="fas fa-user-plus"></i></div>
+                    <div class="rpt-card-value">{{ new_users_30d }}</div>
+                    <div class="rpt-card-label">New Users (30d)</div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- USER STATISTICS -->
+            <!-- ══════════════════════════════════════════ -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-users text-primary"></i> User Statistics</div>
+                    <div class="rpt-section-actions">
+                        <a href="{% url 'activity_logs:system_report' %}?export=users{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                           class="rpt-btn rpt-btn-sm rpt-btn-blue">
+                            <i class="fas fa-download"></i> Export Users Report
+                        </a>
+                    </div>
+                </div>
+                <table class="rpt-table">
+                    <thead>
+                        <tr><th>Metric</th><th>Count</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Total Registered Users</td><td><span class="rpt-count">{{ total_users }}</span></td></tr>
+                        <tr><td>Active Users</td><td><span class="rpt-count">{{ active_users }}</span></td></tr>
+                        <tr><td>Staff / Admin Users</td><td><span class="rpt-count">{{ staff_users }}</span></td></tr>
+                        <tr><td>Super Administrators</td><td><span class="rpt-count">{{ superusers }}</span></td></tr>
+                        <tr><td>New Users (Last 30 Days)</td><td><span class="rpt-count">{{ new_users_30d }}</span></td></tr>
+                        {% if date_from or date_to %}
+                        <tr><td><strong>Users in Selected Range</strong></td><td><span class="rpt-count">{{ users_in_range }}</span></td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- DATASET SUBMISSIONS -->
+            <!-- ══════════════════════════════════════════ -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-database text-success"></i> Dataset Submissions</div>
+                    <div class="rpt-section-actions">
+                        <a href="{% url 'activity_logs:system_report' %}?export=datasets"
+                           class="rpt-btn rpt-btn-sm rpt-btn-green">
+                            <i class="fas fa-download"></i> All Datasets
+                        </a>
+                        {% for key, label in expedition_types %}
+                        <a href="{% url 'activity_logs:system_report' %}?export=datasets&expedition={{ key }}"
+                           class="rpt-btn rpt-btn-sm rpt-btn-green" style="opacity:0.85;">
+                            <i class="fas fa-download"></i> {{ label }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="rpt-grid-2">
+                    <!-- By Status -->
+                    <div>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-tag me-1 text-muted"></i> By Status</h6>
+                        <table class="rpt-table">
+                            <thead><tr><th>Status</th><th>Count</th><th style="width:40%">Distribution</th></tr></thead>
+                            <tbody>
+                            {% for item in status_breakdown %}
+                                <tr>
+                                    <td><span class="rpt-badge rpt-badge-{{ item.status }}">{{ item.label }}</span></td>
+                                    <td><span class="rpt-count">{{ item.count }}</span></td>
+                                    <td>
+                                        <div class="rpt-bar-container">
+                                            <div class="rpt-bar-track">
+                                                <div class="rpt-bar-fill rpt-bar-blue" style="width: {% widthratio item.count total_datasets 100 %}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- By Expedition Type -->
+                    <div>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-globe-americas me-1 text-muted"></i> By Expedition Type</h6>
+                        <table class="rpt-table">
+                            <thead><tr><th>Expedition</th><th>Count</th><th style="width:40%">Distribution</th></tr></thead>
+                            <tbody>
+                            {% for item in expedition_breakdown %}
+                                <tr>
+                                    <td><strong>{{ item.label }}</strong></td>
+                                    <td><span class="rpt-count">{{ item.count }}</span></td>
+                                    <td>
+                                        <div class="rpt-bar-container">
+                                            <div class="rpt-bar-track">
+                                                <div class="rpt-bar-fill rpt-bar-green" style="width: {% widthratio item.count total_datasets 100 %}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expedition × Status Cross Tab -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-th text-info"></i> Datasets by Expedition × Status</div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="rpt-table">
+                        <thead>
+                            <tr>
+                                <th>Expedition</th>
+                                <th>Total</th>
+                                {% for key, label in status_choices %}
+                                <th>{{ label }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in exp_status_cross %}
+                            <tr>
+                                <td><strong>{{ row.expedition }}</strong></td>
+                                <td><span class="rpt-count">{{ row.total }}</span></td>
+                                {% for sc in row.status_counts %}
+                                <td>
+                                    {% if sc.count > 0 %}
+                                    <span class="rpt-badge rpt-badge-{{ sc.key }}">{{ sc.count }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Category & Year Breakdown -->
+            <div class="rpt-grid-2">
+                <div class="rpt-section">
+                    <div class="rpt-section-header">
+                        <div class="rpt-section-title"><i class="fas fa-layer-group text-warning"></i> By Category (Top 15)</div>
+                    </div>
+                    <table class="rpt-table">
+                        <thead><tr><th>#</th><th>Category</th><th>Count</th></tr></thead>
+                        <tbody>
+                        {% for item in category_breakdown %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>{{ item.label }}</td>
+                                <td><span class="rpt-count">{{ item.count }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="rpt-section">
+                    <div class="rpt-section-header">
+                        <div class="rpt-section-title"><i class="fas fa-calendar text-info"></i> By Expedition Year (Recent 10)</div>
+                    </div>
+                    <table class="rpt-table">
+                        <thead><tr><th>#</th><th>Year</th><th>Datasets</th></tr></thead>
+                        <tbody>
+                        {% for item in year_breakdown %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td><strong>{{ item.expedition_year }}</strong></td>
+                                <td><span class="rpt-count">{{ item.count }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly Submissions Trend -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-chart-line text-primary"></i> Monthly Submission Trend (12 Months)</div>
+                </div>
+                <div style="display:flex; align-items:flex-end; gap:6px; height:140px; padding:0 0.5rem;">
+                    {% for m in monthly_submissions %}
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
+                        <span style="font-size:0.7rem; font-weight:700; color:#0f172a; margin-bottom:4px;">{{ m.count }}</span>
+                        <div style="width:100%; max-width:42px; background:linear-gradient(180deg, #3b82f6, #60a5fa); border-radius:6px 6px 0 0; min-height:4px;
+                            {% if m.count > 0 %}height:{% widthratio m.count monthly_submissions.0.count 100 %}%;{% else %}height:4px;{% endif %}
+                            transition:height 0.5s ease;"></div>
+                        <span style="font-size:0.62rem; color:#94a3b8; margin-top:4px; writing-mode:vertical-rl; text-orientation:mixed; transform:rotate(180deg); max-height:48px; overflow:hidden;">{{ m.month }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- DATA REQUESTS -->
+            <!-- ══════════════════════════════════════════ -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-file-download text-warning"></i> Data Download Requests</div>
+                    <div class="rpt-section-actions">
+                        <a href="{% url 'activity_logs:system_report' %}?export=requests{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                           class="rpt-btn rpt-btn-sm rpt-btn-amber">
+                            <i class="fas fa-download"></i> Export Data Requests Report
+                        </a>
+                    </div>
+                </div>
+                <div class="rpt-grid-2">
+                    <!-- By Status -->
+                    <div>
+                        <h6 class="fw-bold mb-3">Request Status</h6>
+                        <table class="rpt-table">
+                            <thead><tr><th>Status</th><th>Count</th></tr></thead>
+                            <tbody>
+                            {% for item in request_status_breakdown %}
+                                <tr>
+                                    <td><span class="rpt-badge rpt-badge-{{ item.status }}">{{ item.label }}</span></td>
+                                    <td><span class="rpt-count">{{ item.count }}</span></td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="2" class="text-muted text-center">No data</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- By Country -->
+                    <div>
+                        <h6 class="fw-bold mb-3">Requests by Country (Top 15)</h6>
+                        <table class="rpt-table">
+                            <thead><tr><th>#</th><th>Country</th><th>Requests</th></tr></thead>
+                            <tbody>
+                            {% for item in country_breakdown %}
+                                <tr>
+                                    <td class="text-muted">{{ forloop.counter }}</td>
+                                    <td>{{ item.country }}</td>
+                                    <td><span class="rpt-count">{{ item.count }}</span></td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Requested Datasets & Institutes -->
+            <div class="rpt-grid-2">
+                <div class="rpt-section">
+                    <div class="rpt-section-header">
+                        <div class="rpt-section-title"><i class="fas fa-trophy text-warning"></i> Most Requested Datasets (Top 10)</div>
+                    </div>
+                    <table class="rpt-table">
+                        <thead><tr><th>#</th><th>Dataset</th><th>Metadata ID</th><th>Requests</th></tr></thead>
+                        <tbody>
+                        {% for item in top_datasets %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ item.dataset__title }}">{{ item.dataset__title }}</td>
+                                <td><code>{{ item.dataset__metadata_id }}</code></td>
+                                <td><span class="rpt-count">{{ item.count }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="text-muted text-center">No data</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="rpt-section">
+                    <div class="rpt-section-header">
+                        <div class="rpt-section-title"><i class="fas fa-university text-info"></i> Requests by Institute (Top 10)</div>
+                    </div>
+                    <table class="rpt-table">
+                        <thead><tr><th>#</th><th>Institute</th><th>Requests</th></tr></thead>
+                        <tbody>
+                        {% for item in institute_breakdown %}
+                            <tr>
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>{{ item.institute }}</td>
+                                <td><span class="rpt-count">{{ item.count }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- ACTIVITY LOGS -->
+            <!-- ══════════════════════════════════════════ -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-server text-secondary"></i> Activity Log Summary</div>
+                    <div class="rpt-section-actions">
+                        <a href="{% url 'activity_logs:system_report' %}?export=logs{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                           class="rpt-btn rpt-btn-sm rpt-btn-purple">
+                            <i class="fas fa-download"></i> Export Activity Logs Report
+                        </a>
+                    </div>
+                </div>
+                <div class="rpt-grid-2">
+                    <div>
+                        <table class="rpt-table">
+                            <thead><tr><th>Metric</th><th>Count</th></tr></thead>
+                            <tbody>
+                                <tr><td>Total Activity Logs</td><td><span class="rpt-count">{{ total_logs }}</span></td></tr>
+                                <tr><td>Logs (Last 30 Days)</td><td><span class="rpt-count">{{ logs_30d }}</span></td></tr>
+                                {% if date_from or date_to %}
+                                <tr><td><strong>Logs in Selected Range</strong></td><td><span class="rpt-count">{{ logs_in_range }}</span></td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-3">By Action Type</h6>
+                        <table class="rpt-table">
+                            <thead><tr><th>Action</th><th>Count</th><th style="width:40%">Distribution</th></tr></thead>
+                            <tbody>
+                            {% for item in action_type_breakdown %}
+                                <tr>
+                                    <td>{{ item.label }}</td>
+                                    <td><span class="rpt-count">{{ item.count }}</span></td>
+                                    <td>
+                                        <div class="rpt-bar-container">
+                                            <div class="rpt-bar-track">
+                                                <div class="rpt-bar-fill rpt-bar-purple" style="width:{% widthratio item.count total_logs 100 %}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storage Summary -->
+            <div class="rpt-section">
+                <div class="rpt-section-header">
+                    <div class="rpt-section-title"><i class="fas fa-hdd" style="color:#14b8a6;"></i> Storage Summary</div>
+                    <div class="rpt-section-actions">
+                        <a href="{% url 'activity_logs:system_report' %}?export=storage"
+                           class="rpt-btn rpt-btn-sm rpt-btn-teal">
+                            <i class="fas fa-download"></i> Export Storage Report
+                        </a>
+                    </div>
+                </div>
+                <table class="rpt-table" style="max-width:500px;">
+                    <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Total Dataset Storage</td><td><span class="rpt-count">{{ storage_total }} MB</span></td></tr>
+                        <tr><td>Average per Dataset</td><td><span class="rpt-count">{{ storage_avg }} MB</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

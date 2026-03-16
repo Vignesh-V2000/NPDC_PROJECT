@@ -4,6 +4,7 @@
 
 {% block container_wrapper %}{% endblock %}
 {% block container_wrapper_end %}{% endblock %}
+{% block page_messages %}{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -15,6 +16,109 @@
 
         <!-- Main Content -->
         <div class="col-xl-10 col-lg-9">
+
+            {% if messages %}
+            <style>
+                .pro-toast-container { position: relative; z-index: 50; margin-bottom: 1.5rem; }
+                .pro-toast {
+                    display: flex; align-items: flex-start; gap: 0.85rem;
+                    padding: 1rem 1.25rem; border-radius: 0.75rem;
+                    margin-bottom: 0.75rem; position: relative; overflow: hidden;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    animation: proToastSlideIn 0.4s cubic-bezier(0.16,1,0.3,1);
+                    border-left: 4px solid transparent;
+                }
+                .pro-toast-success {
+                    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+                    border-left-color: #10b981; color: #065f46;
+                }
+                .pro-toast-error {
+                    background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+                    border-left-color: #ef4444; color: #991b1b;
+                }
+                .pro-toast-warning {
+                    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+                    border-left-color: #f59e0b; color: #92400e;
+                }
+                .pro-toast-info {
+                    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                    border-left-color: #3b82f6; color: #1e40af;
+                }
+                .pro-toast-icon {
+                    width: 36px; height: 36px; border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0; font-size: 1rem;
+                }
+                .pro-toast-success .pro-toast-icon { background: #d1fae5; color: #059669; }
+                .pro-toast-error .pro-toast-icon { background: #fee2e2; color: #dc2626; }
+                .pro-toast-warning .pro-toast-icon { background: #fde68a; color: #d97706; }
+                .pro-toast-info .pro-toast-icon { background: #bfdbfe; color: #2563eb; }
+                .pro-toast-body { flex: 1; min-width: 0; }
+                .pro-toast-title {
+                    font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+                    letter-spacing: 0.04em; margin-bottom: 0.15rem; opacity: 0.7;
+                }
+                .pro-toast-msg { font-size: 0.92rem; font-weight: 500; line-height: 1.4; }
+                .pro-toast-close {
+                    background: none; border: none; opacity: 0.5; cursor: pointer;
+                    font-size: 1.1rem; padding: 0; line-height: 1; transition: opacity 0.2s;
+                    color: inherit; flex-shrink: 0; margin-top: 2px;
+                }
+                .pro-toast-close:hover { opacity: 1; }
+                .pro-toast-progress {
+                    position: absolute; bottom: 0; left: 0; height: 3px;
+                    border-radius: 0 0 0 0.75rem;
+                    animation: proToastProgress 6s linear forwards;
+                }
+                .pro-toast-success .pro-toast-progress { background: #10b981; }
+                .pro-toast-error .pro-toast-progress { background: #ef4444; }
+                .pro-toast-warning .pro-toast-progress { background: #f59e0b; }
+                .pro-toast-info .pro-toast-progress { background: #3b82f6; }
+                @keyframes proToastSlideIn {
+                    from { opacity: 0; transform: translateY(-12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes proToastProgress {
+                    from { width: 100%; } to { width: 0%; }
+                }
+            </style>
+            <div class="pro-toast-container">
+                {% for message in messages %}
+                <div class="pro-toast pro-toast-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}" role="alert">
+                    <div class="pro-toast-icon">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-times"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation"></i>
+                        {% else %}
+                        <i class="fas fa-info"></i>
+                        {% endif %}
+                    </div>
+                    <div class="pro-toast-body">
+                        <div class="pro-toast-title">
+                            {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Info{% endif %}
+                        </div>
+                        <div class="pro-toast-msg">{{ message }}</div>
+                    </div>
+                    <button type="button" class="pro-toast-close" onclick="this.closest('.pro-toast').remove();">&times;</button>
+                    <div class="pro-toast-progress"></div>
+                </div>
+                {% endfor %}
+            </div>
+            <script>
+                // Auto-dismiss after 6 sec
+                document.querySelectorAll('.pro-toast').forEach(toast => {
+                    setTimeout(() => {
+                        toast.style.transition = 'opacity 0.4s, transform 0.4s';
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-12px)';
+                        setTimeout(() => toast.remove(), 400);
+                    }, 6000);
+                });
+            </script>
+            {% endif %}
 
             <!-- ═══ Hero Banner ═══ -->
             <style>
@@ -153,9 +257,18 @@
                     border-radius: 0.5rem;
                     overflow: hidden;
                     border: 1px solid rgba(255,255,255,0.25);
+                    align-items: stretch;
                 }
-                .um-toggle-group .btn-check:checked + .um-toggle-btn {
-                    background: rgba(255,255,255,0.2);
+                .um-toggle-group .btn-check {
+                    display: none;
+                }
+                #btnStandard:checked + .um-toggle-btn {
+                    background: #3b82f6;
+                    color: #fff;
+                    font-weight: 700;
+                }
+                #btnAdmin:checked + .um-toggle-btn {
+                    background: #ef4444;
                     color: #fff;
                     font-weight: 700;
                 }
@@ -168,6 +281,10 @@
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.2s ease;
+                    margin: 0;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
                 }
                 .um-toggle-btn:hover {
                     background: rgba(255,255,255,0.1);

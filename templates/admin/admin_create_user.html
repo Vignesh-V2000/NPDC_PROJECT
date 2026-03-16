@@ -4,6 +4,7 @@
 
 {% block container_wrapper %}{% endblock %}
 {% block container_wrapper_end %}{% endblock %}
+{% block page_messages %}{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -15,6 +16,108 @@
 
         <!-- Main Content -->
         <div class="col-xl-10 col-lg-9">
+
+            {% if messages %}
+            <style>
+                .pro-toast-container { position: relative; z-index: 50; margin-bottom: 1.5rem; }
+                .pro-toast {
+                    display: flex; align-items: flex-start; gap: 0.85rem;
+                    padding: 1rem 1.25rem; border-radius: 0.75rem;
+                    margin-bottom: 0.75rem; position: relative; overflow: hidden;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    animation: proToastSlideIn 0.4s cubic-bezier(0.16,1,0.3,1);
+                    border-left: 4px solid transparent;
+                }
+                .pro-toast-success {
+                    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+                    border-left-color: #10b981; color: #065f46;
+                }
+                .pro-toast-error {
+                    background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+                    border-left-color: #ef4444; color: #991b1b;
+                }
+                .pro-toast-warning {
+                    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+                    border-left-color: #f59e0b; color: #92400e;
+                }
+                .pro-toast-info {
+                    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                    border-left-color: #3b82f6; color: #1e40af;
+                }
+                .pro-toast-icon {
+                    width: 36px; height: 36px; border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0; font-size: 1rem;
+                }
+                .pro-toast-success .pro-toast-icon { background: #d1fae5; color: #059669; }
+                .pro-toast-error .pro-toast-icon { background: #fee2e2; color: #dc2626; }
+                .pro-toast-warning .pro-toast-icon { background: #fde68a; color: #d97706; }
+                .pro-toast-info .pro-toast-icon { background: #bfdbfe; color: #2563eb; }
+                .pro-toast-body { flex: 1; min-width: 0; }
+                .pro-toast-title {
+                    font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+                    letter-spacing: 0.04em; margin-bottom: 0.15rem; opacity: 0.7;
+                }
+                .pro-toast-msg { font-size: 0.92rem; font-weight: 500; line-height: 1.4; }
+                .pro-toast-close {
+                    background: none; border: none; opacity: 0.5; cursor: pointer;
+                    font-size: 1.1rem; padding: 0; line-height: 1; transition: opacity 0.2s;
+                    color: inherit; flex-shrink: 0; margin-top: 2px;
+                }
+                .pro-toast-close:hover { opacity: 1; }
+                .pro-toast-progress {
+                    position: absolute; bottom: 0; left: 0; height: 3px;
+                    border-radius: 0 0 0 0.75rem;
+                    animation: proToastProgress 6s linear forwards;
+                }
+                .pro-toast-success .pro-toast-progress { background: #10b981; }
+                .pro-toast-error .pro-toast-progress { background: #ef4444; }
+                .pro-toast-warning .pro-toast-progress { background: #f59e0b; }
+                .pro-toast-info .pro-toast-progress { background: #3b82f6; }
+                @keyframes proToastSlideIn {
+                    from { opacity: 0; transform: translateY(-12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes proToastProgress {
+                    from { width: 100%; } to { width: 0%; }
+                }
+            </style>
+            <div class="pro-toast-container">
+                {% for message in messages %}
+                <div class="pro-toast pro-toast-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}" role="alert">
+                    <div class="pro-toast-icon">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-times"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation"></i>
+                        {% else %}
+                        <i class="fas fa-info"></i>
+                        {% endif %}
+                    </div>
+                    <div class="pro-toast-body">
+                        <div class="pro-toast-title">
+                            {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Info{% endif %}
+                        </div>
+                        <div class="pro-toast-msg">{{ message }}</div>
+                    </div>
+                    <button type="button" class="pro-toast-close" onclick="this.closest('.pro-toast').remove();">&times;</button>
+                    <div class="pro-toast-progress"></div>
+                </div>
+                {% endfor %}
+            </div>
+            <script>
+                document.querySelectorAll('.pro-toast').forEach(toast => {
+                    setTimeout(() => {
+                        toast.style.transition = 'opacity 0.4s, transform 0.4s';
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-12px)';
+                        setTimeout(() => toast.remove(), 400);
+                    }, 6000);
+                });
+            </script>
+            {% endif %}
 
             <style>
                 /* ═══ Hero Banner ═══ */
@@ -46,34 +149,17 @@
                 }
                 .ca-back-btn:hover { background:rgba(255,255,255,0.15); color:#fff; }
 
-                /* ═══ Existing Admins ═══ */
-                .ca-admins-card { border-radius:0.85rem; border:1px solid rgba(0,0,0,0.04)!important; box-shadow:0 4px 16px rgba(15,23,42,0.06); overflow:hidden; margin-bottom:1.25rem; }
-                .ca-admins-header {
-                    padding:0.85rem 1.25rem; font-weight:700; font-size:0.88rem; cursor:pointer;
-                    background:linear-gradient(135deg,#0f172a,#1e293b); color:#e2e8f0;
-                    display:flex; align-items:center; justify-content:space-between; transition:background 0.2s;
-                }
-                .ca-admins-header:hover { background:linear-gradient(135deg,#1e293b,#334155); }
-                .ca-admin-tbl { margin-bottom:0; }
-                .ca-admin-tbl thead th { background:#f8fafc; font-size:0.7rem; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#64748b; padding:0.65rem 1rem; border-bottom:2px solid #e2e8f0; }
-                .ca-admin-tbl tbody tr { transition:background 0.15s; border-bottom:1px solid #f1f5f9; }
-                .ca-admin-tbl tbody tr:hover { background:#f0f9ff; }
-                .ca-admin-tbl tbody td { padding:0.65rem 1rem; vertical-align:middle; font-size:0.85rem; }
-                .ca-av { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.7rem; background:#e0e7ff; color:#4338ca; flex-shrink:0; }
-                .ca-rb { display:inline-flex; align-items:center; gap:0.25rem; padding:0.2rem 0.5rem; border-radius:2rem; font-size:0.68rem; font-weight:700; }
-                .ca-rb-super { background:#0f172a; color:#e2e8f0; }
-                .ca-rb-exp { background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; }
-                .ca-rb-staff { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
 
                 /* ═══ Form Card ═══ */
                 .ca-form-card { border-radius:0.85rem; border:1px solid rgba(0,0,0,0.04)!important; box-shadow:0 6px 24px rgba(15,23,42,0.06); }
                 .ca-form-card .card-body { padding:1.75rem; }
 
                 /* Toggle */
-                .ca-type-toggle { display:inline-flex; border-radius:0.6rem; overflow:hidden; border:2px solid #e2e8f0; background:#f8fafc; }
+                .ca-type-toggle { display:inline-flex; border-radius:0.6rem; overflow:hidden; border:2px solid #e2e8f0; background:#f8fafc; align-items: stretch; }
+                .ca-type-toggle .btn-check { display: none; }
                 .ca-type-toggle .btn-check:checked+.ca-type-btn-std { background:#3b82f6; color:#fff; border-color:#3b82f6; }
                 .ca-type-toggle .btn-check:checked+.ca-type-btn-adm { background:#ef4444; color:#fff; border-color:#ef4444; }
-                .ca-type-btn { background:transparent; color:#64748b; border:none; padding:0.45rem 1.35rem; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+                .ca-type-btn { background:transparent; display: inline-flex; align-items: center; justify-content: center; color:#64748b; border:none; padding:0.45rem 1.35rem; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; margin: 0; }
 
                 /* Section Headers */
                 .ca-sec-title {
@@ -124,6 +210,45 @@
                     padding:0.75rem 1rem; font-size:0.85rem;
                 }
 
+                /* Real-time validation styles */
+                .ca-field .field-error {
+                    color: #dc3545;
+                    font-size: 0.8rem;
+                    margin-top: 0.25rem;
+                    display: none;
+                    font-weight: 500;
+                }
+                .ca-field .field-error.visible {
+                    display: block;
+                }
+                .ca-field .field-success {
+                    color: #198754;
+                    font-size: 0.8rem;
+                    margin-top: 0.25rem;
+                    display: none;
+                    font-weight: 500;
+                }
+                .ca-field .field-success.visible {
+                    display: block;
+                }
+                .ca-field input.is-valid,
+                .ca-field select.is-valid {
+                    border-color: #198754 !important;
+                }
+                .ca-field input.is-invalid,
+                .ca-field select.is-invalid {
+                    border-color: #dc3545 !important;
+                }
+                .pwd-checklist {
+                    list-style: none; padding: 0; margin: 0.25rem 0 0 0; font-size: 0.78rem;
+                }
+                .pwd-checklist li {
+                    padding: 1px 0; color: #94a3b8;
+                }
+                .pwd-checklist li.pass { color: #198754; }
+                .pwd-checklist li.fail { color: #dc3545; }
+                .pwd-checklist li i { width: 16px; text-align: center; margin-right: 4px; }
+
                 @media(max-width:768px) {
                     .ca-form-grid { grid-template-columns:1fr; }
                 }
@@ -145,54 +270,11 @@
                 </div>
             </div>
 
-            <!-- Existing Admins (Collapsible) -->
-            <div class="card ca-admins-card border-0">
-                <div class="ca-admins-header" data-bs-toggle="collapse" data-bs-target="#existingAdmins">
-                    <div><i class="fas fa-users-cog me-2"></i>Existing Administrators</div>
-                    <i class="fas fa-chevron-down" style="transition:transform 0.3s;"></i>
-                </div>
-                <div class="collapse" id="existingAdmins">
-                    <div class="card-body p-0">
-                        <div class="table-responsive border-0" style="max-height:300px;overflow-y:auto;">
-                            <table class="table ca-admin-tbl align-middle">
-                                <thead><tr><th>Name / Email</th><th>Role</th><th>Status</th><th>Added</th></tr></thead>
-                                <tbody>
-                                    {% for admin in existing_admins %}
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="ca-av">{{ admin.email|first|upper }}</div>
-                                                <div>
-                                                    <div class="fw-bold" style="color:#0f172a;font-size:0.88rem;">{{ admin.get_full_name|default:admin.username }}</div>
-                                                    <div class="text-muted" style="font-size:0.72rem;">{{ admin.email }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {% if admin.is_superuser %}<span class="ca-rb ca-rb-super"><i class="fas fa-crown me-1"></i>Super Admin</span>
-                                            {% elif admin.profile.expedition_admin_type %}<span class="ca-rb ca-rb-exp"><i class="fas fa-globe-americas me-1"></i>{{ admin.profile.get_expedition_admin_type_display }}</span>
-                                            {% else %}<span class="ca-rb ca-rb-staff"><i class="fas fa-user-tie me-1"></i>Admin</span>{% endif %}
-                                        </td>
-                                        <td>
-                                            {% if admin.is_active %}<span class="fw-bold" style="color:#16a34a;font-size:0.82rem;"><i class="fas fa-check-circle me-1"></i>Active</span>
-                                            {% else %}<span class="fw-bold" style="color:#dc2626;font-size:0.82rem;"><i class="fas fa-times-circle me-1"></i>Inactive</span>{% endif %}
-                                        </td>
-                                        <td class="text-muted" style="font-size:0.82rem;">{{ admin.date_joined|date:"M d, Y" }}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr><td colspan="4" class="text-center text-muted py-3">No administrators found.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Create User Form -->
             <div class="card ca-form-card border-0">
                 <div class="card-body">
-                    <form method="POST" id="createUserForm">
+                    <form method="POST" id="createUserForm" class="needs-validation" novalidate>
                         {% csrf_token %}
 
                         <!-- User Type Toggle -->
@@ -228,46 +310,104 @@
                             <div class="ca-form-grid">
                                 <div class="ca-field">
                                     <label>Title <span class="text-danger">*</span></label>
-                                    <select name="title" class="form-select std-required">
+                                    <select name="title" class="form-select std-required" title="Select your title" data-validate="required" data-msg="Please select a title">
                                         <option value="">-- Select Title --</option>
                                         <option value="Mr">Mr</option>
                                         <option value="Ms">Ms</option>
                                         <option value="Dr">Dr</option>
                                         <option value="Prof">Prof</option>
                                     </select>
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>Preferred Name</label>
-                                    <input type="text" name="preferred_name" class="form-control" placeholder="Optional">
+                                    <input type="text" name="preferred_name" class="form-control alpha-only" placeholder="Optional" pattern="[A-Za-z\s]+" title="Letters and spaces only" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" data-validate="alpha" data-msg="Only letters and spaces allowed">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>First Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="first_name" class="form-control std-required" placeholder="Enter first name">
+                                    <input type="text" name="first_name" class="form-control std-required alpha-only" placeholder="Enter first name" pattern="[A-Za-z\s]+" title="Letters and spaces only" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" data-validate="required|alpha" data-msg="First Name is required and must contain only letters">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                    <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Looks good!</span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>Last Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="last_name" class="form-control std-required" placeholder="Enter last name">
+                                    <input type="text" name="last_name" class="form-control std-required alpha-only" placeholder="Enter last name" pattern="[A-Za-z\s]+" title="Letters and spaces only" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" data-validate="required|alpha" data-msg="Last Name is required and must contain only letters">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                    <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Looks good!</span></div>
                                 </div>
                             </div>
+                        </div>
 
+                        <!-- Account Credentials (always visible) -->
+                        <h5 class="ca-sec-title ca-sec-red"><i class="fas fa-lock"></i>Account Credentials</h5>
+                        <div class="ca-form-grid" id="credential-fields-container">
+                            <div class="ca-field" id="username-field-container">
+                                <label>Username <span class="text-danger">*</span></label>
+                                <input type="text" name="username" id="admin_username" class="form-control admin-required" placeholder="Enter username" data-validate="required" data-msg="Username is required">
+                                <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Looks good!</span></div>
+                            </div>
+
+                            <div class="ca-field d-none" id="email-field-container">
+                                <label>Email ID <span class="text-danger">*</span></label>
+                                <input type="email" name="email" id="std_email" class="form-control std-required" placeholder="Enter email address" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" title="Please enter valid Email ID" data-validate="required|email" data-msg="Please enter a valid email address">
+                                <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Valid email!</span></div>
+                            </div>
+                            
+                            <div class="ca-field d-none" id="confirm-email-field-container">
+                                <label>Confirm Email ID <span class="text-danger">*</span></label>
+                                <input type="email" name="confirm_email" id="std_confirm_email" class="form-control std-required" placeholder="Confirm email address" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" title="Please enter valid Confirm Email ID" data-validate="required|email|match:email" data-msg="Email addresses must match">
+                                <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Emails match!</span></div>
+                            </div>
+
+                            <div class="ca-field">
+                                <label>Password <span class="text-danger">*</span></label>
+                                <input type="password" name="password1" id="password1" class="form-control" required data-validate="required|password" data-msg="Password does not meet requirements">
+                                <ul class="pwd-checklist" id="pwd-checklist">
+                                    <li id="pwd-length"><i class="fas fa-circle"></i> At least 8 characters</li>
+                                    <li id="pwd-upper"><i class="fas fa-circle"></i> One uppercase letter</li>
+                                    <li id="pwd-lower"><i class="fas fa-circle"></i> One lowercase letter</li>
+                                    <li id="pwd-number"><i class="fas fa-circle"></i> One number</li>
+                                    <li id="pwd-special"><i class="fas fa-circle"></i> One special character (@$!%*?&)</li>
+                                </ul>
+                            </div>
+                            <div class="ca-field">
+                                <label>Confirm Password <span class="text-danger">*</span></label>
+                                <input type="password" name="password2" id="password2" class="form-control" required data-validate="required|match:password1" data-msg="Passwords do not match">
+                                <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Passwords match!</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Standard User Extra Details (hidden for admin) -->
+                        <div id="standard-extra-section">
                             <!-- Organisation -->
                             <h5 class="ca-sec-title ca-sec-blue"><i class="fas fa-building"></i>Organisation / Institution</h5>
                             <div class="ca-form-grid">
                                 <div class="ca-field">
                                     <label>Organisation Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="organisation" class="form-control std-required" placeholder="E.g. NCAOR">
+                                    <input type="text" name="organisation" class="form-control std-required alpha-only" placeholder="E.g. NCAOR" pattern="[A-Za-z\s]+" title="Letters and spaces only" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" data-validate="required|alpha" data-msg="Organisation Name is required (letters only)">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                    <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Looks good!</span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>Designation</label>
-                                    <input type="text" name="designation" class="form-control" placeholder="E.g. Scientist">
+                                    <input type="text" name="designation" class="form-control alpha-only" placeholder="E.g. Scientist" pattern="[A-Za-z\s]+" title="Letters and spaces only" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" data-validate="alpha" data-msg="Only letters and spaces allowed">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>Organisation Website <span class="text-danger">*</span></label>
-                                    <input type="url" name="organisation_url" class="form-control std-required" placeholder="https://...">
+                                    <input type="url" name="organisation_url" class="form-control std-required" placeholder="https://..." title="Please enter valid URL" data-validate="required|url" data-msg="Please enter a valid URL (https://...)">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                    <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Valid URL!</span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>Personal Profile URL</label>
-                                    <input type="url" name="profile_url" class="form-control" placeholder="https://...">
+                                    <input type="url" name="profile_url" class="form-control" placeholder="https://..." data-validate="url" data-msg="Please enter a valid URL">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
                                 </div>
                             </div>
 
@@ -280,38 +420,21 @@
                                 </div>
                                 <div class="ca-field">
                                     <label>Alternate Email</label>
-                                    <input type="email" name="alternate_email" class="form-control" placeholder="optional@email.com">
+                                    <input type="email" name="alternate_email" class="form-control" placeholder="optional@email.com" pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" title="Please enter valid email" data-validate="email" data-msg="Please enter a valid email address">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>Mobile Number</label>
-                                    <input type="text" name="phone" class="form-control" pattern="[0-9]{10}" title="10 digit mobile number" placeholder="10-digit number">
+                                    <input type="text" name="phone" id="id_phone" class="form-control" pattern="[0-9]{10}" minlength="10" maxlength="10" title="Exactly 10 digits" placeholder="10-digit number" data-validate="phone" data-msg="Must be exactly 10 digits">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                    <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Valid number!</span></div>
                                 </div>
                                 <div class="ca-field">
                                     <label>WhatsApp Number</label>
-                                    <input type="text" name="whatsapp_number" class="form-control" pattern="[0-9]+" title="Digits only" placeholder="Digits only">
+                                    <input type="text" name="whatsapp_number" id="id_whatsapp_number" class="form-control" pattern="[0-9]{10}" minlength="10" maxlength="10" title="Exactly 10 digits" placeholder="10-digit number" data-validate="phone" data-msg="Must be exactly 10 digits">
+                                    <div class="field-error"><i class="fas fa-exclamation-circle me-1"></i><span></span></div>
+                                    <div class="field-success"><i class="fas fa-check-circle me-1"></i><span>Valid number!</span></div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Account Credentials -->
-                        <h5 class="ca-sec-title ca-sec-red"><i class="fas fa-lock"></i>Account Credentials</h5>
-                        <div class="ca-form-grid">
-                            <div class="ca-field">
-                                <label>Email Address <span class="text-danger">*</span></label>
-                                <input type="email" name="email" class="form-control" placeholder="user@example.com (used as username)" required>
-                            </div>
-                            <div class="ca-field">
-                                <label>Confirm Email <span class="text-danger">*</span></label>
-                                <input type="email" name="confirm_email" class="form-control" placeholder="Re-enter email" required>
-                            </div>
-                            <div class="ca-field">
-                                <label>Password <span class="text-danger">*</span></label>
-                                <input type="password" name="password1" class="form-control" required>
-                                <div class="form-text">Min 8 chars: Upper, Lower, Number, Special</div>
-                            </div>
-                            <div class="ca-field">
-                                <label>Confirm Password <span class="text-danger">*</span></label>
-                                <input type="password" name="password2" class="form-control" required>
                             </div>
                         </div>
 
@@ -336,27 +459,202 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const createUserForm = document.getElementById('createUserForm');
         const typeStandard = document.getElementById('type_standard');
         const typeAdmin = document.getElementById('type_admin');
         const standardSection = document.getElementById('standard-fields-section');
         const adminSection = document.getElementById('admin-role-section');
         const stdRequiredInputs = document.querySelectorAll('.std-required');
+        
+        const usernameFieldContainer = document.getElementById('username-field-container');
+        const emailFieldContainer = document.getElementById('email-field-container');
+        const confirmEmailFieldContainer = document.getElementById('confirm-email-field-container');
+        const adminUsername = document.getElementById('admin_username');
+        const standardExtraSection = document.getElementById('standard-extra-section');
 
+        // ── Toggle fields ──
         function toggleFields() {
             if (typeStandard.checked) {
                 standardSection.classList.remove('d-none');
+                standardExtraSection.classList.remove('d-none');
                 adminSection.classList.add('d-none');
+                usernameFieldContainer.classList.add('d-none');
+                emailFieldContainer.classList.remove('d-none');
+                confirmEmailFieldContainer.classList.remove('d-none');
+                adminUsername.removeAttribute('required');
                 stdRequiredInputs.forEach(input => input.setAttribute('required', ''));
             } else {
                 standardSection.classList.add('d-none');
+                standardExtraSection.classList.add('d-none');
                 adminSection.classList.remove('d-none');
+                usernameFieldContainer.classList.remove('d-none');
+                emailFieldContainer.classList.add('d-none');
+                confirmEmailFieldContainer.classList.add('d-none');
+                adminUsername.setAttribute('required', '');
                 stdRequiredInputs.forEach(input => input.removeAttribute('required'));
             }
+            // Clear all validation states on toggle
+            createUserForm.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+                el.classList.remove('is-valid', 'is-invalid');
+            });
+            createUserForm.querySelectorAll('.field-error, .field-success').forEach(el => {
+                el.classList.remove('visible');
+            });
         }
-
         typeStandard.addEventListener('change', toggleFields);
         typeAdmin.addEventListener('change', toggleFields);
         toggleFields();
+
+        // ── Validation helpers ──
+        const emailRegex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$/i;
+        const urlRegex = /^https?:\/\/.+/i;
+        const alphaRegex = /^[A-Za-z\s]+$/;
+        const phoneRegex = /^[0-9]{10}$/;
+
+        function showError(field, msg) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+            const errDiv = field.closest('.ca-field')?.querySelector('.field-error');
+            const okDiv = field.closest('.ca-field')?.querySelector('.field-success');
+            if (errDiv) { errDiv.querySelector('span').textContent = msg; errDiv.classList.add('visible'); }
+            if (okDiv) { okDiv.classList.remove('visible'); }
+        }
+
+        function showSuccess(field) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+            const errDiv = field.closest('.ca-field')?.querySelector('.field-error');
+            const okDiv = field.closest('.ca-field')?.querySelector('.field-success');
+            if (errDiv) { errDiv.classList.remove('visible'); }
+            if (okDiv) { okDiv.classList.add('visible'); }
+        }
+
+        function clearState(field) {
+            field.classList.remove('is-invalid', 'is-valid');
+            const errDiv = field.closest('.ca-field')?.querySelector('.field-error');
+            const okDiv = field.closest('.ca-field')?.querySelector('.field-success');
+            if (errDiv) { errDiv.classList.remove('visible'); }
+            if (okDiv) { okDiv.classList.remove('visible'); }
+        }
+
+        // ── Real-time field validation ──
+        function validateField(field) {
+            const rules = (field.dataset.validate || '').split('|').filter(Boolean);
+            if (rules.length === 0) return true;
+            const val = field.value.trim();
+            const isRequired = rules.includes('required');
+            const fieldMsg = field.dataset.msg || 'Invalid input';
+
+            // Skip hidden fields
+            if (field.closest('.d-none')) { clearState(field); return true; }
+            // Skip non-required empty fields
+            if (!isRequired && val === '') { clearState(field); return true; }
+            // Required check
+            if (isRequired && val === '') { showError(field, 'This field is required'); return false; }
+
+            for (const rule of rules) {
+                if (rule === 'required') continue;
+                if (rule === 'alpha') {
+                    if (!alphaRegex.test(val)) { showError(field, 'Only letters and spaces allowed'); return false; }
+                }
+                if (rule === 'email') {
+                    if (!emailRegex.test(val)) { showError(field, 'Please enter a valid email address'); return false; }
+                }
+                if (rule === 'url') {
+                    if (!urlRegex.test(val)) { showError(field, 'Please enter a valid URL (start with https://)'); return false; }
+                }
+                if (rule === 'phone') {
+                    if (!phoneRegex.test(val)) {
+                        const digits = val.replace(/[^0-9]/g, '');
+                        showError(field, `Must be exactly 10 digits (currently ${digits.length})`);
+                        return false;
+                    }
+                }
+                if (rule === 'password') {
+                    // handled by password checklist — just check overall
+                    const checks = [
+                        val.length >= 8,
+                        /[A-Z]/.test(val),
+                        /[a-z]/.test(val),
+                        /\d/.test(val),
+                        /[@$!%*?&]/.test(val)
+                    ];
+                    if (!checks.every(Boolean)) { field.classList.add('is-invalid'); field.classList.remove('is-valid'); return false; }
+                    else { field.classList.remove('is-invalid'); field.classList.add('is-valid'); return true; }
+                }
+                if (rule.startsWith('match:')) {
+                    const matchName = rule.split(':')[1];
+                    const matchField = createUserForm.querySelector(`[name="${matchName}"]`) || document.getElementById(matchName);
+                    if (matchField && val !== matchField.value) {
+                        showError(field, fieldMsg);
+                        return false;
+                    }
+                }
+            }
+            showSuccess(field);
+            return true;
+        }
+
+        // ── Password checklist live update ──
+        const pwd1 = document.getElementById('password1');
+        const pwd2 = document.getElementById('password2');
+        function updatePwdChecklist() {
+            const v = pwd1.value;
+            const items = [
+                { id: 'pwd-length', pass: v.length >= 8 },
+                { id: 'pwd-upper',  pass: /[A-Z]/.test(v) },
+                { id: 'pwd-lower',  pass: /[a-z]/.test(v) },
+                { id: 'pwd-number', pass: /\d/.test(v) },
+                { id: 'pwd-special',pass: /[@$!%*?&]/.test(v) }
+            ];
+            items.forEach(item => {
+                const li = document.getElementById(item.id);
+                if (!li) return;
+                li.classList.toggle('pass', item.pass);
+                li.classList.toggle('fail', !item.pass && v.length > 0);
+                li.querySelector('i').className = item.pass ? 'fas fa-check-circle' : (v.length > 0 ? 'fas fa-times-circle' : 'fas fa-circle');
+            });
+        }
+
+        // ── Attach listeners ──
+        const allValidatedFields = createUserForm.querySelectorAll('[data-validate]');
+        allValidatedFields.forEach(field => {
+            field.addEventListener('input', () => validateField(field));
+            field.addEventListener('blur', () => validateField(field));
+        });
+
+        // Password special handling
+        if (pwd1) {
+            pwd1.addEventListener('input', () => { updatePwdChecklist(); validateField(pwd1); });
+            pwd1.addEventListener('blur', () => { updatePwdChecklist(); validateField(pwd1); });
+        }
+        if (pwd2) {
+            pwd2.addEventListener('input', () => validateField(pwd2));
+            pwd2.addEventListener('blur', () => validateField(pwd2));
+        }
+        // Also re-validate confirm email when email changes
+        const stdEmail = document.getElementById('std_email');
+        const stdConfirmEmail = document.getElementById('std_confirm_email');
+        if (stdEmail && stdConfirmEmail) {
+            stdEmail.addEventListener('input', () => {
+                if (stdConfirmEmail.value) validateField(stdConfirmEmail);
+            });
+        }
+
+        // ── Submit handler ──
+        createUserForm.addEventListener('submit', function (event) {
+            let allValid = true;
+            allValidatedFields.forEach(field => {
+                if (!validateField(field)) allValid = false;
+            });
+            if (!allValid) {
+                event.preventDefault();
+                event.stopPropagation();
+                // Scroll to first error
+                const firstErr = createUserForm.querySelector('.is-invalid');
+                if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, false);
     });
 </script>
 {% endblock %}

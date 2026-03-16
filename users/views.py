@@ -224,9 +224,6 @@ def profile(request):
 
 @staff_member_required
 def admin_create_user(request):
-    # Fetch existing admins for display
-    existing_admins = User.objects.filter(is_staff=True).select_related('profile').order_by('-date_joined')
-
     if request.method == "POST":
         user_type = request.POST.get("user_type")
 
@@ -268,38 +265,33 @@ def admin_create_user(request):
         
         else:
             # Admin User Creation (Manual Logic)
-            email = request.POST.get("email", "").strip().lower()
-            confirm_email = request.POST.get("confirm_email", "").strip().lower()
+            username = request.POST.get("username", "").strip()
             password1 = request.POST.get("password1", "")
             password2 = request.POST.get("password2", "")
             expedition_admin_type = request.POST.get("expedition_admin_type", "")
             
             # Validate
             errors = []
-            if not email:
-                errors.append("Email is required")
-            if email != confirm_email:
-                errors.append("Email addresses do not match")
+            if not username:
+                errors.append("Username is required")
             if not password1:
                 errors.append("Password is required")
             if password1 != password2:
                 errors.append("Passwords do not match")
-            if User.objects.filter(email=email).exists():
-                errors.append("A user with this email already exists")
+            if User.objects.filter(username=username).exists():
+                errors.append("A user with this username already exists")
             
             if errors:
                 for error in errors:
                     messages.error(request, error)
                 return render(request, "admin/admin_create_user.html", {
-                    "expedition_types": Profile.EXPEDITION_TYPES,
-                    "existing_admins": existing_admins
+                    "expedition_types": Profile.EXPEDITION_TYPES
                 })
             
             # Create user (or get existing)
             user, created = User.objects.get_or_create(
-                username=email,
+                username=username,
                 defaults={
-                    'email': email,
                     'password': password1,
                     'first_name': "Admin",
                     'last_name': "User",
@@ -331,12 +323,11 @@ def admin_create_user(request):
                 }
             )
 
-            messages.success(request, f"Admin User {email} created successfully")
+            messages.success(request, f"Admin User {username} created successfully")
             return redirect("users:user_approval_dashboard")
 
     return render(request, "admin/admin_create_user.html", {
-        "expedition_types": Profile.EXPEDITION_TYPES,
-        "existing_admins": existing_admins
+        "expedition_types": Profile.EXPEDITION_TYPES
     })
 
 
