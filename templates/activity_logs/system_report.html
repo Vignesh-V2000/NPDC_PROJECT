@@ -174,14 +174,14 @@
                 <input type="date" name="date_from" value="{{ date_from }}">
                 <label>To</label>
                 <input type="date" name="date_to" value="{{ date_to }}">
-                <button type="submit" class="btn rpt-btn rpt-btn-primary">
+                <button type="submit" class="rpt-btn rpt-btn-primary">
                     <i class="fas fa-filter"></i> Apply
                 </button>
-                <a href="{% url 'activity_logs:system_report' %}" class="btn rpt-btn rpt-btn-outline">
+                <a href="{% url 'activity_logs:system_report' %}" class="rpt-btn rpt-btn-outline">
                     <i class="fas fa-redo"></i> Reset
                 </a>
                 <a href="{% url 'activity_logs:system_report' %}?export=full{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
-                   class="btn rpt-btn rpt-btn-slate ms-auto">
+                   class="rpt-btn rpt-btn-slate ms-auto">
                     <i class="fas fa-file-csv"></i> Export Full Report
                 </a>
             </form>
