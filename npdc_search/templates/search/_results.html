@@ -1,127 +1,11 @@
 {% for dataset in page_obj %}
-<style>
-    /* ========= RESPONSIVE STYLES ========= */
-    @media (max-width: 1024px) {
-        .result-card {
-            card-delay: calc(var(--card-delay) * 20ms);
-        }
-        
-        .result-title {
-            font-size: 1rem;
-        }
-        
-        .result-details-row .col-md-4 {
-            max-width: 50%;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .card-body {
-            padding: 1.5rem;
-        }
-        
-        .result-scientist-badge {
-            font-size: 0.85rem;
-        }
-        
-        .result-title {
-            font-size: 0.95rem;
-        }
-        
-        .result-abstract {
-            font-size: 0.9rem;
-        }
-        
-        .result-badge {
-            font-size: 0.75rem;
-            padding: 0.35rem 0.6rem;
-        }
-        
-        .result-details-row {
-            gap: 1rem;
-        }
-        
-        .result-details-row .col-md-4 {
-            max-width: 100%;
-        }
-        
-        .result-detail-icon {
-            width: 40px;
-            height: 40px;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .result-card {
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
-        }
-        
-        .card-body {
-            padding: 1rem 0.75rem;
-        }
-        
-        .d-flex.justify-content-between {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .result-title {
-            font-size: 0.85rem;
-        }
-        
-        .result-scientist-badge {
-            font-size: 0.75rem;
-            text-align: center;
-        }
-        
-        .result-abstract-preview,
-        .result-abstract {
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-        
-        .result-badge {
-            font-size: 0.65rem;
-            padding: 0.25rem 0.4rem;
-            display: block;
-            margin-bottom: 0.35rem;
-        }
-        
-        .result-detail-block {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .result-detail-icon {
-            width: 36px;
-            height: 36px;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-        
-        .result-detail-label {
-            font-size: 0.7rem;
-        }
-        
-        .result-detail-value {
-            font-size: 0.75rem;
-        }
-        
-        .result-toggle-link {
-            font-size: 0.75rem;
-        }
-    }
-</style>
-<div class="card mb-3 result-card border-0" style="--card-delay: {{ forloop.counter0 }}">
-    <div class="result-card-accent"></div>
-    <div class="result-card-shine"></div>
-    <div class="card-body p-4">
+<div class="card mb-3 result-card">
+    <div class="card-body">
         <!-- Header: Title and Scientist Count -->
         <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="card-title mb-0 result-title">
+            <h5 class="result-title mb-0">
                 <a href="{% url 'data_submission:view_submission' dataset.metadata_id %}"
-                    class="text-decoration-none search-highlight">
+                    class="search-highlight">
                     {{ dataset.title }}
                 </a>
             </h5>
@@ -130,24 +14,24 @@
                 <i class="fas fa-users me-1"></i>{{ dataset.scientists.count }}
             </span>
         </div>
-        
+
         <!-- Metadata ID -->
         <div class="mb-2">
             <small class="text-muted">
-                <i class="fas fa-key me-1"></i>Metadata ID: <code class="bg-light px-2 py-1 rounded">{{ dataset.metadata_id }}</code>
+                <i class="fas fa-key me-1"></i>Metadata ID: <code class="result-meta-id">{{ dataset.metadata_id }}</code>
             </small>
         </div>
 
         <!-- Abstract -->
-        <div class="abstract-container mb-3">
-            <p class="card-text result-abstract mb-0 abstract-preview search-highlight">
+        <div class="mb-3">
+            <p class="result-abstract mb-0 abstract-preview search-highlight">
                 {{ dataset.abstract|truncatechars:250 }}
             </p>
             {% if dataset.abstract|length > 250 %}
             <div class="abstract-full d-none">
-                <p class="card-text result-abstract mb-0 search-highlight">{{ dataset.abstract }}</p>
+                <p class="result-abstract mb-0 search-highlight">{{ dataset.abstract }}</p>
             </div>
-            <a href="#" class="small result-toggle-link text-decoration-none" onclick="this.previousElementSibling.classList.toggle('d-none');
+            <a href="#" class="small result-toggle-link" onclick="this.previousElementSibling.classList.toggle('d-none');
                             this.previousElementSibling.previousElementSibling.classList.toggle('d-none');
                             this.textContent = this.textContent === 'Show more' ? 'Show less' : 'Show more';
                             return false;">Show more</a>
@@ -155,78 +39,50 @@
         </div>
 
         <!-- Badges Row -->
-        <div class="d-flex flex-wrap gap-2 mb-3">
+        <div class="result-badges-row mb-3">
             <span class="result-badge result-badge-expedition">
-                <i class="fas fa-compass me-1"></i>{{ dataset.get_expedition_type_display }}
+                <i class="fas fa-compass"></i> {{ dataset.get_expedition_type_display }}
             </span>
             <span class="result-badge result-badge-category">
-                <i class="fas fa-folder me-1"></i>{{ dataset.get_category_display }}
+                <i class="fas fa-folder"></i> {{ dataset.get_category_display }}
             </span>
             <span class="result-badge result-badge-year">
-                <i class="fas fa-calendar me-1"></i>{{ dataset.expedition_year }}
+                <i class="fas fa-calendar"></i> {{ dataset.expedition_year }}
             </span>
             <span class="result-badge result-badge-iso">
-                <i class="fas fa-tags me-1"></i>{{ dataset.get_iso_topic_display }}
+                <i class="fas fa-tags"></i> {{ dataset.get_iso_topic_display }}
             </span>
         </div>
 
-        <!-- 3-Column Details -->
-        <div class="row g-3 result-details-row pt-3">
-            <!-- Temporal Coverage -->
-            <div class="col-md-4">
-                <div class="result-detail-block">
-                    <div class="result-detail-icon result-detail-icon-blue">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div>
-                        <div class="result-detail-label">Temporal Coverage</div>
-                        <div class="result-detail-value">{{ dataset.temporal_start_date|date:"M d, Y" }} —</div>
-                        <div class="result-detail-value">{{ dataset.temporal_end_date|date:"M d, Y" }}</div>
-                    </div>
-                </div>
+        <!-- Details Row -->
+        <div class="row result-details-row">
+            <div class="col-md-4 mb-2 mb-md-0">
+                <div class="result-detail-label">Temporal Coverage</div>
+                <div class="result-detail-value">{{ dataset.temporal_start_date|date:"M d, Y" }} — {{ dataset.temporal_end_date|date:"M d, Y" }}</div>
             </div>
-
-            <!-- Spatial Extent -->
-            <div class="col-md-4">
-                <div class="result-detail-block">
-                    <div class="result-detail-icon result-detail-icon-green">
-                        <i class="fas fa-map-marked-alt"></i>
-                    </div>
-                    <div>
-                        <div class="result-detail-label">Spatial Extent</div>
-                        <div class="result-detail-value">{{ dataset.south_latitude }}°S to {{ dataset.north_latitude }}°N</div>
-                        <div class="result-detail-value">{{ dataset.west_longitude }}°W to {{ dataset.east_longitude }}°E</div>
-                    </div>
-                </div>
+            <div class="col-md-4 mb-2 mb-md-0">
+                <div class="result-detail-label">Spatial Extent</div>
+                <div class="result-detail-value">{{ dataset.south_latitude }}°S to {{ dataset.north_latitude }}°N</div>
+                <div class="result-detail-value">{{ dataset.west_longitude }}°W to {{ dataset.east_longitude }}°E</div>
             </div>
-
-            <!-- Status -->
             <div class="col-md-4">
-                <div class="result-detail-block">
-                    <div class="result-detail-icon result-detail-icon-purple">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div>
-                        <div class="result-detail-label">Status</div>
-                        <div class="result-detail-value">{{ dataset.get_status_display }}</div>
-                    </div>
-                </div>
+                <div class="result-detail-label">Status</div>
+                <div class="result-detail-value">{{ dataset.get_status_display }}</div>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="result-footer mt-3 pt-3 d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-3">
-                <div class="result-footer-item">
-                    <div class="result-footer-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <span>{{ dataset.submitter.get_full_name|default:dataset.submitter.username }}</span>
-                </div>
-                <div class="result-footer-item">
-                    <i class="fas fa-calendar-plus me-1 result-footer-icon"></i>
-                    <span>{{ dataset.submission_date|date:"M d, Y" }}</span>
-                </div>
+        <div class="result-footer">
+            <div class="result-footer-left">
+                <span class="result-footer-item">
+                    <i class="fas fa-user"></i>
+                    {{ dataset.submitter.get_full_name|default:dataset.submitter.username }}
+                </span>
+                <span class="result-footer-sep">·</span>
+                <span class="result-footer-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ dataset.submission_date|date:"M d, Y" }}
+                </span>
             </div>
             <a href="{% url 'data_submission:view_submission' dataset.metadata_id %}" class="result-view-btn">
                 View Details <i class="fas fa-arrow-right ms-1"></i>
@@ -235,373 +91,215 @@
     </div>
 </div>
 {% empty %}
-<div class="card border-0 shadow-sm result-empty-card">
+<div class="card result-card">
     <div class="card-body text-center py-5">
-        <div class="result-empty-icon mb-3">
-            <i class="fas fa-search"></i>
-        </div>
-        <h4 class="fw-bold text-secondary">No datasets found</h4>
-        <p class="text-muted mb-4">Try adjusting your search criteria or clearing filters</p>
-        <a href="{% url 'search:search' %}" class="btn result-reset-btn">
-            <i class="fas fa-redo me-2"></i>Reset Search
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted fw-bold">No datasets found</h5>
+        <p class="text-muted mb-3">Try adjusting your search criteria or clearing filters</p>
+        <a href="{% url 'search:search' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-redo me-1"></i>Reset Search
         </a>
     </div>
 </div>
 {% endfor %}
 
 <style>
-    /* Result Card */
+    /* ========= Simple Result Card ========= */
     .result-card {
-        position: relative;
-        overflow: hidden;
-        border-radius: 0.85rem !important;
-        border: 1px solid rgba(0, 0, 0, 0.04) !important;
         background: #ffffff;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: resultFadeIn 0.5s ease both;
-        animation-delay: calc(var(--card-delay) * 0.08s);
-    }
-
-    @keyframes resultFadeIn {
-        from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Gradient Accent Bar */
-    .result-card-accent {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6 0%, #6366f1 40%, #8b5cf6 70%, #a855f7 100%);
-        background-size: 200% 100%;
-        animation: accentShimmer 3s ease infinite;
-        transition: height 0.3s ease;
-    }
-
-    @keyframes accentShimmer {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Shine Effect on Hover */
-    .result-card-shine {
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 60%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.6s ease;
-        z-index: 1;
-        pointer-events: none;
-    }
-
-    .result-card:hover .result-card-shine {
-        left: 120%;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        transition: box-shadow 0.2s ease;
     }
 
     .result-card:hover {
-        transform: translateY(-5px);
-        box-shadow:
-            0 20px 50px rgba(59, 130, 246, 0.08),
-            0 10px 24px rgba(15, 23, 42, 0.08) !important;
-        border-color: rgba(59, 130, 246, 0.15) !important;
+        box-shadow: 0 8px 32px rgba(28, 70, 24, 0.45), 0 4px 12px rgba(28, 70, 24, 0.35) !important;
+        border-color: #3b7a33 !important;
     }
 
-    .result-card:hover .result-card-accent {
-        height: 5px;
+    .result-card .card-body {
+        padding: 1.5rem;
     }
 
     /* Title */
     .result-title {
         font-weight: 700;
-        font-size: 1.08rem;
-        line-height: 1.4;
-        position: relative;
-        z-index: 2;
+        font-size: 1.05rem;
+        line-height: 1.45;
     }
 
     .result-title a {
-        color: #0f172a;
-        transition: all 0.25s ease;
-        background: linear-gradient(transparent 92%, #bfdbfe 0);
-        background-size: 0 100%;
+        color: #1a5276;
+        text-decoration: none;
+        background-image: linear-gradient(#1a5276, #1a5276);
+        background-position: 0% 100%;
         background-repeat: no-repeat;
+        background-size: 0% 2px;
+        transition: background-size 0.35s ease;
+        padding-bottom: 2px;
+    }
+
+    .result-card:hover .result-title a {
+        background-size: 100% 2px;
     }
 
     .result-title a:hover {
-        color: #1d4ed8;
-        background-size: 100% 100%;
+        color: #0d3b5e;
+    }
+
+    /* Metadata ID */
+    .result-meta-id {
+        font-size: 0.75rem;
+        color: #ef5350;
+        background: #fef2f2;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-family: 'SFMono-Regular', Consolas, monospace;
     }
 
     /* Scientist Badge */
     .result-scientist-badge {
         display: inline-flex;
         align-items: center;
-        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
         color: #059669;
-        font-size: 0.78rem;
-        font-weight: 700;
-        padding: 0.35rem 0.75rem;
-        border-radius: 2rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        padding: 0.3rem 0.6rem;
+        background: #ecfdf5;
+        border-radius: 1rem;
         border: 1px solid #a7f3d0;
         white-space: nowrap;
         flex-shrink: 0;
-        position: relative;
-        z-index: 2;
-        transition: all 0.2s ease;
-    }
-
-    .result-card:hover .result-scientist-badge {
-        transform: scale(1.05);
-        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.15);
     }
 
     /* Abstract */
     .result-abstract {
-        color: #64748b;
+        color: #4b5563;
         font-size: 0.9rem;
-        line-height: 1.7;
-        position: relative;
-        z-index: 2;
+        line-height: 1.65;
     }
 
     .result-toggle-link {
-        color: #3b82f6;
-        font-weight: 700;
-        transition: color 0.2s;
-        position: relative;
-        z-index: 2;
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
     }
 
     .result-toggle-link:hover {
-        color: #1d4ed8;
+        text-decoration: underline;
     }
 
     /* Badges */
+    .result-badges-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
     .result-badge {
         display: inline-flex;
         align-items: center;
-        font-size: 0.73rem;
-        font-weight: 700;
-        padding: 0.32rem 0.75rem;
-        border-radius: 0.4rem;
-        letter-spacing: 0.2px;
-        transition: all 0.2s ease;
-        position: relative;
-        z-index: 2;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.35rem 0.85rem;
+        border-radius: 0.25rem;
+        color: #ffffff;
     }
 
-    .result-badge:hover {
-        transform: translateY(-1px);
-    }
+    .result-badge-expedition { background: #548b47; }
+    .result-badge-category { background: #0f85b9; }
+    .result-badge-year { background: #155c68; }
+    .result-badge-iso { background: #0f85b9; }
 
-    .result-badge-expedition {
-        background: linear-gradient(135deg, #eff6ff, #dbeafe);
-        color: #1d4ed8;
-        border: 1px solid #bfdbfe;
-    }
-
-    .result-badge-expedition:hover {
-        box-shadow: 0 3px 8px rgba(29, 78, 216, 0.12);
-    }
-
-    .result-badge-category {
-        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-        color: #475569;
-        border: 1px solid #e2e8f0;
-    }
-
-    .result-badge-category:hover {
-        box-shadow: 0 3px 8px rgba(71, 85, 105, 0.1);
-    }
-
-    .result-badge-year {
-        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-        color: #059669;
-        border: 1px solid #a7f3d0;
-    }
-
-    .result-badge-year:hover {
-        box-shadow: 0 3px 8px rgba(5, 150, 105, 0.12);
-    }
-
-    .result-badge-iso {
-        background: linear-gradient(135deg, #fefce8, #fef9c3);
-        color: #a16207;
-        border: 1px solid #fde68a;
-    }
-
-    .result-badge-iso:hover {
-        box-shadow: 0 3px 8px rgba(161, 98, 7, 0.1);
-    }
-
-    /* Detail Blocks */
+    /* Details Row */
     .result-details-row {
-        border-top: 1px solid #f1f5f9;
-        position: relative;
-        z-index: 2;
-    }
-
-    .result-detail-block {
-        display: flex;
-        gap: 0.75rem;
-        align-items: flex-start;
-    }
-
-    .result-detail-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 0.6rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-        margin-top: 2px;
-        transition: transform 0.2s ease;
-    }
-
-    .result-card:hover .result-detail-icon {
-        transform: scale(1.08);
-    }
-
-    .result-detail-icon-blue {
-        background: linear-gradient(135deg, #eff6ff, #dbeafe);
-        color: #3b82f6;
-        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.12);
-    }
-
-    .result-detail-icon-green {
-        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-        color: #10b981;
-        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12);
-    }
-
-    .result-detail-icon-purple {
-        background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-        color: #8b5cf6;
-        box-shadow: 0 2px 6px rgba(139, 92, 246, 0.12);
+        border-top: 1px solid #f3f4f6;
+        padding-top: 1rem;
+        margin-top: 0.25rem;
     }
 
     .result-detail-label {
         font-size: 0.7rem;
         font-weight: 700;
-        color: #94a3b8;
+        color: #9ca3af;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
     }
 
     .result-detail-value {
         font-size: 0.85rem;
-        color: #334155;
-        font-weight: 500;
+        color: #374151;
+        line-height: 1.5;
     }
 
     /* Footer */
     .result-footer {
-        border-top: 1px solid #f1f5f9;
-        position: relative;
-        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid #f3f4f6;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .result-footer-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
     .result-footer-item {
-        display: flex;
-        align-items: center;
-        font-size: 0.85rem;
-        color: #475569;
-        font-weight: 600;
-    }
-
-    .result-footer-avatar {
-        width: 26px;
-        height: 26px;
-        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-        color: #3b82f6;
-        border-radius: 50%;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        font-size: 0.65rem;
-        margin-right: 0.5rem;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        color: #6b7280;
     }
 
-    .result-footer-icon {
-        color: #64748b;
+    .result-footer-item i {
+        color: #9ca3af;
+        font-size: 0.8rem;
+    }
+
+    .result-footer-sep {
+        color: #d1d5db;
+        font-weight: 700;
     }
 
     .result-view-btn {
         display: inline-flex;
         align-items: center;
         font-size: 0.82rem;
-        font-weight: 700;
+        font-weight: 600;
         color: #ffffff;
         text-decoration: none;
-        padding: 0.45rem 1.1rem;
-        border-radius: 0.5rem;
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        border: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+        padding: 0.4rem 1rem;
+        border-radius: 0.4rem;
+        background: #2563eb;
+        transition: background 0.2s ease;
     }
 
     .result-view-btn:hover {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        background: #1d4ed8;
         color: #ffffff;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
     }
 
-    .result-view-btn i {
-        transition: transform 0.25s ease;
-        display: inline-block;
+    /* ========= Responsive ========= */
+    @media (max-width: 768px) {
+        .result-card .card-body { padding: 1.25rem; }
+        .result-title { font-size: 0.95rem; }
+        .result-badge { font-size: 0.72rem; padding: 0.3rem 0.65rem; }
+        .result-footer { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
     }
 
-    .result-card:hover .result-view-btn i {
-        transform: translateX(4px);
-    }
-
-    /* Empty State */
-    .result-empty-card {
-        border-radius: 0.85rem !important;
-    }
-
-    .result-empty-icon {
-        width: 88px;
-        height: 88px;
-        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-        color: #94a3b8;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.2rem;
-        animation: emptyPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes emptyPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
-    .result-reset-btn {
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        color: #ffffff;
-        font-weight: 700;
-        padding: 0.6rem 1.5rem;
-        border-radius: 0.5rem;
-        border: none;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-    }
-
-    .result-reset-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-        color: #ffffff;
+    @media (max-width: 480px) {
+        .result-card .card-body { padding: 1rem; }
+        .result-title { font-size: 0.88rem; }
+        .result-badge { font-size: 0.65rem; padding: 0.25rem 0.5rem; }
+        .result-detail-value { font-size: 0.8rem; }
+        .result-footer-item { font-size: 0.8rem; }
     }
 </style>

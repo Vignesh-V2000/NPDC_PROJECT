@@ -89,7 +89,7 @@
         <div class="d-flex justify-content-between align-items-start mb-2">
             <h5 class="card-title mb-0 fw-bold">
                 <a href="{% url 'data_submission:view_submission' dataset.metadata_id %}"
-                    class="text-decoration-none text-primary search-highlight">
+                    class="search-highlight" style="color: #205090; text-decoration: underline;">
                     {{ dataset.title }}
                 </a>
             </h5>
@@ -117,16 +117,16 @@
 
         <!-- Badges Row -->
         <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="badge bg-primary rounded-pill">
+            <span class="badge" style="background-color: #548b47; color: #ffffff; border-radius: 0.25rem;">
                 <i class="fas fa-globe-americas me-1"></i>{{ dataset.get_expedition_type_display }}
             </span>
-            <span class="badge bg-secondary rounded-pill" style="background-color: #6c757d !important;">
+            <span class="badge" style="background-color: #0f85b9; color: #ffffff; border-radius: 0.25rem;">
                 <i class="fas fa-folder me-1"></i>{{ dataset.get_category_display }}
             </span>
-            <span class="badge bg-info text-dark rounded-pill" style="background-color: #0dcaf0 !important;">
+            <span class="badge" style="background-color: #155c68; color: #ffffff; border-radius: 0.25rem;">
                 <i class="fas fa-calendar me-1"></i>{{ dataset.expedition_year }}
             </span>
-            <span class="badge bg-light text-dark border rounded-pill">
+            <span class="badge" style="background-color: #0f85b9; color: #ffffff; border-radius: 0.25rem;">
                 <i class="fas fa-tags me-1"></i>{{ dataset.get_iso_topic_display }}
             </span>
         </div>
