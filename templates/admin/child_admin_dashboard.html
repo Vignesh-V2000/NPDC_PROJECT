@@ -6,7 +6,7 @@
 {% block container_wrapper_end %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 admin-content-wrapper">
     <div class="row">
         <!-- Admin Sidebar -->
         <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
@@ -19,8 +19,8 @@
             <div class="dashboard-header mb-5">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h1 class="display-6 fw-bold mb-3">Dashboard</h1>
-                        <p class="text-secondary mb-0">
+                        <h1 class="display-6 fw-bold mb-3 text-white">Dashboard</h1>
+                        <p class="text-white-50 mb-0">
                             Overview of your expedition's dataset submissions
                         </p>
                     </div>
@@ -87,7 +87,7 @@
             <!-- Review Action -->
             <div class="mb-5">
                 <div
-                    class="action-card d-flex align-items-center justify-content-between p-4 bg-white rounded shadow-sm border">
+                    class="action-card d-flex align-items-center justify-content-between p-4 bg-white rounded shadow-sm" style="border: 1px solid #9ca3af;">
                     <div class="d-flex align-items-center gap-3">
                         <div class="action-icon bg-light text-primary rounded p-3">
                             <i class="fas fa-clipboard-check fa-2x"></i>
@@ -105,12 +105,12 @@
             </div>
 
             <!-- Recent Activity -->
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0" style="border: 1px solid #9ca3af !important;">
                 <div class="card-header bg-white py-3 border-bottom">
                     <h5 class="mb-0" style="color: #E8734A;">Recent Activity</h5>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0" style="border: 1px solid #9ca3af;">
                         <thead class="bg-light">
                             <tr>
                                 <th class="ps-4">Dataset</th>
@@ -164,8 +164,11 @@
 <style>
     /* Reuse styles from main dashboard simply */
     .dashboard-header {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 2rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        border-radius: 1rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     }
 
     .stat-card {
@@ -173,7 +176,7 @@
         border-radius: 8px;
         padding: 1.5rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border: 1px solid #eee;
+        border: 1px solid #9ca3af;
         display: flex;
         align-items: center;
         gap: 1rem;

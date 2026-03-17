@@ -3,7 +3,7 @@
 {% block title %}Admin Dashboard - NPDC{% endblock %}
 
 {% block container_wrapper %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 admin-content-wrapper">
 {% endblock container_wrapper %}
 
 {% block content %}
@@ -20,8 +20,8 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
 
-                        <h1 class="display-6 fw-bold mb-3 text-dark" style="color: var(--text-dark) !important;">Administration Dashboard</h1>
-                        <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">
+                        <h1 class="display-6 fw-bold mb-3 text-white">Administration Dashboard</h1>
+                        <p class="mb-0 text-white-50" style="font-weight: 500;">
                             Monitor system activity and manage data submissions
                         </p>
                     </div>
@@ -330,7 +330,7 @@
     :root {
         --dash-bg: #f8fafc;
         --card-bg: rgba(255, 255, 255, 0.9);
-        --card-border: rgba(255, 255, 255, 0.5);
+        --card-border: #9ca3af;
         --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); /* Softer, broader shadow */
         --glass-shadow-hover: 0 15px 50px rgba(0, 136, 204, 0.2);
         --text-dark: #1e293b;
@@ -354,13 +354,13 @@
     /* Dashboard Header */
     .dashboard-header {
         padding: 2.5rem 2rem;
-        background: linear-gradient(120deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
         background-size: 200% 200%;
         animation: gradientMesh 12s ease infinite;
         border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         margin-bottom: 2.5rem;
-        border: 1px solid rgba(255,255,255,0.8);
+        border: 1px solid rgba(255,255,255,0.1);
         position: relative;
         overflow: hidden;
     }
@@ -605,6 +605,7 @@
     /* Table Styling */
     .table {
         margin-bottom: 0;
+        border: 1px solid #9ca3af;
     }
 
     .compact-table th {

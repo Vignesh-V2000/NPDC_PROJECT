@@ -7,7 +7,7 @@
 {% block container_wrapper_end %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 admin-content-wrapper">
     <div class="row">
         <!-- Admin Sidebar -->
         <div class="col-xl-2 col-lg-3 mb-4 mb-lg-0">
@@ -104,7 +104,7 @@
                 /* Table */
                 .syslog-table-card {
                     border-radius: 0.85rem;
-                    border: 1px solid rgba(0,0,0,0.04);
+                    border: 1px solid #9ca3af;
                     box-shadow: 0 8px 32px rgba(15,23,42,0.07);
                     overflow: hidden;
                 }
@@ -112,7 +112,10 @@
                     max-height: 650px;
                     overflow-y: auto;
                 }
-                .syslog-table { margin-bottom: 0; }
+                .syslog-table {
+                    margin-bottom: 0;
+                    border: 1px solid #9ca3af;
+                }
                 .syslog-table thead th {
                     position: sticky;
                     top: 0;
