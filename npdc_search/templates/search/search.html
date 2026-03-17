@@ -1215,7 +1215,7 @@
 <div class="container-fluid py-4">
 
     <div class="row">
-        <div class="col-lg-3 col-md-4">
+        <div class="col-lg-3 col-md-5">
             <div class="card border-0 shadow-sm mb-3 filter-card">
                 <div class="card-header filter-panel-header py-2">
                     <h6 class="mb-0"><i class="fas fa-filter me-1"></i>Filters</h6>
@@ -1233,7 +1233,7 @@
                                     <input class="form-check-input filter-radio" type="radio" name="filter"
                                         value="expedition:{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="exp_{{ opt.value }}">
-                                        {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
+                                        {{ opt.label }}<span class="facet-count text-muted" data-facet="expedition"
                                             data-value="{{ opt.value }}">({{ opt.count }})</span>
                                     </label>
                                 </div>
@@ -1248,7 +1248,7 @@
                                         <input class="form-check-input filter-radio" type="radio" name="filter"
                                             value="expedition:{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                         <label class="form-check-label small" for="exp_{{ opt.value }}">
-                                            {{ opt.label }} <span class="facet-count text-muted" data-facet="expedition"
+                                            {{ opt.label }}<span class="facet-count text-muted" data-facet="expedition"
                                                 data-value="{{ opt.value }}">({{ opt.count }})</span>
                                         </label>
                                     </div>
@@ -1274,7 +1274,7 @@
                                 <input class="form-check-input filter-radio" type="radio" name="filter"
                                     value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="cat_{{ opt.value }}">
-                                    {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
+                                    {{ opt.label }}<span class="facet-count text-muted" data-facet="category"
                                         data-value="{{ opt.value }}">({{ opt.count }})</span>
                                 </label>
                             </div>
@@ -1289,7 +1289,7 @@
                                     <input class="form-check-input filter-radio" type="radio" name="filter"
                                         value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="cat_{{ opt.value }}">
-                                        {{ opt.label }} <span class="facet-count text-muted" data-facet="category"
+                                        {{ opt.label }}<span class="facet-count text-muted" data-facet="category"
                                             data-value="{{ opt.value }}">({{ opt.count }})</span>
                                     </label>
                                 </div>
@@ -1315,7 +1315,7 @@
                             <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                 id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="iso_{{ opt.value }}">
-                                {{ opt.label }} <span class="facet-count text-muted" data-facet="iso"
+                                {{ opt.label }}<span class="facet-count text-muted" data-facet="iso"
                                     data-value="{{ opt.value }}">({{ opt.count }})</span>
                             </label>
                         </div>
@@ -1330,7 +1330,7 @@
                                 <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                     id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
-                                    {{ opt.label }} <span class="facet-count" data-facet="iso"
+                                    {{ opt.label }}<span class="facet-count" data-facet="iso"
                                         data-value="{{ opt.value }}">({{ opt.count }})</span>
                                 </label>
                             </div>
@@ -1372,7 +1372,7 @@
                         <input class="form-check-input filter-radio" type="radio" name="filter" value="keyword:{{ opt.value }}"
                             id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                         <label class="form-check-label small" for="kw_{{ opt.value }}">
-                            {{ opt.label }} <span class="facet-count" data-facet="keyword"
+                            {{ opt.label }}<span class="facet-count" data-facet="keyword"
                                 data-value="{{ opt.value }}">({{ opt.count }})</span>
                         </label>
                     </div>
@@ -1387,7 +1387,7 @@
                             <input class="form-check-input filter-radio" type="radio" name="filter" value="keyword:{{ opt.value }}"
                                 id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="kw_{{ opt.value }}">
-                                {{ opt.label }} <span class="facet-count" data-facet="keyword"
+                                {{ opt.label }}<span class="facet-count" data-facet="keyword"
                                     data-value="{{ opt.value }}">({{ opt.count }})</span>
                             </label>
                         </div>
@@ -1433,7 +1433,7 @@
 </div>
 </div>
 </div>
-<div class="col-lg-9 col-md-8">
+<div class="col-lg-8 col-md-7">
     <!-- Leaflet Map -->
     <div id="datasetMap" style="height: 350px; width: 100%; z-index: 0;" class="mb-3 rounded border shadow-sm">
     </div>
