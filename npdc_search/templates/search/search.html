@@ -208,7 +208,19 @@
         cursor: pointer;
         font-weight: 500;
         white-space: normal;
-        word-break: break-word;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+
+    /* Specific label spacing for long ISO topic values */
+    .gap-label {
+        word-spacing: 0.35em;
+        word-break: normal;
+        overflow-wrap: normal;
+    }
+    .gap-label .slash {
+        display: inline-block;
+        margin: 0 0.25rem;
     }
 
     .filter-group .form-check:hover .form-check-label {
@@ -1317,8 +1329,13 @@
                             <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                 id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="iso_{{ opt.value }}">
-                                {{ opt.label }}<span class="facet-count text-muted" data-facet="iso"
-                                    data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                {% if opt.label == "Climatology/Meteorology/Atmosphere" %}
+                                    <span class="gap-label">Climatology/<span class='slash'> </span>Meteorology/<span class='slash'> </span>Atmosphere</span><span class="facet-count text-muted" data-facet="iso"
+                                        data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                {% else %}
+                                    {{ opt.label }}<span class="facet-count text-muted" data-facet="iso"
+                                        data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                {% endif %}
                             </label>
                         </div>
                     {% endif %}
@@ -1332,8 +1349,13 @@
                                 <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                     id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
-                                    {{ opt.label }}<span class="facet-count" data-facet="iso"
-                                        data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                    {% if opt.label == "Climatology/Meteorology/Atmosphere" %}
+                                        <span class="gap-label">Climatology/<span class='slash'> </span>Meteorology/<span class='slash'> </span>Atmosphere</span><span class="facet-count" data-facet="iso"
+                                            data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                    {% else %}
+                                        {{ opt.label }}<span class="facet-count" data-facet="iso"
+                                            data-value="{{ opt.value }}">({{ opt.count }})</span>
+                                    {% endif %}
                                 </label>
                             </div>
                         {% endif %}
