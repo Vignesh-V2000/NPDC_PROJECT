@@ -1243,7 +1243,7 @@
                         </h6>
                         {% for opt in expedition_options %}
                             {% if forloop.counter <= 5 %}
-                                <div class="form-check {% if opt.count == 0 and opt.value not in expedition_selected %}d-none{% endif %} {% if opt.count == 0 and opt.value not in expedition_selected %}d-none{% endif %}">
+                                <div class="form-check {% if opt.count|default:0 == 0 and opt.value not in expedition_selected %}d-none{% endif %}">
                                     <input class="form-check-input filter-radio" type="radio" name="filter"
                                         value="expedition:{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="exp_{{ opt.value }}">
@@ -1284,7 +1284,7 @@
                     </h6>
                     {% for opt in category_options %}
                         {% if forloop.counter <= 5 %}
-                            <div class="form-check {% if opt.count == 0 and opt.value not in category_selected %}d-none{% endif %}">
+                            <div class="form-check {% if opt.count|default:0 == 0 and opt.value not in category_selected %}d-none{% endif %}">
                                 <input class="form-check-input filter-radio" type="radio" name="filter"
                                     value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="cat_{{ opt.value }}">
@@ -1299,7 +1299,7 @@
                     <div class="collapse" id="collapse_category">
                         {% for opt in category_options %}
                             {% if forloop.counter > 5 %}
-                                <div class="form-check {% if opt.count == 0 and opt.value not in category_selected %}d-none{% endif %}">
+                                <div class="form-check {% if opt.count|default:0 == 0 and opt.value not in category_selected %}d-none{% endif %}">
                                     <input class="form-check-input filter-radio" type="radio" name="filter"
                                         value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="cat_{{ opt.value }}">
