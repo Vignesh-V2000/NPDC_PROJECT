@@ -48,13 +48,13 @@
                 <li class="nav-item">
                     <a class="nav-link color-pink fw-semibold {% if request.resolver_match.url_name == 'admin_create_user' %}active{% endif %}"
                         href="{% url 'users:admin_create_user' %}">
-                        <i class="fas fa-fw fa-user-shield me-3 icon-fixed"></i>Create Admin
+                        <i class="fas fa-fw fa-user-shield me-3 icon-fixed"></i>Create User
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link color-slate fw-semibold {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}"
                         href="{% url 'activity_logs:system_logs' %}">
-                        <i class="fas fa-fw fa-server me-3 icon-fixed"></i>System Log
+                        <i class="fas fa-fw fa-server me-3 icon-fixed"></i>User Log
                     </a>
                 </li>
                 <li class="nav-item">

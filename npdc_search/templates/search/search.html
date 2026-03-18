@@ -1229,7 +1229,7 @@
                         </h6>
                         {% for opt in expedition_options %}
                             {% if forloop.counter <= 5 %}
-                                <div class="form-check">
+                                <div class="form-check {% if opt.count == 0 and opt.value not in expedition_selected %}d-none{% endif %} {% if opt.count == 0 and opt.value not in expedition_selected %}d-none{% endif %}">
                                     <input class="form-check-input filter-radio" type="radio" name="filter"
                                         value="expedition:{{ opt.value }}" id="exp_{{ opt.value }}" {% if opt.value in expedition_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="exp_{{ opt.value }}">
@@ -1270,7 +1270,7 @@
                     </h6>
                     {% for opt in category_options %}
                         {% if forloop.counter <= 5 %}
-                            <div class="form-check">
+                            <div class="form-check {% if opt.count == 0 and opt.value not in category_selected %}d-none{% endif %}">
                                 <input class="form-check-input filter-radio" type="radio" name="filter"
                                     value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="cat_{{ opt.value }}">
@@ -1285,7 +1285,7 @@
                     <div class="collapse" id="collapse_category">
                         {% for opt in category_options %}
                             {% if forloop.counter > 5 %}
-                                <div class="form-check">
+                                <div class="form-check {% if opt.count == 0 and opt.value not in category_selected %}d-none{% endif %}">
                                     <input class="form-check-input filter-radio" type="radio" name="filter"
                                         value="category:{{ opt.value }}" id="cat_{{ opt.value }}" {% if opt.value in category_selected %}checked{% endif %}>
                                     <label class="form-check-label small" for="cat_{{ opt.value }}">
@@ -1326,7 +1326,7 @@
                 <div class="collapse" id="collapse_iso">
                     {% for opt in iso_options %}
                         {% if forloop.counter > 5 %}
-                            <div class="form-check">
+                            <div class="form-check {% if opt.count == 0 and opt.value not in iso_selected %}d-none{% endif %}">
                                 <input class="form-check-input filter-radio" type="radio" name="filter" value="iso:{{ opt.value }}"
                                     id="iso_{{ opt.value }}" {% if opt.value in iso_selected %}checked{% endif %}>
                                 <label class="form-check-label small" for="iso_{{ opt.value }}">
@@ -1353,7 +1353,7 @@
             <select class="form-select form-select-sm filter-control" id="filterYear" name="year">
                 <option value="">All Years</option>
                 {% for opt in year_options %}
-                <option value="{{ opt.value }}" {% if opt.value in year_selected %}selected{% endif %}>
+                <option value="{{ opt.value }}" {% if opt.value in year_selected %}selected{% endif %} {% if opt.count == 0 and opt.value not in year_selected %}hidden{% endif %}>
                     {{ opt.label }}
                     <span class="facet-count" data-facet="year" data-value="{{ opt.value }}">({{ opt.count }})</span>
                 </option>
@@ -1368,7 +1368,7 @@
             </h6>
             {% for opt in keyword_options %}
                 {% if forloop.counter <= 5 %}
-                    <div class="form-check">
+                    <div class="form-check {% if opt.count == 0 and opt.value not in keyword_selected %}d-none{% endif %}">
                         <input class="form-check-input filter-radio" type="radio" name="filter" value="keyword:{{ opt.value }}"
                             id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                         <label class="form-check-label small" for="kw_{{ opt.value }}">
@@ -1383,7 +1383,7 @@
             <div class="collapse" id="collapse_keyword">
                 {% for opt in keyword_options %}
                     {% if forloop.counter > 5 %}
-                        <div class="form-check">
+                        <div class="form-check {% if opt.count == 0 and opt.value not in keyword_selected %}d-none{% endif %}">
                             <input class="form-check-input filter-radio" type="radio" name="filter" value="keyword:{{ opt.value }}"
                                 id="kw_{{ opt.value }}" {% if opt.value in keyword_selected %}checked{% endif %}>
                             <label class="form-check-label small" for="kw_{{ opt.value }}">
@@ -1766,12 +1766,47 @@
     }
 
     function updateFacets(facets) {
-        document.querySelectorAll('.facet-count').forEach(el => el.textContent = '(0)');
+        // Set all facet counts to 0 and hide those with zero results (unless currently selected)
+        document.querySelectorAll('.facet-count').forEach(el => {
+            el.textContent = '(0)';
+            const formCheck = el.closest('.form-check');
+            if (formCheck) {
+                const input = formCheck.querySelector('input');
+                if (!input || !input.checked) formCheck.classList.add('d-none');
+                else formCheck.classList.remove('d-none');
+            }
+            const option = el.closest('option');
+            if (option) {
+                if (!option.selected) option.hidden = true;
+            }
+        });
+
         ['expedition', 'category', 'iso', 'year', 'keyword'].forEach(facetType => {
             if (facets[facetType]) {
                 Object.entries(facets[facetType]).forEach(([val, count]) => {
                     const el = document.querySelector(`.facet-count[data-facet="${facetType}"][data-value="${val}"]`);
-                    if (el) el.textContent = `(${count})`;
+                    if (!el) return;
+                    el.textContent = `(${count})`;
+
+                    const formCheck = el.closest('.form-check');
+                    if (formCheck) {
+                        const input = formCheck.querySelector('input');
+                        const isSelected = input ? input.checked : false;
+                        if (count <= 0 && !isSelected) {
+                            formCheck.classList.add('d-none');
+                        } else {
+                            formCheck.classList.remove('d-none');
+                        }
+                    }
+
+                    const option = el.closest('option');
+                    if (option) {
+                        if (count <= 0 && !option.selected) {
+                            option.hidden = true;
+                        } else {
+                            option.hidden = false;
+                        }
+                    }
                 });
             }
         });
