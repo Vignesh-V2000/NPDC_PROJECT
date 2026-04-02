@@ -5,11 +5,12 @@ from django.db.models import Q, Count, Sum, Avg
 from datetime import datetime, timedelta
 from django.utils import timezone
 import csv
-from .models import ActivityLog
+from .models import ActivityLog, SiteHit
 from django.contrib.auth.models import User
 from data_submission.models import DatasetSubmission, DatasetRequest
 from django.views import View
 from django.shortcuts import render
+
 
 class SystemLogListView(UserPassesTestMixin, ListView):
     model = ActivityLog
@@ -22,6 +23,9 @@ class SystemLogListView(UserPassesTestMixin, ListView):
     
     def get_queryset(self):
         queryset = ActivityLog.objects.all().order_by('-action_time')
+        
+        # Exclude site hits (anonymous ACCESS events) from user activity logs
+        queryset = queryset.exclude(actor__isnull=True, action_type='ACCESS')
         
         # Filter by action type
         action_type = self.request.GET.get('action_type', '')
@@ -59,11 +63,13 @@ class SystemLogListView(UserPassesTestMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['page_title'] = 'User Activity Logs'
+        context['is_site_hits'] = False
         # Get unique action types for filter dropdown
         context['action_types'] = ActivityLog.objects.values_list('action_type', flat=True).distinct().order_by('action_type')
         # Get action type display
         context['action_type_choices'] = ActivityLog._meta.get_field('action_type').choices
-        # Get unique users for filter dropdown
+        # Get unique users for filter dropdown (excluding anonymous)
         from django.contrib.auth.models import User
         context['users'] = User.objects.filter(is_staff=True).order_by('username')
         
@@ -73,6 +79,27 @@ class SystemLogListView(UserPassesTestMixin, ListView):
         context['date_from'] = self.request.GET.get('date_from', '')
         context['date_to'] = self.request.GET.get('date_to', '')
         
+        return context
+
+
+class SiteHitListView(UserPassesTestMixin, ListView):
+    model = SiteHit
+    template_name = 'activity_logs/system_log.html'
+    context_object_name = 'logs'
+    paginate_by = 50
+
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
+    def get_queryset(self):
+        return SiteHit.objects.all().order_by('-action_time')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Site Hit Logs'
+        context['is_site_hits'] = True
+        context['date_from'] = self.request.GET.get('date_from', '')
+        context['date_to'] = self.request.GET.get('date_to', '')
         return context
     
     def get(self, request, *args, **kwargs):

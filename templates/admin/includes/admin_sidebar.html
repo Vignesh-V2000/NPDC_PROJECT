@@ -58,6 +58,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link color-cyan fw-semibold {% if request.resolver_match.url_name == 'site_hits' %}active{% endif %}"
+                        href="{% url 'activity_logs:site_hits' %}">
+                        <i class="fas fa-fw fa-chart-area me-3 icon-fixed"></i>Site Hits
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link color-green fw-semibold {% if request.resolver_match.url_name == 'system_report' %}active{% endif %}"
                         href="{% url 'activity_logs:system_report' %}">
                         <i class="fas fa-fw fa-chart-line me-3 icon-fixed"></i>System Report
@@ -169,6 +175,7 @@
     .color-purple { --theme-color: #a78bfa; --theme-bg: rgba(139, 92, 246, 0.15); --theme-glass: rgba(139, 92, 246, 0.1); }
     .color-orange { --theme-color: #fb923c; --theme-bg: rgba(249, 115, 22, 0.15); --theme-glass: rgba(249, 115, 22, 0.1); }
     .color-teal { --theme-color: #2dd4bf; --theme-bg: rgba(20, 184, 166, 0.15); --theme-glass: rgba(20, 184, 166, 0.1); }
+    .color-cyan { --theme-color: #06b6d4; --theme-bg: rgba(6, 182, 212, 0.15); --theme-glass: rgba(6, 182, 212, 0.1); }
     .color-indigo { --theme-color: #818cf8; --theme-bg: rgba(99, 102, 241, 0.15); --theme-glass: rgba(99, 102, 241, 0.1); }
     .color-pink { --theme-color: #f472b6; --theme-bg: rgba(236, 72, 153, 0.15); --theme-glass: rgba(236, 72, 153, 0.1); }
     .color-slate { --theme-color: #cbd5e1; --theme-bg: rgba(148, 163, 184, 0.15); --theme-glass: rgba(148, 163, 184, 0.1); }

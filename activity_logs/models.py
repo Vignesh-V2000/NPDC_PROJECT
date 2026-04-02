@@ -27,6 +27,8 @@ class ActivityLog(models.Model):
     remarks = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='SUCCESS')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     entity_name = models.CharField(max_length=100, blank=True, null=True)
     path = models.CharField(max_length=255, blank=True, null=True)
 
@@ -38,3 +40,16 @@ class ActivityLog(models.Model):
     def __str__(self):
         actor_name = self.actor.username if self.actor else 'anonymous user'
         return f"{self.action_type} by {actor_name} at {self.action_time}"
+
+
+class SiteHitManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(actor__isnull=True, action_type='ACCESS')
+
+class SiteHit(ActivityLog):
+    objects = SiteHitManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = _('Site Hit')
+        verbose_name_plural = _('Site Hits')

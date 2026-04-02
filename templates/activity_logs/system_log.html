@@ -572,9 +572,9 @@
 
                 <div class="text-center mb-3">
                     <h3 class="syslog-hero-title">
-                        <i class="fas fa-server me-2 syslog-hero-title-icon"></i>User Activity Logs
+                        <i class="fas fa-server me-2 syslog-hero-title-icon"></i>{{ page_title|default:'User Activity Logs' }}
                     </h3>
-                    <p class="syslog-hero-sub">Monitor all system activities, user actions, and security events</p>
+                    <p class="syslog-hero-sub">{% if page_title == 'Site Hit Logs' %}Monitor anonymous visitor site access events{% else %}Monitor all system activities, user actions, and security events{% endif %}</p>
                 </div>
 
                 <div class="d-flex justify-content-center">
@@ -590,6 +590,7 @@
                 <!-- Filter Bar -->
                 <div class="card-header bg-light p-3" style="border-bottom: 1px solid #e2e8f0;">
                     <div class="row g-2 align-items-end">
+                        {% if not is_site_hits %}
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted mb-1">Action Type</label>
                             <select class="form-select form-select-sm" name="action_type" id="filterAction" onchange="applyFilters()">
@@ -599,6 +600,7 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        {% endif %}
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted mb-1">From Date</label>
                             <input type="date" class="form-control form-control-sm" id="filterDateFrom" value="{{ date_from }}" onchange="applyFilters()">
@@ -607,16 +609,17 @@
                             <label class="form-label small fw-bold text-muted mb-1">To Date</label>
                             <input type="date" class="form-control form-control-sm" id="filterDateTo" value="{{ date_to }}" onchange="applyFilters()">
                         </div>
+                        {% if not is_site_hits %}
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted mb-1">User</label>
                             <select class="form-select form-select-sm" id="filterUser" onchange="applyFilters()">
                                 <option value="">All Users</option>
-                                <option value="anonymous" {% if selected_user == 'anonymous' %}selected{% endif %}>anonymous user</option>
                                 {% for user in users %}
                                     <option value="{{ user.id }}" {% if selected_user|stringformat:'s' == user.id|stringformat:'s' %}selected{% endif %}>{{ user.username }}</option>
                                 {% endfor %}
                             </select>
                         </div>
+                        {% endif %}
                         <div class="col-md-3 d-flex flex-column flex-sm-row gap-2 mt-3 mt-md-0">
                             <button class="btn btn-sm btn-outline-secondary w-100 w-sm-auto flex-grow-1 text-nowrap" style="height: 1.8125rem !important;" onclick="clearFilters()">
                                 <i class="fas fa-refresh me-1"></i>Clear
@@ -634,10 +637,16 @@
                             <thead>
                                 <tr>
                                     <th><i class="fas fa-clock me-1" style="color: #60a5fa;"></i>Time</th>
+                                    {% if not is_site_hits %}
                                     <th><i class="fas fa-user me-1" style="color: #a78bfa;"></i>User</th>
                                     <th><i class="fas fa-bolt me-1" style="color: #fbbf24;"></i>Action</th>
                                     <th><i class="fas fa-cube me-1" style="color: #34d399;"></i>Entity</th>
+                                    {% endif %}
                                     <th><i class="fas fa-network-wired me-1" style="color: #f472b6;"></i>IP</th>
+                                    {% if is_site_hits %}
+                                    <th><i class="fas fa-globe me-1" style="color: #06b6d4;"></i>Country</th>
+                                    <th><i class="fas fa-map-marker me-1" style="color: #06b6d4;"></i>Location</th>
+                                    {% endif %}
                                     <th><i class="fas fa-flag me-1" style="color: #fb923c;"></i>Status</th>
                                     <th><i class="fas fa-info-circle me-1" style="color: #94a3b8;"></i>Details</th>
                                 </tr>
@@ -649,6 +658,7 @@
                                         <span class="sl-time-text">{{ log.action_time|timezone:"Asia/Kolkata"|date:"M d, Y" }}</span>
                                         <div class="text-muted" style="font-size: 0.72rem;">{{ log.action_time|timezone:"Asia/Kolkata"|date:"H:i:s" }}</div>
                                     </td>
+                                    {% if not is_site_hits %}
                                     <td>
                                         {% if log.actor %}
                                         <span class="sl-user-badge sl-user-known">
@@ -673,11 +683,20 @@
                                         </span>
                                     </td>
                                     <td>{{ log.entity_name|default:"—" }}</td>
+                                    {% endif %}
                                     <td>
                                         <code style="font-size: 0.78rem; background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 0.3rem; color: #475569;">
                                             {{ log.ip_address|default:"—" }}
                                         </code>
                                     </td>
+                                    {% if is_site_hits %}
+                                    <td>
+                                        <span style="font-weight: 500; color: #1e293b;">{{ log.country|default:"—" }}</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 0.9rem; color: #475569;">{{ log.location|default:"—" }}</span>
+                                    </td>
+                                    {% endif %}
                                     <td>
                                         {% if log.status == 'SUCCESS' %}
                                         <span class="sl-status-success"><i class="fas fa-check-circle me-1"></i>Success</span>
