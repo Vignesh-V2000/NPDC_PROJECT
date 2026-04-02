@@ -34,6 +34,21 @@ logger = logging.getLogger(__name__)
 RESULTS_PER_PAGE = 10
 
 
+def cruise_report_view(request):
+    """Cruise Report list page (no preloaded data if DB not connected)."""
+    cruise_data = []
+    try:
+        from models import Cruise
+        cruise_data = list(Cruise.objects.all().values(
+            'ship_name', 'cruise_no', 'period_from', 'period_to',
+            'chief_scientist_name', 'area', 'objective', 'files_link'
+        ))
+    except Exception as e:
+        logger.warning('Cruise report data load failed: %s', e)
+
+    return render(request, 'search/cruise_report.html', {'cruise_data': cruise_data})
+
+
 def search_view(request):
     """
     Core Search Engine with PostgreSQL Full Text Search,

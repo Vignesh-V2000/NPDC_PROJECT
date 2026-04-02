@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static tz %}
 
 {% block title %}System Logs - NPDC{% endblock %}
 
@@ -572,7 +572,7 @@
 
                 <div class="text-center mb-3">
                     <h3 class="syslog-hero-title">
-                        <i class="fas fa-server me-2 syslog-hero-title-icon"></i>System Activity Logs
+                        <i class="fas fa-server me-2 syslog-hero-title-icon"></i>User Activity Logs
                     </h3>
                     <p class="syslog-hero-sub">Monitor all system activities, user actions, and security events</p>
                 </div>
@@ -611,6 +611,7 @@
                             <label class="form-label small fw-bold text-muted mb-1">User</label>
                             <select class="form-select form-select-sm" id="filterUser" onchange="applyFilters()">
                                 <option value="">All Users</option>
+                                <option value="anonymous" {% if selected_user == 'anonymous' %}selected{% endif %}>anonymous user</option>
                                 {% for user in users %}
                                     <option value="{{ user.id }}" {% if selected_user|stringformat:'s' == user.id|stringformat:'s' %}selected{% endif %}>{{ user.username }}</option>
                                 {% endfor %}
@@ -645,8 +646,8 @@
                                 {% for log in logs %}
                                 <tr>
                                     <td>
-                                        <span class="sl-time-text">{{ log.action_time|date:"M d, Y" }}</span>
-                                        <div class="text-muted" style="font-size: 0.72rem;">{{ log.action_time|date:"H:i:s" }}</div>
+                                        <span class="sl-time-text">{{ log.action_time|timezone:"Asia/Kolkata"|date:"M d, Y" }}</span>
+                                        <div class="text-muted" style="font-size: 0.72rem;">{{ log.action_time|timezone:"Asia/Kolkata"|date:"H:i:s" }}</div>
                                     </td>
                                     <td>
                                         {% if log.actor %}
@@ -655,7 +656,7 @@
                                         </span>
                                         {% else %}
                                         <span class="sl-user-badge sl-user-system">
-                                            <i class="fas fa-robot"></i>System
+                                            <i class="fas fa-robot"></i>anonymous user
                                         </span>
                                         {% endif %}
                                     </td>

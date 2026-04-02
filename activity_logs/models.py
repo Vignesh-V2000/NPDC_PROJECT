@@ -6,6 +6,7 @@ class ActivityLog(models.Model):
     ACTION_TYPES = [
         ('LOGIN', 'Login'),
         ('LOGOUT', 'Logout'),
+        ('ACCESS', 'Access'),
         ('CREATE', 'Create'),
         ('UPDATE', 'Update'),
         ('DELETE', 'Delete'),
@@ -35,4 +36,5 @@ class ActivityLog(models.Model):
         verbose_name_plural = _('Activity Logs')
 
     def __str__(self):
-        return f"{self.action_type} by {self.actor} at {self.action_time}"
+        actor_name = self.actor.username if self.actor else 'anonymous user'
+        return f"{self.action_type} by {actor_name} at {self.action_time}"

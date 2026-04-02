@@ -4,6 +4,7 @@ from .views import (
     ai_parse_query, ai_suggest, ai_summary,
     ai_search_page, ai_rag_search,
     browse_by_keyword, browse_by_location,
+    cruise_report_view,
 )
 
 app_name = "search"
@@ -13,6 +14,7 @@ urlpatterns = [
     path("simple/", simple_search_view, name="simple_search"),
     path("browse/keyword/", browse_by_keyword, name="browse_by_keyword"),
     path("browse/location/", browse_by_location, name="browse_by_location"),
+    path("cruise-report/", cruise_report_view, name="cruise_report"),
     # AI search page & API
     path("ai-search/", ai_search_page, name="ai_search"),
     path("api/ai-search/", ai_rag_search, name="ai_rag_search"),

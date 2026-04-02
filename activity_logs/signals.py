@@ -42,8 +42,12 @@ def log_user_logout(sender, request, user, **kwargs):
 @receiver(post_save, sender=DatasetSubmission)
 def log_dataset_submission(sender, instance, created, **kwargs):
     request = get_current_request()
-    user = request.user if request and request.user.is_authenticated else instance.submitter
-    ip = get_client_ip(request) if request else None
+    if request and request.user.is_authenticated:
+        user = request.user
+        ip = get_client_ip(request)
+    else:
+        user = instance.submitter
+        ip = None
     
     action_type = 'CREATE' if created else 'UPDATE'
     remarks = f"Dataset '{instance.title}' was {action_type.lower()}d."
@@ -74,8 +78,12 @@ def log_dataset_submission(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Profile)
 def log_profile_update(sender, instance, created, **kwargs):
     request = get_current_request()
-    user = request.user if request and request.user.is_authenticated else instance.user
-    ip = get_client_ip(request) if request else None
+    if request and request.user.is_authenticated:
+        user = request.user
+        ip = get_client_ip(request)
+    else:
+        user = instance.user
+        ip = None
 
     action_type = 'CREATE' if created else 'UPDATE'
     remarks = f"Profile for '{instance.user.email}' was {action_type.lower()}d."
@@ -98,9 +106,14 @@ def log_profile_update(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=DatasetSubmission)
 def log_dataset_deletion(sender, instance, **kwargs):
     request = get_current_request()
-    user = request.user if request and request.user.is_authenticated else None
-    ip = get_client_ip(request) if request else None
-    
+    if request and request.user.is_authenticated:
+        user = request.user
+        ip = get_client_ip(request)
+    else:
+        # fallback to the submitter when deletion is triggered programmatically / not via request
+        user = getattr(instance, 'submitter', None)
+        ip = get_client_ip(request) if request else None
+
     ActivityLog.objects.create(
         actor=user,
         action_type='DELETE',

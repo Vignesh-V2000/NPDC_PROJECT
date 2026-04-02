@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cruise Report{% endblock %}
+
+{% block content %}
+<style>
+    /* ====== Cruise Report Page ====== */
+    .cruise-page-wrapper {
+        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        min-height: calc(100vh - 120px);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Hero Header */
+    .cruise-hero-title {
+        font-weight: 800;
+        color: #E8734A;
+        font-size: 2.2rem;
+        letter-spacing: -0.03em;
+    }
+
+    .cruise-hero-sub {
+        color: #1e293b;
+        font-size: 1.1rem;
+        max-width: 480px;
+        line-height: 1.6;
+    }
+
+    /* Filter Panel */
+    .cruise-filter-card {
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07) !important;
+        border: 1px solid rgba(0, 0, 0, 0.04) !important;
+        background-color: #ffffff !important;
+        overflow: hidden;
+        border-radius: 0.85rem;
+    }
+
+    .cruise-filter-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+        color: #0f172a;
+        padding: 1rem 1.15rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cruise-filter-header h6 {
+        color: #0f172a !important;
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .cruise-filter-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+    }
+
+    .cruise-filter-group {
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.65rem;
+        border: 1px solid #94a3b8;
+        background: #eef2f7;
+    }
+
+    .cruise-filter-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .cruise-filter-group h6 {
+        color: #0f172a !important;
+        font-size: 0.9rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.6px;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .cruise-filter-group h6 i {
+        width: 22px;
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        font-size: 0.8rem;
+    }
+
+    .cruise-filter-group h6 .fa-search { background: #1e3a8a; color: #60a5fa; }
+    .cruise-filter-group h6 .fa-list-ul { background: #4c1d95; color: #a78bfa; }
+
+    /* Dropdown styling */
+    .cruise-filter-group .form-select {
+        border: 1.5px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-radius: 0.5rem;
+        font-size: 1.05rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+        font-weight: 600;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230f172a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    }
+
+    .cruise-filter-group .form-select option {
+        background-color: #ffffff;
+        color: #0f172a;
+    }
+
+    .cruise-filter-group .form-select:hover {
+        border-color: #94a3b8 !important;
+    }
+
+    .cruise-filter-group .form-select:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        background-color: #ffffff;
+    }
+
+    /* Radio Button Styling */
+    .cruise-filter-group .form-check {
+        padding: 0.3rem 0.5rem 0.3rem 1.75rem;
+        margin: 0;
+        border-radius: 0.4rem;
+        transition: all 0.15s ease;
+    }
+
+    .cruise-filter-group .form-check:hover {
+        background: #e0f2fe !important;
+    }
+
+    .cruise-filter-group .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        border: 2px solid #64748b;
+        background-color: transparent;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .cruise-filter-group .form-check-input:hover {
+        border-color: #60a5fa;
+    }
+
+    .cruise-filter-group .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.4);
+    }
+
+    .cruise-filter-group .form-check-label {
+        color: #334155;
+        font-size: 1.05rem;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        font-weight: 500;
+        white-space: normal;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+
+    .cruise-filter-group .form-check:hover .form-check-label {
+        color: #0f172a;
+    }
+
+    #cruiseFilterOptions {
+        transition: all 0.3s ease;
+    }
+
+    #cruiseFilterOptions .form-check {
+        animation: fadeSlideIn 0.25s ease both;
+    }
+
+    .cruise-filter-empty {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        font-style: italic;
+        padding: 0.5rem 0;
+    }
+
+    .btn-clear-cruise-filter {
+        background: linear-gradient(135deg, #fef2f2, #fff1f2);
+        border: 1.5px solid #fca5a5;
+        color: #ef4444;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        padding: 0.55rem 1rem;
+        transition: all 0.25s ease;
+        letter-spacing: 0.2px;
+        width: 100%;
+    }
+
+    .btn-clear-cruise-filter:hover {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        border-color: #ef4444;
+        color: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    }
+
+    /* ====== Table Card (Matches Browse By Location) ====== */
+    .cruise-table-card {
+        background: #ffffff;
+        border-radius: 0.85rem;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07);
+    }
+
+    .cruise-table-header {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        color: #ffffff;
+        padding: 0.85rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .cruise-table-body {
+        overflow-x: auto;
+    }
+
+    .cruise-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem; /* Adjusted base font size down slightly to fit columns */
+        color: #334155;
+    }
+
+    .cruise-table thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 700;
+        padding: 0.75rem 0.5rem; /* Reduced horizontal padding to save space */
+        text-align: left;
+        border-bottom: 2px solid #e2e8f0;
+        font-size: 0.75rem; 
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        /* Removed white-space: nowrap so headers can stack dynamically */
+    }
+
+    .cruise-row {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f5f9;
+        animation: rowSlideIn 0.4s ease both;
+        background-color: #ffffff;
+    }
+
+    .cruise-row:nth-child(even) {
+        background-color: #f1f5f9;
+    }
+
+    .cruise-row:last-child {
+        border-bottom: none;
+    }
+
+    .cruise-row:hover {
+        background: linear-gradient(90deg, #bfdbfe, #93c5fd);
+    }
+
+    @keyframes rowSlideIn {
+        from { opacity: 0; transform: translateX(-8px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .cruise-table td {
+        padding: 0.75rem 0.5rem; /* Reduced padding from 1.0rem to fit all columns */
+        vertical-align: top;     /* Align text to top in case content wraps */
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .view-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
+    .view-link:hover {
+        color: #1d4ed8;
+    }
+
+    .view-link i {
+        transition: transform 0.2s ease;
+        display: inline-block;
+    }
+
+    .cruise-row:hover .view-link i {
+        transform: translateX(3px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cruise-filter-card {
+            margin-bottom: 1.5rem;
+        }
+    }
+</style>
+
+<div class="cruise-page-wrapper">
+    <div class="container-fluid py-4 py-md-5">
+        <!-- Page Header -->
+        <div class="text-center mb-4 mb-md-5">
+            <h2 class="cruise-hero-title">Cruise Report</h2>
+            <p class="cruise-hero-sub mx-auto mb-0">Cruise data is fetched automatically when the database is connected.</p>
+        </div>
+
+        <div class="row">
+            <!-- ====== Left Filter Panel ====== -->
+            <div class="col-lg-3 col-md-4">
+                <div class="card border-0 cruise-filter-card mb-3">
+                    <div class="card-header cruise-filter-header py-2">
+                        <h6 class="mb-0"><i class="fas fa-filter me-1"></i>Filters</h6>
+                    </div>
+                    <div class="card-body py-3">
+
+                        <!-- Search By Dropdown -->
+                        <div class="mb-3 cruise-filter-group">
+                            <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+                                <i class="fas fa-search me-1"></i>Search By
+                            </h6>
+                            <select class="form-select form-select-sm" id="cruiseFilterField">
+                                <option value="" selected>-- Select Field --</option>
+                                <option value="cruise_area">Cruise Area</option>
+                                <option value="cruise_no">Cruise No</option>
+                                <option value="chief_scientist">Chief Scientist</option>
+                                <option value="ship_name">Ship Name</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic Radio Options -->
+                        <div class="mb-3 cruise-filter-group" id="cruiseRadioGroup" style="display: none;">
+                            <h6 class="small fw-bold text-uppercase text-secondary mb-2">
+                                <i class="fas fa-list-ul me-1"></i><span id="cruiseRadioTitle">Options</span>
+                            </h6>
+                            <div id="cruiseFilterOptions">
+                                <p class="cruise-filter-empty mb-0">Select a field above to see options.</p>
+                            </div>
+                        </div>
+
+                        <!-- Clear Filters Button -->
+                        <button type="button" class="btn btn-clear-cruise-filter mt-2" id="clearCruiseFilters" style="display: none;">
+                            <i class="fas fa-times-circle me-1"></i>Clear Filters
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== Right Table Content ====== -->
+            <div class="col-lg-9 col-md-8">
+                <div class="cruise-table-card">
+                    <div class="cruise-table-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <i class="fas fa-ship me-2 opacity-75"></i>
+                                <span class="fw-bold">Cruise Register</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cruise-table-body">
+                        <table class="cruise-table" id="cruiseTable">
+                            <thead>
+                                <tr>
+                                    <th>Ship Name</th>
+                                    <th>Cruise No</th>
+                                    <th>Period From</th>
+                                    <th>Period To</th>
+                                    <th>Chief Scientist</th>
+                                    <th>Cruise Area</th>
+                                    <th>Objective</th>
+                                    <th class="text-center">Report</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cruiseTableBody">
+                                {% if cruise_data %}
+                                    {% for cruise in cruise_data %}
+                                    <tr class="cruise-row" style="--row-delay: {{ forloop.counter0 }}" 
+                                        data-ship="{{ cruise.ship_name|default:'' }}"
+                                        data-cruise-no="{{ cruise.cruise_no|default:'' }}"
+                                        data-scientist="{{ cruise.chief_scientist_name|default:'' }}"
+                                        data-area="{{ cruise.area|default:'' }}">
+                                        <td class="td-name">{{ cruise.ship_name|default:'' }}</td>
+                                        <td class="fw-bold text-center">{{ cruise.cruise_no|default:'' }}</td>
+                                        <td>{{ cruise.period_from|default:'' }}</td>
+                                        <td>{{ cruise.period_to|default:'' }}</td>
+                                        <td>{{ cruise.chief_scientist_name|default:'' }}</td>
+                                        <td>{{ cruise.area|default:'' }}</td>
+                                        <td>{{ cruise.objective|default:'' }}</td>
+                                        <td class="text-center">
+                                            {% if cruise.files_link %}
+                                            <a href="{{ cruise.files_link }}" target="_blank" class="view-link">
+                                                Open <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-5">
+                                            No cruise records available. Connect your external DB and it will fetch automatically.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Expedition Box Below Table -->
+                <div class="d-flex justify-content-end mt-4">
+                    <div class="card border border-secondary shadow-sm bg-white" style="max-width: 350px; border-radius: 0.5rem;">
+                        <div class="card-body text-center px-3 py-3">
+                            <p class="mb-3 text-dark" style="font-size: 0.95rem;">To view expedition data availabilty</p>
+                            <div class="d-flex justify-content-center gap-4 mb-3">
+                                <a href="{% static 'cruise_report/cruiseDataAvailability.pdf' %}" target="_blank" class="text-danger fs-2 text-decoration-none" title="PDF format">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <a href="{% static 'cruise_report/cruiseDataAvailability.xlsx' %}" target="_blank" class="text-success fs-2 text-decoration-none" title="Excel format">
+                                    <i class="fas fa-file-excel"></i>
+                                </a>
+                            </div>
+                            <p class="mb-0 text-dark" style="font-size: 0.9rem;">For expedition data , please mail at <br><a href="mailto:npdc@ncpor.res.in" class="text-decoration-none fw-medium text-dark">npdc@ncpor.res.in</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const filterField = document.getElementById('cruiseFilterField');
+    const radioGroup = document.getElementById('cruiseRadioGroup');
+    const radioTitle = document.getElementById('cruiseRadioTitle');
+    const radioContainer = document.getElementById('cruiseFilterOptions');
+    const clearBtn = document.getElementById('clearCruiseFilters');
+    const tableBody = document.getElementById('cruiseTableBody');
+
+    // Map dropdown values to data attributes and display labels
+    const fieldMap = {
+        'cruise_area':     { attr: 'data-area',      label: 'Cruise Area' },
+        'cruise_no':       { attr: 'data-cruise-no',  label: 'Cruise No' },
+        'chief_scientist': { attr: 'data-scientist',  label: 'Chief Scientist' },
+        'ship_name':       { attr: 'data-ship',       label: 'Ship Name' }
+    };
+
+    // Predefined static options provided by user
+    const staticOptions = {
+        'ship_name': [
+            "Sagar Kanya"
+        ],
+        'cruise_area': [
+            "Andaman and Nicobar Islands",
+            "Andaman Sea",
+            "Andaman to Chennai",
+            "Angria bank off Malvan coast",
+            "Arabian Sea",
+            "Arabian Sea/Bay of Bengal",
+            "Arabian Sea/Colombo to Goa.",
+            "Bay of Bengal",
+            "Bay of Bengal and Andaman Sea",
+            "Between Devgarh and Karwar",
+            "Bombay",
+            "Bombay High",
+            "Carlsberg Ridge",
+            "Central Arabian Sea",
+            "Central Equatorial Indian Ocean",
+            "Central Indian Basin",
+            "Central Indian Ocean Basin",
+            "Central Indian Ridge",
+            "Chennai",
+            "Chennai to Andaman",
+            "Chennai to PortBlair",
+            "Colombo to Chennai",
+            "Devgadh and Bombay",
+            "East and southwest coasts of India",
+            "East Central Arabian Sea",
+            "Eastern Arabian Sea",
+            "Eastern Equatorial Indian Ocean",
+            "Eastern Indian Ocean",
+            "Equatorial Indian Ocean",
+            "Goa",
+            "Goa to Kochi",
+            "Goa to Mauritius",
+            "Goa to Mumbai",
+            "Goa to Saurashtra",
+            "Gulf of Kutch",
+            "Gulf of Kutch and Cochin",
+            "Indian Ocean",
+            "Indian Ocean & Arabian Sea",
+            "Indian Ocean region",
+            "Kalpeni Island",
+            "Karwar",
+            "Karwar to Kochi",
+            "Kochi to Goa",
+            "Marmugao",
+            "Marmugao Port to Tuticorin Port.",
+            "Mauritius",
+            "Mauritius to Chennai",
+            "Mumbai to Karwar",
+            "North Arabian Sea",
+            "Northern Arabian Sea",
+            "Northern Bay of Bengal",
+            "Northern Indian Ocean",
+            "North west coast",
+            "Off Bombay",
+            "Off Chennai",
+            "Off coast east",
+            "Off Goa",
+            "Off Kanyakumari",
+            "Off Karwar",
+            "Off Kenya Coast",
+            "off Lakshadweep",
+            "Off Pondicherry",
+            "Off Saurashtra Peninsula",
+            "Off Southern Portion",
+            "Off western India",
+            "Okha Gujarat",
+            "South East Arabian Sea",
+            "Southern Bay of Bengal",
+            "Southern Ocean",
+            "Tropical Indian Ocean",
+            "Vema Fracture Zone in Indian Ocean",
+            "Western Equatorial Indian",
+            "Western Indian Ocean",
+            "Western Tropical Indian Ocean"
+        ],
+        'chief_scientist': [
+            "Abhay V. Mudholkar", "Abhishek Tyagi", "A.B. Valsangkar", "Almeida F.M.S.I.",
+            "Anguluri Suryachandra Rao", "A. Pant", "A.S. Subrahmanyam", "A. Suryanarayana",
+            "Ayyagari Suryanarayana", "Bhattacharya G.C", "Bijesh C. M.", "B.U. Nayak",
+            "Ch. Madhusudana Rao", "Ch. Madhusudan Rao", "Ch. Madhusudhana Rao", "C.K. Gopinathan",
+            "C.S. Murty", "Denny P. Alappattu", "D.Gopala Rao", "Dinesh Kothandaraman",
+            "D. Panakala Rao", "D.P. Rao", "Dr.Abhay V. Mudholkar", "Dr. Anil Kumar Vijayan",
+            "Dr. Anil L. Paropkari", "Dr. A. Pant", "Dr. Avinash Kumar", "Dr Baban Ingole",
+            "Dr. Babula Jena", "Dr. Bishwajit Chakraborty", "Dr. B.N. Desai", "Dr B. Praveen Kumar",
+            "Dr. B. U. Nayak", "Dr. C. B. S. Dutt", "Dr. Dinesh Pandit", "Dr. D.P. Rao",
+            "Dr.D. Shankar", "Dr. G.A. Ramadass", "Dr. GVM Gupta", "Dr. John Kurian P",
+            "Dr. K.A. Kamesh Raju", "Dr. K.S.R.Murthy", "Dr. M. A. Atmanand", "Dr. M.D. George",
+            "Dr. M. Ravichandran", "Dr. M.S. Girishkumar", "Dr. M. Sudhakar", "Dr. M.V. Ramana",
+            "Dr. M.V.S.Guptha", "Dr.Nagender Nath B", "Dr. N. Anilkumar", "Dr.Naqvi SWA",
+            "Dr. Narayana Pillai Anilkumar", "Dr.N.Bahulayan", "Dr. Nisha Nair", "Dr. Pednekar Shailesh",
+            "Dr.P.S.Rao", "Dr. Rajeev Saraswat", "Dr.Rao Prattipati S", "Dr. Ravi Bhushan",
+            "Dr. Ravi Mishra", "Dr. Reji Srinivas", "Dr. R. Rengarajan", "Dr. Sajid Ali",
+            "Dr.Satheesh C. Shenoi", "Dr. Satya Prakash", "Dr. S. G. prabhu Matondkar", "Dr. S. M. Pednekar",
+            "Dr. S. Prasanna Kumar", "Dr. S.S.C. Shennoi", "Dr. S. Suresh Babu", "Dr. S.W.A. Naqvi",
+            "Dr. Twinkle Damodharan", "Dr. Vijay P. Kanawade", "Dr. Vimlesh Pant", "Dr.V. Ramaswamy",
+            "Dr. V.S. Bhat", "Dr. V.S.N. Murty", "Dr. V. Suryanarayana Murty", "Ehrlich Desa",
+            "G. C. Bhattacharya", "Gupta M.V.S", "Hashimi N.H.", "J.S. Sastry", "Karisiddaiah S.M.",
+            "Kodagali V.N", "K.S.R. Murthy", "Kuttikrishnan Gopkumar", "L.V. Gangadhara Rao",
+            "M. A. Atmanand", "M. Dileep Kumar", "M. Madhupratap", "Mr. Abhishek Tyagi",
+            "Mr. Ashok Kumar", "Mr. Bala Laxman Mhadgut", "Mr. Bijesh C M", "Mr. B.R. Thorat",
+            "Mr. Denny P Alappattu", "Mr. D.Gowtham", "Mr.D.Gowthaman", "Mr. Dinesh K",
+            "Mr. D.Rajasekhar", "Mr. G. Vengatesan", "Mr. K.Premkumar", "Mr. K. Rajesh",
+            "Mr. K. Ramasundaram", "Mr. K Ramesh", "Mr.K. Thirumurugan", "Mr. L.V.G. Rao",
+            "Mr.M.Arulmuthiah", "Mr. M.Arul Muthiah", "Mr. M.M. Subramaniam", "Mr. MM Subramaniam",
+            "Mr. Mohammad Atif Khan", "Mr Mohammed Shafeeq B", "MR. MURUGESH POTHIKASALAM",
+            "Mr. N.Sundaravadivelu", "Mr. P. Murugesh", "Mr.P.Murugesh", "Mr. P.Selvakumar",
+            "Mr. Ratan Srivastava", "Mr.Rathan Srivastav", "Mr. R Rooban Annamalai",
+            "Mr. R. Roopan Aunamalai", "Mr.R.Sundar", "Mr. R. Venkatesan", "Mr.S.Elango",
+            "Mr. Senthil Kumar", "Mr. S. Sundar Jesuraj", "Mr. Subha Anand S", "Mr. Suresh Kumar N",
+            "Mr. Suresh Kumar.N", "Mr. Tata Sudhakar", "Mr. T.Suresh", "Mr.Venkatesan Gopalakrishnasamy",
+            "Mr. Venkatesh Chinni", "Ms. Racheal Chacko", "M.S.S. Sarma", "Ms. Twinkle Damodharan",
+            "M. Veerayya", "M. V. Ramana", "M.V. Ramana", "Nair R.R", "Nair R.R.",
+            "N. Bahulayan", "N.H. Hashimi", "N. Lachit Singh", "N.M. Anand", "N.Saravanane",
+            "Onkar S. Chauhan", "P.M.A. Bhattathiri", "P.S. Rao", "P.V. Narvekar", "P.V.Sathe",
+            "P.V. Sathe", "Rajiv Nigam", "Ramana M.V", "Ranadhir Mukhopadhyay", "Ratan Srivastava",
+            "R.M. Dwivedi", "R. Venkatesan", "Satheesh C. Shenoi", "Satish R. Shetye",
+            "S.C. Goswami", "Sh.Ranade GH", "Shri. G. Janaki Raman", "Shri M. M. Subramaniam",
+            "Shri. M.M. Subramaniam", "S. Prasanna Kumar", "S. Raghu Kumar", "Sridhar D. Iyer",
+            "Srinivasan", "S.R. Sreekumaran Nair", "S. Sastry", "Sujata Sanzgiri", "Suman Kilaru",
+            "Sundarjesuraj Sebastian", "Suresh Kumar Neelakandan", "S.W.A. Naqvi", "T.C.S. Rao",
+            "THIRUMURUGAN KARUPPIAH", "T.V. Subba Raju", "Twinkle Damodharan", "Valsangkar A.B",
+            "V.Chandran", "V. Gowanthaman", "Vijayalakshmi R.Nair", "V.K. Banakar", "V N Kodagali",
+            "V.P. Devassy", "V.Purnachadra Rao", "V. Ramaswamy", "V Ramesh Babu", "V. Ramesh Babu",
+            "V. Ravi Chandra", "V.S.N. Murty", "V.S. Rama Raju", "V.V. Gopala Krishna", "V.V. Sarma",
+            "Y.V.B. Sarma"
+        ]
+    };
+
+    function getOptionsForField(fieldKey) {
+        if (fieldKey === 'cruise_no') {
+            const arr = [];
+            for (let i = 367; i >= 1; i--) {
+                arr.push('SK' + String(i).padStart(3, '0'));
+            }
+            return arr;
+        } else if (staticOptions[fieldKey]) {
+            // Return unique elements maintaining list
+            return Array.from(new Set(staticOptions[fieldKey])).sort((a,b) => a.localeCompare(b));
+        }
+        return [];
+    }
+
+    // Build radio buttons for the selected field
+    function buildRadioOptions(fieldKey) {
+        const info = fieldMap[fieldKey];
+        if (!info) {
+            radioGroup.style.display = 'none';
+            clearBtn.style.display = 'none';
+            return;
+        }
+
+        radioTitle.textContent = info.label;
+        radioContainer.innerHTML = '';
+
+        const values = getOptionsForField(fieldKey);
+        if (values.length === 0) {
+            radioContainer.innerHTML = '<p class="cruise-filter-empty mb-0">No options available.</p>';
+            radioGroup.style.display = 'block';
+            clearBtn.style.display = 'none';
+            return;
+        }
+
+        // To handle large lists like cruise_no and chief_scientist, limit height with scroll
+        radioContainer.style.maxHeight = '400px';
+        radioContainer.style.overflowY = 'auto';
+        radioContainer.style.overflowX = 'hidden';
+
+        values.forEach(function(val, idx) {
+            const div = document.createElement('div');
+            div.className = 'form-check';
+            div.style.animationDelay = (Math.min(idx, 20) * 0.02) + 's';
+
+            const input = document.createElement('input');
+            input.className = 'form-check-input';
+            input.type = 'radio';
+            input.name = 'cruiseFilter';
+            input.value = val;
+            input.id = 'cf_' + fieldKey + '_' + idx;
+
+            const label = document.createElement('label');
+            label.className = 'form-check-label';
+            label.setAttribute('for', input.id);
+            label.textContent = val;
+
+            div.appendChild(input);
+            div.appendChild(label);
+            radioContainer.appendChild(div);
+
+            // Filter table on radio selection
+            input.addEventListener('change', function() {
+                filterTable(info.attr, val);
+                clearBtn.style.display = 'block';
+            });
+        });
+
+        radioGroup.style.display = 'block';
+    }
+
+    // Filter table rows by attribute value
+    function filterTable(attr, value) {
+        const rows = tableBody.querySelectorAll('tr');
+        rows.forEach(function(row) {
+            if (!row.hasAttribute(attr)) {
+                row.style.display = '';
+                return;
+            }
+            const rowVal = row.getAttribute(attr);
+            // Relaxing match to include case insensitive substring optionally
+            // But since these are exact match requirements, use exact ignore whitespace around
+            const normalizedRowVal = (rowVal || '').trim().toLowerCase();
+            const normalizedTargetVal = value.trim().toLowerCase();
+            row.style.display = (normalizedRowVal === normalizedTargetVal || normalizedRowVal.includes(normalizedTargetVal)) ? '' : 'none';
+        });
+    }
+
+    // Reset all filters
+    function resetFilters() {
+        filterField.value = '';
+        radioGroup.style.display = 'none';
+        radioContainer.innerHTML = '<p class="cruise-filter-empty mb-0">Select a field above to see options.</p>';
+        radioContainer.style.maxHeight = '';
+        radioContainer.style.overflowY = 'visible';
+        clearBtn.style.display = 'none';
+
+        // Show all rows
+        const rows = tableBody.querySelectorAll('tr');
+        rows.forEach(function(row) { row.style.display = ''; });
+    }
+
+    // Event listeners
+    filterField.addEventListener('change', function() {
+        const val = this.value;
+        if (val) {
+            buildRadioOptions(val);
+            // Reset table filter when switching field
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(function(row) { row.style.display = ''; });
+            clearBtn.style.display = 'none';
+        } else {
+            resetFilters();
+        }
+    });
+
+    clearBtn.addEventListener('click', resetFilters);
+})();
+</script>
+{% endblock %}

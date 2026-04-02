@@ -50,7 +50,10 @@ class SystemLogListView(UserPassesTestMixin, ListView):
         # Filter by user
         user_id = self.request.GET.get('user', '')
         if user_id:
-            queryset = queryset.filter(actor_id=user_id)
+            if user_id == 'anonymous':
+                queryset = queryset.filter(actor__isnull=True)
+            else:
+                queryset = queryset.filter(actor_id=user_id)
         
         return queryset
     
@@ -90,7 +93,7 @@ class SystemLogListView(UserPassesTestMixin, ListView):
         for log in queryset:
             writer.writerow([
                 log.action_time.strftime('%Y-%m-%d %H:%M:%S') if log.action_time else '',
-                log.actor.username if log.actor else 'System',
+                log.actor.username if log.actor else 'anonymous user',
                 log.get_action_type_display(),
                 log.entity_name or '—',
                 log.ip_address or '—',
