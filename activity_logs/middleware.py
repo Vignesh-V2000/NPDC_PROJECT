@@ -24,6 +24,10 @@ def get_ip_location(ip_address):
         if ip_address in ['127.0.0.1', 'localhost']:
             return 'Local', 'Localhost'
         
+        # Special case for NCPOR IP
+        if ip_address == '172.27.27.27':
+            return 'India', 'Goa, India'
+        
         # Try ipapi.co first
         try:
             response = requests.get(
@@ -101,25 +105,23 @@ class ActivityLogMiddleware:
         _thread_locals.request = request
         response = self.get_response(request)
         
-        # Log access for anonymous users on main pages (exclude local IPs)
+        # Log access for anonymous users on main pages
         if (not request.user.is_authenticated and 
             request.method == 'GET' and 
             request.path in self.main_pages):
             ip = get_client_ip(request)
-            # Skip logging local development accesses
-            if ip and ip != '127.0.0.1':
-                country, location = get_ip_location(ip)
-                hostname = get_hostname_from_ip(ip)
-                ActivityLog.objects.create(
-                    actor=None,  # No actor for anonymous
-                    action_type='ACCESS',
-                    ip_address=ip,
-                    hostname=hostname,
-                    country=country,
-                    location=location,
-                    remarks=f'Anonymous user accessed {request.path}',
-                    status='SUCCESS',
-                    path=request.path
-                )
+            country, location = get_ip_location(ip)
+            hostname = get_hostname_from_ip(ip)
+            ActivityLog.objects.create(
+                actor=None,  # No actor for anonymous
+                action_type='ACCESS',
+                ip_address=ip,
+                hostname=hostname,
+                country=country,
+                location=location,
+                remarks=f'Anonymous user accessed {request.path}',
+                status='SUCCESS',
+                path=request.path
+            )
         
         return response
