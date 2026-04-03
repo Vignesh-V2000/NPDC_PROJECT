@@ -28,47 +28,114 @@ def get_ip_location(ip_address):
         if ip_address == '172.27.27.27':
             return 'India', 'Goa, India'
         
-        # Try ipapi.co first
+        # Check if it's a private/internal IP that can't be geolocated
+        if ip_address.startswith(('10.', '172.', '192.168.', '127.')):
+            return 'Private Network', 'Internal Network'
+        
+        # Try multiple geolocation APIs with fallbacks
+        
+        # 1. Try ipapi.co first
         try:
             response = requests.get(
                 f'https://ipapi.co/{ip_address}/json/', 
-                timeout=3,
+                timeout=5,
                 headers={'User-Agent': 'NPDC-Site-Hit-Tracker/1.0'}
             )
             if response.status_code == 200:
                 data = response.json()
-                country = data.get('country_name', 'Unknown')
-                city = data.get('city', '')
-                location = f"{city}, {country}" if city else country
-                logger.info(f"IP geolocation via ipapi.co: {ip_address} -> {country}")
-                return country, location
-        except requests.exceptions.Timeout:
-            logger.debug(f"ipapi.co timeout for {ip_address}, trying fallback...")
+                if data.get('error') is None:  # No error in response
+                    country = data.get('country_name', 'Unknown')
+                    city = data.get('city', '')
+                    region = data.get('region', '')
+                    if city and region:
+                        location = f"{city}, {region}, {country}"
+                    elif city:
+                        location = f"{city}, {country}"
+                    else:
+                        location = country
+                    logger.info(f"IP geolocation via ipapi.co: {ip_address} -> {location}")
+                    return country, location
+        except Exception as e:
+            logger.debug(f"ipapi.co failed for {ip_address}: {e}")
         
-        # Try ip-api.com as fallback (simpler response)
+        # 2. Try ip-api.com as second option
         try:
             response = requests.get(
                 f'http://ip-api.com/json/{ip_address}',
-                timeout=2,
-                params={'fields': 'country,city,status'}
+                timeout=5,
+                params={'fields': 'country,city,region,status,message'}
             )
             if response.status_code == 200:
                 data = response.json()
                 if data.get('status') == 'success':
                     country = data.get('country', 'Unknown')
                     city = data.get('city', '')
-                    location = f"{city}, {country}" if city else country
-                    logger.info(f"IP geolocation via ip-api: {ip_address} -> {country}")
+                    region = data.get('region', '')
+                    if city and region:
+                        location = f"{city}, {region}, {country}"
+                    elif city:
+                        location = f"{city}, {country}"
+                    else:
+                        location = country
+                    logger.info(f"IP geolocation via ip-api: {ip_address} -> {location}")
                     return country, location
         except Exception as e:
-            logger.debug(f"ip-api fallback failed: {e}")
+            logger.debug(f"ip-api failed for {ip_address}: {e}")
         
-        # If all APIs fail, return None
-        logger.warning(f"Could not fetch geolocation for IP: {ip_address}")
-        return None, None
+        # 3. Try ipinfo.io as third option
+        try:
+            response = requests.get(
+                f'https://ipinfo.io/{ip_address}/json',
+                timeout=5,
+                headers={'User-Agent': 'NPDC-Site-Hit-Tracker/1.0'}
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if 'country' in data:  # Success response
+                    country = data.get('country', 'Unknown')
+                    city = data.get('city', '')
+                    region = data.get('region', '')
+                    if city and region:
+                        location = f"{city}, {region}, {country}"
+                    elif city:
+                        location = f"{city}, {country}"
+                    else:
+                        location = country
+                    logger.info(f"IP geolocation via ipinfo.io: {ip_address} -> {location}")
+                    return country, location
+        except Exception as e:
+            logger.debug(f"ipinfo.io failed for {ip_address}: {e}")
+        
+        # 4. Try ipwhois.app as fourth option
+        try:
+            response = requests.get(
+                f'https://ipwhois.app/json/{ip_address}',
+                timeout=5,
+                headers={'User-Agent': 'NPDC-Site-Hit-Tracker/1.0'}
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and 'country' in data:
+                    country = data.get('country', 'Unknown')
+                    city = data.get('city', '')
+                    region = data.get('region', '')
+                    if city and region:
+                        location = f"{city}, {region}, {country}"
+                    elif city:
+                        location = f"{city}, {country}"
+                    else:
+                        location = country
+                    logger.info(f"IP geolocation via ipwhois.app: {ip_address} -> {location}")
+                    return country, location
+        except Exception as e:
+            logger.debug(f"ipwhois.app failed for {ip_address}: {e}")
+        
+        # If all APIs fail, return Unknown
+        logger.warning(f"Could not fetch geolocation for IP: {ip_address} from any API")
+        return 'Unknown', 'Unknown Location'
     except Exception as e:
         logger.error(f"Error in get_ip_location: {e}")
-        return None, None
+        return 'Unknown', 'Unknown Location'
 
 def get_hostname_from_ip(ip_address):
     """Get hostname from IP address using reverse DNS lookup"""
