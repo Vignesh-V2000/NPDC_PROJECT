@@ -643,6 +643,7 @@
                                     <th><i class="fas fa-cube me-1" style="color: #34d399;"></i>Entity</th>
                                     {% endif %}
                                     <th><i class="fas fa-network-wired me-1" style="color: #f472b6;"></i>IP</th>
+                                    <th><i class="fas fa-server me-1" style="color: #8b5cf6;"></i>Hostname</th>
                                     {% if is_site_hits %}
                                     <th><i class="fas fa-globe me-1" style="color: #06b6d4;"></i>Country</th>
                                     <th><i class="fas fa-map-marker me-1" style="color: #06b6d4;"></i>Location</th>
@@ -687,6 +688,11 @@
                                     <td>
                                         <code style="font-size: 0.78rem; background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 0.3rem; color: #475569;">
                                             {{ log.ip_address|default:"—" }}
+                                        </code>
+                                    </td>
+                                    <td>
+                                        <code style="font-size: 0.75rem; background: #f3e8ff; padding: 0.15rem 0.4rem; border-radius: 0.3rem; color: #6b21a8;">
+                                            {{ log.hostname|default:"—" }}
                                         </code>
                                     </td>
                                     {% if is_site_hits %}

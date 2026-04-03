@@ -3,7 +3,7 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.db.models.signals import post_save, post_delete
 from django.contrib.auth.models import User
 from .models import ActivityLog
-from .middleware import get_current_request
+from .middleware import get_current_request, get_hostname_from_ip
 from data_submission.models import DatasetSubmission
 from users.models import Profile
 
@@ -18,10 +18,12 @@ def get_client_ip(request):
 @receiver(user_logged_in)
 def log_user_login(sender, request, user, **kwargs):
     ip = get_client_ip(request)
+    hostname = get_hostname_from_ip(ip)
     ActivityLog.objects.create(
         actor=user,
         action_type='LOGIN',
         ip_address=ip,
+        hostname=hostname,
         remarks='User logged in',
         status='SUCCESS',
         path=request.path
@@ -30,10 +32,12 @@ def log_user_login(sender, request, user, **kwargs):
 @receiver(user_logged_out)
 def log_user_logout(sender, request, user, **kwargs):
     ip = get_client_ip(request)
+    hostname = get_hostname_from_ip(ip)
     ActivityLog.objects.create(
         actor=user,
         action_type='LOGOUT',
         ip_address=ip,
+        hostname=hostname,
         remarks='User logged out',
         status='SUCCESS',
         path=request.path

@@ -27,6 +27,7 @@ class ActivityLog(models.Model):
     remarks = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='SUCCESS')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
+    hostname = models.CharField(max_length=255, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     entity_name = models.CharField(max_length=100, blank=True, null=True)

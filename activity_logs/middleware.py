@@ -2,6 +2,7 @@ import threading
 from .models import ActivityLog
 import requests
 import logging
+import socket
 
 logger = logging.getLogger(__name__)
 _thread_locals = threading.local()
@@ -61,6 +62,30 @@ def get_ip_location(ip_address):
         # If all APIs fail, return None
         logger.warning(f"Could not fetch geolocation for IP: {ip_address}")
         return None, None
+    except Exception as e:
+        logger.error(f"Error in get_ip_location: {e}")
+        return None, None
+
+def get_hostname_from_ip(ip_address):
+    """Get hostname from IP address using reverse DNS lookup"""
+    try:
+        if not ip_address or ip_address == '127.0.0.1':
+            return socket.gethostname()  # Return local hostname for local IP
+        
+        # Special case for NCPOR IP
+        if ip_address == '172.27.27.27':
+            return 'NCPOR'
+        
+        # Try reverse DNS lookup
+        hostname = socket.gethostbyaddr(ip_address)[0]
+        return hostname
+    except (socket.herror, socket.gaierror, IndexError) as e:
+        # Reverse lookup failed, return None
+        logger.debug(f"Could not resolve hostname for IP {ip_address}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Error in get_hostname_from_ip: {e}")
+        return None
     
     except Exception as e:
         logger.error(f"Error in get_ip_location: {e}")
@@ -76,21 +101,25 @@ class ActivityLogMiddleware:
         _thread_locals.request = request
         response = self.get_response(request)
         
-        # Log access for anonymous users on main pages
+        # Log access for anonymous users on main pages (exclude local IPs)
         if (not request.user.is_authenticated and 
             request.method == 'GET' and 
             request.path in self.main_pages):
             ip = get_client_ip(request)
-            country, location = get_ip_location(ip)
-            ActivityLog.objects.create(
-                actor=None,  # No actor for anonymous
-                action_type='ACCESS',
-                ip_address=ip,
-                country=country,
-                location=location,
-                remarks=f'Anonymous user accessed {request.path}',
-                status='SUCCESS',
-                path=request.path
-            )
+            # Skip logging local development accesses
+            if ip and ip != '127.0.0.1':
+                country, location = get_ip_location(ip)
+                hostname = get_hostname_from_ip(ip)
+                ActivityLog.objects.create(
+                    actor=None,  # No actor for anonymous
+                    action_type='ACCESS',
+                    ip_address=ip,
+                    hostname=hostname,
+                    country=country,
+                    location=location,
+                    remarks=f'Anonymous user accessed {request.path}',
+                    status='SUCCESS',
+                    path=request.path
+                )
         
         return response
