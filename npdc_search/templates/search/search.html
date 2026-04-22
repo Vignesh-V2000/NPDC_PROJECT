@@ -1713,7 +1713,7 @@
         const filter = filterRadio ? filterRadio.value : '';
         
         const yearEl = document.getElementById('filterYear');
-        const year = yearEl && yearEl.value ? yearEl.value : '';
+        const years = yearEl && yearEl.value ? [yearEl.value] : [];
 
         // Advanced Params
         const advOps = Array.from(document.querySelectorAll('select[name="adv_op"]')).map(el => el.value);
@@ -1729,7 +1729,6 @@
         return {
             query: document.getElementById('searchQuery').value,
             filter: filter,
-            year: year,
             start: getElementValue('filterStart'),
             end: getElementValue('filterEnd'),
             bbox_west: getElementValue('filterBboxWest'),
@@ -2200,13 +2199,6 @@
             if (radio) radio.checked = true;
         }
 
-        // Restore year dropdown
-        const year = params.get('year');
-        if (year) {
-            const yearEl = document.getElementById('filterYear');
-            if (yearEl) yearEl.value = year;
-        }
-
         // Restore year
         const yearEl = document.getElementById('filterYear');
         if (yearEl && params.get('year')) {
@@ -2265,8 +2257,8 @@
         // create map without default attribution control
         map = L.map('datasetMap', { attributionControl: false }).setView([20, 0], 2);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: ''  // keep empty or add required credit manually elsewhere
         }).addTo(map);
 
         markersGroup = L.featureGroup().addTo(map);

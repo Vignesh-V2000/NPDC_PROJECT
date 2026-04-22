@@ -14,31 +14,27 @@
 
         <div class="keyword-grid">
             {% for cat in categories %}
-            <div class="keyword-item" style="--delay: {{ forloop.counter0 }}">
-                <a href="{% url 'search:search' %}?filter=category:{{ cat.value }}&ref=browse_keyword&query={{ cat.label|urlencode }}" class="keyword-image-link">
-                    <div class="keyword-card-img" id="card-img-{{ forloop.counter }}" data-category="{{ cat.label }}">
-                        <i class="fas fa-layer-group"></i>
-                        <div class="keyword-card-overlay">
-                            <span class="keyword-card-count">{{ cat.count }}</span>
-                            <span class="keyword-card-count-label">entries</span>
-                        </div>
+            <a href="{% url 'search:search' %}?filter=category:{{ cat.value }}&ref=browse_keyword&query={{ cat.label|urlencode }}" class="keyword-card" style="--delay: {{ forloop.counter0 }}">
+                <div class="keyword-card-img" id="card-img-{{ forloop.counter }}" data-category="{{ cat.label }}">
+                    <i class="fas fa-layer-group"></i>
+                    <div class="keyword-card-overlay">
+                        <span class="keyword-card-count">{{ cat.count }}</span>
+                        <span class="keyword-card-count-label">entries</span>
                     </div>
-                </a>
-                <a href="{% url 'search:search' %}?filter=category:{{ cat.value }}&ref=browse_keyword&query={{ cat.label|urlencode }}" class="keyword-card">
-                    <div class="keyword-card-body">
-                        <h6 class="keyword-title">{{ cat.label }}</h6>
-                        <div class="keyword-samples">
-                            {% for kw in cat.sample_keywords %}
-                            {{ kw }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                            {% if cat.sample_keywords %}...{% endif %}
-                        </div>
-                        <div class="keyword-card-action">
-                            <span>Explore <i class="fas fa-arrow-right ms-1"></i></span>
-                        </div>
+                </div>
+                <div class="keyword-card-body">
+                    <h6 class="keyword-title">{{ cat.label }}</h6>
+                    <div class="keyword-samples">
+                        {% for kw in cat.sample_keywords %}
+                        {{ kw }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        {% if cat.sample_keywords %}...{% endif %}
                     </div>
-                </a>
-            </div>
+                    <div class="keyword-card-action">
+                        <span>Explore <i class="fas fa-arrow-right ms-1"></i></span>
+                    </div>
+                </div>
+            </a>
             {% endfor %}
         </div>
 
@@ -145,25 +141,8 @@
     }
 
     /* Card Image */
-    .keyword-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-        animation: cardFadeIn 0.5s ease both;
-        animation-delay: calc(var(--delay) * 0.04s);
-    }
-
-    .keyword-image-link {
-        display: flex;
-        justify-content: center;
-        text-decoration: none;
-        color: inherit;
-    }
-
     .keyword-card-img {
-        width: 110px;
-        height: 80px;
-        border-radius: 0.85rem;
+        height: 170px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -171,32 +150,9 @@
         color: #fff;
         position: relative;
         overflow: hidden;
-        background-size: 110px 80px;
+        background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
         background-color: #1e3a5f;
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
-    }
-
-    .keyword-card {
-        background: #ffffff;
-        border-radius: 0.85rem;
-        overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .keyword-card:hover {
-        transform: translateY(-6px) scale(1.01);
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
-        text-decoration: none;
-        color: inherit;
-        border-color: rgba(59, 130, 246, 0.15);
     }
 
     .keyword-card-img i {
@@ -226,47 +182,36 @@
     /* Overlay Count Badge */
     .keyword-card-overlay {
         position: absolute;
-        bottom: 6px;
-        right: 6px;
+        bottom: 10px;
+        right: 12px;
         z-index: 3;
         display: flex;
         flex-direction: column;
         align-items: center;
-        background: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 0.4rem;
-        padding: 0.1rem 0.32rem;
+        border-radius: 0.5rem;
+        padding: 0.35rem 0.65rem;
         transition: all 0.3s ease;
     }
 
-    .keyword-card:hover .keyword-card-overlay,
-    .keyword-item:hover .keyword-card-overlay,
-    .keyword-image-link:hover .keyword-card-overlay {
-        background: rgba(59, 130, 246, 0.85);
+    .keyword-card:hover .keyword-card-overlay {
+        background: rgba(59, 130, 246, 0.8);
         border-color: rgba(59, 130, 246, 0.9);
-        transform: scale(1.02);
-    }
-
-    .keyword-card:hover .keyword-card-count,
-    .keyword-card:hover .keyword-card-count-label,
-    .keyword-item:hover .keyword-card-count,
-    .keyword-item:hover .keyword-card-count-label,
-    .keyword-image-link:hover .keyword-card-count,
-    .keyword-image-link:hover .keyword-card-count-label {
-        color: #ffffff;
+        transform: scale(1.05);
     }
 
     .keyword-card-count {
-        font-size: 0.85rem;
+        font-size: 1.15rem;
         font-weight: 800;
         color: #ffffff;
         line-height: 1.1;
     }
 
     .keyword-card-count-label {
-        font-size: 0.45rem;
+        font-size: 0.6rem;
         color: rgba(255, 255, 255, 0.75);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -607,7 +552,7 @@
             if (imageFile) {
                 var imageUrl = basePath + encodeURIComponent(imageFile);
                 c[i].style.background = 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url(\'' + imageUrl + '\')';
-                c[i].style.backgroundSize = 'contain';
+                c[i].style.backgroundSize = 'cover';
                 c[i].style.backgroundPosition = 'center';
                 c[i].style.backgroundRepeat = 'no-repeat';
                 c[i].classList.add('has-image');

@@ -154,9 +154,8 @@ else:
     pass
 
 
-# Secure Text Captcha Settings
-CAPTCHA_CHALLENGE_FUNCT = 'npdc_site.captcha_helpers.mixed_char_challenge'
-CAPTCHA_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+# Secure Mathematical Captcha Settings
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 CAPTCHA_NOISE_FUNCTIONS = (
     'captcha.helpers.noise_arcs',
     'captcha.helpers.noise_dots',
@@ -164,7 +163,6 @@ CAPTCHA_NOISE_FUNCTIONS = (
 CAPTCHA_LETTER_ROTATION = (-10, 10)
 CAPTCHA_FONT_SIZE = 30
 CAPTCHA_TIMEOUT = 5  # Minutes
-CAPTCHA_LENGTH = 6
 
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
