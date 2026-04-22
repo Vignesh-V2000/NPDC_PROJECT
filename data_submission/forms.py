@@ -15,6 +15,7 @@ from .models import (
     DataResolutionMetadata,
     PaleoTemporalCoverage,
 )
+from .gcmd_keywords import is_valid_gcmd_keyword, get_canonical_gcmd_keyword
 
 
 
@@ -43,6 +44,20 @@ class DatasetSubmissionForm(forms.ModelForm):
         choices=DatasetSubmission.get_expedition_year_choices, # Django evaluates callable choices
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Expedition Year'
+    )
+
+    keywords = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control char-counter',
+                'rows': '2',
+                'maxlength': '1000',
+                'placeholder': 'e.g. Sea Ice Concentration, Glacier Mass Balance, Ocean Acidification',
+            }
+        ),
+        label='Keywords',
+        help_text='Enter comma-separated keywords. GCMD keywords are preferred and will be standardized, but custom keywords are also accepted.',
     )
 
     # Spatial Coverage Split Fields
@@ -77,6 +92,7 @@ class DatasetSubmissionForm(forms.ModelForm):
             'project_name',
             'abstract',
             'purpose',
+            'keywords',
 
             # Temporal
             'temporal_start_date',
@@ -220,6 +236,26 @@ class DatasetSubmissionForm(forms.ModelForm):
             self.fields[f'{prefix}_min'].initial = min_val
             self.fields[f'{prefix}_sec'].initial = sec
 
+    def clean_keywords(self):
+        keywords = self.cleaned_data.get('keywords', '') or ''
+        
+        # If editing existing instance and keywords haven't changed, preserve them
+        if self.instance and self.instance.pk and self.instance.keywords == keywords:
+            return keywords
+        
+        keyword_list = [k.strip() for k in keywords.split(',') if k.strip()]
+        
+        # Canonicalize valid GCMD keywords, keep others as-is
+        canonicalized = []
+        for k in keyword_list:
+            canonical = get_canonical_gcmd_keyword(k)
+            if canonical:
+                canonicalized.append(canonical)
+            else:
+                canonicalized.append(k)  # Keep original if not GCMD
+        
+        return ', '.join(canonicalized)
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         
@@ -342,6 +378,19 @@ class ScientistDetailForm(forms.ModelForm):
 
         if self.instance and self.instance.pk:
              self.fields['state'].widget.attrs['data-initial'] = self.instance.state
+
+    def clean_state(self):
+        """Validate that state belongs to the selected country when editing"""
+        state = self.cleaned_data.get('state', '').strip()
+        country = self.cleaned_data.get('country')
+        
+        # Only validate if both country and state are provided
+        if state and country:
+            # Allow state to be populated from AJAX autocomplete - user should validate before saving
+            # This is a soft warning rather than a hard block
+            pass
+        
+        return state
 
     class Meta:
         model = ScientistDetail

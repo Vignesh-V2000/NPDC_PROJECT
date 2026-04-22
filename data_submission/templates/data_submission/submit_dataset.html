@@ -648,6 +648,9 @@
                         <div class="col-md-6">
                             {{ dataset_form.iso_topic|as_crispy_field }}
                         </div>
+                        <div class="col-md-12">
+                            {{ dataset_form.keywords|as_crispy_field }}
+                        </div>
                         <div class="col-md-6">
                             {{ dataset_form.expedition_year|as_crispy_field }}
                         </div>
@@ -1953,7 +1956,7 @@
         'id_abstract': 'Provide a brief summary of the dataset contents.',
         'id_purpose': 'Explain the scientific purpose or reason for collecting this data.',
         'id_version': 'Current version of the dataset (e.g., 1.0).',
-        'id_keywords': 'Enter comma-separated keywords (GCMD) to help search.',
+        'id_keywords': 'Enter comma-separated GCMD keywords. Prefer specific child/leaf terms, not just broad categories.',
         'id_topic': 'Main scientific topic.',
         'id_data_center': 'Data center responsible for the dataset.',
 
@@ -3786,7 +3789,7 @@
         function restoreFormData() {
             // Do not restore browser cache if we are loading an explicitly edited dataset from the server
             // to prevent wiping out the actual database values.
-            if (isEditMode) return;
+            // if (isEditMode) return;
             
             const savedDataBytes = sessionStorage.getItem(STORAGE_KEY);
             if (savedDataBytes) {

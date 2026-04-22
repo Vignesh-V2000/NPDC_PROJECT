@@ -1536,6 +1536,171 @@ def admin_delete_dataset(request, metadata_id):
     return redirect("data_submission:all_submissions")
 
 
+@login_required
+@user_passes_test(is_non_expedition_admin)
+@require_http_methods(["GET", "POST"])
+def admin_edit_submission(request, metadata_id):
+    """Admin view to edit any submission, similar to submit_dataset but for admins."""
+    
+    # Get the dataset
+    dataset = None
+    
+    # Try multiple lookup strategies
+    try:
+        dataset = DatasetSubmission.objects.get(metadata_id=metadata_id)
+    except DatasetSubmission.DoesNotExist:
+        pass
+    
+    if not dataset:
+        try:
+            dataset = DatasetSubmission.objects.get(metadata_id__iexact=metadata_id)
+        except DatasetSubmission.DoesNotExist:
+            pass
+    
+    if not dataset:
+        if '-' in metadata_id:
+            alt_id = metadata_id.replace('-', '')
+        else:
+            alt_id = metadata_id[:2] + '-' + metadata_id[2:] if len(metadata_id) > 2 else metadata_id
+        try:
+            dataset = DatasetSubmission.objects.get(metadata_id__iexact=alt_id)
+        except DatasetSubmission.DoesNotExist:
+            pass
+    
+    if not dataset and metadata_id.isdigit():
+        try:
+            dataset = DatasetSubmission.objects.get(id=int(metadata_id))
+        except (DatasetSubmission.DoesNotExist, ValueError):
+            pass
+    
+    if not dataset:
+        raise Http404("Dataset not found.")
+    
+    is_edit_mode = True
+    
+    # Dynamically define formsets
+    scientist_extra = 0 if dataset.scientists.exists() else 1
+    instrument_extra = 0 if dataset.instruments.exists() else 1
+
+    LocalScientistFormSet = inlineformset_factory(
+        DatasetSubmission, ScientistDetail, form=ScientistDetailForm, extra=scientist_extra, can_delete=True
+    )
+    LocalInstrumentFormSet = inlineformset_factory(
+        DatasetSubmission, InstrumentMetadata, form=InstrumentMetadataForm, extra=instrument_extra, can_delete=True
+    )
+
+    if request.method == "POST":
+        # Handle POST
+        dataset_form = DatasetSubmissionForm(request.POST, request.FILES, instance=dataset)
+        citation_instance = getattr(dataset, 'citation', None)
+        platform_instance = getattr(dataset, 'platform', None)
+        gps_instance = getattr(dataset, 'gps', None)
+        location_instance = getattr(dataset, 'location', None)
+        resolution_instance = getattr(dataset, 'resolution', None)
+        paleo_instance = getattr(dataset, 'paleo_temporal', None)
+        
+        citation_form = DatasetCitationForm(request.POST, instance=citation_instance)
+        platform_form = PlatformMetadataForm(request.POST, instance=platform_instance)
+        gps_form = GPSMetadataForm(request.POST, instance=gps_instance)
+        location_form = LocationMetadataForm(request.POST, instance=location_instance)
+        resolution_form = DataResolutionMetadataForm(request.POST, instance=resolution_instance)
+        
+        if gps_instance and gps_instance.gps_used:
+            paleo_form = PaleoTemporalCoverageForm(request.POST, instance=paleo_instance)
+        else:
+            paleo_form = PaleoTemporalCoverageForm(request.POST)
+            
+        scientist_formset = LocalScientistFormSet(request.POST, instance=dataset)
+        instrument_formset = LocalInstrumentFormSet(request.POST, instance=dataset)
+
+        action = request.POST.get("save")
+
+        if action == "PREVIEW":
+            # For preview, save the data first
+            if dataset_form.is_valid() and citation_form.is_valid() and platform_form.is_valid() and gps_form.is_valid() and location_form.is_valid() and resolution_form.is_valid() and scientist_formset.is_valid() and instrument_formset.is_valid():
+                with transaction.atomic():
+                    dataset_form.save()
+                    citation_form.save()
+                    platform_form.save()
+                    gps_form.save()
+                    location_form.save()
+                    resolution_form.save()
+                    if paleo_form.is_valid():
+                        paleo_form.save()
+                    scientist_formset.save()
+                    instrument_formset.save()
+                messages.success(request, "Changes saved. Redirecting to preview.")
+                return redirect('data_submission:view_submission', metadata_id=dataset.metadata_id)
+            else:
+                messages.error(request, "Please correct the errors below.")
+        elif action in ["SUBMIT", "SAVE"]:
+            # Validate and save
+            if dataset_form.is_valid() and citation_form.is_valid() and platform_form.is_valid() and gps_form.is_valid() and location_form.is_valid() and resolution_form.is_valid() and scientist_formset.is_valid() and instrument_formset.is_valid():
+                with transaction.atomic():
+                    dataset_form.save()
+                    citation_form.save()
+                    platform_form.save()
+                    gps_form.save()
+                    location_form.save()
+                    resolution_form.save()
+                    if paleo_form.is_valid():
+                        paleo_form.save()
+                    scientist_formset.save()
+                    instrument_formset.save()
+                messages.success(request, "Dataset updated successfully.")
+                if action == "SUBMIT":
+                    return redirect('data_submission:review_submissions')
+                else:
+                    return redirect('data_submission:admin_edit_submission', metadata_id=dataset.metadata_id)
+            else:
+                messages.error(request, "Please correct the errors below.")
+        else:
+            # Default save
+            if dataset_form.is_valid():
+                dataset_form.save()
+                messages.success(request, "Dataset updated successfully.")
+                return redirect('data_submission:admin_edit_submission', metadata_id=dataset.metadata_id)
+            else:
+                messages.error(request, "Please correct the errors below.")
+    else:
+        # GET request
+        dataset_form = DatasetSubmissionForm(instance=dataset)
+        citation_instance = getattr(dataset, 'citation', None)
+        platform_instance = getattr(dataset, 'platform', None)
+        gps_instance = getattr(dataset, 'gps', None)
+        location_instance = getattr(dataset, 'location', None)
+        resolution_instance = getattr(dataset, 'resolution', None)
+        paleo_instance = getattr(dataset, 'paleo_temporal', None)
+        
+        citation_form = DatasetCitationForm(instance=citation_instance)
+        platform_form = PlatformMetadataForm(instance=platform_instance)
+        gps_form = GPSMetadataForm(instance=gps_instance)
+        location_form = LocationMetadataForm(instance=location_instance)
+        resolution_form = DataResolutionMetadataForm(instance=resolution_instance)
+        paleo_form = PaleoTemporalCoverageForm(instance=paleo_instance)
+        scientist_formset = LocalScientistFormSet(instance=dataset)
+        instrument_formset = LocalInstrumentFormSet(instance=dataset)
+
+    return render(
+        request,
+        "data_submission/submit_dataset.html",  # Reuse the template
+        {
+            "dataset_form": dataset_form,
+            "citation_form": citation_form,
+            "platform_form": platform_form,
+            "gps_form": gps_form,
+            "location_form": location_form,
+            "resolution_form": resolution_form,
+            "scientist_formset": scientist_formset,
+            "instrument_formset": instrument_formset,
+            "paleo_form": paleo_form,
+            "is_edit_mode": is_edit_mode,
+            "dataset_id": dataset.metadata_id,
+            "is_admin_edit": True,
+        },
+    )
+
+
 # =====================================================
 # LOGGER SETUP
 # =====================================================

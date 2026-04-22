@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 # Reuse the shared AI caller from search module
 from npdc_search.ai_search import _call_openrouter
 
+from .gcmd_keywords import GCMD_KEYWORD_PROMPT_HINT
+
 # ===================== CONSTANTS =====================
 
 VALID_CATEGORIES = [
@@ -369,8 +371,10 @@ CATEGORY: {category}
 
 Requirements:
 - Keywords should be relevant to polar/cryosphere science
-- Include broader terms (e.g. "Glaciology") and specific terms (e.g. "Ice Core Analysis")
-- Follow Global Change Master Directory (GCMD) keyword conventions
+- Prefer specific GCMD child/leaf keywords rather than only broad parent categories
+- Use the Global Change Master Directory (GCMD) keyword taxonomy
+- Do not return only generic category labels such as Atmosphere, Oceans, Environment, or Location
+- Include detailed keywords where applicable, for example: {GCMD_KEYWORD_PROMPT_HINT}
 - Include geographic terms if applicable (e.g. "Antarctica", "Arctic Ocean")
 
 Respond with ONLY a JSON array of keyword strings:
