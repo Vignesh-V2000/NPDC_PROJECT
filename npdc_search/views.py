@@ -81,7 +81,6 @@ def search_view(request):
         category = ""
         iso = ""
         keyword_selected = []
-        location_subregion = ""
         
         if filter_param and ":" in filter_param:
             filter_type, filter_value = filter_param.split(":", 1)
@@ -94,8 +93,6 @@ def search_view(request):
                 iso = filter_value
             elif filter_type == "keyword":
                 keyword_selected = [filter_value]
-            elif filter_type == "location":
-                location_subregion = filter_value
         
         year = sanitize_filter_value(request.GET.get("year", ""))
 
@@ -122,15 +119,10 @@ def search_view(request):
                 # Partial metadata_id search (allows incomplete IDs like "mf12")
                 queryset = queryset.filter(metadata_id__icontains=query)
             else:
-                search_terms = []  # Initialize to avoid UnboundLocalError
-                exact_title_queryset = queryset.filter(title__icontains=query)
-                if exact_title_queryset.exists():
-                    queryset = exact_title_queryset
-                else:
-                    phrases = re.findall(r'"([^\"]+)"', query)
-                    remaining = re.sub(r'"[^"]+', '', query).strip()
-                    words = remaining.split() if remaining else []
-                    search_terms = phrases + words
+                phrases = re.findall(r'"([^"]+)"', query)
+                remaining = re.sub(r'"[^"]+', '', query).strip()
+                words = remaining.split() if remaining else []
+                search_terms = phrases + words
 
                 if search_terms:
                     search_string = ' & '.join(search_terms)
@@ -245,9 +237,6 @@ def search_view(request):
 
         if iso:
             queryset = queryset.filter(iso_topic=iso)
-
-        if location_subregion:
-            queryset = queryset.filter(location__location_subregion__iexact=location_subregion)
 
         # Keyword filter
         if keyword_selected:
@@ -966,45 +955,16 @@ def browse_by_location(request):
                         cursor.execute(query, legacy_types)
                         rows = cursor.fetchall()
                     
-                    for i, (subregion, legacy_count) in enumerate(rows, start=1):
-                        # For each legacy subregion, calculate the actual search count
-                        # to ensure consistency with search results
-                        import re
-                        from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
-                        
-                        phrases = re.findall(r'"([^"]+)"', subregion)
-                        remaining = re.sub(r'"[^"]+', '', subregion).strip()
-                        words = remaining.split() if remaining else []
-                        search_terms = phrases + words
-                        
-                        if search_terms:
-                            search_string = ' & '.join(search_terms)
-                            search_vector = SearchVector('title', weight='A') + SearchVector('abstract', weight='B') + SearchVector('keywords', weight='A')
-                            search_query = SearchQuery(search_string, search_type='raw')
-                            
-                            actual_count = base_qs.annotate(
-                                search_rank=SearchRank(search_vector, search_query)
-                            ).filter(
-                                Q(search_rank__gte=0.001) |
-                                Q(scientists__first_name__icontains=search_terms[0]) |
-                                Q(scientists__last_name__icontains=search_terms[0]) |
-                                Q(instruments__short_name__icontains=search_terms[0]) |
-                                Q(platform__short_name__icontains=search_terms[0]) |
-                                Q(metadata_id__icontains=search_terms[0])
-                            ).distinct().count()
-                        else:
-                            actual_count = 0
-                        
+                    for i, (subregion, count) in enumerate(rows, start=1):
                         locations.append({
                             'sl_no': i,
                             'name': subregion.strip(),
-                            'count': actual_count,  # Use actual search count instead of legacy count
+                            'count': count,
                             'lat': None,
                             'lon': None,
                         })
-                except Exception as e:
-                    logger.warning(f"Legacy location query failed: {e}")
-                    use_legacy = False
+                except Exception:
+                    pass
 
         # Fallback to Django ORM LocationMetadata
         if not locations:
@@ -1036,44 +996,17 @@ def browse_by_location(request):
                     'lon': lon,
                 })
 
-        # Fallback: count datasets that contain the location name in their text
+        # Final fallback: show total count for this expedition type
         if not locations:
-            # Use the same text search logic as the main search view
-            import re
-            from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
-            from django.db.models import Q
-            
-            # Simulate the search query parsing
-            query = region['label']  # e.g., "SOUTHERN OCEAN"
-            phrases = re.findall(r'"([^"]+)"', query)
-            remaining = re.sub(r'"[^"]+', '', query).strip()
-            words = remaining.split() if remaining else []
-            search_terms = phrases + words
-            
-            if search_terms:
-                search_string = ' & '.join(search_terms)
-                search_vector = SearchVector('title', weight='A') + SearchVector('abstract', weight='B') + SearchVector('keywords', weight='A')
-                search_query = SearchQuery(search_string, search_type='raw')
-                
-                text_search_count = base_qs.annotate(
-                    search_rank=SearchRank(search_vector, search_query)
-                ).filter(
-                    Q(search_rank__gte=0.001) |
-                    Q(scientists__first_name__icontains=search_terms[0]) |
-                    Q(scientists__last_name__icontains=search_terms[0]) |
-                    Q(instruments__short_name__icontains=search_terms[0]) |
-                    Q(platform__short_name__icontains=search_terms[0]) |
-                    Q(metadata_id__icontains=search_terms[0])
-                ).distinct().count()
-                
-                if text_search_count > 0:
-                    locations.append({
-                        'sl_no': 1,
-                        'name': region['label'].title() + ' Region',
-                        'count': text_search_count,
-                        'lat': region['center'][0],
-                        'lon': region['center'][1],
-                    })
+            total = base_qs.filter(expedition_type=region['expedition_type']).count()
+            if total > 0:
+                locations.append({
+                    'sl_no': 1,
+                    'name': region['label'].title() + ' Region',
+                    'count': total,
+                    'lat': None,
+                    'lon': None,
+                })
 
         region['locations'] = locations
 
