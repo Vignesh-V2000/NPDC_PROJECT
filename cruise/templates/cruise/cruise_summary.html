@@ -237,6 +237,35 @@
         font-size: 0.95rem;
     }
 
+    #tab {
+        min-height: 48px;
+    }
+
+    .filter-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-height: 48px;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .filter-loading-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e1;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: cruise-spin 0.8s linear infinite;
+    }
+
+    @keyframes cruise-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
     .filter-btn {
         padding: 0.65rem 1.5rem;
         border-radius: 0.5rem;
@@ -438,39 +467,60 @@
 function sendDropdown(dropdown) {
     const filterType = dropdown.value;
     const parentid = document.getElementById("tab");
+    const textInput = document.getElementById("myInput");
     
     if (filterType === "all") {
-        $('#myInput').val("");
-        $('#myInput').hide();
-        parentid.innerHTML = '';
+        parentid.innerHTML = `
+            <input type="text" id="myInput" name="search_value" class="form-control"
+                   placeholder="Search or select from dropdown" style="display: none;">
+        `;
         return;
-    } else {
-        parentid.innerHTML = '<img src="{% static "img/loading.gif" %}" width="30px" height="30px" alt="Loading...">';
     }
 
-    $.ajax({
-        type: 'GET',
-        url: "{% url 'cruise:dropdown_api' %}",
-        data: { type: filterType },
-        success: function(html) {
-            $('#myInput').show();
+    if (textInput) {
+        textInput.value = "";
+    }
+
+    parentid.innerHTML = `
+        <div class="filter-loading" aria-live="polite">
+            <span class="filter-loading-spinner" aria-hidden="true"></span>
+            <span>Loading options...</span>
+        </div>
+    `;
+
+    const dropdownUrl = new URL("{% url 'cruise:dropdown_api' %}", window.location.origin);
+    dropdownUrl.searchParams.set("type", filterType);
+
+    fetch(dropdownUrl, {
+        method: "GET",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.text();
+        })
+        .then((html) => {
             parentid.innerHTML = `
                 <select name="search_value" class="form-control filter-select">
                     ${html}
                 </select>
             `;
-        },
-        error: function() {
+        })
+        .catch(() => {
             parentid.innerHTML = '<label class="text-danger">Error loading options</label>';
-        }
-    });
+        });
 }
 
-$(document).ready(function() {
-    // Show/hide dropdown based on filter selection
-    const filterType = $('#filter1').val();
-    if (filterType !== 'all') {
-        $('#myInput').show();
+document.addEventListener("DOMContentLoaded", function() {
+    const filterSelect = document.getElementById("filter1");
+    const filterType = filterSelect ? filterSelect.value : "all";
+    const input = document.getElementById("myInput");
+    if (input && filterType !== 'all') {
+        input.style.display = 'block';
     }
 });
 </script>
