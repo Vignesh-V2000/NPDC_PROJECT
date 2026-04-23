@@ -1794,11 +1794,21 @@ def ai_keywords_view(request):
         if not title and not abstract:
             return JsonResponse({'error': 'Title or abstract is required.'}, status=400)
 
+        logger.info(f"AI keywords request: title={title[:50]}, abstract_len={len(abstract)}, category={category}")
         keywords = suggest_keywords(title, abstract, category)
+        
+        if not keywords:
+            logger.warning(f"AI keywords returned empty list for: title={title[:50]}")
+            return JsonResponse({'error': 'No keywords could be generated. Please check that your title/abstract are descriptive and try again.'}, status=400)
+        
+        logger.info(f"AI keywords success: generated {len(keywords)} keywords")
         return JsonResponse({'status': 'ok', 'keywords': keywords})
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid request format.'}, status=400)
     except Exception as e:
-        logger.error(f"AI keywords error: {e}")
-        return JsonResponse({'error': 'AI keyword generation failed.'}, status=500)
+        import traceback
+        logger.error(f"AI keywords error: {e}\n{traceback.format_exc()}")
+        return JsonResponse({'error': f'AI keyword generation failed: {str(e)[:100]}'}, status=500)
 
 
 @login_required
@@ -2042,28 +2052,57 @@ def admin_edit_submission(request, metadata_id):
         instrument_formset = InstrumentFormSetEdit(request.POST, instance=submission)
 
         if action == "PREVIEW":
-            # For Admins: Preview the current form data WITHOUT saving to DB or requiring strict validation
-            # Create a mock dataset from current form fields (commit=False prevents DB save)
-            preview_ds = dataset_form.save(commit=False)
-            preview_ds.id = submission.id
+            # For Admins: Save changes to DB before showing preview (so they persist if user goes back to edit)
+            # Use relaxed validation (only main form + formsets required)
+            main_valid = all([dataset_form.is_valid(), scientist_formset.is_valid(), instrument_formset.is_valid()])
             
-            # Helper to safely grab partial form data
-            def get_partial(f):
-                for v in f.fields.values(): v.required = False
-                if f.is_valid():
-                    try: return f.save(commit=False)
-                    except: return None
-                return None
-
-            preview_ds.citation = get_partial(citation_form) or citation_instance
-            preview_ds.platform = get_partial(platform_form) or platform_instance
-            preview_ds.gps = get_partial(gps_form) or gps_instance
-            preview_ds.location = get_partial(location_form) or location_instance
-            preview_ds.resolution = get_partial(resolution_form) or resolution_instance
-            preview_ds.paleo_temporal = get_partial(paleo_form) or paleo_instance
+            if main_valid:
+                with transaction.atomic():
+                    submission = dataset_form.save()
+                    submission.status_updated_at = timezone.now()
+                    
+                    # Save related forms only if they are valid (relaxed - not all are required)
+                    if citation_form.is_valid():
+                        cit = citation_form.save(commit=False)
+                        cit.dataset = submission
+                        cit.save()
+                    
+                    if platform_form.is_valid():
+                        plat = platform_form.save(commit=False)
+                        plat.dataset = submission
+                        plat.save()
+                    
+                    if gps_form.is_valid():
+                        gps = gps_form.save(commit=False)
+                        gps.dataset = submission
+                        gps.save()
+                    
+                    if location_form.is_valid():
+                        loc = location_form.save(commit=False)
+                        loc.dataset = submission
+                        loc.save()
+                    
+                    if resolution_form.is_valid():
+                        res = resolution_form.save(commit=False)
+                        res.dataset = submission
+                        res.save()
+                    
+                    if paleo_form.is_bound and paleo_form.is_valid():
+                        pal = paleo_form.save(commit=False)
+                        pal.dataset = submission
+                        pal.save()
+                    
+                    scientist_formset.instance = submission
+                    scientist_formset.save()
+                    
+                    instrument_formset.instance = submission
+                    instrument_formset.save()
+                    
+                    # Refresh from DB to show latest saved data in preview
+                    submission.refresh_from_db()
             
             return render(request, 'data_submission/preview_dataset.html', {
-                'dataset': preview_ds,
+                'dataset': submission,
                 'is_admin_preview': True
             })
 

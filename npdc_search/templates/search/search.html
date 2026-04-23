@@ -1729,6 +1729,7 @@
         return {
             query: document.getElementById('searchQuery').value,
             filter: filter,
+            year: years,
             start: getElementValue('filterStart'),
             end: getElementValue('filterEnd'),
             bbox_west: getElementValue('filterBboxWest'),
@@ -2258,7 +2259,8 @@
         map = L.map('datasetMap', { attributionControl: false }).setView([20, 0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: ''  // keep empty or add required credit manually elsewhere
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
         }).addTo(map);
 
         markersGroup = L.featureGroup().addTo(map);

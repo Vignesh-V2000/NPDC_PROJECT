@@ -99,6 +99,7 @@ class DatasetSubmissionForm(forms.ModelForm):
             # 'contact_email',
             # 'contact_phone',
             'data_set_progress',
+            'keywords',
             
         ]
 
@@ -113,6 +114,7 @@ class DatasetSubmissionForm(forms.ModelForm):
             'abstract': 'Abstract',
             'purpose': 'Purpose',
             'data_set_progress': 'Data Set Progress',
+            'keywords': 'Science Keywords',
             
             # Others mapped
             'temporal_start_date': 'Start Date',
@@ -135,6 +137,7 @@ class DatasetSubmissionForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'maxlength': '220', 'class': 'char-counter'}),
             'abstract': forms.Textarea(attrs={'maxlength': '1000', 'class': 'char-counter', 'rows': 4}),
             'purpose': forms.Textarea(attrs={'maxlength': '1000', 'class': 'char-counter', 'rows': 4}),
+            'keywords': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter comma-separated keywords (GCMD recommended)'}),
         }
 
     def __init__(self, *args, **kwargs):

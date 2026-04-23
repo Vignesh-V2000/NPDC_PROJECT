@@ -655,6 +655,20 @@
                             {{ dataset_form.expedition_number|as_crispy_field }}
                         </div>
                     </div>
+                    
+                    <!-- Keywords Section -->
+                    <hr class="my-4">
+                    <h6 class="text-muted mb-2">
+                        Science Keywords (GCMD)
+                        <button type="button" class="btn btn-sm btn-outline-info ms-2" onclick="aiSuggestKeywords()"
+                            id="ai-keywords-btn" title="AI Suggest Keywords">
+                            🐧 Suggest Keywords
+                        </button>
+                    </h6>
+                    {{ dataset_form.keywords|as_crispy_field }}
+                    
+                    <!-- AI-Generated Keywords Display -->
+                    <div id="ai-keywords-tags" class="mt-2"></div>
                 </fieldset>
 
                 <!-- 4. Project Details -->
@@ -2917,7 +2931,7 @@
         try {
             const result = await aiApiCall('/data/api/ai-keywords/', { title, abstract, category });
             if (result.status === 'ok' && result.keywords && result.keywords.length > 0) {
-                const tagsContainer = document.getElementById('ai-keyword-tags');
+                const tagsContainer = document.getElementById('ai-keywords-tags');
                 tagsContainer.style.display = 'block';
                 tagsContainer.innerHTML = '<small class="text-muted d-block mb-1">🐧 Click keywords to add them:</small>';
 
@@ -3157,7 +3171,7 @@
                         filled.push('Keywords');
                     }
                     // Also show tags
-                    const tagsContainer = document.getElementById('ai-keyword-tags');
+                    const tagsContainer = document.getElementById('ai-keywords-tags');
                     if (tagsContainer) {
                         tagsContainer.style.display = 'block';
                         tagsContainer.innerHTML = '<small class="text-muted d-block mb-1">🐧 AI-suggested keywords (added):</small>';

@@ -154,8 +154,10 @@ else:
     pass
 
 
-# Secure Mathematical Captcha Settings
-CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+# Numeric-Character CAPTCHA Settings (not math-based)
+CAPTCHA_CHALLENGE_FUNCT = 'npdc_site.captcha_helpers.mixed_char_challenge'
+CAPTCHA_CHARS = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'  # Numbers and letters
+CAPTCHA_LENGTH = 6
 CAPTCHA_NOISE_FUNCTIONS = (
     'captcha.helpers.noise_arcs',
     'captcha.helpers.noise_dots',

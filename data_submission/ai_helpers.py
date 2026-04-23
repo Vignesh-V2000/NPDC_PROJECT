@@ -23,6 +23,9 @@ logger = logging.getLogger(__name__)
 # Reuse the shared AI caller from search module
 from npdc_search.ai_search import _call_openrouter
 
+# Import GCMD keyword guidance to favor specific terms
+from .gcmd_keywords import GCMD_KEYWORD_PROMPT_HINT, GCMD_KEYWORD_LEAF_LIST
+
 # ===================== CONSTANTS =====================
 
 VALID_CATEGORIES = [
@@ -352,7 +355,8 @@ Respond with ONLY valid JSON (no explanation):
 def suggest_keywords(title, abstract, category="", num_keywords=10):
     """
     AI-powered GCMD-aligned keyword generator.
-    Returns list of keyword strings.
+    Returns list of keyword strings, prioritizing specific leaf-level terms.
+    Falls back to category-based keywords if AI fails.
     """
     cache_key = f"ai_keywords:{hashlib.md5(f'{title}:{abstract[:100]}:{category}'.encode()).hexdigest()}"
     cached = cache.get(cache_key)
@@ -360,6 +364,10 @@ def suggest_keywords(title, abstract, category="", num_keywords=10):
         return cached
 
     _abstract_trunc = abstract[:1000]
+    
+    # Build list of specific leaf keywords to emphasize
+    leaf_examples = ", ".join(GCMD_KEYWORD_LEAF_LIST[:25])
+    
     prompt = f"""You are a scientific metadata expert for the National Polar Data Center.
 Generate {num_keywords} relevant GCMD-compatible scientific keywords for this polar research dataset.
 
@@ -367,25 +375,61 @@ TITLE: {title}
 ABSTRACT: {_abstract_trunc}
 CATEGORY: {category}
 
+{GCMD_KEYWORD_PROMPT_HINT}
+
+SPECIFIC KEYWORDS TO CONSIDER (but not limited to):
+{leaf_examples}
+
 Requirements:
-- Keywords should be relevant to polar/cryosphere science
-- Include broader terms (e.g. "Glaciology") and specific terms (e.g. "Ice Core Analysis")
-- Follow Global Change Master Directory (GCMD) keyword conventions
-- Include geographic terms if applicable (e.g. "Antarctica", "Arctic Ocean")
+- STRONGLY FAVOR specific, deep-level GCMD keywords over broad categories
+- Do NOT use only parent-level keywords like "Atmosphere", "Oceans", "Cryosphere", "Biosphere"
+- Use specific scientific terms that accurately describe what the dataset contains
+- Include geographic terms if applicable (e.g. "Antarctica", "East Antarctica", "Arctic Ocean")
+- Each keyword should be meaningful and specific to the dataset
+- Ensure at least 70% of keywords are specific leaf-level terms (not broad categories)
 
 Respond with ONLY a JSON array of keyword strings:
 ["keyword1", "keyword2", "keyword3", ...]"""
 
-    response = _call_openrouter(prompt, max_tokens=300, temperature=0.4)
-    result = _safe_json_parse(response)
+    try:
+        response = _call_openrouter(prompt, max_tokens=300, temperature=0.4)
+        if not response:
+            logger.warning("AI API returned None/empty response for keywords")
+            # Fall back to category-based keywords
+            return _get_fallback_keywords(category, num_keywords)
+        
+        result = _safe_json_parse(response)
+        
+        if isinstance(result, list):
+            # Ensure all items are strings
+            keywords = [str(k).strip() for k in result if k][:num_keywords]
+            if keywords:
+                cache.set(cache_key, keywords, AI_CACHE_TIMEOUT)
+            return keywords
+        else:
+            logger.warning(f"AI keywords returned non-list result: {type(result)}, response was: {response[:200]}")
+            return _get_fallback_keywords(category, num_keywords)
+    except Exception as e:
+        logger.error(f"Error in suggest_keywords: {e}", exc_info=True)
+        # Fall back to category-based keywords
+        return _get_fallback_keywords(category, num_keywords)
 
-    if isinstance(result, list):
-        # Ensure all items are strings
-        keywords = [str(k).strip() for k in result if k][:num_keywords]
-        cache.set(cache_key, keywords, AI_CACHE_TIMEOUT)
-        return keywords
 
-    return []
+def _get_fallback_keywords(category="", num_keywords=10):
+    """
+    Fallback keyword generator when AI API fails.
+    Returns relevant GCMD keywords based on category.
+    """
+    category_keywords = {
+        'cryosphere': ['Ice Core Records', 'Glacier Mass Balance', 'Ice Sheet Dynamics', 'Permafrost', 'Snow Depth', 'Sea Ice Concentration', 'Paleoclimate Reconstructions'],
+        'atmosphere': ['Air Temperature Observations', 'Atmospheric Winds', 'Cloud Cover', 'Precipitation Amount', 'Atmospheric Radiation'],
+        'oceans': ['Sea Surface Temperature', 'Salinity/Density', 'Ocean Circulation', 'Marine Biology', 'Dissolved Oxygen'],
+        'biosphere': ['Vegetation', 'Ecological Dynamics', 'Marine Ecosystems', 'Freshwater Ecosystems'],
+        'land_surface': ['Land Use/Land Cover', 'Soil Moisture', 'Topography', 'Erosion/Sedimentation'],
+    }
+    
+    keywords = category_keywords.get(category, []) or GCMD_KEYWORD_LEAF_LIST[:15]
+    return list(set(keywords))[:num_keywords]
 
 
 # =====================================================================

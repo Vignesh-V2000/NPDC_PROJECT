@@ -140,6 +140,7 @@ def normalize_keyword(keyword):
 
 
 def flatten_gcmd_keywords(hierarchy):
+    """Flatten the hierarchy to get ALL keywords at all levels."""
     keywords = []
     for parent, children in hierarchy.items():
         keywords.append(parent)
@@ -154,7 +155,24 @@ def flatten_gcmd_keywords(hierarchy):
             keywords.extend(children)
     return keywords
 
+
+def get_leaf_level_keywords(hierarchy):
+    """Extract ONLY the deepest/most specific keywords (Level 3)."""
+    leaf_keywords = []
+    
+    def extract_leaves(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                extract_leaves(value)
+        elif isinstance(node, list):
+            leaf_keywords.extend(node)
+    
+    extract_leaves(hierarchy)
+    return sorted(set(leaf_keywords))
+
+
 GCMD_KEYWORD_LIST = sorted({kw for kw in flatten_gcmd_keywords(GCMD_KEYWORD_HIERARCHY)})
+GCMD_KEYWORD_LEAF_LIST = get_leaf_level_keywords(GCMD_KEYWORD_HIERARCHY)
 GCMD_KEYWORD_LOOKUP = {normalize_keyword(kw): kw for kw in GCMD_KEYWORD_LIST}
 
 
@@ -165,10 +183,12 @@ def is_valid_gcmd_keyword(keyword):
 def get_canonical_gcmd_keyword(keyword):
     return GCMD_KEYWORD_LOOKUP.get(normalize_keyword(keyword))
 
+
 GCMD_KEYWORD_PROMPT_HINT = (
-    "Use the Global Change Master Directory (GCMD) keyword taxonomy and favor specific, "
-    "child-level terms over broad category labels. Do not return only parent-level terms like "
-    "Atmosphere, Oceans, Environment, or Location unless no specific child-term applies. "
-    "Examples of deeper GCMD keywords include: "
-    + ", ".join(GCMD_KEYWORD_LIST[:20])
+    "Use the Global Change Master Directory (GCMD) keyword taxonomy and STRONGLY FAVOR specific, "
+    "deep-level terms over broad category labels. Prioritize the specific leaf-level keywords. "
+    "Do not return only parent-level terms like 'Atmosphere', 'Oceans', 'Environment', 'Cryosphere', "
+    "or 'Location' unless no specific child-term applies. Instead, use the specific scientific terms like: "
+    + ", ".join(GCMD_KEYWORD_LEAF_LIST[:30])
+    + ". Always provide specific, detailed keywords that accurately describe the dataset's scientific content."
 )
