@@ -30,6 +30,8 @@ urlpatterns = [
     path("search/", include("npdc_search.urls")),
     # ✅ Weather Stations API
     path('weather/', include('stations_weather.urls')),
+    # ✅ Cruise Reports & Files
+    path('cruise/', include('cruise.urls')),
 ]
 
 if settings.DEBUG:

@@ -80,6 +80,7 @@ def search_view(request):
         expedition = ""
         category = ""
         iso = ""
+        location_subregion = ""
         keyword_selected = []
         
         if filter_param and ":" in filter_param:
@@ -91,6 +92,8 @@ def search_view(request):
                 category = filter_value
             elif filter_type == "iso":
                 iso = filter_value
+            elif filter_type == "location":
+                location_subregion = filter_value
             elif filter_type == "keyword":
                 keyword_selected = [filter_value]
         
@@ -244,6 +247,12 @@ def search_view(request):
             for k in keyword_selected:
                 keyword_q |= Q(keywords__icontains=k)
             queryset = queryset.filter(keyword_q)
+
+        # Location filter
+        if location_subregion:
+            queryset = queryset.filter(
+                location__location_subregion__iexact=location_subregion
+            )
 
         if year:
             year_list = request.GET.getlist('year')
@@ -426,6 +435,13 @@ def search_view(request):
                     'label': f"Keyword: {val}",
                     'id': f"kw_{val}",
                 })
+
+        if location_subregion:
+            applied_filters.append({
+                'type': 'location', 'value': location_subregion,
+                'label': f"Location: {location_subregion}",
+                'id': f"loc_{location_subregion}",
+            })
 
         for val in year_selected:
             if val:

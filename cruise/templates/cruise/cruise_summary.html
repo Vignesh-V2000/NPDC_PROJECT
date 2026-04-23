@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cruise Summary{% endblock %}
+
+{% block content %}
+<div class="cruise-page-wrapper">
+    <div class="container py-4 py-md-5">
+        <!-- Page Header -->
+        <div class="cruise-hero text-center mb-5">
+            <h2 class="cruise-hero-title">Cruise Summary</h2>
+            <p class="cruise-hero-sub mx-auto">
+                Explore research cruises and their details
+            </p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="cruise-filter-card mb-4">
+            <form method="GET" class="cruise-filter-form" id="filterForm">
+                <div class="filter-group">
+                    <label for="filter1" class="filter-label">Filter By:</label>
+                    <select id="filter1" name="filter_type" class="form-control filter-select" onchange="sendDropdown(this)">
+                        <option value="all">-- All Records --</option>
+                        <option value="ship_name" {% if current_filter == 'ship_name' %}selected{% endif %}>Ship Name (sn)</option>
+                        <option value="cruise_no" {% if current_filter == 'cruise_no' %}selected{% endif %}>Cruise Number (cn)</option>
+                        <option value="chief_scientist_name" {% if current_filter == 'chief_scientist_name' %}selected{% endif %}>Chief Scientist (cs)</option>
+                        <option value="area" {% if current_filter == 'area' %}selected{% endif %}>Area (ar)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group" id="tab">
+                    {% if current_filter != 'all' %}
+                        <input type="text" id="myInput" name="search_value" class="form-control" 
+                               value="{{ search_value }}" placeholder="Search or select from dropdown"
+                               style="display: block;">
+                    {% else %}
+                        <input type="text" id="myInput" name="search_value" class="form-control" 
+                               placeholder="Search or select from dropdown" style="display: none;">
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary filter-btn">
+                    <i class="fas fa-search me-2"></i> Search
+                </button>
+                <a href="{% url 'cruise:summary' %}" class="btn btn-secondary filter-btn">
+                    <i class="fas fa-redo me-2"></i> Reset
+                </a>
+            </form>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="cruise-stats mb-4">
+            <div class="stat-box">
+                <h6>Total Cruises</h6>
+                <p class="stat-number">{{ total_cruises }}</p>
+            </div>
+            <div class="stat-box">
+                <h6>Filtered Results</h6>
+                <p class="stat-number">{{ filtered_count }}</p>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Cruise Table -->
+        <div class="cruise-table-card">
+            <div class="cruise-table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Cruise List
+                </h5>
+            </div>
+
+            {% if cruises %}
+            <div class="cruise-table-body">
+                <table class="table cruise-table table-hover mb-0" id="mainTable">
+                    <thead>
+                        <tr>
+                            <th class="th-sn">Sl.No</th>
+                            <th class="th-ship">Ship Name</th>
+                            <th class="th-cruise">Cruise No.</th>
+                            <th class="th-scientist">Chief Scientist</th>
+                            <th class="th-area">Area</th>
+                            <th class="th-period">Period</th>
+                            <th class="th-action">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cruise in cruises %}
+                        <tr class="cruise-row" data-cruise-id="{{ cruise.id }}">
+                            <td class="td-sn">{{ forloop.counter }}</td>
+                            <td class="td-ship">{{ cruise.ship_name }}</td>
+                            <td class="td-cruise">
+                                <span class="cruise-badge">{{ cruise.cruise_no }}</span>
+                            </td>
+                            <td class="td-scientist">{{ cruise.chief_scientist_name }}</td>
+                            <td class="td-area">{{ cruise.area }}</td>
+                            <td class="td-period">
+                                {% if cruise.period_from %}
+                                    {{ cruise.period_from|date:"M d, Y" }}
+                                {% endif %}
+                                {% if cruise.period_to %}
+                                    - {{ cruise.period_to|date:"M d, Y" }}
+                                {% endif %}
+                            </td>
+                            <td class="td-action">
+                                <a href="{% url 'cruise:detail' cruise.id %}" class="action-link view-link">
+                                    View <i class="fas fa-eye ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if cruises.has_other_pages %}
+            <div class="cruise-pagination">
+                <nav>
+                    <ul class="pagination">
+                        {% if cruises.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_value %}&filter_type={{ current_filter }}&search_value={{ search_value }}{% endif %}">
+                                    <i class="fas fa-chevron-left"></i> First
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ cruises.previous_page_number }}{% if search_value %}&filter_type={{ current_filter }}&search_value={{ search_value }}{% endif %}">
+                                    Previous
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in cruises.paginator.page_range %}
+                            {% if cruises.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > cruises.number|add:'-3' and num < cruises.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_value %}&filter_type={{ current_filter }}&search_value={{ search_value }}{% endif %}">
+                                        {{ num }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if cruises.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ cruises.next_page_number }}{% if search_value %}&filter_type={{ current_filter }}&search_value={{ search_value }}{% endif %}">
+                                    Next
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ cruises.paginator.num_pages }}{% if search_value %}&filter_type={{ current_filter }}&search_value={{ search_value }}{% endif %}">
+                                    Last <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h5 class="mt-3">No Cruises Found</h5>
+                <p class="text-muted">Try adjusting your filters or search criteria</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .cruise-page-wrapper {
+        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        min-height: calc(100vh - 120px);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .cruise-hero-title {
+        font-weight: 800;
+        color: #E8734A;
+        font-size: 2.2rem;
+        letter-spacing: -0.03em;
+    }
+
+    .cruise-hero-sub {
+        color: #1e293b;
+        font-size: 1.1rem;
+        max-width: 480px;
+        line-height: 1.6;
+    }
+
+    .cruise-filter-card {
+        background: #ffffff;
+        border-radius: 0.85rem;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .cruise-filter-form {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    .filter-select {
+        border-radius: 0.5rem;
+        border: 1px solid #cbd5e1;
+        padding: 0.65rem 0.85rem;
+        font-size: 0.95rem;
+    }
+
+    .filter-btn {
+        padding: 0.65rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .cruise-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-box {
+        background: #ffffff;
+        padding: 1.5rem;
+        border-radius: 0.85rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+
+    .stat-box h6 {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #E8734A;
+        margin: 0;
+    }
+
+    .cruise-table-card {
+        background: #ffffff;
+        border-radius: 0.85rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .cruise-table-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        background: #f8fafc;
+    }
+
+    .cruise-table-header h5 {
+        margin: 0;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .cruise-table-body {
+        overflow-x: auto;
+    }
+
+    .cruise-table {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .cruise-table thead {
+        background: #f1f5f9;
+    }
+
+    .cruise-table th {
+        border: none;
+        padding: 1rem 0.75rem;
+        font-weight: 700;
+        color: #475569;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .cruise-table td {
+        padding: 1rem 0.75rem;
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .cruise-row {
+        transition: background-color 0.2s ease;
+    }
+
+    .cruise-row:hover {
+        background-color: #f8fafc;
+    }
+
+    .cruise-badge {
+        display: inline-block;
+        background: #dbeafe;
+        color: #0369a1;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.4rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .action-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+
+    .action-link:hover {
+        color: #1d4ed8;
+        text-decoration: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h5 {
+        color: #475569;
+        margin-top: 1rem;
+    }
+
+    .cruise-pagination {
+        padding: 1.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.04);
+        background: #f8fafc;
+        display: flex;
+        justify-content: center;
+    }
+
+    .pagination {
+        margin: 0;
+        gap: 0.25rem;
+    }
+
+    .page-item .page-link {
+        border: 1px solid #cbd5e1;
+        color: #3b82f6;
+        padding: 0.5rem 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 0.4rem;
+        transition: all 0.2s ease;
+    }
+
+    .page-item .page-link:hover {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    .page-item.active .page-link {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .cruise-hero-title {
+            font-size: 1.8rem;
+        }
+
+        .cruise-filter-form {
+            flex-direction: column;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .filter-btn {
+            width: 100%;
+        }
+
+        .cruise-table {
+            font-size: 0.85rem;
+        }
+
+        .cruise-table th, .cruise-table td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+</style>
+
+<script>
+function sendDropdown(dropdown) {
+    const filterType = dropdown.value;
+    const parentid = document.getElementById("tab");
+    
+    if (filterType === "all") {
+        $('#myInput').val("");
+        $('#myInput').hide();
+        parentid.innerHTML = '';
+        return;
+    } else {
+        parentid.innerHTML = '<img src="{% static "img/loading.gif" %}" width="30px" height="30px" alt="Loading...">';
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: "{% url 'cruise:dropdown_api' %}",
+        data: { type: filterType },
+        success: function(html) {
+            $('#myInput').show();
+            parentid.innerHTML = `
+                <select name="search_value" class="form-control filter-select">
+                    ${html}
+                </select>
+            `;
+        },
+        error: function() {
+            parentid.innerHTML = '<label class="text-danger">Error loading options</label>';
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Show/hide dropdown based on filter selection
+    const filterType = $('#filter1').val();
+    if (filterType !== 'all') {
+        $('#myInput').show();
+    }
+});
+</script>
+{% endblock %}

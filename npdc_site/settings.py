@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'chatbot.apps.ChatbotConfig',  # AI Chatbot Assistant
     'npdc_search.apps.DatasetSearchConfig',
     'stations_weather.apps.StationsWeatherConfig',  # Live Weather Station Data
+    'cruise.apps.CruiseConfig',  # Research Cruises & Files
     'captcha',
     'django_countries',
 

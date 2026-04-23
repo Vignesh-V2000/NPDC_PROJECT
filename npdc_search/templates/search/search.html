@@ -2077,12 +2077,14 @@
 
     // Expose removeFilter and clearAllFilters to global scope
     window.removeFilter = function (type, value, id) {
-        if (['expedition', 'category', 'iso', 'keyword'].includes(type)) {
+        if (['expedition', 'category', 'iso', 'keyword', 'location'].includes(type)) {
             const radio = document.getElementById(id);
             if (radio) {
                 radio.checked = false;
-                triggerSearch();
             }
+            // Always trigger search - getFilterParams will handle rebuilding the URL
+            // For location filters without UI elements, this will simply remove them
+            triggerSearch();
         } else if (type === 'year') {
             const yearEl = document.getElementById('filterYear');
             if (yearEl) yearEl.value = '';
