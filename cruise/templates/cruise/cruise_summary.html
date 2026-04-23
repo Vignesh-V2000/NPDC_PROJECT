@@ -30,9 +30,26 @@
 
                 <div class="filter-group" id="tab">
                     {% if current_filter != 'all' %}
-                        <input type="text" id="myInput" name="search_value" class="form-control" 
-                               value="{{ search_value }}" placeholder="Search or select from dropdown"
-                               style="display: block;">
+                        <select name="search_value" class="form-control filter-select">
+                            <option value="">-- Select --</option>
+                            {% if current_filter == 'ship_name' %}
+                                {% for item in ship_names %}
+                                    <option value="{{ item }}" {% if search_value == item %}selected{% endif %}>{{ item }}</option>
+                                {% endfor %}
+                            {% elif current_filter == 'cruise_no' %}
+                                {% for item in cruise_numbers %}
+                                    <option value="{{ item }}" {% if search_value == item %}selected{% endif %}>{{ item }}</option>
+                                {% endfor %}
+                            {% elif current_filter == 'chief_scientist_name' %}
+                                {% for item in chief_scientists %}
+                                    <option value="{{ item }}" {% if search_value == item %}selected{% endif %}>{{ item }}</option>
+                                {% endfor %}
+                            {% elif current_filter == 'area' %}
+                                {% for item in areas %}
+                                    <option value="{{ item }}" {% if search_value == item %}selected{% endif %}>{{ item }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
                     {% else %}
                         <input type="text" id="myInput" name="search_value" class="form-control" 
                                placeholder="Search or select from dropdown" style="display: none;">
