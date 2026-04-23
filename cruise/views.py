@@ -1,16 +1,34 @@
 import os
 import logging
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db import connection
 from django.views.decorators.http import require_GET, require_POST
 from django.conf import settings
 from django.utils.html import escape
 
-from .models import Cruise, CruiseFile
-
 logger = logging.getLogger(__name__)
+
+
+CRUISE_FILTER_COLUMNS = {
+    'ship_name': 'ship_name',
+    'cruise_no': 'cruise_no',
+    'chief_scientist_name': 'chief_scientist_name',
+    'area': 'area',
+}
+
+
+def _fetch_all_dicts(query, params=None):
+    with connection.cursor() as cursor:
+        cursor.execute(query, params or [])
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+
+def _fetch_one_dict(query, params=None):
+    rows = _fetch_all_dicts(query, params)
+    return rows[0] if rows else None
 
 
 def cruise_summary_view(request):
@@ -18,34 +36,37 @@ def cruise_summary_view(request):
     Cruise Summary Page - List all cruises with filtering options
     """
     try:
-        # Start with all cruises
-        cruises = Cruise.objects.all().select_related()
-
-        # Apply filters
         filter_type = request.GET.get('filter_type', 'all')
         search_value = request.GET.get('search_value', '').strip()
+        sql = """
+            SELECT ship_name, cruise_no, period_from, period_to,
+                   chief_scientist_name, area, objective, files_link
+            FROM cruise
+        """
+        params = []
 
-        if filter_type != 'all' and search_value:
-            search_value_sanitized = escape(search_value)[:200]
-            
-            if filter_type == 'ship_name':
-                cruises = cruises.filter(ship_name__icontains=search_value_sanitized)
-            elif filter_type == 'cruise_no':
-                cruises = cruises.filter(cruise_no__icontains=search_value_sanitized)
-            elif filter_type == 'chief_scientist_name':
-                cruises = cruises.filter(chief_scientist_name__icontains=search_value_sanitized)
-            elif filter_type == 'area':
-                cruises = cruises.filter(area__icontains=search_value_sanitized)
+        if filter_type in CRUISE_FILTER_COLUMNS and search_value:
+            sql += f" WHERE {CRUISE_FILTER_COLUMNS[filter_type]} ILIKE %s"
+            params.append(f"%{search_value[:200]}%")
 
-        # Get unique filter options for dropdowns
-        ship_names = Cruise.objects.values_list('ship_name', flat=True).distinct().order_by('ship_name')
-        chief_scientists = Cruise.objects.values_list('chief_scientist_name', flat=True).distinct().order_by('chief_scientist_name')
-        areas = Cruise.objects.values_list('area', flat=True).distinct().order_by('area')
-        cruise_numbers = Cruise.objects.values_list('cruise_no', flat=True).distinct().order_by('cruise_no')
+        sql += " ORDER BY cruise_no DESC"
+        cruises = _fetch_all_dicts(sql, params)
 
-        # Pagination
+        ship_names = [row['ship_name'] for row in _fetch_all_dicts(
+            "SELECT DISTINCT ship_name FROM cruise WHERE ship_name IS NOT NULL AND ship_name <> '' ORDER BY ship_name"
+        )]
+        chief_scientists = [row['chief_scientist_name'] for row in _fetch_all_dicts(
+            "SELECT DISTINCT chief_scientist_name FROM cruise WHERE chief_scientist_name IS NOT NULL AND chief_scientist_name <> '' ORDER BY chief_scientist_name"
+        )]
+        areas = [row['area'] for row in _fetch_all_dicts(
+            "SELECT DISTINCT area FROM cruise WHERE area IS NOT NULL AND area <> '' ORDER BY area"
+        )]
+        cruise_numbers = [row['cruise_no'] for row in _fetch_all_dicts(
+            "SELECT DISTINCT cruise_no FROM cruise WHERE cruise_no IS NOT NULL AND cruise_no <> '' ORDER BY cruise_no"
+        )]
+
         page = request.GET.get('page', 1)
-        paginator = Paginator(cruises, 10)  # 10 records per page
+        paginator = Paginator(cruises, 10)
         
         try:
             cruises_page = paginator.page(page)
@@ -60,8 +81,8 @@ def cruise_summary_view(request):
             'cruise_numbers': cruise_numbers,
             'chief_scientists': chief_scientists,
             'areas': areas,
-            'total_cruises': Cruise.objects.count(),
-            'filtered_count': cruises.count(),
+            'total_cruises': len(_fetch_all_dicts("SELECT cruise_no FROM cruise")),
+            'filtered_count': len(cruises),
             'current_filter': filter_type,
             'search_value': search_value,
         }
@@ -88,18 +109,15 @@ def get_cruise_dropdown(request):
         if not filter_type:
             return JsonResponse({'status': 'error', 'message': 'Invalid filter type'}, status=400)
 
-        data = []
-
-        if filter_type == 'ship_name':
-            data = list(Cruise.objects.values_list('ship_name', flat=True).distinct().order_by('ship_name'))
-        elif filter_type == 'cruise_no':
-            data = list(Cruise.objects.values_list('cruise_no', flat=True).distinct().order_by('cruise_no'))
-        elif filter_type == 'chief_scientist_name':
-            data = list(Cruise.objects.values_list('chief_scientist_name', flat=True).distinct().order_by('chief_scientist_name'))
-        elif filter_type == 'area':
-            data = list(Cruise.objects.values_list('area', flat=True).distinct().order_by('area'))
-        else:
+        column = CRUISE_FILTER_COLUMNS.get(filter_type)
+        if not column:
             return JsonResponse({'status': 'error', 'message': 'Unknown filter type'}, status=400)
+
+        data = [
+            row[column] for row in _fetch_all_dicts(
+                f"SELECT DISTINCT {column} FROM cruise WHERE {column} IS NOT NULL AND {column} <> '' ORDER BY {column}"
+            )
+        ]
 
         html = '<option value="">-- Select --</option>'
         for item in data:
@@ -114,17 +132,25 @@ def get_cruise_dropdown(request):
 
 
 @require_GET
-def cruise_detail(request, cruise_id):
+def cruise_detail(request, cruise_no):
     """
     Display detailed information about a specific cruise
     """
     try:
-        cruise = get_object_or_404(Cruise, id=cruise_id)
-        cruise_files = cruise.files.all()
+        cruise = _fetch_one_dict(
+            """
+            SELECT ship_name, cruise_no, period_from, period_to,
+                   chief_scientist_name, area, objective, files_link
+            FROM cruise
+            WHERE cruise_no = %s
+            """,
+            [cruise_no],
+        )
+        if not cruise:
+            return render(request, 'cruise/error.html', {'error': 'Cruise not found'}, status=404)
 
         context = {
             'cruise': cruise,
-            'cruise_files': cruise_files,
         }
 
         return render(request, 'cruise/cruise_detail.html', context)
@@ -210,34 +236,44 @@ def cruise_api_list(request):
     Supports filtering
     """
     try:
-        cruises = Cruise.objects.all()
+        sql = """
+            SELECT ship_name, cruise_no, period_from, period_to,
+                   chief_scientist_name, area, objective, files_link
+            FROM cruise
+            WHERE 1=1
+        """
+        params = []
 
-        # Apply filters
         ship_name = request.GET.get('ship_name', '').strip()
         cruise_no = request.GET.get('cruise_no', '').strip()
         chief_scientist = request.GET.get('chief_scientist', '').strip()
         area = request.GET.get('area', '').strip()
 
         if ship_name:
-            cruises = cruises.filter(ship_name__icontains=escape(ship_name)[:100])
+            sql += " AND ship_name ILIKE %s"
+            params.append(f"%{ship_name[:100]}%")
         if cruise_no:
-            cruises = cruises.filter(cruise_no__icontains=escape(cruise_no)[:50])
+            sql += " AND cruise_no ILIKE %s"
+            params.append(f"%{cruise_no[:50]}%")
         if chief_scientist:
-            cruises = cruises.filter(chief_scientist_name__icontains=escape(chief_scientist)[:100])
+            sql += " AND chief_scientist_name ILIKE %s"
+            params.append(f"%{chief_scientist[:100]}%")
         if area:
-            cruises = cruises.filter(area__icontains=escape(area)[:100])
+            sql += " AND area ILIKE %s"
+            params.append(f"%{area[:100]}%")
 
-        # Serialize data
+        sql += " ORDER BY cruise_no DESC"
+        cruises = _fetch_all_dicts(sql, params)
+
         cruise_list = [
             {
-                'id': cruise.id,
-                'cruise_no': cruise.cruise_no,
-                'ship_name': cruise.ship_name,
-                'chief_scientist_name': cruise.chief_scientist_name,
-                'area': cruise.area,
-                'period_from': cruise.period_from.isoformat() if cruise.period_from else None,
-                'period_to': cruise.period_to.isoformat() if cruise.period_to else None,
-                'status': cruise.get_status_display(),
+                'cruise_no': cruise['cruise_no'],
+                'ship_name': cruise['ship_name'],
+                'chief_scientist_name': cruise['chief_scientist_name'],
+                'area': cruise['area'],
+                'period_from': cruise['period_from'].isoformat() if cruise['period_from'] else None,
+                'period_to': cruise['period_to'].isoformat() if cruise['period_to'] else None,
+                'files_link': cruise['files_link'],
             }
             for cruise in cruises
         ]

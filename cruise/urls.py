@@ -8,7 +8,7 @@ urlpatterns = [
     path('summary/', views.cruise_summary_view, name='summary'),
     
     # Cruise detail page
-    path('detail/<int:cruise_id>/', views.cruise_detail, name='detail'),
+    path('detail/<str:cruise_no>/', views.cruise_detail, name='detail'),
     
     # AJAX endpoints
     path('api/dropdown/', views.get_cruise_dropdown, name='dropdown_api'),

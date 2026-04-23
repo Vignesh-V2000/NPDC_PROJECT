@@ -1,0 +1,436 @@
+<%@ taglib prefix="s" uri="/struts-tags"%>
+<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+
+<%@page import="DAO.ConnectionFactory"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection,java.net.URLEncoder"%>
+<%@page import="java.lang.System"%>
+
+<tiles:insertTemplate template="/subPageLayout.jsp">
+        <tiles:putAttribute name="title" value="Cruise Summary" type="string" />
+
+        <tiles:putAttribute name="body">
+
+                <script>
+function GetXmlHttpObject() {
+        if (window.XMLHttpRequest) {
+                // code for IE7+, Firefox, Chrome, Opera, Safari
+                return new XMLHttpRequest();
+        }
+        if (window.ActiveXObject) {
+                // code for IE6, IE5
+                return new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        return null;
+}
+function sendDropdown(val) {
+        $('#myInput').val("");
+        var dropdown = val.value;
+        var parentid = document.getElementById("tab");
+        if(dropdown === "dump"){
+                $('#myInput').hide();
+                parentid.innerHTML = "";
+                return;
+        }else{
+                parentid.innerHTML = '<img src="img/loading.gif" width="90px" height="90px">';
+        }
+
+        var myreq = new GetXmlHttpObject();
+        var url = 'cruiseDropdownlist.jsp?type=' + dropdown;
+        myreq.open("GET", url, true);
+        myreq.send();
+        myreq.onreadystatechange = function() {
+                if (myreq.readyState == 4) {
+                        if (myreq.status == 200) {
+                                $('#myInput').show();
+                                parentid.innerHTML = myreq.responseText;
+
+                        } else {
+                                parentid.innerHTML = '<label>Error getting data</label>';
+                        }
+                }
+        }
+}
+
+function getTable() {
+        TableData = new Array();
+        var drop_name = $("#filter1 option:selected").val();
+
+        if(drop_name == 'dump'){
+                drop_name = "";
+        }
+        else if (drop_name === "sn") {
+                drop_name = "ship_name";
+        } else if (drop_name === "cn") {
+                drop_name = "cruise_no";
+        } else if (drop_name === "cs") {
+                drop_name = "chief_scientist_name";
+        } else if (drop_name === "ar") {
+                drop_name = "area";
+        }
+
+        var checkedbox = [];
+        $.each($("input[name='summary']:checked"), function() {
+                checkedbox.push($(this).val());
+        });
+        var data = {
+                "type1" : drop_name,
+                "data" : checkedbox.join('##')
+        };
+        $.ajax({
+                type : "POST",
+                url : "cruiseQueryTable.jsp",
+                dataType : "html",
+                contentType : "application/x-www-form-urlencoded; charset=UTF-8", // this is the default value, so it's optional
+                data : data,
+                success : function(result) {
+                        $("#mainTable>tbody").html(result);//.hide(); // result is the HTML text
+                         totalrows = $("#mainTable>tbody tr").length;
+                         $("#hdnActivePage").val(1);
+                        if(totalrows <= 10){
+                                $("button.previous").hide();
+                                $("button.next").hide();
+                        }else{
+//                              $("button.previous").show();
+                                $("button.next").show();
+                        }
+                         /*if(totalrows <= 10){
+                                $("#mainTable>tbody").html(result).show();
+                        }else{
+
+                                $('#mainTable>tbody tr').each(function(row, tr){
+                                    TableData[row]={
+                                        "taskNo" : $(tr).find('td:eq(0)').text()
+                                        , "date" :$(tr).find('td:eq(1)').text()
+                                        , "description" : $(tr).find('td:eq(2)').text()
+                                        , "task" : $(tr).find('td:eq(3)').text()
+                                    }
+                                });
+                        } */
+                },
+
+        });
+}
+        
+
+
+</script>
+                <script>
+$(function() {
+        // number of records per page
+        var pageSize = 10;
+        // reset current page counter on load
+        $("#hdnActivePage").val(1);
+        // calculate number of pages
+        var numberOfPages;
+        //numberOfPages = numberOfPages.toFixed();
+
+        $("button.previous").hide();
+
+        // action on 'next' click
+        $("button.next").on('click',function() {
+                totalrows = $("#mainTable>tbody tr").length;
+                numberOfPages = totalrows / pageSize;
+                numberOfPages = numberOfPages.toFixed();
+                // show only the necessary rows based upon activePage and Pagesize
+                $("#mainTable>tbody tr:nth-child(-n+" + (($("#hdnActivePage").val() * pageSize) + pageSize) + ")").show();
+                $("#mainTable>tbody tr:nth-child(-n+" + $("#hdnActivePage").val() * pageSize + ")").hide();
+                var currentPage = Number($("#hdnActivePage").val());
+                $("#hdnActivePage").val(Number($("#hdnActivePage").val()) + 1);
+                // check if previous page button is necessary (not on first page)
+                if ($("#hdnActivePage").val() != "1") {
+                        $("button.previous").show();
+                        //$("span").show();
+                }
+                // check if next page button is necessary (not on last page)
+//              if ($("#hdnActivePage").val() == numberOfPages) {
+                if (totalrows <= ($("#hdnActivePage").val() * pageSize)) {
+                        $("button.next").hide();
+                        //$("span").hide();
+                }
+        });
+
+        // action on 'previous' click
+        $("button.previous").on('click',function() {
+                totalrows = $("#mainTable>tbody tr").length;
+                numberOfPages = totalrows / pageSize;
+                numberOfPages = numberOfPages.toFixed();
+                var currentPage = Number($("#hdnActivePage").val());
+                $("#hdnActivePage").val(currentPage - 1);
+                // first hide all rows
+                $("#mainTable>tbody tr").hide();
+                // and only turn on visibility on necessary rows
+                $("#mainTable>tbody tr:nth-child(-n+" + ($("#hdnActivePage").val() * pageSize) + ")").show();
+                $("#mainTable>tbody tr:nth-child(-n+" + (($("#hdnActivePage").val() * pageSize) - pageSize) + ")").hide();
+                // check if previous button is necessary (not on first page)
+                if ($("#hdnActivePage").val() == "1") {
+                        $("button.previous").hide();
+                }
+                // check if next button is necessary (not on last page)
+                if (totalrows > ($("#hdnActivePage").val() * pageSize)) {
+                        $("button.next").show();
+                }
+        });
+        doclear();
+});
+</script>
+
+function myFunction() {
+    // Declare variables
+    var input, filter, tab, tr, a, i;
+    input = document.getElementById('myInput');
+    filter = input.value.toUpperCase();
+    tab = document.getElementById("tab");
+    tr = tab.getElementsByTagName('div');
+
+    // Loop through all list items, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+        a = tr[i].getElementsByTagName("label")[0];
+        if(a){
+                if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+        }
+    }
+}
+</script>
+                <script>
+function doclear(){
+//      $('#filter1 option:eq(0)').attr('selected','selected');
+        $("button.previous").hide();
+        $("#hdnActivePage").val(1);
+        $('#filter1').val("dump");
+        $('#myInput').val("");
+        $("#tab").empty();
+        getTable();
+
+}
+</script>
+
+
+                <style type="text/css">
+.col2 {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+        padding: 5px;
+}
+
+#tab label {
+        margin-right: 10px;
+        margin-left: 5px;
+}
+
+#data {
+        font-size: 12px;
+        font-family: sans-serif;
+}
+
+.myBox {
+        border: none;
+        padding: 5px;
+        line-height: 25px;
+        font-family: sans-serif;
+        width: 200px;
+        height: 200px;
+        overflow: scroll;
+
+ font-size: small;
+        white-space: nowrap;
+}
+
+.col2 img {
+        height: 20px;
+        box-shadow: 0 2px 2px #888888;
+        border-radius: 50%;
+}
+
+#mainTable>tbody tr {
+        display: none;
+}
+
+#mainTable>tbody tr:nth-child(-n+10) {
+        display: table-row;
+}
+
+.pagenavcontainer {
+        margin: 5px 0;
+}
+
+.next, .previous {
+        font-size: 15px;
+        margin: 0 5px;
+}
+
+#myInput {
+        display: none;
+}
+</style>
+
+
+                <%
+String exp = "";
+
+Connection connection = null;
+Statement statement = null;
+ResultSet resultSet = null;
+%>
+                <div class="main-content container">
+                        <div class="main-content-white"
+                                style="font-size: 12px; min-height: 450px">
+                                <table>
+                                        <tbody>
+                                                <tr>
+                                                        <td id="column1" valign="top">
+                                                                <div style="padding-bottom: 50px;">
+                                                                        <div>
+                                                                                <select onChange="sendDropdown(this);"
+                                                                                        style="background-color: #ACDCF7; width: 203px;" id="filter1">
+                                                                                        <option value="dump">-------Select--------</option>
+                                                                                        <option value="sn">SHIP NAME</option>
+                                                                                        <option value="cn">CRUISE NO</option>
+                                                                                        <option value="cs">CHIEF SCIENTIST</option>
+                                                                                        <option value="ar">CRUISE AREA</option>
+                                                                                </select>
+                                                                        </div>
+
+                                                                        <div>
+                                                                                <input type="text" name="filter" id="myInput"
+ onkeyup="myFunction()" placeholder="Looking for"
+                                                                                        style="width: 180px;">
+                                                                                <div class="myBox" id="tab">
+                                                                                        <!--                                            <table id="tab"></table>                                                  -->
+                                                                                </div>
+                                                                                <button onClick="getTable()">Apply filter</button>
+                                                                                <button onClick="doclear()" id="reset">Reset filter</button>
+                                                                                <br> <br>
+                                                                                <div align="center"
+                                                                                        style="box-shadow: 2px 2px grey; padding: 5px; width: 200px; border: 1px solid grey">
+                                                                                        <label id="data">To view expedition data availabilty</label>
+                                                                                        <a
+                                                                                                href="cruisdatadownload.jsp?filename=cruiseDataAvailability.pdf">
+                                                                                                <img alt="" src="img/pdf.png" width="30px">
+                                                                                        </a>&nbsp;&nbsp;<a
+                                                                                                href="cruisdatadownload.jsp?filename=cruiseDataAvailability.xlsx">
+                                                                                                <img alt="" src="img/excel.png" width="30px">
+                                                                                        </a> <br> <label>For expedition data , please mail
+                                                                                                at <a href="mailto:npdc@ncpor.res.in">npdc@ncpor.res.in</a>
+                                                                                        </label>
+                                                                                </div>
+                                                                                <!--                                    <input type="button" value="Reset filter" onClick="doclear()" id="reset"> -->
+                                                                        </div>
+                                                                </div>
+                                                        </td>
+                                                        <td id="column2" valign="top">
+                                                                <div style="overflow-y: scroll; max-height: 550px">
+                                                                        <table id="mainTable"
+                                                                                style="border: 1px solid black; border-collapse: collapse;">
+                                                                                <thead>
+                                                                                        <tr style="height: 20px; background-color: #BDC0EC;">
+                                                                                                <th class="col2" style="width: 8%">Ship Name</th>
+                                                                                                <th class="col2" style="width: 10%">Cruise No</th>
+                                                                                                <th class="col2" style="width: 10%">Period From</th>
+                                                                                                <th class="col2" style="width: 10%">Period To</th>
+                                                                                                <th class="col2" style="width: 12%">Chief Scientist</th>
+                                                                                                <th class="col2" style="width: 13%">Cruise Area</th>
+                                                                                                <!---   <th class="col2" style="width: 5%">Raw Data</th> -->
+                                                                                                <th class="col2" style="width: 25%">Objective</th>
+                                                                                                <th class="col2" style="width: 7%">Cruise Report</th>
+                                                                                        </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                        <%
+
+                                                try{
+                                                connection = ConnectionFactory.getInstance().getConnection();
+                                                statement = connection.createStatement();
+
+                                                String fs = System.getProperty("file.separator");
+                                                fs = URLEncoder.encode( fs, "UTF-8" );
+                                                String sql ="select * from cruise order by cruise_no desc";
+                                                   resultSet = statement.executeQuery(sql);
+                                                 while(resultSet.next()){
+                                                %>
+
+                                                                                        <tr>
+                                                                                                <td class="col2"><%=resultSet.getString("ship_name") %></td>
+                                                                                                <td class="col2"><%=resultSet.getString("cruise_no") %></td>
+                                                                                                <td class="col2"><%=resultSet.getString("period_from") %></td>
+                                                                                                                                                                   
+
+
+ <td class="col2"><%=resultSet.getString("chief_scientist_name") %></td>
+                                                                                                <td class="col2"><%=resultSet.getString("area") %></td>
+                                                                                                <!---  <td class="col2">
+                                                                <a href="cruise_fetch_rawdata.jsp?value=<%=resultSet.getString("cruise_no") %>">
+                                                                        <img alt="" src="img/downloadicon.png">
+                                                                </a>
+                                                        </td> -->
+                                                                                                <td class="col2" style="text-align: justify"><%=resultSet.getString("objective")%></td>
+                                                                                                <td class="col2"><a target="_blank"
+                                                                                                        href="cruisdatadownload.jsp?filename=<%=fs%>CruiseSummary<%=fs%><%=resultSet.getString("files_link")%>&name=<%=resultSet.getString("files_link")%>">
+                                                                                                                <%=resultSet.getString("files_link")%>
+                                                                                                </a></td>
+                                                                                        </tr>
+                                                                                        <%
+                                                                                        }
+
+                                                                                        } catch (Exception e) {
+                                                                                        e.printStackTrace();
+                                                                                        } finally {
+                                                                                        try {
+                                                                                        if (connection != null) {
+                                                                                                try {
+                                                                                                        connection.close();
+                                                                                                } catch (SQLException sqle) {
+                                                                                                }
+                                                                                                connection.close();
+                                                                                        }
+                                                                                        } catch (SQLException e1) {
+                                                                                        e1.printStackTrace();
+                                                                                        } catch (Throwable e1) {
+                                                                                        e1.printStackTrace();
+                                                                                        }
+                                                                                        if (resultSet != null) {
+                                                                                        try {
+                                                                                                resultSet.close();
+                                                                                        } catch (SQLException sqle) {
+                                                                                        }
+                                                                                        resultSet = null;
+                                                                                        }
+                                                                                        if (statement != null) {
+                                                                                        try {
+                                                                                                statement.close();
+                                                                                        } catch (SQLException sqle) {
+                                                                                        }
+                                                                                        statement = null;
+                                                                                        }
+                                                                                        }
+                                                                                        %>
+                                                                                </tbody>
+                                                                        </table>
+                                                                </div>
+                                                                <div style="border-bottom: 1px solid black; margin-right: 17px;"></div>
+                                                                <div class="pagenavcontainer" align="center">
+                                                                        <button class="previous">Previous</button>
+
+                                                                        <button class="next">Next</button>
+                                                                        <input type="hidden" id="hdnActivePage" value="1">
+                                                                           </div> <!-- <p align="center"> For expedition data , please contact at <a href ="mailto:npdc@ncpor.res.in" style="color: blue">ictd@ncpor.res.in</a>
+                                         Contact 0832-2525515</p> -->
+                                                        </td>
+                                                </tr>
+                                        </tbody>
+                                </table>
+                        </div>
+                </div>
+        </tiles:putAttribute>
+</tiles:insertTemplate>
+                                             
+

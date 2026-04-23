@@ -23,9 +23,6 @@
         <div class="cruise-detail-card">
             <div class="detail-header">
                 <h2 class="detail-title">{{ cruise.cruise_no }}</h2>
-                <span class="status-badge status-{{ cruise.get_status_display|lower }}">
-                    {{ cruise.get_status_display }}
-                </span>
             </div>
 
             <div class="detail-grid">
@@ -35,8 +32,8 @@
                 </div>
 
                 <div class="detail-item">
-                    <label class="detail-label">Cruise Name</label>
-                    <p class="detail-value">{{ cruise.cruise_name|default:"N/A" }}</p>
+                    <label class="detail-label">Cruise Number</label>
+                    <p class="detail-value">{{ cruise.cruise_no }}</p>
                 </div>
 
                 <div class="detail-item">
@@ -79,73 +76,35 @@
             <p class="detail-text">{{ cruise.objective|default:"No objectives specified." }}</p>
         </div>
 
-        <!-- Description -->
-        {% if cruise.description %}
-        <div class="cruise-detail-card mt-4">
-            <h4 class="section-title">Description</h4>
-            <p class="detail-text">{{ cruise.description }}</p>
-        </div>
-        {% endif %}
-
         <!-- Files Section -->
-        {% if cruise_files %}
+        {% if cruise.files_link %}
         <div class="cruise-detail-card mt-4">
             <h4 class="section-title">
-                <i class="fas fa-file me-2"></i> Associated Files ({{ cruise_files|length }})
+                <i class="fas fa-file me-2"></i> Cruise Report
             </h4>
             
             <div class="files-list">
-                {% for file in cruise_files %}
                 <div class="file-item">
                     <div class="file-info">
-                        <i class="fas fa-file{% if file.is_pdf %}-pdf{% else %}-document{% endif %} file-icon"></i>
+                        <i class="fas fa-file-pdf file-icon"></i>
                         <div class="file-details">
-                            <h6 class="file-name">{{ file.file_name }}</h6>
+                            <h6 class="file-name">{{ cruise.files_link }}</h6>
                             <p class="file-meta">
-                                <span class="file-type badge">{{ file.get_file_type_display }}</span>
-                                {% if file.file_size %}
-                                    <span class="file-size">
-                                        {% if file.file_size > 1048576 %}
-                                            {{ file.file_size|filesizeformat }}
-                                        {% else %}
-                                            {{ file.file_size|filesizeformat }}
-                                        {% endif %}
-                                    </span>
-                                {% endif %}
-                                <span class="file-date">{{ file.uploaded_at|date:"M d, Y" }}</span>
+                                <span class="file-type badge">Report</span>
                             </p>
-                            {% if file.description %}
-                            <p class="file-description">{{ file.description }}</p>
-                            {% endif %}
                         </div>
                     </div>
                     <div class="file-actions">
-                        <a href="{% url 'cruise:download' %}?filename={{ file.file_name|urlencode }}" 
+                        <a href="{% url 'cruise:download' %}?filename={{ cruise.files_link|urlencode }}" 
                            class="btn btn-sm btn-primary download-btn"
                            download>
                             <i class="fas fa-download me-1"></i> Download
                         </a>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
         {% endif %}
-
-        <!-- Metadata -->
-        <div class="cruise-detail-card mt-4">
-            <h4 class="section-title">Metadata</h4>
-            <div class="metadata-grid">
-                <div class="metadata-item">
-                    <span class="metadata-label">Created</span>
-                    <span class="metadata-value">{{ cruise.created_at|date:"F d, Y g:i A" }}</span>
-                </div>
-                <div class="metadata-item">
-                    <span class="metadata-label">Last Updated</span>
-                    <span class="metadata-value">{{ cruise.updated_at|date:"F d, Y g:i A" }}</span>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -178,35 +137,6 @@
         font-weight: 800;
         color: #E8734A;
         margin: 0;
-    }
-
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .status-completed {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-ongoing {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-planned {
-        background: #dbeafe;
-        color: #0369a1;
-    }
-
-    .status-archived {
-        background: #f3f4f6;
-        color: #6b7280;
     }
 
     .detail-grid {
