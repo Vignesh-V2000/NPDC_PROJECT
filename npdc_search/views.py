@@ -3,7 +3,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, F
+from django.db.models import Q, Count, F, Avg, Min
+from django.db.models.functions import Lower, Trim
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, TrigramSimilarity
 from django.conf import settings
 from django.core.cache import cache
@@ -75,6 +76,9 @@ def search_view(request):
         # --------------------------------------------------
         query = sanitize_query(request.GET.get("query", ""))
         
+        # Get region parameter from browse page (if coming from browse_by_location)
+        region = request.GET.get("region", "")
+        
         # Parse the single filter parameter (format: "type:value")
         filter_param = request.GET.get("filter", "")
         expedition = ""
@@ -96,6 +100,17 @@ def search_view(request):
                 location_subregion = filter_value
             elif filter_type == "keyword":
                 keyword_selected = [filter_value]
+        
+        # If region is provided from browse page, use it as expedition filter
+        # Map region key to expedition_type
+        if region and not expedition:
+            region_to_expedition = {
+                'antarctic': 'antarctic',
+                'arctic': 'arctic',
+                'southern_ocean': 'southern_ocean',
+                'himalaya': 'himalaya',
+            }
+            expedition = region_to_expedition.get(region, "")
         
         year = sanitize_filter_value(request.GET.get("year", ""))
 
@@ -123,7 +138,7 @@ def search_view(request):
                 queryset = queryset.filter(metadata_id__icontains=query)
             else:
                 phrases = re.findall(r'"([^"]+)"', query)
-                remaining = re.sub(r'"[^"]+', '', query).strip()
+                remaining = re.sub(r'"[^"]+"', '', query).strip()
                 words = remaining.split() if remaining else []
                 search_terms = phrases + words
 
@@ -144,6 +159,11 @@ def search_view(request):
                     queryset = queryset.annotate(
                         search_rank=SearchRank(search_vector, search_query)
                     ).filter(
+                        Q(title__iexact=query) |
+                        Q(title__icontains=query) |
+                        Q(abstract__icontains=query) |
+                        Q(project_name__icontains=query) |
+                        Q(keywords__icontains=query) |
                         Q(search_rank__gte=0.001) |
                         Q(scientists__first_name__icontains=search_terms[0]) |
                         Q(scientists__last_name__icontains=search_terms[0]) |
@@ -912,8 +932,6 @@ def browse_by_location(request):
     each containing a table of subregions with dataset counts.
     """
     from data_submission.models import DatasetSubmission, LocationMetadata
-    from django.db import connection
-    from django.db.models import Avg
 
     # Get published datasets (or all for staff)
     if request.user.is_staff or request.user.is_superuser:
@@ -929,88 +947,41 @@ def browse_by_location(request):
         {'key': 'himalaya', 'label': 'HIMALAYA', 'expedition_type': 'himalaya', 'center': [32, 77], 'zoom': 5},
     ]
 
-    # Map expedition_type to legacy location_type values
-    expedition_to_legacy = {
-        'antarctic': ['Antarctic', 'Antarctica', 'antarctic', 'antarctica'],
-        'arctic': ['Arctic', 'arctic'],
-        'southern_ocean': ['Ocean', 'Southern Ocean', 'Indian Ocean Sector', 'ocean', 'southern ocean', 'indian ocean sector'],
-        'himalaya': ['Himalaya', 'himalaya'],
-    }
-
     active_tab = request.GET.get('region', 'antarctic')
-
-    # Try to query legacy table for subregion data
-    use_legacy = False
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1 FROM metadata_main_table LIMIT 1")
-            use_legacy = True
-    except Exception:
-        pass
 
     for region in regions:
         region['active'] = (region['key'] == active_tab)
         locations = []
 
-        if use_legacy:
-            # Query the legacy table directly for subregion data
-            legacy_types = expedition_to_legacy.get(region['expedition_type'], [])
-            if legacy_types:
-                placeholders = ', '.join(['%s'] * len(legacy_types))
-                query = f"""
-                    SELECT location_subregion1, COUNT(*) as cnt
-                    FROM metadata_main_table
-                    WHERE location_type IN ({placeholders})
-                      AND location_subregion1 IS NOT NULL
-                      AND location_subregion1 != ''
-                    GROUP BY location_subregion1
-                    ORDER BY location_subregion1
-                """
-                try:
-                    with connection.cursor() as cursor:
-                        cursor.execute(query, legacy_types)
-                        rows = cursor.fetchall()
-                    
-                    for i, (subregion, count) in enumerate(rows, start=1):
-                        locations.append({
-                            'sl_no': i,
-                            'name': subregion.strip(),
-                            'count': count,
-                            'lat': None,
-                            'lon': None,
-                        })
-                except Exception:
-                    pass
-
-        # Fallback to Django ORM LocationMetadata
-        if not locations:
-            location_data = (
-                LocationMetadata.objects
-                .filter(dataset__in=base_qs, dataset__expedition_type=region['expedition_type'])
-                .exclude(location_subregion='')
-                .exclude(location_subregion__isnull=True)
-                .values('location_subregion')
-                .annotate(
-                    dataset_count=Count('dataset'),
-                    avg_n=Avg('dataset__north_latitude'),
-                    avg_s=Avg('dataset__south_latitude'),
-                    avg_e=Avg('dataset__east_longitude'),
-                    avg_w=Avg('dataset__west_longitude')
-                )
-                .order_by('location_subregion')
+        location_data = (
+            LocationMetadata.objects
+            .filter(dataset__in=base_qs, dataset__expedition_type=region['expedition_type'])
+            .exclude(location_subregion='')
+            .exclude(location_subregion__isnull=True)
+            .annotate(normalized_subregion=Lower(Trim(F('location_subregion'))))
+            .values('normalized_subregion')
+            .annotate(
+                display_name=Min(Trim(F('location_subregion'))),
+                dataset_count=Count('dataset', distinct=True),
+                avg_n=Avg('dataset__north_latitude'),
+                avg_s=Avg('dataset__south_latitude'),
+                avg_e=Avg('dataset__east_longitude'),
+                avg_w=Avg('dataset__west_longitude')
             )
+            .order_by('normalized_subregion')
+        )
 
-            for i, loc in enumerate(location_data, start=1):
-                lat = (loc['avg_n'] + loc['avg_s']) / 2 if loc['avg_n'] and loc['avg_s'] else None
-                lon = (loc['avg_e'] + loc['avg_w']) / 2 if loc['avg_e'] and loc['avg_w'] else None
-                
-                locations.append({
-                    'sl_no': i,
-                    'name': loc['location_subregion'],
-                    'count': loc['dataset_count'],
-                    'lat': lat,
-                    'lon': lon,
-                })
+        for i, loc in enumerate(location_data, start=1):
+            lat = (loc['avg_n'] + loc['avg_s']) / 2 if loc['avg_n'] and loc['avg_s'] else None
+            lon = (loc['avg_e'] + loc['avg_w']) / 2 if loc['avg_e'] and loc['avg_w'] else None
+
+            locations.append({
+                'sl_no': i,
+                'name': loc['display_name'],
+                'count': loc['dataset_count'],
+                'lat': lat,
+                'lon': lon,
+            })
 
         # Final fallback: show total count for this expedition type
         if not locations:
