@@ -15,10 +15,8 @@
         <div class="keyword-grid">
             {% for cat in categories %}
             <a href="{% url 'search:search' %}?filter=category:{{ cat.value }}&ref=browse_keyword&query={{ cat.label|urlencode }}" class="keyword-card" style="--delay: {{ forloop.counter0 }}">
-                <div class="keyword-card-media">
-                    <div class="keyword-card-img" id="card-img-{{ forloop.counter }}" data-category="{{ cat.label }}">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
+                <div class="keyword-card-img" id="card-img-{{ forloop.counter }}" data-category="{{ cat.label }}">
+                    <i class="fas fa-layer-group"></i>
                     <div class="keyword-card-overlay">
                         <span class="keyword-card-count">{{ cat.count }}</span>
                         <span class="keyword-card-count-label">entries</span>
@@ -115,6 +113,11 @@
 
     /* Card */
     .keyword-card {
+        background: #ffffff;
+        border-radius: 0.85rem;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         flex-direction: column;
@@ -122,7 +125,6 @@
         color: inherit;
         animation: cardFadeIn 0.5s ease both;
         animation-delay: calc(var(--delay) * 0.04s);
-        overflow: visible;
     }
 
     @keyframes cardFadeIn {
@@ -131,23 +133,16 @@
     }
 
     .keyword-card:hover {
-        transform: translateY(-6px);
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
         text-decoration: none;
         color: inherit;
-    }
-
-    .keyword-card-media {
-        position: relative;
-        margin-bottom: 0.8rem;
-        width: 110px;
-        margin-left: auto;
-        margin-right: auto;
+        border-color: rgba(59, 130, 246, 0.15);
     }
 
     /* Card Image */
     .keyword-card-img {
-        width: 110px;
-        height: 70px;
+        height: 170px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -155,12 +150,9 @@
         color: #fff;
         position: relative;
         overflow: hidden;
-        background-size: contain;
-        background-repeat: no-repeat;
+        background-size: cover;
         background-position: center;
-        background-color: #e2e8f0;
-        border-radius: 0.85rem;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+        background-color: #1e3a5f;
     }
 
     .keyword-card-img i {
@@ -178,20 +170,20 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(0,0,0,0) 38%, rgba(15, 23, 42, 0.4) 100%);
+        background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(15, 23, 42, 0.55) 100%);
         z-index: 1;
         transition: opacity 0.35s ease;
     }
 
     .keyword-card:hover .keyword-card-img::before {
-        background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(15, 23, 42, 0.48) 100%);
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.1) 0%, rgba(15, 23, 42, 0.65) 100%);
     }
 
     /* Overlay Count Badge */
     .keyword-card-overlay {
         position: absolute;
-        bottom: 8px;
-        right: 8px;
+        bottom: 10px;
+        right: 12px;
         z-index: 3;
         display: flex;
         flex-direction: column;
@@ -200,8 +192,8 @@
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 0.4rem;
-        padding: 0.22rem 0.42rem;
+        border-radius: 0.5rem;
+        padding: 0.35rem 0.65rem;
         transition: all 0.3s ease;
     }
 
@@ -212,36 +204,26 @@
     }
 
     .keyword-card-count {
-        font-size: 0.82rem;
+        font-size: 1.15rem;
         font-weight: 800;
         color: #ffffff;
         line-height: 1.1;
     }
 
     .keyword-card-count-label {
-        font-size: 0.46rem;
+        font-size: 0.6rem;
         color: rgba(255, 255, 255, 0.75);
         text-transform: uppercase;
-        letter-spacing: 0.35px;
+        letter-spacing: 0.5px;
         font-weight: 600;
     }
 
     /* Card Body */
     .keyword-card-body {
-        background: #ffffff;
-        border-radius: 0.85rem;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-        padding: 1rem 1rem 1rem;
+        padding: 0.9rem 1rem 1rem;
         flex: 1;
         display: flex;
         flex-direction: column;
-        transition: box-shadow 0.35s ease, border-color 0.35s ease;
-    }
-
-    .keyword-card:hover .keyword-card-body {
-        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
-        border-color: rgba(59, 130, 246, 0.15);
     }
 
     .keyword-title {
@@ -348,19 +330,13 @@
             gap: 1rem;
         }
         
-        .keyword-card-media {
-            width: 110px;
-        }
-
         .keyword-card-img {
-            width: 110px;
-            height: 70px;
-            border-radius: 0.75rem;
+            border-radius: 0.75rem 0.75rem 0 0;
         }
 
         .keyword-card-body {
+            padding: 1rem;
             border-radius: 0.75rem;
-            padding: 0.95rem;
         }
         
         .keyword-count {
@@ -425,25 +401,14 @@
             gap: 0.8rem;
         }
         
-        .keyword-card-media {
-            width: 110px;
-        }
-
         .keyword-card-img {
-            width: 110px;
-            height: 70px;
-            border-radius: 0.75rem;
-        }
-
-        .keyword-card-overlay {
-            bottom: 10px;
-            right: 10px;
-            padding: 0.2rem 0.38rem;
+            border-radius: 0.75rem 0.75rem 0 0;
         }
 
         .keyword-card-body {
-            border-radius: 0.75rem;
             padding: 0.9rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         
         .keyword-card h6 {
