@@ -285,42 +285,51 @@
 
 <!-- Features Grid -->
 <section class="mb-6">
+    <div class="text-center mb-4">
+        <h2 class="mb-2"><i class="fas fa-database me-2 text-primary"></i>Discover and Share Data</h2>
+        <p class="text-white-50">Explore archived datasets or contribute new expedition data to NPDC</p>
+    </div>
     <div class="row g-4 justify-content-center">
         <div class="col-lg-6">
             <div class="feature-card h-100">
-                <h4 class="h5 mb-3"><i class="fas fa-search me-2"></i>Data Discovery</h4>
-                <p class="text-secondary mb-3">
-                    Access India's polar research datasets archived at NPDC, covering Arctic, Antarctic, Southern Ocean, and Himalayan expeditions.
-                </p>
-                <ul class="feature-list">
-                    <li><i class="fas fa-check-circle text-success me-2"></i>Search datasets by keyword, expedition, or research region
-                        region</li>
-                    <li><i class="fas fa-check-circle text-success me-2"></i>Browse datasets & metadata
-                    </li>
-                    <li><i class="fas fa-check-circle text-success me-2"></i>Free and open access to scientific data
-                    </li>
-                </ul>
-                <a href="{% url 'search:search' %}" class="btn btn-primary btn-sm mt-3">
-                    <i class="fas fa-arrow-right me-2"></i>Browse Data
-                </a>
+                <div class="feature-card-icon" aria-hidden="true">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="feature-card-content">
+                    <h4 class="h5">Data Discovery</h4>
+                    <p class="text-secondary mb-3">
+                        Access India's polar research datasets archived at NPDC, covering Arctic, Antarctic, Southern Ocean, and Himalayan expeditions.
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Search datasets by keyword, expedition, or research region</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Browse datasets &amp; metadata</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Free and open access to scientific data</li>
+                    </ul>
+                    <a href="{% url 'search:search' %}" class="btn btn-primary btn-sm mt-auto align-self-start">
+                        <i class="fas fa-arrow-right me-2"></i>Browse Data
+                    </a>
+                </div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="feature-card h-100">
-                <h4 class="h5 mb-3"><i class="fas fa-upload me-2"></i>Data Submission</h4>
-                <p class="text-secondary mb-3">
-                    Submit expedition datasets with metadata to NPDC. 
-                </p>
-                <ul class="feature-list">
-                    <li><i class="fas fa-check-circle text-success me-2"></i>Submit observational data from polar expeditions</li>
-                    <li><i class="fas fa-check-circle text-success me-2"></i>Provide metadata linked to the respective project
-                    </li>
-                    <li><i class="fas fa-check-circle text-success me-2"></i>Archive with DOI for proper citation and reuse
-                    </li>
-                </ul>
-                <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary btn-sm mt-3">
-                    <i class="fas fa-upload me-2"></i>Submit Data
-                </a>
+                <div class="feature-card-icon" aria-hidden="true">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <div class="feature-card-content">
+                    <h4 class="h5">Data Submission</h4>
+                    <p class="text-secondary mb-3">
+                        Submit expedition datasets with metadata to NPDC.
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Submit observational data from polar expeditions</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Provide metadata linked to the respective project</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>Archive with DOI for proper citation and reuse</li>
+                    </ul>
+                    <a href="{% url 'data_submission:instructions' %}" class="btn btn-primary btn-sm mt-auto align-self-start">
+                        <i class="fas fa-upload me-2"></i>Submit Data
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -589,6 +598,9 @@
                 <h3 class="data-list-title"><i class="fas fa-clock me-2"></i>Recent Data</h3>
                 <div class="data-list-body">
                     {% for ds in recent_data %}
+                    {% if forloop.counter == 4 %}
+                    <div class="collapse" id="recentDataMore">
+                    {% endif %}
                     <div class="data-list-item">
                         {% if ds.thumbnail_url %}
                         <div class="thumb"><img src="{{ ds.thumbnail_url }}" alt="{{ ds.title }}"></div>
@@ -598,10 +610,24 @@
                             <p class="data-item-abstract" style="text-align: justify;">{{ ds.abstract|truncatewords:25 }}</p>
                         </div>
                     </div>
+                    {% if forloop.last and forloop.counter >= 4 %}
+                    </div>
+                    {% endif %}
                     {% empty %}
                     <p class="text-muted">No recent datasets available.</p>
                     {% endfor %}
                 </div>
+                {% if recent_data|length > 3 %}
+                <div class="data-list-footer">
+                    <button class="data-list-more btn btn-link p-0 text-decoration-none" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#recentDataMore" aria-expanded="false"
+                        aria-controls="recentDataMore">
+                        <span class="more-label-collapsed">More</span>
+                        <span class="more-label-expanded">Less</span>
+                        <i class="fas fa-chevron-down ms-2"></i>
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
         <div class="col-lg-6">
@@ -609,6 +635,9 @@
                 <h3 class="data-list-title"><i class="fas fa-fire me-2"></i>Popular Data</h3>
                 <div class="data-list-body">
                     {% for ds in popular_data %}
+                    {% if forloop.counter == 4 %}
+                    <div class="collapse" id="popularDataMore">
+                    {% endif %}
                     <div class="data-list-item">
                         {% if ds.thumbnail_url %}
                         <div class="thumb"><img src="{{ ds.thumbnail_url }}" alt="{{ ds.title }}"></div>
@@ -618,10 +647,24 @@
                             <p class="data-item-abstract" style="text-align: justify;">{{ ds.abstract|truncatewords:25 }}</p>
                         </div>
                     </div>
+                    {% if forloop.last and forloop.counter >= 4 %}
+                    </div>
+                    {% endif %}
                     {% empty %}
                     <p class="text-muted">No popular datasets available.</p>
                     {% endfor %}
                 </div>
+                {% if popular_data|length > 3 %}
+                <div class="data-list-footer">
+                    <button class="data-list-more btn btn-link p-0 text-decoration-none" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#popularDataMore" aria-expanded="false"
+                        aria-controls="popularDataMore">
+                        <span class="more-label-collapsed">More</span>
+                        <span class="more-label-expanded">Less</span>
+                        <i class="fas fa-chevron-down ms-2"></i>
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -630,6 +673,10 @@
 
 <!-- Dashboard Charts -->
 <section class="mb-6">
+    <div class="text-center mb-4">
+        <h2 class="mb-2"><i class="fas fa-chart-pie me-2 text-primary"></i>Polar Data Access Analytics</h2>
+        <p class="text-white-50">Track dataset themes, regional distribution, usage patterns, and platform activity at a glance</p>
+    </div>
     <div class="row g-4">
         <!-- Row 1: Keywords and ISO Topics -->
         <div class="col-lg-6">
@@ -719,6 +766,26 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- Visualizations Row -->
+    <div class="row g-4 mt-1">
+        <!-- Keywords Wordcloud -->
+        <div class="col-lg-6">
+            <div class="viz-card h-100">
+                <h3 class="viz-title">Keywords</h3>
+                <div class="viz-container" id="wordcloud-container" style="overflow: hidden;">
+                    <canvas id="wordcloud_canvas" style="width: 100%; height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Usage by Country Map -->
+        <div class="col-lg-6">
+            <div class="viz-card h-100">
+                <h3 class="viz-title">Usage by country <span class="badge bg-warning text-dark ms-2"
+                        style="font-size: 0.7em;">last 5 years data</span></h3>
+                <div class="viz-container" id="map-container"></div>
             </div>
         </div>
     </div>
@@ -992,34 +1059,6 @@
 
     });
 </script>
-
-
-
-<!-- Metadata Dashboard -->
-<section class="mb-6">
-    <!-- Metric cards removed -->
-
-    <!-- Visualizations Row -->
-    <div class="row g-4">
-        <!-- Keywords Wordcloud -->
-        <div class="col-lg-6">
-            <div class="viz-card h-100">
-                <h3 class="viz-title">Keywords</h3>
-                <div class="viz-container" id="wordcloud-container" style="overflow: hidden;">
-                    <canvas id="wordcloud_canvas" style="width: 100%; height: 300px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <!-- Usage by Country Map -->
-        <div class="col-lg-6">
-            <div class="viz-card h-100">
-                <h3 class="viz-title">Usage by country <span class="badge bg-warning text-dark ms-2"
-                        style="font-size: 0.7em;">last 5 years data</span></h3>
-                <div class="viz-container" id="map-container"></div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Wordcloud Library -->
 <script src="{% static 'js/wordcloud2.min.js' %}"></script>
@@ -1912,6 +1951,9 @@
         box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.01);
         position: relative;
         overflow: hidden;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
     }
 
     .feature-card::before {
@@ -1925,23 +1967,34 @@
         transform: translateY(-4px);
     }
 
+    .feature-card-icon {
+        width: 3rem;
+        height: 3rem;
+        flex: 0 0 3rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--nsidc-accent);
+        font-size: 1.3rem;
+        background: #eff6ff;
+        border-radius: 0.75rem;
+        margin-top: 0.1rem;
+    }
+
+    .feature-card-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
     .feature-card h4 {
         color: var(--nsidc-primary) !important;
         font-weight: 800;
         font-size: 1.4rem;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
+        margin-bottom: 1rem;
         letter-spacing: -0.025em;
-    }
-
-    .feature-card h4 i {
-        color: var(--nsidc-accent);
-        font-size: 1.3rem;
-        background: #eff6ff;
-        padding: 0.6rem;
-        border-radius: 0.5rem;
-        margin-right: 0.75rem !important;
     }
 
     .feature-card p, .feature-card li {
@@ -2335,6 +2388,50 @@
         border-radius: 0.5rem; background-color: #f8fafc; border: 1px solid #e2e8f0;
     }
 
+    .data-list-item .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .data-list-footer {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .data-list-more {
+        color: #2563eb;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.1rem;
+    }
+
+    .data-list-more:hover {
+        color: #1d4ed8;
+    }
+
+    .data-list-more .more-label-expanded {
+        display: none;
+    }
+
+    .data-list-more[aria-expanded="true"] .more-label-collapsed {
+        display: none;
+    }
+
+    .data-list-more[aria-expanded="true"] .more-label-expanded {
+        display: inline;
+    }
+
+    .data-list-more i {
+        transition: transform 0.2s ease;
+    }
+
+    .data-list-more[aria-expanded="true"] i {
+        transform: rotate(180deg);
+    }
+
     /* Chart Cards */
     .chart-card, .viz-card {
         background: var(--nsidc-surface); border-radius: 1.25rem; border: 1px solid var(--nsidc-border);
@@ -2488,6 +2585,11 @@
 
         .feature-card {
             padding: 1.5rem !important;
+            flex-direction: column;
+        }
+
+        .feature-card-icon {
+            margin-top: 0;
         }
 
         .home-search-wrapper {
