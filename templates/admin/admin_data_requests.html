@@ -111,6 +111,19 @@
                     0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(6,182,212,0.4); }
                     50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(6,182,212,0); }
                 }
+                
+                .datareq-export-btn {
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    color: #f8fafc;
+                    transition: all 0.2s ease;
+                }
+                .datareq-export-btn:hover {
+                    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    border-color: #3b82f6;
+                    color: #ffffff;
+                    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+                }
 
                 /* Modern Table */
                 .datareq-table-card {
@@ -396,11 +409,14 @@
                     <p class="datareq-hero-sub">Track and monitor all dataset download requests from researchers</p>
                 </div>
 
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-center align-items-center gap-3">
                     <div class="datareq-count-pill">
                         <span class="datareq-count-dot"></span>
                         {{ requests.paginator.count }} total requests
                     </div>
+                    <a href="{% url 'data_submission:admin_data_requests_export' %}" class="btn btn-sm rounded-pill px-3 datareq-export-btn" style="font-size: 0.8rem;">
+                        <i class="fas fa-file-csv me-1"></i> Export to CSV
+                    </a>
                 </div>
             </div>
 

@@ -2230,6 +2230,55 @@ def admin_data_requests_view(request):
         }
     )
 
+import csv
+from django.http import HttpResponse
+
+@user_passes_test(is_admin)
+def admin_data_requests_export_csv(request):
+    """Admin view to export all filtered data requests as CSV."""
+    requests_list = DatasetRequest.objects.all().select_related(
+        'dataset', 'requester', 'reviewed_by'
+    ).order_by('-request_date')
+    
+    if not request.user.is_superuser:
+        try:
+            profile = request.user.profile
+            if profile.expedition_admin_type:
+                requests_list = requests_list.filter(
+                    dataset__expedition_type=profile.expedition_admin_type
+                )
+        except:
+            requests_list = requests_list.none()
+            
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="data_requests_export.csv"'
+    
+    writer = csv.writer(response)
+    
+    # Write header
+    writer.writerow([
+        'ID', 'Dataset', 'First Name', 'Last Name', 'Email', 'Institute', 
+        'Country', 'Research Area', 'Purpose', 'Request Date', 'Location', 'IP'
+    ])
+    
+    for req in requests_list:
+        writer.writerow([
+            req.id,
+            req.dataset.metadata_id if req.dataset else '',
+            req.first_name,
+            req.last_name,
+            req.email,
+            req.institute,
+            req.country,
+            req.research_area,
+            req.purpose,
+            req.request_date.strftime("%Y-%m-%d %H:%M") if req.request_date else '',
+            req.request_location,
+            req.request_ip
+        ])
+        
+    return response
+
 # removed email-related imports; approval flow no longer sends mail
 
 # decorator left behind when functions were commented out
