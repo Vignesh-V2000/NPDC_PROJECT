@@ -178,8 +178,8 @@
                         <!-- Right Side: Registration / Info -->
                         <div class="col-lg-5 auth-info-section text-white position-relative">
                             <div class="auth-info-content h-100 p-4 p-md-5 d-flex flex-column justify-content-center align-items-center text-center">
-                                <div class="npdc-logo-ring mb-4">
-                                    <img src="{% static 'images/logos/npdc_logo.jpg' %}" alt="NPDC Logo" class="npdc-auth-logo">
+                                <div class="npdc-logo-wrapper mb-4">
+                                    <img src="{% static 'images/logos/npdc_logo.png' %}" alt="NPDC Logo" class="npdc-auth-logo">
                                 </div>
                                 <h3 class="fw-bold mb-3">New to NPDC?</h3>
                                 <p class="mb-5 px-md-3 text-white-50" style="font-size: 1.05rem; line-height: 1.6;">
@@ -430,25 +430,16 @@
         z-index: 2;
     }
 
-    .npdc-logo-ring {
-        width: 110px;
-        height: 110px;
-        background: rgba(255,255,255,0.12);
-        border: 2px solid rgba(255,255,255,0.25);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        backdrop-filter: blur(4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    .npdc-logo-wrapper {
+        margin-top: 1.5rem;
     }
 
     .npdc-auth-logo {
-        width: 90px;
-        height: 90px;
+        width: 180px;
+        height: 180px;
         object-fit: contain;
-        border-radius: 50%;
+        display: block;
+        margin: 0 auto;
     }
 
     .btn-outline-light-modern {
@@ -520,14 +511,9 @@
             font-size: 1.5rem;
         }
         
-        .npdc-logo-ring {
-            width: 90px;
-            height: 90px;
-        }
-        
         .npdc-auth-logo {
-            width: 75px;
-            height: 75px;
+            width: 110px;
+            height: 110px;
         }
         
         .login-content-inner {
